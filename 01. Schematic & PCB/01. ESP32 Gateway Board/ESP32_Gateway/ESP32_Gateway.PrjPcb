@@ -101,7 +101,7 @@ GenerateClassCluster=0
 DocumentUniqueId=QZYWZPYH
 
 [Document4]
-DocumentPath=Power.SchDoc
+DocumentPath=Power_Supply.SchDoc
 AnnotationEnabled=1
 AnnotateStartValue=1
 AnnotationIndexControlEnabled=0
@@ -251,7 +251,7 @@ ClassGenCCAutoRoomEnabled=0
 ClassGenNCAutoScope=None
 DItemRevisionGUID=
 GenerateClassCluster=0
-DocumentUniqueId=
+DocumentUniqueId=MSLTUFTM
 
 [Document13]
 DocumentPath=..\..\..\..\..\..\B. Altium\Library\New Library\NewLibrary.SchLib
@@ -268,7 +268,7 @@ ClassGenCCAutoRoomEnabled=0
 ClassGenNCAutoScope=None
 DItemRevisionGUID=
 GenerateClassCluster=0
-DocumentUniqueId=
+DocumentUniqueId=QOWEJOKY
 
 [Configuration1]
 Name=Sources
