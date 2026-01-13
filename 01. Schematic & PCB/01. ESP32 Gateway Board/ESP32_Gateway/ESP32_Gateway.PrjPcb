@@ -135,6 +135,23 @@ GenerateClassCluster=0
 DocumentUniqueId=TJGTDZOH
 
 [Document6]
+DocumentPath=RS485_Port.SchDoc
+AnnotationEnabled=1
+AnnotateStartValue=1
+AnnotationIndexControlEnabled=0
+AnnotateSuffix=
+AnnotateScope=All
+AnnotateOrder=-1
+DoLibraryUpdate=1
+DoDatabaseUpdate=1
+ClassGenCCAutoEnabled=1
+ClassGenCCAutoRoomEnabled=0
+ClassGenNCAutoScope=None
+DItemRevisionGUID=
+GenerateClassCluster=0
+DocumentUniqueId=SSJPXKUM
+
+[Document7]
 DocumentPath=User_Interface.SchDoc
 AnnotationEnabled=1
 AnnotateStartValue=1
@@ -151,7 +168,7 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=LYXVDDUM
 
-[Document7]
+[Document8]
 DocumentPath=Debug_Flash.SchDoc
 AnnotationEnabled=1
 AnnotateStartValue=1
@@ -168,7 +185,7 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=ZIRBQPDP
 
-[Document8]
+[Document9]
 DocumentPath=..\..\..\..\..\B. Altium\Library\New Library\NewLibrary.PcbLib
 AnnotationEnabled=1
 AnnotateStartValue=1
@@ -185,7 +202,7 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=
 
-[Document9]
+[Document10]
 DocumentPath=..\..\..\..\..\B. Altium\Library\New Library\NewLibrary.SchLib
 AnnotationEnabled=1
 AnnotateStartValue=1
@@ -202,7 +219,7 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=
 
-[Document10]
+[Document11]
 DocumentPath=MCU.SchDoc
 AnnotationEnabled=1
 AnnotateStartValue=1
@@ -219,7 +236,7 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=IZGFPUUA
 
-[Document11]
+[Document12]
 DocumentPath=ESP32_Gateway.BomDoc
 AnnotationEnabled=1
 AnnotateStartValue=1
@@ -236,7 +253,7 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=
 
-[Document12]
+[Document13]
 DocumentPath=..\..\..\..\..\..\B. Altium\Library\New Library\NewLibrary.PcbLib
 AnnotationEnabled=1
 AnnotateStartValue=1
@@ -253,7 +270,7 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=MSLTUFTM
 
-[Document13]
+[Document14]
 DocumentPath=..\..\..\..\..\..\B. Altium\Library\New Library\NewLibrary.SchLib
 AnnotationEnabled=1
 AnnotateStartValue=1
