@@ -169,23 +169,6 @@ GenerateClassCluster=0
 DocumentUniqueId=PHUFSZCM
 
 [Document8]
-DocumentPath=User_Interface.SchDoc
-AnnotationEnabled=1
-AnnotateStartValue=1
-AnnotationIndexControlEnabled=0
-AnnotateSuffix=
-AnnotateScope=All
-AnnotateOrder=-1
-DoLibraryUpdate=1
-DoDatabaseUpdate=1
-ClassGenCCAutoEnabled=1
-ClassGenCCAutoRoomEnabled=0
-ClassGenNCAutoScope=None
-DItemRevisionGUID=
-GenerateClassCluster=0
-DocumentUniqueId=LYXVDDUM
-
-[Document9]
 DocumentPath=Debug_Flash.SchDoc
 AnnotationEnabled=1
 AnnotateStartValue=1
@@ -201,6 +184,23 @@ ClassGenNCAutoScope=None
 DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=ZIRBQPDP
+
+[Document9]
+DocumentPath=User_Interface.SchDoc
+AnnotationEnabled=1
+AnnotateStartValue=1
+AnnotationIndexControlEnabled=0
+AnnotateSuffix=
+AnnotateScope=All
+AnnotateOrder=-1
+DoLibraryUpdate=1
+DoDatabaseUpdate=1
+ClassGenCCAutoEnabled=1
+ClassGenCCAutoRoomEnabled=0
+ClassGenNCAutoScope=None
+DItemRevisionGUID=
+GenerateClassCluster=0
+DocumentUniqueId=LYXVDDUM
 
 [Document10]
 DocumentPath=..\..\..\..\..\B. Altium\Library\New Library\NewLibrary.PcbLib

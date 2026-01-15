@@ -2,8 +2,9 @@ Record=TopLevelDocument|FileName=Block_Diagram.SchDoc|SheetNumber=2
 Record=NoMainPathDocument|SourceDocument=Block_Diagram.SchDoc|FileName=Debug_Flash.SchDoc|SheetNumber=8
 Record=NoMainPathDocument|SourceDocument=Block_Diagram.SchDoc|FileName=Ethernet.SchDoc|SheetNumber=5
 Record=NoMainPathDocument|SourceDocument=Block_Diagram.SchDoc|FileName=Index_Page.SchDoc|SheetNumber=1
-Record=NoMainPathDocument|SourceDocument=Block_Diagram.SchDoc|FileName=MCU.SchDoc|SheetNumber=9
+Record=NoMainPathDocument|SourceDocument=Block_Diagram.SchDoc|FileName=MCU.SchDoc|SheetNumber=10
 Record=NoMainPathDocument|SourceDocument=Block_Diagram.SchDoc|FileName=Power_Supply.SchDoc|SheetNumber=4
 Record=NoMainPathDocument|SourceDocument=Block_Diagram.SchDoc|FileName=Power_Tree.SchDoc|SheetNumber=3
 Record=NoMainPathDocument|SourceDocument=Block_Diagram.SchDoc|FileName=RS485_Port.SchDoc|SheetNumber=6
-Record=NoMainPathDocument|SourceDocument=Block_Diagram.SchDoc|FileName=User_Interface.SchDoc|SheetNumber=7
+Record=NoMainPathDocument|SourceDocument=Block_Diagram.SchDoc|FileName=RTC.SchDoc|SheetNumber=7
+Record=NoMainPathDocument|SourceDocument=Block_Diagram.SchDoc|FileName=User_Interface.SchDoc|SheetNumber=9
