@@ -5,5 +5,5 @@ Record=NoMainPathDocument|SourceDocument=Block_Diagram.SchDoc|FileName=MCU.SchDo
 Record=NoMainPathDocument|SourceDocument=Block_Diagram.SchDoc|FileName=Power_Supply.SchDoc|SheetNumber=4
 Record=NoMainPathDocument|SourceDocument=Block_Diagram.SchDoc|FileName=Power_Tree.SchDoc|SheetNumber=3
 Record=NoMainPathDocument|SourceDocument=Block_Diagram.SchDoc|FileName=RS485_Port.SchDoc|SheetNumber=6
-Record=NoMainPathDocument|SourceDocument=Block_Diagram.SchDoc|FileName=RTC_and_EEPROM.SchDoc|SheetNumber=7
-Record=NoMainPathDocument|SourceDocument=Block_Diagram.SchDoc|FileName=User_Interface.SchDoc|SheetNumber=8
+Record=NoMainPathDocument|SourceDocument=Block_Diagram.SchDoc|FileName=RTC_and_EEPROM.SchDoc|SheetNumber=8
+Record=NoMainPathDocument|SourceDocument=Block_Diagram.SchDoc|FileName=User_Interface.SchDoc|SheetNumber=7

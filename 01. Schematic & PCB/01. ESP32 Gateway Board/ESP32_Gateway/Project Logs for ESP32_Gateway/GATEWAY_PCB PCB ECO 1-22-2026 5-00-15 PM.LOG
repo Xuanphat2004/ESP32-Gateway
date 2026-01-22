@@ -1,0 +1,6 @@
+Change Component Footprint: Designator=LCD1 Old Footprint=LCD-2004-No-3D New Footprint=LCD - 2004
+Add Pin To Net: Unknown Pin: Pin U2-9
+Add Pin To Net: Unknown Pin: Pin USB1-A9
+Add Pin To Net: Unknown Pin: Pin USB1-A12
+Add Pin To Net: Unknown Pin: Pin USB1-B9
+Add Pin To Net: Unknown Pin: Pin USB1-B12

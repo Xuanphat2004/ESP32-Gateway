@@ -1,0 +1,13 @@
+Added Component: Designator=MH1(Mounting hole_2)
+Added Component: Designator=MH2(Mounting hole_2)
+Added Component: Designator=MH3(Mounting hole_2)
+Added Component: Designator=MH4(Mounting hole_2)
+Add Pin To Net: Unknown Pin: Pin U2-9
+Add Pin To Net: Unknown Pin: Pin USB1-A9
+Add Pin To Net: Unknown Pin: Pin USB1-A12
+Add Pin To Net: Unknown Pin: Pin USB1-B9
+Add Pin To Net: Unknown Pin: Pin USB1-B12
+Added Member To Class: ClassName=RTC_and_EEPROM Member=Component MH1 MOUNTING HOLE
+Added Member To Class: ClassName=RTC_and_EEPROM Member=Component MH2 MOUNTING HOLE
+Added Member To Class: ClassName=RTC_and_EEPROM Member=Component MH3 MOUNTING HOLE
+Added Member To Class: ClassName=RTC_and_EEPROM Member=Component MH4 MOUNTING HOLE
