@@ -1,0 +1,7 @@
+Added Component: Designator=KF3(KF-128-2P)
+Added Pin To Net: NetName=GND Pin=KF3-1
+Added Pin To Net: NetName=VIN Pin=DC1-1
+Added Pin To Net: NetName=VIN Pin=KF3-2
+Added Pin To Net: NetName=VIN Pin=SW1-2
+Added Net: Name=VIN
+Added Member To Class: ClassName=Power_Supply Member=Component KF3 KF 2 Pins

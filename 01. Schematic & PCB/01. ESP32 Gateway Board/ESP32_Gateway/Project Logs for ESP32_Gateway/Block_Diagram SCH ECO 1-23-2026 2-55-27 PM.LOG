@@ -1,0 +1,8 @@
+Remove Pin=LCD1-1 From Net=VSS
+Remove Pin=LCD1-2 From Net=VDD
+Remove Pin=LCD1-15 From Net=VDD
+Remove Pin=LCD1-16 From Net=VSS
+Change Component Footprint: Designator=L1 Old Footprint=L_SMD_0630 New Footprint=L_SMD_12x12mm
+Change Component Footprint: Designator=L2 Old Footprint=L_SMD_0630 New Footprint=L_SMD_12x12mm
+Change Component Comment: Designator=L1 Old Comment=15uH/3A New Comment=15uH/7.1A
+Change Component Comment: Designator=L2 Old Comment=22uH/3A New Comment=22uH/6.3A
