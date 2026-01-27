@@ -1,0 +1,12 @@
+Removed Pin From Net: NetName=NetLCD1_13 Pin=U15-24
+Removed Pin From Net: NetName=NetLCD1_14 Pin=U15-25
+Removed Pin From Net: NetName=NetLCD1_4 Pin=U15-32
+Removed Pin From Net: NetName=NetLCD1_6 Pin=U15-33
+Removed Pin From Net: NetName=NetLCD1_11 Pin=U15-34
+Removed Pin From Net: NetName=NetLCD1_12 Pin=U15-35
+Added Pin To Net: NetName=NetLCD1_14 Pin=U15-24
+Added Pin To Net: NetName=NetLCD1_13 Pin=U15-25
+Added Pin To Net: NetName=NetLCD1_12 Pin=U15-32
+Added Pin To Net: NetName=NetLCD1_11 Pin=U15-33
+Added Pin To Net: NetName=NetLCD1_6 Pin=U15-34
+Added Pin To Net: NetName=NetLCD1_4 Pin=U15-35
