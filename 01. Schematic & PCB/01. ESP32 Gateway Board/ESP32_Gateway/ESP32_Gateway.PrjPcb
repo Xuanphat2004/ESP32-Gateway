@@ -304,6 +304,10 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=QWGRVHIA
 
+[GeneratedDocument1]
+DocumentPath=Project Outputs for ESP32_Gateway\Design Rule Check - GATEWAY_PCB.html
+DItemRevisionGUID=
+
 [Configuration1]
 Name=Sources
 ParameterCount=0
