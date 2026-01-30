@@ -1,0 +1,4 @@
+Removed Pin From Net: NetName=EN2 Pin=TP12-1
+Removed Pin From Net: NetName=EN1 Pin=TP13-1
+Removed Member From Class: ClassName=RS485_Port Member=TP12
+Removed Member From Class: ClassName=RS485_Port Member=TP13

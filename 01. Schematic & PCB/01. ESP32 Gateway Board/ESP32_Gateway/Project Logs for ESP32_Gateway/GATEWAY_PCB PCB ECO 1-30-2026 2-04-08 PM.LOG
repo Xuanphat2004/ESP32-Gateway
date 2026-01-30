@@ -1,0 +1,14 @@
+Removed Pin From Net: NetName=3V3_SCL Pin=R59-1
+Removed Pin From Net: NetName=+3.3V Pin=R59-2
+Removed Pin From Net: NetName=3V3_SDA Pin=R60-1
+Removed Pin From Net: NetName=+3.3V Pin=R60-2
+Removed Member From Class: ClassName=RTC_and_EEPROM Member=R59
+Removed Member From Class: ClassName=RTC_and_EEPROM Member=R60
+Added Component: Designator=R30(RES - 0603)
+Added Component: Designator=R51(RES - 0603)
+Added Pin To Net: NetName=3V3_SCL Pin=R30-1
+Added Pin To Net: NetName=+3.3V Pin=R30-2
+Added Pin To Net: NetName=3V3_SDA Pin=R51-1
+Added Pin To Net: NetName=+3.3V Pin=R51-2
+Added Member To Class: ClassName=RTC_and_EEPROM Member=Component R30 4.7K/1%
+Added Member To Class: ClassName=RTC_and_EEPROM Member=Component R51 4.7K/1%

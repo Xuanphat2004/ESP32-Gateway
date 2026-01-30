@@ -1,0 +1,25 @@
+Added Pin To Net: NetName=+3.3V Pin=J1-9
+Added Pin To Net: NetName=+5V Pin=J1-10
+Added Pin To Net: NetName=IO3 Pin=J1-3
+Added Pin To Net: NetName=IO3 Pin=U15-15
+Added Net: Name=IO3
+Added Pin To Net: NetName=IO8 Pin=J1-6
+Added Pin To Net: NetName=IO8 Pin=U15-12
+Added Net: Name=IO8
+Added Pin To Net: NetName=IO9 Pin=J1-1
+Added Pin To Net: NetName=IO9 Pin=U15-17
+Added Net: Name=IO9
+Added Pin To Net: NetName=IO19 Pin=J1-5
+Added Pin To Net: NetName=IO19 Pin=U15-13
+Added Net: Name=IO19
+Added Pin To Net: NetName=IO20 Pin=J1-4
+Added Pin To Net: NetName=IO20 Pin=U15-14
+Added Net: Name=IO20
+Added Pin To Net: NetName=IO45 Pin=J1-8
+Added Pin To Net: NetName=IO45 Pin=U15-26
+Added Net: Name=IO45
+Added Pin To Net: NetName=IO46 Pin=J1-2
+Added Pin To Net: NetName=IO46 Pin=U15-16
+Added Net: Name=IO46
+Added Pin To Net: NetName=IO48 Pin=J1-7
+Added Net: Name=IO48
