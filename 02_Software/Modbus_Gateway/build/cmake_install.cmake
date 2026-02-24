@@ -1,4 +1,4 @@
-# Install script for directory: D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway
+# Install script for directory: D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -39,7 +39,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/esp-idf/cmake_install.cmake")
+  include("D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway/build/esp-idf/cmake_install.cmake")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT)
@@ -57,6 +57,6 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-  file(WRITE "D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/${CMAKE_INSTALL_MANIFEST}"
+  file(WRITE "D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()

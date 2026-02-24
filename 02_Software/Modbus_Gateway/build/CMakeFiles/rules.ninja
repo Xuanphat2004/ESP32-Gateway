@@ -1866,7 +1866,7 @@ rule C_STATIC_LIBRARY_LINKER____idf_main_
 # Rule for re-running cmake.
 
 rule RERUN_CMAKE
-  command = D:\ESP32-IDF\environment\Espressif\tools\cmake\3.30.2\bin\cmake.exe --regenerate-during-build -S"D:\08_Semester 8\01. Luan Van Tot Nghiep\03. Project\02. Software\Modbus_Gateway" -B"D:\08_Semester 8\01. Luan Van Tot Nghiep\03. Project\02. Software\Modbus_Gateway\build"
+  command = D:\ESP32-IDF\environment\Espressif\tools\cmake\3.30.2\bin\cmake.exe --regenerate-during-build -S"D:\08_Semester 8\01. Luan Van Tot Nghiep\03. Project\02_Software\Modbus_Gateway" -B"D:\08_Semester 8\01. Luan Van Tot Nghiep\03. Project\02_Software\Modbus_Gateway\build"
   description = Re-running CMake...
   generator = 1
 

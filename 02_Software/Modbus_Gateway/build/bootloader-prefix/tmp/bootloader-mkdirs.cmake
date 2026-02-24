@@ -10,18 +10,18 @@ if(NOT EXISTS "D:/ESP32-IDF/environment/Espressif/frameworks/esp-idf-v5.4.3/comp
   file(MAKE_DIRECTORY "D:/ESP32-IDF/environment/Espressif/frameworks/esp-idf-v5.4.3/components/bootloader/subproject")
 endif()
 file(MAKE_DIRECTORY
-  "D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader"
-  "D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix"
-  "D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/tmp"
-  "D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp"
-  "D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src"
-  "D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp"
+  "D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway/build/bootloader"
+  "D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway/build/bootloader-prefix"
+  "D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway/build/bootloader-prefix/tmp"
+  "D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp"
+  "D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway/build/bootloader-prefix/src"
+  "D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp"
 )
 
 set(configSubDirs )
 foreach(subDir IN LISTS configSubDirs)
-    file(MAKE_DIRECTORY "D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/${subDir}")
+    file(MAKE_DIRECTORY "D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/${subDir}")
 endforeach()
 if(cfgdir)
-  file(MAKE_DIRECTORY "D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp${cfgdir}") # cfgdir has leading slash
+  file(MAKE_DIRECTORY "D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp${cfgdir}") # cfgdir has leading slash
 endif()

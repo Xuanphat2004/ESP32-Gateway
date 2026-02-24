@@ -39,10 +39,10 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/esp-idf/mbedtls/mbedtls/include/cmake_install.cmake")
-  include("D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/esp-idf/mbedtls/mbedtls/3rdparty/cmake_install.cmake")
-  include("D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/esp-idf/mbedtls/mbedtls/library/cmake_install.cmake")
-  include("D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/esp-idf/mbedtls/mbedtls/pkgconfig/cmake_install.cmake")
+  include("D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway/build/esp-idf/mbedtls/mbedtls/include/cmake_install.cmake")
+  include("D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway/build/esp-idf/mbedtls/mbedtls/3rdparty/cmake_install.cmake")
+  include("D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway/build/esp-idf/mbedtls/mbedtls/library/cmake_install.cmake")
+  include("D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway/build/esp-idf/mbedtls/mbedtls/pkgconfig/cmake_install.cmake")
 
 endif()
 

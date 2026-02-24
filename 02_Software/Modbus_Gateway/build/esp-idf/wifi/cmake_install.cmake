@@ -1,4 +1,4 @@
-# Install script for directory: D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/components/wifi
+# Install script for directory: D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway/components/wifi
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
