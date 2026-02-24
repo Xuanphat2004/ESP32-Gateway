@@ -1,0 +1,1397 @@
+# ninja log v6
+6892	6961	7935610771538251	esp-idf/spi_flash/CMakeFiles/__idf_spi_flash.dir/spi_flash_chip_th.c.obj	7116448d05986bc1
+157	209	7935596321079703	project_elf_src_esp32s3.c	7c2c2e6877a1dc11
+4800	4858	7935610750628001	esp-idf/newlib/CMakeFiles/__idf_newlib.dir/reent_init.c.obj	ed417b12681c74f9
+5161	5250	7935610754231091	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/rtc_module.c.obj	8c7b4b53bbae55c0
+157	209	7935596321079703	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/project_elf_src_esp32s3.c	7c2c2e6877a1dc11
+3609	3698	7935610738713715	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/apps/dhcpserver/dhcpserver.c.obj	b7f9cab5caae2825
+145	794	7935596321582217	partition_table/partition-table.bin	3402812c908363ff
+1473	1558	7935610717353880	esp-idf/esp_gdbstub/CMakeFiles/__idf_esp_gdbstub.dir/src/port/xtensa/xt_debugexception.S.obj	e46729895b027e69
+5452	5524	7935610757136623	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/chip_info.c.obj	19e437a35175ec23
+1957	2067	7935610722189889	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/eap_common/eap_wsc_common.c.obj	3816816d8e7a5465
+5071	5138	7935610753332352	esp-idf/freertos/CMakeFiles/__idf_freertos.dir/esp_additions/idf_additions.c.obj	8720930d61299b23
+2645	2742	7935610729063443	esp-idf/esp_netif/CMakeFiles/__idf_esp_netif.dir/esp_netif_objects.c.obj	774f7afef6e428be
+5664	5742	7935610759262191	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32s3/i2c_periph.c.obj	2cd655dbf1c0a1d5
+134	251	7935596321486842	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/esp-idf/esp_system/ld/sections.ld.in	3cdf066a84ebaaf9
+123	240	7935596321394970	esp-idf/esp_system/ld/memory.ld	c375f829c3150237
+2783	2865	7935610730452230	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/api/netbuf.c.obj	61b27555586542d0
+145	794	7935596321582217	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/partition_table/partition-table.bin	3402812c908363ff
+7597	7760	7935610778587872	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedx509.dir/x509.c.obj	11d6f15392a124c
+3328	3401	7935610735909343	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/ppp/ipcp.c.obj	3875abe4cf447286
+2829	3474	7935610730909903	esp-idf/esp_adc/libesp_adc.a	52faee381d843b8a
+633	746	7935617615758801	esp-idf/main/libmain.a	cd282a84f328c70e
+1546	1614	7935610718077625	esp-idf/esp_wifi/CMakeFiles/__idf_esp_wifi.dir/src/wifi_default_ap.c.obj	b93f050f2e013ea6
+5383	5460	7935610756451518	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/mspi_timing_by_mspi_delay.c.obj	60cf1be8fa925f23
+1295	1372	7935610715571275	esp-idf/esp_adc/CMakeFiles/__idf_esp_adc.dir/adc_oneshot.c.obj	42d58d206e264faa
+2270	2371	7935610725311988	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/utils/wpa_debug.c.obj	ec503c57fac52195
+1936	2044	7935610721985267	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/crypto/md4-internal.c.obj	4b67894c0d454b87
+1526	1579	7935610717881631	esp-idf/esp_wifi/CMakeFiles/__idf_esp_wifi.dir/src/wifi_default.c.obj	da953f054ae9cfcf
+1603	1720	7935610718654503	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/port/os_xtensa.c.obj	aa7b8ae8ade372c1
+3127	3218	7935610733895939	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/ipv6/ip6.c.obj	184eb12db399fdee
+134	251	7935596321486842	esp-idf/esp_system/ld/sections.ld.in	3cdf066a84ebaaf9
+123	240	7935596321394970	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/esp-idf/esp_system/ld/memory.ld	c375f829c3150237
+2902	2985	7935610731636739	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/memp.c.obj	9341cefdf311c789
+7760	7842	7935610780226067	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/aria.c.obj	2a3f3c887adaab9f
+150	1236	7935610704116001	esp-idf/esp_http_server/CMakeFiles/__idf_esp_http_server.dir/src/util/ctrl_sock.c.obj	cf2334f6891e73b7
+2636	2719	7935610728987717	esp-idf/esp_netif/CMakeFiles/__idf_esp_netif.dir/esp_netif_handlers.c.obj	14c87846113dfe42
+119	1304	7935610703812893	esp-idf/esp_http_server/CMakeFiles/__idf_esp_http_server.dir/src/httpd_sess.c.obj	c572c7b0bb078f00
+5218	5301	7935610754800256	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/sleep_event.c.obj	56ed7c6f20eb411a
+142	1253	7935610704030942	esp-idf/esp_http_server/CMakeFiles/__idf_esp_http_server.dir/src/httpd_ws.c.obj	75221b4dabbdbdca
+6131	6201	7935610763930897	esp-idf/hal/CMakeFiles/__idf_hal.dir/gdma_hal_ahb_v1.c.obj	2fa95532d8914ab9
+4266	4350	7935610745282747	esp-idf/esp_driver_spi/CMakeFiles/__idf_esp_driver_spi.dir/src/gpspi/spi_slave.c.obj	802a1b9a19755087
+8530	8616	7935610787926089	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/sha256.c.obj	135f8e0c0399d5ce
+3487	3587	7935610737491172	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/port/hooks/lwip_default_hooks.c.obj	a2ee1edca6b2564c
+11217	11327	7935610814791464	esp-idf/esp_ringbuf/libesp_ringbuf.a	6ce8ff2fe97d7bc1
+16107	16186	7935610863689592	esp-idf/espcoredump/CMakeFiles/__idf_espcoredump.dir/src/core_dump_common.c.obj	c685193845f61223
+1281	1345	7935610715433621	esp-idf/tcp_transport/CMakeFiles/__idf_tcp_transport.dir/transport_socks_proxy.c.obj	d6aeefed5bef7c76
+95	1259	7935610703573159	esp-idf/esp_https_ota/CMakeFiles/__idf_esp_https_ota.dir/src/esp_https_ota.c.obj	e36f0bfc4e1d663c
+5101	5169	7935610753632214	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/cpu_region_protect.c.obj	b976c05c97195ad8
+1480	1588	7935610717424194	esp-idf/esp_wifi/CMakeFiles/__idf_esp_wifi.dir/src/lib_printf.c.obj	d4bd8b1448f551c8
+3587	3668	7935610738489482	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/ppp/polarssl/md4.c.obj	b22a1065303155ec
+134	1281	7935610703958617	esp-idf/esp_http_server/CMakeFiles/__idf_esp_http_server.dir/src/httpd_uri.c.obj	f50b9758e69b62dc
+4843	4956	7935610751046062	esp-idf/newlib/CMakeFiles/__idf_newlib.dir/sysconf.c.obj	fb055e320b4ccbf8
+1514	1658	7935610717756282	esp-idf/esp_wifi/CMakeFiles/__idf_esp_wifi.dir/src/wifi_init.c.obj	9a9ae57b5dd72f0e
+1579	1670	7935610718420900	esp-idf/esp_coex/CMakeFiles/__idf_esp_coex.dir/esp32s3/esp_coex_adapter.c.obj	2dbe96b85b451da2
+111	1287	7935610703731708	esp-idf/esp_http_server/CMakeFiles/__idf_esp_http_server.dir/src/httpd_parse.c.obj	9747c3dc0d114100
+5261	5353	7935610755230649	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/esp_clk_tree.c.obj	8eb7728dee9ee38c
+1388	1480	7935610716494741	esp-idf/esp-tls/CMakeFiles/__idf_esp-tls.dir/esp_tls.c.obj	2687bf3107a223a0
+47488	47573	7935596794720479	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch	ca0ccbbcb252e7b1
+105	1272	7935610703671386	esp-idf/esp_http_server/CMakeFiles/__idf_esp_http_server.dir/src/httpd_main.c.obj	a2522a43f26a0298
+9993	10100	7935610802553893	esp-idf/esp_driver_sdspi/libesp_driver_sdspi.a	62876ad7feddcf25
+4135	4251	7935610743969562	esp-idf/esp_driver_i2s/CMakeFiles/__idf_esp_driver_i2s.dir/i2s_tdm.c.obj	2417f4e1f854f1ab
+12068	12265	7935610823302718	esp-idf/esp_hw_support/libesp_hw_support.a	1e44250a8d96b2a0
+5479	5559	7935610757408283	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/mspi_timing_config.c.obj	ee78becf45976452
+9054	9189	7935610793169048	esp-idf/esp_phy/libesp_phy.a	a70e4369733d05ab
+1287	1364	7935610715498910	esp-idf/tcp_transport/CMakeFiles/__idf_tcp_transport.dir/transport_ws.c.obj	6d5ff984f216b342
+3474	3895	7935610737371065	esp-idf/esp-tls/libesp-tls.a	138ecd6109fc3587
+126	1241	7935610703883005	esp-idf/esp_http_server/CMakeFiles/__idf_esp_http_server.dir/src/httpd_txrx.c.obj	220032a6a7bfb067
+1885	1987	7935610721470187	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/crypto/sha384-tlsprf.c.obj	416316c0b07481ae
+5169	5225	7935610754313562	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/sleep_modem.c.obj	433080765b6a338b
+1353	1428	7935610716150718	esp-idf/esp_adc/CMakeFiles/__idf_esp_adc.dir/gdma/adc_dma.c.obj	aff99bf9a0daf48e
+10837	10985	7935610810999055	esp-idf/nvs_flash/libnvs_flash.a	e570a4e51f3ee508
+1241	1320	7935610715031816	esp-idf/esp_http_client/CMakeFiles/__idf_esp_http_client.dir/lib/http_utils.c.obj	ec26fbb0dfab18a2
+1596	1708	7935610718580149	esp-idf/esp_coex/CMakeFiles/__idf_esp_coex.dir/src/coexist_debug.c.obj	19553061e4cf4af5
+4948	5028	7935610752107659	esp-idf/freertos/CMakeFiles/__idf_freertos.dir/FreeRTOS-Kernel/list.c.obj	6ffc9b9464c4e90e
+8030	8129	7935610782918961	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/ecp_curves.c.obj	2a9b170120f5f3ae
+1236	1312	7935610714981749	esp-idf/esp_http_client/CMakeFiles/__idf_esp_http_client.dir/lib/http_header.c.obj	92300312c37ecb5c
+1259	1680	7935610715213689	esp-idf/esp_https_ota/libesp_https_ota.a	e75b6abaf9a1c52d
+167	1294	7935610704300209	esp-idf/esp_http_client/CMakeFiles/__idf_esp_http_client.dir/lib/http_auth.c.obj	382be3bda942683f
+12523	12637	7935610827855421	esp-idf/heap/libheap.a	355d37bfcd247c3d
+10589	10739	7935610808508484	esp-idf/esp_driver_spi/libesp_driver_spi.a	ad0878b108115ebe
+1466	1569	7935610717281675	esp-idf/esp_gdbstub/CMakeFiles/__idf_esp_gdbstub.dir/src/port/xtensa/gdbstub-entry.S.obj	aec29caff8f07c69
+5048	5117	7935610753098102	esp-idf/freertos/CMakeFiles/__idf_freertos.dir/FreeRTOS-Kernel/portable/xtensa/xtensa_overlay_os_hook.c.obj	5a1f7d9d5ce04d28
+159	1247	7935610704213661	esp-idf/esp_http_client/CMakeFiles/__idf_esp_http_client.dir/esp_http_client.c.obj	c636064c0aad71ad
+1272	1353	7935610715340548	esp-idf/tcp_transport/CMakeFiles/__idf_tcp_transport.dir/transport_internal.c.obj	6fd5429ac2e23798
+1410	1466	7935610716727206	esp-idf/esp-tls/CMakeFiles/__idf_esp-tls.dir/esp_tls_platform_port.c.obj	a49745e104dc27b4
+15351	15411	7935610856131127	esp-idf/console/CMakeFiles/__idf_console.dir/argtable3/arg_dstr.c.obj	af71e852f4fc3892
+13674	13822	7935610839356527	esp-idf/bootloader_support/libbootloader_support.a	7257cc0f184a20d
+1247	1329	7935610715092550	esp-idf/tcp_transport/CMakeFiles/__idf_tcp_transport.dir/transport.c.obj	4c22bc85c15d38a2
+4769	4821	7935610750310726	esp-idf/newlib/CMakeFiles/__idf_newlib.dir/poll.c.obj	e4417850eb91f313
+1588	1696	7935610718498853	esp-idf/esp_coex/CMakeFiles/__idf_esp_coex.dir/src/coexist_debug_diagram.c.obj	349d6073ba5abb24
+3775	3877	7935610740370504	esp-idf/driver/CMakeFiles/__idf_driver.dir/deprecated/i2s_legacy.c.obj	838d98e0d381e11a
+15182	15242	7935610854438748	esp-idf/mbedtls/CMakeFiles/__idf_mbedtls.dir/__/__/x509_crt_bundle.S.obj	20946f922bfbd337
+6511	6572	7935610767728946	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/esp_system.c.obj	2293bfa2be848744
+1680	2028	7935610719429185	esp-idf/esp_http_server/libesp_http_server.a	b3fce7322fea8734
+4836	4941	7935610750985982	esp-idf/newlib/CMakeFiles/__idf_newlib.dir/time.c.obj	20262cf4166b73c1
+1312	1403	7935610715742496	esp-idf/esp_adc/CMakeFiles/__idf_esp_adc.dir/adc_cali.c.obj	7f6b55370db85668
+6587	6685	7935610768491847	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/task_wdt/task_wdt_impl_timergroup.c.obj	e6935f318132e61d
+2652	2734	7935610729143857	esp-idf/esp_netif/CMakeFiles/__idf_esp_netif.dir/esp_netif_defaults.c.obj	86101d4d6e636e38
+16362	16427	7935610866239234	esp-idf/perfmon/CMakeFiles/__idf_perfmon.dir/xtensa_perfmon_apis.c.obj	32344b0b61a73ffd
+1253	1336	7935610715142886	esp-idf/tcp_transport/CMakeFiles/__idf_tcp_transport.dir/transport_ssl.c.obj	8b44ce1198f56470
+3720	3792	7935610739820782	esp-idf/esp_phy/CMakeFiles/__idf_esp_phy.dir/esp32s3/phy_init_data.c.obj	ee583af0c30d332e
+15440	15509	7935610857019759	esp-idf/unity/CMakeFiles/__idf_unity.dir/unity/src/unity.c.obj	855d1e3bbb1d07fb
+1304	1388	7935610715659082	esp-idf/esp_adc/CMakeFiles/__idf_esp_adc.dir/adc_common.c.obj	f38ee169273631b5
+1365	1451	7935610716270545	esp-idf/esp_adc/CMakeFiles/__idf_esp_adc.dir/adc_filter.c.obj	8cbcf1fb5d622510
+6716	6775	7935610769781803	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/port/arch/xtensa/expression_with_stack_asm.S.obj	7ef291ba87c335ce
+1380	1443	7935610716419141	esp-idf/esp_adc/CMakeFiles/__idf_esp_adc.dir/deprecated/esp32s3/esp_adc_cal_legacy.c.obj	108899d1f1da1d58
+7043	7133	7935610773050837	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_common_loader.c.obj	9f24deb582006543
+6944	7025	7935610772054436	esp-idf/spi_flash/CMakeFiles/__idf_spi_flash.dir/spi_flash_wrap.c.obj	32b702f40dfbdda0
+1329	1395	7935610715910199	esp-idf/esp_adc/CMakeFiles/__idf_esp_adc.dir/deprecated/esp_adc_cal_common_legacy.c.obj	e6a551e31b5123f
+3353	3436	7935610736148369	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/ppp/magic.c.obj	f4a957daeb81211a
+1321	1380	7935610715829939	esp-idf/esp_adc/CMakeFiles/__idf_esp_adc.dir/adc_cali_curve_fitting.c.obj	9831ae97e44407ba
+3000	3078	7935610732621438	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/ipv4/autoip.c.obj	48002a6780e4c4e
+5056	5124	7935610753178398	esp-idf/freertos/CMakeFiles/__idf_freertos.dir/esp_additions/freertos_compatibility.c.obj	b080f418a6396672
+5146	5234	7935610754079720	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/periph_ctrl.c.obj	60161b80ceb847d
+47091	47274	7935596791615597	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir	aeb0c4391e8d08a7
+5276	5345	7935610755379771	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/dma/esp_dma_utils.c.obj	b7cc3e91718333
+2028	2449	7935610722908652	esp-idf/esp_http_client/libesp_http_client.a	598cb98a3d6eaf76
+2510	2614	7935610727714519	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/esp_supplicant/src/crypto/crypto_mbedtls.c.obj	60e8005112ea2afc
+2108	2232	7935610723700381	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/eap_peer/eap_fast_common.c.obj	b063251311a9c2ca
+5510	5583	7935610757720339	esp-idf/esp_security/CMakeFiles/__idf_esp_security.dir/src/init.c.obj	82cf8dacd4f3ae42
+1372	1435	7935610716340694	esp-idf/esp_adc/CMakeFiles/__idf_esp_adc.dir/esp32s3/curve_fitting_coefficients.c.obj	8591badb8e886752
+5502	5568	7935610757644845	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/lowpower/port/esp32s3/sleep_cpu.c.obj	d7eb9d51baefb7
+15989	16146	7935610862515253	esp-idf/esp_local_ctrl/CMakeFiles/__idf_esp_local_ctrl.dir/src/esp_local_ctrl.c.obj	b739887b569597de
+6885	6969	7935610771472844	esp-idf/spi_flash/CMakeFiles/__idf_spi_flash.dir/spi_flash_chip_mxic_opi.c.obj	ccd3000979c8d842
+2232	2348	7935610724940490	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/utils/uuid.c.obj	45d1f3d35aec3d28
+1345	1420	7935610716075571	esp-idf/esp_adc/CMakeFiles/__idf_esp_adc.dir/adc_monitor.c.obj	4a12ab9cd0f8ee23
+5649	5696	7935610759109708	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32s3/sdm_periph.c.obj	855d79ab52557051
+6552	6633	7935610768137613	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/ubsan.c.obj	d2747bc382834474
+1396	1459	7935610716578183	esp-idf/esp-tls/CMakeFiles/__idf_esp-tls.dir/esp-tls-crypto/esp_tls_crypto.c.obj	3454a4c5f02ddeff
+6459	6522	7935610767206351	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/esp_err.c.obj	e0e34b706113915f
+1337	1410	7935610715990429	esp-idf/esp_adc/CMakeFiles/__idf_esp_adc.dir/adc_continuous.c.obj	7fe443ee931c78a6
+15793	15854	7935610860557212	esp-idf/app_trace/CMakeFiles/__idf_app_trace.dir/port/port_uart.c.obj	d6b9f3cd458f2520
+2928	3008	7935610731896572	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/raw.c.obj	c8213edea3aa65c
+7011	7110	7935610772727567	esp-idf/esp_mm/CMakeFiles/__idf_esp_mm.dir/esp_cache_msync.c.obj	f70c3cc96220bd31
+2449	2829	7935610727107877	esp-idf/tcp_transport/libtcp_transport.a	67dc65e21bf4e69c
+1403	1473	7935610716648341	esp-idf/esp-tls/CMakeFiles/__idf_esp-tls.dir/esp_tls_error_capture.c.obj	6cb64465b225319d
+5853	5916	7935610761157893	esp-idf/log/CMakeFiles/__idf_log.dir/src/util.c.obj	292795c54ec032ab
+1451	1526	7935610717131117	esp-idf/esp_gdbstub/CMakeFiles/__idf_esp_gdbstub.dir/src/packet.c.obj	cfd4979334d67ea2
+4107	4198	7935610743687272	esp-idf/esp_driver_i2s/CMakeFiles/__idf_esp_driver_i2s.dir/i2s_common.c.obj	faf23054b7205976
+47274	47389	7935596792856790	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-download	89032b51ab6bec6c
+1503	1625	7935610717654651	esp-idf/esp_wifi/CMakeFiles/__idf_esp_wifi.dir/src/smartconfig.c.obj	dd97d2c8dbe6c1ad
+3211	3306	7935610734731650	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/bridgeif_fdb.c.obj	2e33033ad95d2fd1
+16224	16308	7935610864855479	esp-idf/fatfs/CMakeFiles/__idf_fatfs.dir/diskio/diskio_wl.c.obj	9a043e0fa4961a52
+1443	1503	7935610717049515	esp-idf/esp_gdbstub/CMakeFiles/__idf_esp_gdbstub.dir/src/gdbstub_transport.c.obj	67fa425251d8cab3
+15307	15358	7935610855690836	esp-idf/console/CMakeFiles/__idf_console.dir/split_argv.c.obj	9ca9de9c11fc27e2
+8403	8494	7935610786646818	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/psa_crypto_mac.c.obj	88cc4f6c888fe3f
+8394	8487	7935610786561513	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/psa_crypto_hash.c.obj	9651dec85b00ecc6
+2750	2814	7935610730117517	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/api/err.c.obj	2abe40d1b19b67c9
+1435	1546	7935610716971752	esp-idf/esp_gdbstub/CMakeFiles/__idf_esp_gdbstub.dir/src/gdbstub.c.obj	3b7f05104be9b261
+1459	1535	7935610717206544	esp-idf/esp_gdbstub/CMakeFiles/__idf_esp_gdbstub.dir/src/port/xtensa/gdbstub_xtensa.c.obj	b21f087160cf2c03
+1420	1514	7935610716826366	esp-idf/esp-tls/CMakeFiles/__idf_esp-tls.dir/esp_tls_mbedtls.c.obj	677f111e00530b9d
+1730	1829	7935610719917795	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/common/sae.c.obj	b18b8e6a20bb176
+6953	7035	7935610772145585	esp-idf/spi_flash/CMakeFiles/__idf_spi_flash.dir/esp_flash_api.c.obj	77803f3e4bb9cf30
+3447	3534	7935610737091277	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/ppp/utils.c.obj	871e417e7f9fe2ae
+1493	1603	7935610717551829	esp-idf/esp_wifi/CMakeFiles/__idf_esp_wifi.dir/src/mesh_event.c.obj	13fe2d1397d28384
+7118	7184	7935610773797498	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/bootloader_flash/src/flash_qio_mode.c.obj	fca63964641dd5b7
+5551	5649	7935610758119361	esp-idf/soc/CMakeFiles/__idf_soc.dir/dport_access_common.c.obj	edb7ebfa008f4148
+15621	15713	7935610858836314	esp-idf/protocomm/CMakeFiles/__idf_protocomm.dir/src/security/security1.c.obj	6854d5848012abab
+15358	15427	7935610856207989	esp-idf/console/CMakeFiles/__idf_console.dir/argtable3/arg_end.c.obj	3194b2e37e6c768b
+1428	1493	7935610716896715	esp-idf/http_parser/CMakeFiles/__idf_http_parser.dir/http_parser.c.obj	8d72757722bf7637
+2554	2644	7935610728159627	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/esp_supplicant/src/crypto/fastpsk.c.obj	8ddce9dc42fc2be8
+1535	1596	7935610717972459	esp-idf/esp_wifi/CMakeFiles/__idf_esp_wifi.dir/src/wifi_netif.c.obj	69c658df9c2c475c
+3418	3495	7935610736801092	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/ppp/pppol2tp.c.obj	261c02d6bcf4ba28
+6789	6866	7935610770514037	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/port/soc/esp32s3/apb_backup_dma.c.obj	56297d2e4b2066c3
+1558	1636	7935610718200633	esp-idf/esp_wifi/CMakeFiles/__idf_esp_wifi.dir/esp32s3/esp_adapter.c.obj	cad92eda7078da7a
+5292	5369	7935610755542172	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/spi_share_hw_ctrl.c.obj	f188b07e7c8ac533
+1569	1647	7935610718307192	esp-idf/esp_wifi/CMakeFiles/__idf_esp_wifi.dir/src/smartconfig_ack.c.obj	4b4d21b509d2c495
+2008	2119	7935610722696988	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/eap_peer/eap_mschapv2.c.obj	f5223e813cd57ee9
+16474	16555	7935610867360919	esp-idf/touch_element/CMakeFiles/__idf_touch_element.dir/touch_element.c.obj	d28c256b4b4c2fc3
+3895	4561	7935610741569437	esp-idf/http_parser/libhttp_parser.a	d1fd6d332b213688
+16316	16383	7935610865779126	esp-idf/mqtt/CMakeFiles/__idf_mqtt.dir/esp-mqtt/lib/mqtt_msg.c.obj	727c2fcff698b9bc
+2919	3000	7935610731810217	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/pbuf.c.obj	708497a0e0b6860e
+3919	4001	7935610741812086	esp-idf/esp_driver_ledc/CMakeFiles/__idf_esp_driver_ledc.dir/src/ledc.c.obj	74463175c6f42a5
+1625	1741	7935610718874246	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/ap/ap_config.c.obj	ec38353f8f40260a
+5832	5909	7935610760939527	esp-idf/log/CMakeFiles/__idf_log.dir/src/os/log_lock.c.obj	fbdd1b8f2411e9fe
+1614	1730	7935610718758938	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/port/eloop.c.obj	c787b877bcfe0da2
+358	681	7935611518153269	esp-idf/esp_eth/libesp_eth.a	3107794f397ea8da
+1636	1752	7935610718984247	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/ap/ieee802_1x.c.obj	1a107f166d7258ae
+1670	1787	7935610719315520	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/ap/pmksa_cache_auth.c.obj	3e88a38080df75b2
+1658	1775	7935610719196217	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/ap/wpa_auth_ie.c.obj	4b7b6907d3791d5
+4561	5036	7935610748230816	esp-idf/esp_gdbstub/libesp_gdbstub.a	8888975dd8c9eae1
+3436	3527	7935610736983506	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/ppp/upap.c.obj	792de43bae3c3344
+1696	1798	7935610719586997	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/ap/sta_info.c.obj	53c2fc2ad9fb1942
+7125	7223	7935610773871701	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/bootloader_flash/src/bootloader_flash_config_esp32s3.c.obj	bb839b94b50e7afc
+1720	1819	7935610719817998	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/ap/comeback_token.c.obj	4ab1cdb3c53062f7
+1708	1808	7935610719697167	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/ap/ieee802_11.c.obj	610fe46e9271fdfa
+4992	5071	7935610752546941	esp-idf/freertos/CMakeFiles/__idf_freertos.dir/FreeRTOS-Kernel/timers.c.obj	ad9587b1835cf645
+1647	1764	7935610719094950	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/ap/wpa_auth.c.obj	f2cc5b081d44aee4
+2580	2691	7935610728428925	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/crypto/des-internal.c.obj	e375fc7a5197d8f
+2943	3035	7935610732046581	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/sys.c.obj	1333e8bef13e4dea
+260	586	7935611517177831	esp-idf/app_trace/libapp_trace.a	267466dc489d4d82
+1741	1841	7935610720026256	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/common/dragonfly.c.obj	ff63633ed2aef6e0
+4289	4358	7935610745507549	esp-idf/esp_driver_pcnt/CMakeFiles/__idf_esp_driver_pcnt.dir/src/pulse_cnt.c.obj	3351ede3cc24dee9
+5036	5591	7935610752981783	esp-idf/esp_wifi/libesp_wifi.a	fe3010a1fb376dd9
+4574	4653	7935610748358913	esp-idf/esp_timer/CMakeFiles/__idf_esp_timer.dir/src/ets_timer_legacy.c.obj	bc03af8d52e5c552
+6439	6495	7935610767017298	esp-idf/esp_rom/CMakeFiles/__idf_esp_rom.dir/patches/esp_rom_cache_writeback_esp32s3.S.obj	4f94be688e4a6b4c
+715	841	7935621567798507	esp-idf/wifi/libwifi.a	8f27e142de07905c
+1764	1863	7935610720261929	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/utils/bitfield.c.obj	fc52420fdaa46b2a
+16580	16686	7935610868420865	esp-idf/usb/CMakeFiles/__idf_usb.dir/usb_phy.c.obj	20593b2af586e383
+2314	2438	7935610725756758	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/wps/wps_attr_parse.c.obj	7378260c1035537e
+7999	8070	7935610782609228	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/ecdsa.c.obj	31bfc1a62801e54d
+1787	1885	7935610720489042	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/crypto/sha256-kdf.c.obj	1a4e7bd758d8f6e2
+4206	4296	7935610744682560	esp-idf/esp_driver_mcpwm/CMakeFiles/__idf_esp_driver_mcpwm.dir/src/mcpwm_oper.c.obj	f90653e221527777
+1775	1874	7935610720378607	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/crypto/aes-siv.c.obj	419c30999a48b71d
+7470	7538	7935610777314708	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedtls.dir/ssl_tls12_client.c.obj	5519b01b122903ee
+3668	3750	7935610739295037	esp-idf/esp_phy/CMakeFiles/__idf_esp_phy.dir/src/phy_override.c.obj	f72ac74c536fcb37
+5460	5539	7935610757219859	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/sar_periph_ctrl.c.obj	76da7255bb8daa26
+1752	1853	7935610720144409	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/common/wpa_common.c.obj	36057ea037c9a155
+7745	7821	7935610780069981	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/aesni.c.obj	14b0befe85acc3c5
+1819	1927	7935610720816540	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/crypto/crypto_ops.c.obj	7bf2f995bf9407ac
+1798	1902	7935610720602396	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/crypto/ccmp.c.obj	acd8a8a4b9242360
+3965	4039	7935610742268900	esp-idf/esp_driver_rmt/CMakeFiles/__idf_esp_driver_rmt.dir/src/rmt_common.c.obj	490e388f03b4456d
+1808	1912	7935610720699510	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/crypto/aes-gcm.c.obj	9f3e673a006de2f1
+6522	6601	7935610767840812	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/startup.c.obj	a273410e509fb3a8
+1829	1936	7935610720916876	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/crypto/dh_group5.c.obj	521b264231d5a9c7
+6010	6076	7935610762728829	esp-idf/hal/CMakeFiles/__idf_hal.dir/uart_hal_iram.c.obj	cc564037156904af
+1841	1946	7935610721027186	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/crypto/dh_groups.c.obj	940d8c0636deddda
+9777	9877	7935610800392109	esp-idf/esp_driver_tsens/libesp_driver_tsens.a	9b13cb9508d07215
+8272	8355	7935610785343111	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/pkparse.c.obj	a6a78d3a358abf44
+1863	1966	7935610721257544	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/crypto/sha1-tlsprf.c.obj	45d12d6e747b27b
+47091	47274	7935596791615597	bootloader-prefix/src/bootloader-stamp/bootloader-mkdir	aeb0c4391e8d08a7
+1875	1976	7935610721374802	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/crypto/sha256-tlsprf.c.obj	2a1e25521bb291b2
+1853	1957	7935610721152489	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/crypto/ms_funcs.c.obj	5b482cec38670bc1
+14646	14958	7935610849078902	esp-idf/mbedtls/mbedtls/library/libmbedcrypto.a	ac1d2af3136dd217
+1902	1997	7935610721640186	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/crypto/sha256-prf.c.obj	81f06b79a2978d9a
+15546	15599	7935610858085735	esp-idf/protocomm/CMakeFiles/__idf_protocomm.dir/proto-c/sec0.pb-c.c.obj	362089aceb47b881
+3104	3186	7935610733663304	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/ipv6/ethip6.c.obj	2a7eb4d9a53d7674
+1927	2018	7935610721891309	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/crypto/sha384-prf.c.obj	c9d82b11c772aae8
+5317	5391	7935610755788402	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/adc_share_hw_ctrl.c.obj	738444eeb2848d8a
+3759	3848	7935610740215070	esp-idf/driver/CMakeFiles/__idf_driver.dir/deprecated/timer_legacy.c.obj	560f7420bb18fb3d
+7889	7984	7935610781505174	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/chacha20.c.obj	e9ed66d10f6a1dc5
+1912	2008	7935610721747501	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/crypto/sha1-prf.c.obj	57ff56da36e553b1
+4808	4915	7935610750699835	esp-idf/newlib/CMakeFiles/__idf_newlib.dir/newlib_init.c.obj	935e5bf626395a42
+1946	2056	7935610722088001	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/crypto/sha1-tprf.c.obj	2d44467eda15f569
+5591	6089	7935610758534588	esp-idf/esp_coex/libesp_coex.a	68f77e777255176e
+16467	16565	7935610867290640	esp-idf/spiffs/CMakeFiles/__idf_spiffs.dir/esp_spiffs.c.obj	7a2eb46a58ed843
+7529	7604	7935610777910992	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedtls.dir/ssl_tls13_client.c.obj	f8c9b985201e3b12
+3870	3957	7935610741316588	esp-idf/esp_driver_usb_serial_jtag/CMakeFiles/__idf_esp_driver_usb_serial_jtag.dir/src/usb_serial_jtag.c.obj	b4fa555db02d93bc
+7066	7148	7935610773284837	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_random.c.obj	4acdafdc71d543d6
+15509	15643	7935610857709828	esp-idf/protocomm/CMakeFiles/__idf_protocomm.dir/src/common/protocomm.c.obj	fd46bafde7baa929
+1976	2087	7935610722381629	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/eap_peer/chap.c.obj	2686a8c05061555e
+3784	3870	7935610740460851	esp-idf/driver/CMakeFiles/__idf_driver.dir/deprecated/mcpwm_legacy.c.obj	322d7f22381c37f0
+4168	4266	7935610744306750	esp-idf/esp_driver_mcpwm/CMakeFiles/__idf_esp_driver_mcpwm.dir/src/mcpwm_cmpr.c.obj	bec7f3a1f8097475
+16405	16482	7935610866677126	esp-idf/spiffs/CMakeFiles/__idf_spiffs.dir/spiffs_api.c.obj	262b1fc6b378e29d
+1966	2076	7935610722280182	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/common/ieee802_11_common.c.obj	def410f98ae6cf7a
+6408	6502	7935610766698569	esp-idf/esp_rom/CMakeFiles/__idf_esp_rom.dir/patches/esp_rom_wdt.c.obj	360bbc6237f6fe52
+1997	2108	7935610722588401	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/eap_peer/eap_common.c.obj	2dbd1f047e842e67
+3685	3775	7935610739469641	esp-idf/esp_phy/CMakeFiles/__idf_esp_phy.dir/src/lib_printf.c.obj	d4610009e8be7053
+4062	4152	7935610743239975	esp-idf/sdmmc/CMakeFiles/__idf_sdmmc.dir/sdmmc_init.c.obj	d8003c100cdd818b
+1987	2097	7935610722491905	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/eap_peer/eap.c.obj	60af6e9bc028ffd8
+7896	7976	7935610781585393	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/chachapoly.c.obj	7bc721ee9c4db064
+2045	2142	7935610723071698	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/eap_peer/eap_peap_common.c.obj	56a23bacbbd24178
+2056	2154	7935610723181210	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/eap_peer/eap_tls.c.obj	848fa019c7395e4e
+6383	6480	7935610766456579	esp-idf/esp_rom/CMakeFiles/__idf_esp_rom.dir/patches/esp_rom_gpio.c.obj	5dd5d585dd714c47
+2019	2131	7935610722803437	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/eap_peer/eap_peap.c.obj	82e0c53645e38c32
+4274	4367	7935610745355072	esp-idf/esp_driver_spi/CMakeFiles/__idf_esp_driver_spi.dir/src/gpspi/spi_dma.c.obj	ed2f11d5dd75d657
+2067	2165	7935610723293485	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/eap_peer/eap_tls_common.c.obj	44520d20dc911343
+4956	5056	7935610752182020	esp-idf/freertos/CMakeFiles/__idf_freertos.dir/FreeRTOS-Kernel/queue.c.obj	b0ef28bab4664da8
+5268	5334	7935610755299582	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp_clk_tree_common.c.obj	530ad82ddbd42a6b
+5445	5531	7935610757071311	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/rtc_time.c.obj	e4296e471301cf9d
+2087	2211	7935610723487340	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/eap_peer/mschapv2.c.obj	1a8678973e5a7f34
+2076	2221	7935610723377835	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/eap_peer/eap_ttls.c.obj	7ed99666d064be6b
+2132	2303	7935610723939424	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/rsn_supp/pmksa_cache.c.obj	b96c41b939fa0624
+6354	6425	7935610766158198	esp-idf/esp_rom/CMakeFiles/__idf_esp_rom.dir/patches/esp_rom_crc.c.obj	b02ab168438322db
+2154	2269	7935610724157349	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/rsn_supp/wpa_ie.c.obj	ca815914cbf9ede8
+2119	2281	7935610723816254	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/eap_peer/eap_fast_pac.c.obj	2428aab9ffec4f03
+15270	15336	7935610855326870	esp-idf/xtensa/CMakeFiles/__idf_xtensa.dir/xtensa_intr_asm.S.obj	d6890b348a3731ce
+2097	2258	7935610723600079	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/eap_peer/eap_fast.c.obj	badefc5af365c944
+2282	2393	7935610725440121	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/utils/json.c.obj	965934ffa1fa46c6
+9561	9665	7935610798228125	esp-idf/esp_driver_i2c/libesp_driver_i2c.a	dcc570d9e0470f1d
+2165	2314	7935610724274694	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/utils/base64.c.obj	669ed403ff150415
+3936	4016	7935610741977961	esp-idf/esp_driver_i2c/CMakeFiles/__idf_esp_driver_i2c.dir/i2c_common.c.obj	dbbad32ea0b7e40c
+15477	15580	7935610857389942	esp-idf/unity/CMakeFiles/__idf_unity.dir/unity_utils_memory.c.obj	c3b39ff9d037fd88
+4462	4539	7935610747239594	esp-idf/esp_event/CMakeFiles/__idf_esp_event.dir/default_event_loop.c.obj	124dd030f78f8a52
+6723	6789	7935610769846610	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/port/arch/xtensa/debug_helpers.c.obj	f6577733fe4cd56d
+2221	2325	7935610724830280	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/utils/ext_password.c.obj	74489d37ed0121b5
+6995	7066	7935610772577805	esp-idf/esp_mm/CMakeFiles/__idf_esp_mm.dir/esp_mmu_map.c.obj	8c5bc95000d6515e
+2211	2337	7935610724729942	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/utils/common.c.obj	7ed73413010e8c0f
+15687	15767	7935610859489952	esp-idf/wear_levelling/CMakeFiles/__idf_wear_levelling.dir/WL_Ext_Perf.cpp.obj	cb126498ce3b314c
+2143	2293	7935610724043827	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/rsn_supp/wpa.c.obj	b030f33eae972938
+6537	6608	7935610767990056	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/system_time.c.obj	3a056fffb3d13803
+3800	3911	7935610740625595	esp-idf/driver/CMakeFiles/__idf_driver.dir/deprecated/rmt_legacy.c.obj	163ecd7c5854d358
+2258	2360	7935610725207909	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/utils/wpabuf.c.obj	f108063248f26753
+8631	8704	7935610788932595	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/D_/ESP32-IDF/environment/Espressif/frameworks/esp-idf-v5.4.3/components/mbedtls/port/esp_hardware.c.obj	54f6aa6492343c6b
+7713	7806	7935610779749674	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedx509.dir/x509write_crt.c.obj	dbb565786449d078
+2293	2403	7935610725550962	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/wps/wps.c.obj	e1d23f96331dbd56
+12638	12763	7935610828999617	esp-idf/log/liblog.a	8161e1509b4a6053
+2303	2382	7935610725658487	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/wps/wps_attr_build.c.obj	1372fc087b69ee84
+2325	2414	7935610725877157	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/wps/wps_attr_process.c.obj	2dd265b0d8d26630
+2337	2427	7935610725997224	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/wps/wps_common.c.obj	fe4731beb503776f
+15484	15621	7935610857455186	esp-idf/unity/CMakeFiles/__idf_unity.dir/unity_port_esp32.c.obj	fc3e8ce5b0a29a02
+2349	2461	7935610726109177	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/wps/wps_dev_attr.c.obj	2d56ebe26b4054f6
+7393	7522	7935610776555208	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedtls.dir/ssl_ticket.c.obj	d838f31c7d0ff086
+6503	6579	7935610767647218	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/panic.c.obj	7a3a45098157675d
+4660	4800	7935610749227141	esp-idf/pthread/CMakeFiles/__idf_pthread.dir/pthread_rwlock.c.obj	b26fa1e90fa689b3
+16398	16474	7935610866602000	esp-idf/rt/CMakeFiles/__idf_rt.dir/FreeRTOS_POSIX_utils.c.obj	d9ef7ae3b2b85778
+2462	2568	7935610727240397	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/esp_supplicant/src/esp_wpa3.c.obj	f05e48e376c17738
+5202	5268	7935610754648954	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/sleep_usb.c.obj	1e5dfe38ad74f14e
+16074	16170	7935610863357995	esp-idf/esp_local_ctrl/CMakeFiles/__idf_esp_local_ctrl.dir/proto-c/esp_local_ctrl.pb-c.c.obj	f4b0e8c1f234a192
+2393	2486	7935610726549262	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/esp_supplicant/src/esp_wpa2_api_port.c.obj	29937316795c6928
+7919	7999	7935610781816485	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/constant_time.c.obj	39cb82abec13f6e2
+2371	2476	7935610726334282	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/common/sae_pk.c.obj	faaabe59ae5b6ee4
+5524	5627	7935610757858896	esp-idf/esp_security/CMakeFiles/__idf_esp_security.dir/src/esp_ds.c.obj	2947680aeda288ae
+16163	16234	7935610864244279	esp-idf/espcoredump/CMakeFiles/__idf_espcoredump.dir/src/core_dump_sha.c.obj	56031fee72901fe3
+5902	5977	7935610761640257	esp-idf/hal/CMakeFiles/__idf_hal.dir/mpu_hal.c.obj	c22798029c9cb5de
+2361	2498	7935610726227194	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/wps/wps_enrollee.c.obj	543acc9ac76abce3
+15470	15569	7935610857320001	esp-idf/unity/CMakeFiles/__idf_unity.dir/unity_utils_cache.c.obj	ae9a4b593acdc9c0
+4367	4487	7935610746293556	esp-idf/nvs_flash/CMakeFiles/__idf_nvs_flash.dir/src/nvs_handle_locked.cpp.obj	2ec333bd86fa6241
+2415	2531	7935610726762267	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/esp_supplicant/src/esp_wpas_glue.c.obj	1d59602d5c7b429c
+16460	16547	7935610867220666	esp-idf/spiffs/CMakeFiles/__idf_spiffs.dir/spiffs/src/spiffs_nucleus.c.obj	d37ff334d32b71af
+15655	15741	7935610859169503	esp-idf/protocomm/CMakeFiles/__idf_protocomm.dir/src/crypto/srp6a/esp_srp_mpi.c.obj	ad83c2c74d4437bb
+2742	2842	7935610730042043	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/api/api_msg.c.obj	9d5f69f92a0dcfb1
+5494	5576	7935610757554464	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp_memprot_conv.c.obj	26bc1f0e474524e2
+2403	2520	7935610726654006	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/esp_supplicant/src/esp_wpa_main.c.obj	8a966970a27fe36d
+2427	2543	7935610726898990	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/esp_supplicant/src/esp_common.c.obj	65a413c98ad5e0c7
+15643	15735	7935610859047265	esp-idf/protocomm/CMakeFiles/__idf_protocomm.dir/src/crypto/srp6a/esp_srp.c.obj	822533c11ed5929d
+2476	2592	7935610727377849	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/esp_supplicant/src/esp_owe.c.obj	2e9fb13aab73f376
+3792	3919	7935610740545167	esp-idf/driver/CMakeFiles/__idf_driver.dir/deprecated/pcnt_legacy.c.obj	3965370b5eca3c46
+2382	2510	7935610726435905	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/esp_supplicant/src/esp_eap_client.c.obj	519d826b97c432c8
+3384	3463	7935610736462164	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/ppp/ppp.c.obj	e3383489dd6981e8
+15191	15261	7935610854532234	esp-idf/esp_pm/CMakeFiles/__idf_esp_pm.dir/pm_trace.c.obj	60574978c48c7ba6
+2487	2580	7935610727491359	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/esp_supplicant/src/esp_hostap.c.obj	6a395a4b36071204
+47488	47573	7935596794720479	bootloader-prefix/src/bootloader-stamp/bootloader-patch	ca0ccbbcb252e7b1
+2438	2554	7935610727000509	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/esp_supplicant/src/esp_wps.c.obj	8705bb718c664188
+6251	6317	7935610765131164	esp-idf/hal/CMakeFiles/__idf_hal.dir/spi_slave_hd_hal.c.obj	a748621ea09c4cdd
+4243	4313	7935610745057342	esp-idf/esp_driver_mcpwm/CMakeFiles/__idf_esp_driver_mcpwm.dir/src/mcpwm_timer.c.obj	28ade3f071a21c89
+2498	2603	7935610727601142	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/esp_supplicant/src/crypto/tls_mbedtls.c.obj	9a421c3aa63758a1
+7835	7919	7935610780974698	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/bignum_mod_raw.c.obj	c5ed0e859b59bf78
+2912	2993	7935610731738354	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/netif.c.obj	19d18bad5da486d3
+3401	3503	7935610736629136	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/ppp/pppcrypt.c.obj	b37241ff9bc8affb
+3140	3242	7935610734026436	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/ipv6/ip6_addr.c.obj	92fd9189f148ea77
+7912	8013	7935610781744593	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/cipher_wrap.c.obj	3b42496519bc9e8e
+2520	2626	7935610727816228	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/esp_supplicant/src/crypto/crypto_mbedtls-bignum.c.obj	f13f7fe3cea24667
+16490	16573	7935610867519457	esp-idf/touch_element/CMakeFiles/__idf_touch_element.dir/touch_slider.c.obj	690abc0a26fe9bde
+11919	12068	7935610821806762	esp-idf/freertos/libfreertos.a	12dcfcbe5d334f05
+8038	8122	7935610782997359	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/ecp_curves_new.c.obj	5e96a6dc6a7b428b
+2568	2661	7935610728302207	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/crypto/rc4.c.obj	781da12aa696103a
+2531	2636	7935610727938673	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/esp_supplicant/src/crypto/crypto_mbedtls-rsa.c.obj	ee120051d0364384
+147	441	7935611516042344	esp-idf/esp_https_server/libesp_https_server.a	ffdf4b75c830da46
+2603	2700	7935610728645708	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/crypto/aes-wrap.c.obj	ad2eb39be51594b5
+2592	2678	7935610728544411	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/esp_supplicant/src/crypto/fastpbkdf2.c.obj	eefbdac2cbdbb11a
+5437	5510	7935610756994713	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/rtc_sleep.c.obj	830861d27e75d9b1
+2614	2727	7935610728762428	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/crypto/aes-unwrap.c.obj	e266b933e90f131b
+5353	5445	7935610756144598	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/dma/async_memcpy_gdma.c.obj	25a10ae5b30a6b95
+8576	8647	7935610788378703	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/timing.c.obj	f6408155ea61c8df
+5619	5671	7935610758807814	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32s3/spi_periph.c.obj	73688682e075b1
+5416	5517	7935610756778180	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/rtc_clk_init.c.obj	5638301dc844b8ee
+2543	2652	7935610728059434	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/esp_supplicant/src/crypto/crypto_mbedtls-ec.c.obj	4b3c9a2d1f04b02a
+2626	2711	7935610728883188	esp-idf/wpa_supplicant/CMakeFiles/__idf_wpa_supplicant.dir/src/crypto/aes-ccm.c.obj	4652bbd8ba43c110
+16099	16177	7935610863609509	esp-idf/espcoredump/CMakeFiles/__idf_espcoredump.dir/src/core_dump_init.c.obj	c185b670936b080
+4126	4235	7935610743879484	esp-idf/esp_driver_i2s/CMakeFiles/__idf_esp_driver_i2s.dir/i2s_pdm.c.obj	23826b526d78493d
+8838	8896	7935610791004458	esp-idf/mbedtls/mbedtls/3rdparty/everest/CMakeFiles/everest.dir/library/x25519.c.obj	7427464d4c33f265
+2719	2791	7935610729809393	esp-idf/esp_netif/CMakeFiles/__idf_esp_netif.dir/lwip/netif/esp_pbuf_ref.c.obj	e70b8e203a9a685a
+5334	5416	7935610755962403	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/deprecated/gdma_legacy.c.obj	d4f07cb441dcb537
+5838	5894	7935610761009931	esp-idf/log/CMakeFiles/__idf_log.dir/src/os/log_write.c.obj	bc58d9866ef78702
+2711	2799	7935610729737437	esp-idf/esp_netif/CMakeFiles/__idf_esp_netif.dir/lwip/netif/ethernetif.c.obj	d36370eb1c36cade
+3044	3140	7935610733062612	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/ipv4/ip4.c.obj	f22e3db43269612b
+15713	15802	7935610859757893	esp-idf/wear_levelling/CMakeFiles/__idf_wear_levelling.dir/crc32.cpp.obj	5b019dd5b9a3c8d
+15433	15499	7935610856955790	esp-idf/protobuf-c/CMakeFiles/__idf_protobuf-c.dir/protobuf-c/protobuf-c/protobuf-c.c.obj	78ef01c2193e6973
+5964	6040	7935610762271710	esp-idf/hal/CMakeFiles/__idf_hal.dir/spi_flash_hal_iram.c.obj	8812298bd8103d0f
+4866	4992	7935610751280682	esp-idf/newlib/CMakeFiles/__idf_newlib.dir/port/esp_time_impl.c.obj	15db457cd57675ab
+2691	2783	7935610729524031	esp-idf/esp_netif/CMakeFiles/__idf_esp_netif.dir/lwip/esp_netif_lwip_defaults.c.obj	517b9e09945fa8
+6089	6975	7935610763519369	esp-idf/wpa_supplicant/libwpa_supplicant.a	22b2783e23294bc8
+3369	3447	7935610736305396	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/ppp/mppe.c.obj	aeaea312fdeb660c
+4071	4168	7935610743330262	esp-idf/sdmmc/CMakeFiles/__idf_sdmmc.dir/sdmmc_io.c.obj	c01486b526960982
+2678	2762	7935610729403385	esp-idf/esp_netif/CMakeFiles/__idf_esp_netif.dir/lwip/esp_netif_sntp.c.obj	41877bdbe4fa04cc
+2700	2806	7935610729627119	esp-idf/esp_netif/CMakeFiles/__idf_esp_netif.dir/lwip/netif/wlanif.c.obj	167fe586fd0ec380
+2727	2821	7935610729889088	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/apps/sntp/sntp.c.obj	2d1a15fa1028d623
+2734	2850	7935610729963668	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/api/api_lib.c.obj	589d37c06dfc65f5
+16483	16539	7935610867446070	esp-idf/touch_element/CMakeFiles/__idf_touch_element.dir/touch_button.c.obj	5b39006eb284cba0
+13416	13556	7935610836788529	esp-idf/spi_flash/libspi_flash.a	e30d4fd3b1117707
+5325	5423	7935610755870716	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/dma/gdma.c.obj	976505b146d7e6e
+8013	8108	7935610782754673	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/ecp.c.obj	2391f5cf4fc3099b
+7161	7250	7935610774232091	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/idf/bootloader_sha.c.obj	82daa02446b5d965
+2763	2857	7935610730242799	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/api/if_api.c.obj	302af1c215796015
+3346	3426	7935610736079609	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/ppp/lcp.c.obj	6bd6e4c9ea96bb8
+2661	2750	7935610729224229	esp-idf/esp_netif/CMakeFiles/__idf_esp_netif.dir/lwip/esp_netif_lwip.c.obj	2e34a46b240530a6
+4480	4554	7935610747425927	esp-idf/esp_event/CMakeFiles/__idf_esp_event.dir/esp_event_private.c.obj	b8258556fd62b44
+5398	5487	7935610756604749	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/esp_clock_output.c.obj	34ba5f46c6f942d7
+2799	2872	7935610730610322	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/api/netifapi.c.obj	290ebde1668ee292
+2791	2880	7935610730541146	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/api/netdb.c.obj	7aba916c06ef9ebf
+4039	4126	7935610743006796	esp-idf/esp_driver_sdmmc/CMakeFiles/__idf_esp_driver_sdmmc.dir/src/sdmmc_host.c.obj	90aa719cf8f03908
+2821	2912	7935610730833559	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/apps/sntp/sntp.c.obj	e3675cffd3436a10
+6988	7050	7935610772505742	esp-idf/spi_flash/CMakeFiles/__idf_spi_flash.dir/spi_flash_os_func_noos.c.obj	f8f2e892c4d78f4a
+2814	2902	7935610730757630	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/api/tcpip.c.obj	d023856b603541e7
+2850	2919	7935610731116444	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/def.c.obj	6c9e8fdb20bc34c5
+2842	2928	7935610731046133	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/apps/netbiosns/netbiosns.c.obj	a300e17b79e55f47
+2865	2935	7935610731272568	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/inet_chksum.c.obj	747b68c86320259f
+2872	2953	7935610731339725	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/init.c.obj	eb5e0bde62595f21
+4851	4999	7935610751133911	esp-idf/newlib/CMakeFiles/__idf_newlib.dir/realpath.c.obj	192c6489b29c7c88
+8470	8530	7935610787319691	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/psa_its_file.c.obj	7dfe7c0b406f22cd
+2880	2961	7935610731419556	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/ip.c.obj	b7aab73f770138b8
+8725	8815	7935610789873293	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/9f81bbcb9ea3b00696d95e97f026f64d/esp-idf-v5.4.3/components/mbedtls/port/esp_ds/esp_rsa_sign_alt.c.obj	944ade17462e5ef3
+2891	2978	7935610731532339	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/mem.c.obj	45713ec407645b36
+2857	2943	7935610731187430	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/dns.c.obj	9bfc004e8de6fd20
+15846	15920	7935610861081285	esp-idf/esp_eth/CMakeFiles/__idf_esp_eth.dir/src/phy/esp_eth_phy_802_3.c.obj	3a458cf97ed56b6b
+6652	6730	7935610769148785	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/port/arch/xtensa/esp_ipc_isr_port.c.obj	9f93a6d47bdf6f7f
+5576	5664	7935610758379869	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32s3/uart_periph.c.obj	30327d67bc7037ba
+2806	2891	7935610730686950	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/api/sockets.c.obj	9ea20aa98256c77f
+2935	3020	7935610731973103	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/stats.c.obj	49ce4a95faf20058
+4119	4206	7935610743809335	esp-idf/esp_driver_i2s/CMakeFiles/__idf_esp_driver_i2s.dir/i2s_std.c.obj	4105d1820f900a36
+2961	3044	7935610732237532	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/tcp_in.c.obj	ca7b280516e69442
+2953	3029	7935610732148099	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/tcp.c.obj	6538ff38e77a9f73
+3855	3950	7935610741178825	esp-idf/driver/CMakeFiles/__idf_driver.dir/twai/twai.c.obj	70c45a84279646aa
+15667	15749	7935610859291844	esp-idf/wear_levelling/CMakeFiles/__idf_wear_levelling.dir/Partition.cpp.obj	e91a7928c27f216f
+12371	12523	7935610826328011	esp-idf/soc/libsoc.a	49773997be987678
+2985	3061	7935610732472996	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/timeouts.c.obj	cf0bb08f4cb55e1a
+7984	8029	7935610782460614	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/dhm.c.obj	bb84ce5cd9ed3435
+8733	8796	7935610789954574	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/9f81bbcb9ea3b00696d95e97f026f64d/esp-idf-v5.4.3/components/mbedtls/port/esp_ds/esp_rsa_dec_alt.c.obj	3ed26286ce5c268e
+10215	10344	7935610804770728	esp-idf/sdmmc/libsdmmc.a	4b1dbe467b9683da
+6669	6745	7935610769315565	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/port/arch/xtensa/esp_ipc_isr_handler.S.obj	5407ef90544812d0
+2978	3051	7935610732401191	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/tcp_out.c.obj	b673be8a03df67a2
+2993	3104	7935610732551326	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/udp.c.obj	40dfdef8a186cdb4
+3029	3112	7935610732908116	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/ipv4/icmp.c.obj	1d221f3bd54879e0
+3020	3127	7935610732822734	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/ipv4/etharp.c.obj	9a7036e97e529a82
+3284	3345	7935610735460543	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/ppp/chap_ms.c.obj	1d13d1b1b7d44ff
+3036	3119	7935610732979946	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/ipv4/igmp.c.obj	ce0830ec7eeaa27d
+3409	3519	7935610736709335	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/ppp/pppoe.c.obj	f342a2cfb24f83af
+3008	3094	7935610732708350	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/ipv4/dhcp.c.obj	11bb5905236cb384
+3750	3828	7935610740120845	esp-idf/driver/CMakeFiles/__idf_driver.dir/deprecated/adc_dma_legacy.c.obj	c906ad6a3b5280a2
+16245	16328	7935610865069674	esp-idf/fatfs/CMakeFiles/__idf_fatfs.dir/src/ffunicode.c.obj	9b43b974cda7077c
+3051	3159	7935610733127756	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/ipv4/ip4_napt.c.obj	f976768111e297bf
+6001	6069	7935610762631683	esp-idf/hal/CMakeFiles/__idf_hal.dir/uart_hal.c.obj	83e400107bcbf1f6
+3061	3148	7935610733233412	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/ipv4/ip4_addr.c.obj	c2f2ca7bb76c54f5
+4638	4749	7935610749005774	esp-idf/pthread/CMakeFiles/__idf_pthread.dir/pthread.c.obj	659e52c47c57869c
+15315	15366	7935610855770237	esp-idf/console/CMakeFiles/__idf_console.dir/linenoise/linenoise.c.obj	17dbd1aa11f77bd5
+3078	3211	7935610733400720	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/ipv4/ip4_frag.c.obj	d68b171396dced7f
+3094	3177	7935610733554546	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/ipv6/dhcp6.c.obj	cfbb2413e7342865
+3651	3767	7935610739133952	esp-idf/esp_vfs_console/CMakeFiles/__idf_esp_vfs_console.dir/vfs_console.c.obj	620076286a734c9e
+3112	3226	7935610733737677	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/ipv6/icmp6.c.obj	e820de91ad58e586
+3119	3197	7935610733809032	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/ipv6/inet6.c.obj	15b066e69de5fd3
+3197	3292	7935610734597924	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/bridgeif.c.obj	27fe7ec05687854c
+3148	3277	7935610734095714	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/ipv6/ip6_frag.c.obj	a110814451934700
+5369	5452	7935610756310243	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/mspi_timing_tuning.c.obj	8c5391434180db2c
+3186	3299	7935610734487224	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/ethernet.c.obj	86aa614b87b01377
+13012	13138	7935610832741845	esp-idf/esp_rom/libesp_rom.a	5d666ceb580bb3d2
+3159	3233	7935610734215281	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/ipv6/mld6.c.obj	ab8a44e7f7a47f73
+4793	4851	7935610750551083	esp-idf/newlib/CMakeFiles/__idf_newlib.dir/getentropy.c.obj	f227a7b994870277
+5923	6001	7935610761848424	esp-idf/hal/CMakeFiles/__idf_hal.dir/mmu_hal.c.obj	42372d6754f4b885
+3226	3320	7935610734886519	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/ppp/auth.c.obj	132b96ed0d8ce352
+4517	4605	7935610747797980	esp-idf/esp_driver_gptimer/CMakeFiles/__idf_esp_driver_gptimer.dir/src/gptimer.c.obj	ca004c96b7f9b250
+3233	3328	7935610734959204	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/ppp/ccp.c.obj	ba2edffe495d3df8
+5532	5604	7935610757940445	esp-idf/esp_security/CMakeFiles/__idf_esp_security.dir/src/esp_crypto_lock.c.obj	2dd11c6b738a4033
+5559	5633	7935610758211397	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32s3/interrupts.c.obj	88738fb005e6a52
+3218	3313	7935610734801842	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/slipif.c.obj	f7629389cfb3e056
+4653	4783	7935610749154991	esp-idf/pthread/CMakeFiles/__idf_pthread.dir/pthread_local_storage.c.obj	bf80721257f1b6f3
+5117	5202	7935610753792350	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/clk_ctrl_os.c.obj	13ddae92df8e43a7
+3242	3336	7935610735040759	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/ppp/chap-md5.c.obj	d827cf2f71f330f1
+3177	3284	7935610734397895	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/core/ipv6/nd6.c.obj	9c57b806f7c02c76
+3277	3353	7935610735392918	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/ppp/chap-new.c.obj	adfcbd3a2c20ce68
+11101	11217	7935610813638232	esp-idf/esp_driver_uart/libesp_driver_uart.a	59708511dc45b146
+16186	16288	7935610864486961	esp-idf/fatfs/CMakeFiles/__idf_fatfs.dir/diskio/diskio.c.obj	c8e24b4128066c84
+3292	3377	7935610735536682	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/ppp/demand.c.obj	6c33aee84e64ddbd
+5250	5317	7935610755126021	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/io_mux.c.obj	2f62b84477701b29
+3299	3369	7935610735609633	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/ppp/eap.c.obj	b6d8846762dc5bfe
+6280	6346	7935610765422111	esp-idf/hal/CMakeFiles/__idf_hal.dir/cam_hal.c.obj	205310dc6a9f2300
+5345	5398	7935610756072865	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/dma/esp_async_memcpy.c.obj	7da18e12587c8af8
+5846	5923	7935610761080055	esp-idf/log/CMakeFiles/__idf_log.dir/src/buffer/log_buffers.c.obj	6ff8729e17b44c93
+3314	3392	7935610735752831	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/ppp/eui64.c.obj	4dfef5fa41bb0e38
+3306	3384	7935610735680626	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/ppp/ecp.c.obj	d56a709269e09957
+4672	4808	7935610749341749	esp-idf/pthread/CMakeFiles/__idf_pthread.dir/pthread_semaphore.c.obj	74863e3db5864f96
+3320	3418	7935610735828818	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/ppp/fsm.c.obj	2b08d143fedf7959
+5686	5757	7935610759479005	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32s3/lcd_periph.c.obj	4335c831f340c110
+7522	7596	7935610777840803	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedtls.dir/ssl_tls13_server.c.obj	6cc78d004c06577d
+3336	3409	7935610735979454	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/ppp/ipv6cp.c.obj	eeffd29a110bd562
+98	273	7935623777316974	bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+4324	4417	7935610745856159	esp-idf/nvs_flash/CMakeFiles/__idf_nvs_flash.dir/src/nvs_page.cpp.obj	d12608188fd3e305
+7175	7276	7935610774371144	esp-idf/efuse/CMakeFiles/__idf_efuse.dir/esp32s3/esp_efuse_table.c.obj	40b3acfdb3bd0965
+3377	3455	7935610736388086	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/ppp/multilink.c.obj	bbe8704f3040b818
+6076	6145	7935610763379784	esp-idf/hal/CMakeFiles/__idf_hal.dir/pcnt_hal.c.obj	758d1369f2227e34
+3392	3487	7935610736547389	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/ppp/pppapi.c.obj	de71e14950bacdda
+4828	4948	7935610750901996	esp-idf/newlib/CMakeFiles/__idf_newlib.dir/stdatomic.c.obj	df613b25ca0e7199
+3427	3512	7935610736891469	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/ppp/pppos.c.obj	153c862663668ad6
+3767	3855	7935610740295394	esp-idf/driver/CMakeFiles/__idf_driver.dir/i2c/i2c.c.obj	be65ec5bde6fedab
+3455	3542	7935610737178359	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/ppp/vj.c.obj	25502f0dd6352dd3
+16267	16353	7935610865287783	esp-idf/fatfs/CMakeFiles/__idf_fatfs.dir/diskio/diskio_sdmmc.c.obj	4c46c095ff590b91
+9665	9777	7935610799276385	esp-idf/esp_driver_sdm/libesp_driver_sdm.a	e1f717e88e3d89e1
+3463	3550	7935610737252582	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/port/hooks/tcp_isn_default.c.obj	a6ce313b995673b
+3503	3576	7935610737644853	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/port/sockets_ext.c.obj	943b029a69894653
+8608	8668	7935610788694467	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/9f81bbcb9ea3b00696d95e97f026f64d/esp-idf-v5.4.3/components/mbedtls/port/aes/dma/esp_aes_gdma_impl.c.obj	993c61567720d53f
+3495	3567	7935610737580192	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/port/debug/lwip_debug.c.obj	98af494fcc8486d3
+3617	3732	7935610738784049	esp-idf/vfs/CMakeFiles/__idf_vfs.dir/vfs.c.obj	8386ea91316f2d4f
+3534	3609	7935610737961395	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/apps/ping/esp_ping.c.obj	5b07c0e4bcb5297d
+5078	5145	7935610753397928	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/cpu.c.obj	3ec3dd75c7c8536e
+15937	16049	7935610861998273	esp-idf/esp_lcd/CMakeFiles/__idf_esp_lcd.dir/src/esp_lcd_panel_ops.c.obj	5a6681ca8c7cd902
+5949	6017	7935610762118642	esp-idf/hal/CMakeFiles/__idf_hal.dir/color_hal.c.obj	3a11dc147ad71a09
+6398	6488	7935610766604364	esp-idf/esp_rom/CMakeFiles/__idf_esp_rom.dir/patches/esp_rom_systimer.c.obj	23618aa13e298cd7
+3519	3601	7935610737811021	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/port/acd_dhcp_check.c.obj	d00f1b88531fd451
+4392	4462	7935610746542145	esp-idf/nvs_flash/CMakeFiles/__idf_nvs_flash.dir/src/nvs_partition_lookup.cpp.obj	fd5c8720206bc1b7
+7366	7463	7935610776278651	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedtls.dir/ssl_cookie.c.obj	100b4c8495f69ab1
+3512	3594	7935610737739382	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/port/freertos/sys_arch.c.obj	dca36e79ed27ac98
+8098	8161	7935610783605911	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/gcm.c.obj	d42af4d68dad3f66
+5894	5964	7935610761557064	esp-idf/hal/CMakeFiles/__idf_hal.dir/hal_utils.c.obj	310534b04e7d84e9
+3527	3617	7935610737891319	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/port/esp32xx/vfs_lwip.c.obj	96016a7804ff5be0
+4016	4078	7935610742781130	esp-idf/esp_driver_sdspi/CMakeFiles/__idf_esp_driver_sdspi.dir/src/sdspi_host.c.obj	57cee524ea7ee60c
+10344	10456	7935610806060600	esp-idf/esp_driver_i2s/libesp_driver_i2s.a	5150cc2540595ff
+3542	3625	7935610738047549	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/apps/ping/ping.c.obj	fd5d785f064ef147
+15908	15971	7935610861704857	esp-idf/esp_lcd/CMakeFiles/__idf_esp_lcd.dir/src/esp_lcd_panel_nt35510.c.obj	c908c9fc0d473022
+3567	3643	7935610738292113	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/ppp/polarssl/arc4.c.obj	e9919c3bbcdc1e70
+15243	15534	7935610855050571	esp-idf/mbedtls/libmbedtls.a	750b7408016c8ccb
+3550	3634	7935610738117919	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/apps/ping/ping_sock.c.obj	8614cbb93a6bebd8
+4281	4383	7935610745437257	esp-idf/esp_driver_spi/CMakeFiles/__idf_esp_driver_spi.dir/src/gpspi/spi_slave_hd.c.obj	cadef457017805eb
+16625	16687	7935610868856986	esp-idf/wifi_provisioning/CMakeFiles/__idf_wifi_provisioning.dir/src/wifi_ctrl.c.obj	b41ac1dc41c8b3d0
+3576	3651	7935610738386983	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/ppp/polarssl/des.c.obj	4a34e359f49386c
+6425	6511	7935610766876030	esp-idf/esp_rom/CMakeFiles/__idf_esp_rom.dir/patches/esp_rom_cache_esp32s2_esp32s3.c.obj	5f24df4df28a2128
+3594	3685	7935610738555739	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/ppp/polarssl/md5.c.obj	ed5e3188fa0c1c14
+6976	7492	7935610772378487	esp-idf/esp_netif/libesp_netif.a	8ab647a088408643
+3602	3720	7935610738636128	esp-idf/lwip/CMakeFiles/__idf_lwip.dir/lwip/src/netif/ppp/polarssl/sha1.c.obj	8d6fd44ff7178446
+3625	3708	7935610738870995	esp-idf/vfs/CMakeFiles/__idf_vfs.dir/vfs_eventfd.c.obj	61da65926368c77e
+4351	4455	7935610746129151	esp-idf/nvs_flash/CMakeFiles/__idf_nvs_flash.dir/src/nvs_storage.cpp.obj	1419e54ae1f56589
+8704	8803	7935610789663058	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/D_/ESP32-IDF/environment/Espressif/frameworks/esp-idf-v5.4.3/components/mbedtls/port/sha/dma/sha.c.obj	532c7eda9b00494f
+3643	3759	7935610739056572	esp-idf/vfs/CMakeFiles/__idf_vfs.dir/nullfs.c.obj	819189ec81345682
+5006	5085	7935610752682214	esp-idf/freertos/CMakeFiles/__idf_freertos.dir/FreeRTOS-Kernel/stream_buffer.c.obj	92ccbbcd5eb34184
+3635	3742	7935610738971345	esp-idf/vfs/CMakeFiles/__idf_vfs.dir/vfs_semihost.c.obj	f364422bdb4ce2ed
+8761	8831	7935610790237810	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/9f81bbcb9ea3b00696d95e97f026f64d/esp-idf-v5.4.3/components/mbedtls/port/bignum/bignum_alt.c.obj	247169e056ae6c5e
+3698	3784	7935610739605233	esp-idf/esp_phy/CMakeFiles/__idf_esp_phy.dir/src/phy_common.c.obj	f3246619ebac8ff8
+5132	5210	7935610753936983	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/intr_alloc.c.obj	e967cd6c66f94469
+8507	8601	7935610787685421	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/rsa.c.obj	d800847123681d3c
+3732	3808	7935610739939775	esp-idf/esp_phy/CMakeFiles/__idf_esp_phy.dir/src/btbb_init.c.obj	b60c338108ebf813
+3943	4024	7935610742053538	esp-idf/esp_driver_i2c/CMakeFiles/__idf_esp_driver_i2c.dir/i2c_slave.c.obj	f5240c835edf5442
+3708	3800	7935610739710362	esp-idf/esp_phy/CMakeFiles/__idf_esp_phy.dir/src/phy_init.c.obj	68c8a419fd47a782
+4487	4597	7935610747491265	esp-idf/esp_driver_uart/CMakeFiles/__idf_esp_driver_uart.dir/src/uart.c.obj	c5bb9c421f6b0c98
+3742	3840	7935610740040459	esp-idf/driver/CMakeFiles/__idf_driver.dir/deprecated/adc_legacy.c.obj	b27b10e132f71ade
+7492	8538	7935610777540401	esp-idf/lwip/liblwip.a	6c892196db88fb10
+3809	3928	7935610740698183	esp-idf/driver/CMakeFiles/__idf_driver.dir/deprecated/sigma_delta_legacy.c.obj	1c088e07c6078deb
+4031	4107	7935610742933796	esp-idf/esp_driver_sdmmc/CMakeFiles/__idf_esp_driver_sdmmc.dir/src/sdmmc_transaction.c.obj	acc45e1e44d939a7
+6908	7003	7935610771693305	esp-idf/spi_flash/CMakeFiles/__idf_spi_flash.dir/cache_utils.c.obj	cdbde85e92f65f9e
+3829	3936	7935610740916579	esp-idf/driver/CMakeFiles/__idf_driver.dir/deprecated/rtc_temperature_legacy.c.obj	469dd29c1af9e47
+8538	8948	7935610788007015	esp-idf/vfs/libvfs.a	e4fff4b30da3ef8
+15073	15176	7935610853350923	esp-idf/mbedtls/mbedtls/3rdparty/everest/libeverest.a	4a991a82726d6ee1
+3840	3943	7935610741026597	esp-idf/driver/CMakeFiles/__idf_driver.dir/touch_sensor/touch_sensor_common.c.obj	b0d3ac460f638b41
+8660	8777	7935610789222610	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/9f81bbcb9ea3b00696d95e97f026f64d/esp-idf-v5.4.3/components/mbedtls/port/aes/esp_aes_xts.c.obj	496cf1ccd44a34eb
+4646	4866	7935610749081299	esp-idf/pthread/CMakeFiles/__idf_pthread.dir/pthread_cond_var.c.obj	c3d70b5d2b5b602b
+5108	5218	7935610753699305	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/esp_clk.c.obj	e7753caa0857d44a
+8948	9054	7935610792098036	esp-idf/esp_vfs_console/libesp_vfs_console.a	bd66734025bc0da3
+3877	3972	7935610741396949	esp-idf/esp_driver_usb_serial_jtag/CMakeFiles/__idf_esp_driver_usb_serial_jtag.dir/src/usb_serial_jtag_connection_monitor.c.obj	a37550077744f5c7
+3848	3965	7935610741096925	esp-idf/driver/CMakeFiles/__idf_driver.dir/touch_sensor/esp32s3/touch_sensor.c.obj	1f7d67df563df5d5
+3911	3994	7935610741732496	esp-idf/esp_driver_usb_serial_jtag/CMakeFiles/__idf_esp_driver_usb_serial_jtag.dir/src/usb_serial_jtag_vfs.c.obj	8896d9e4e09c5fb3
+3957	4054	7935610742194755	esp-idf/esp_driver_tsens/CMakeFiles/__idf_esp_driver_tsens.dir/src/temperature_sensor.c.obj	5fa53e4b8879edec
+3950	4046	7935610742123901	esp-idf/esp_driver_sdm/CMakeFiles/__idf_esp_driver_sdm.dir/src/sdm.c.obj	dae65ceb64012403
+5517	5611	7935610757790527	esp-idf/esp_security/CMakeFiles/__idf_esp_security.dir/src/esp_hmac.c.obj	a83e4dfaa810d41f
+47274	47389	7935596792856790	bootloader-prefix/src/bootloader-stamp/bootloader-download	89032b51ab6bec6c
+3928	4008	7935610741904778	esp-idf/esp_driver_i2c/CMakeFiles/__idf_esp_driver_i2c.dir/i2c_master.c.obj	607d8752a983e800
+3972	4031	7935610742344266	esp-idf/esp_driver_rmt/CMakeFiles/__idf_esp_driver_rmt.dir/src/rmt_encoder.c.obj	a79f8f276629e651
+4417	4510	7935610746787725	esp-idf/nvs_flash/CMakeFiles/__idf_nvs_flash.dir/src/nvs_platform.cpp.obj	489b4e877e1e79cf
+6302	6361	7935610765638906	esp-idf/hal/CMakeFiles/__idf_hal.dir/usb_wrap_hal.c.obj	3272e7353ed7293b
+4008	4070	7935610742703166	esp-idf/esp_driver_sdspi/CMakeFiles/__idf_esp_driver_sdspi.dir/src/sdspi_crc.c.obj	c6f2f26be8d9e737
+5241	5324	7935610755036494	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/sar_periph_ctrl_common.c.obj	14d749d1d356a070
+9190	9345	7935610794514805	esp-idf/driver/libdriver.a	16b95a7f99d9eb60
+5013	5093	7935610752747325	esp-idf/freertos/CMakeFiles/__idf_freertos.dir/FreeRTOS-Kernel/portable/xtensa/port.c.obj	7485b3d34dbac912
+3994	4061	7935610742561753	esp-idf/esp_driver_rmt/CMakeFiles/__idf_esp_driver_rmt.dir/src/rmt_rx.c.obj	c404f20321e33167
+47573	59890	7935596917717497	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure	caaace2216baab65
+8256	8340	7935610785180976	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/pkcs12.c.obj	dda8f3e763c99477
+4024	4095	7935610742862064	esp-idf/esp_driver_sdspi/CMakeFiles/__idf_esp_driver_sdspi.dir/src/sdspi_transaction.c.obj	72b25c3406712897
+6166	6236	7935610764290756	esp-idf/hal/CMakeFiles/__idf_hal.dir/adc_oneshot_hal.c.obj	ea8c631f12570226
+4054	4118	7935610743160559	esp-idf/sdmmc/CMakeFiles/__idf_sdmmc.dir/sdmmc_common.c.obj	393efe64b92cba6c
+15854	15930	7935610861159538	esp-idf/esp_eth/CMakeFiles/__idf_esp_eth.dir/src/esp_eth_netif_glue.c.obj	c118ef910f3d9535
+9345	9453	7935610796073749	esp-idf/esp_driver_usb_serial_jtag/libesp_driver_usb_serial_jtag.a	f8f7b2965c54274b
+16201	16298	7935610864620594	esp-idf/fatfs/CMakeFiles/__idf_fatfs.dir/diskio/diskio_rawflash.c.obj	b3bf879e13ec0e35
+4047	4134	7935610743089639	esp-idf/sdmmc/CMakeFiles/__idf_sdmmc.dir/sdmmc_cmd.c.obj	40ef5d4f30ebc339
+15216	15291	7935610854786464	esp-idf/esp_driver_gpio/CMakeFiles/__idf_esp_driver_gpio.dir/src/rtc_io.c.obj	dcea7d9bb53a9381
+4001	4085	7935610742629711	esp-idf/esp_driver_rmt/CMakeFiles/__idf_esp_driver_rmt.dir/src/rmt_tx.c.obj	8ddece3afd5c3234
+4589	4672	7935610748511095	esp-idf/esp_timer/CMakeFiles/__idf_esp_timer.dir/src/esp_timer_impl_common.c.obj	2135c0783c88fe66
+8648	8749	7935610789100022	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/D_/ESP32-IDF/environment/Espressif/frameworks/esp-idf-v5.4.3/components/mbedtls/port/esp_timing.c.obj	391a0aaf6d53b8ff
+4095	4175	7935610743574044	esp-idf/sdmmc/CMakeFiles/__idf_sdmmc.dir/sd_pwr_ctrl/sd_pwr_ctrl.c.obj	671c7e6ef391fbf1
+6473	6537	7935610767349374	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/esp_ipc.c.obj	4f3a64a5feef75a2
+4941	5048	7935610752035089	esp-idf/freertos/CMakeFiles/__idf_freertos.dir/port_systick.c.obj	e184158ab9a21331
+9453	9561	7935610797146931	esp-idf/esp_driver_ledc/libesp_driver_ledc.a	7c25e83d56b510cd
+4078	4159	7935610743406581	esp-idf/sdmmc/CMakeFiles/__idf_sdmmc.dir/sdmmc_mmc.c.obj	81c98d2eff741d6
+4085	4183	7935610743476786	esp-idf/sdmmc/CMakeFiles/__idf_sdmmc.dir/sdmmc_sd.c.obj	bfa6b371443b70ca
+15872	15945	7935610861346441	esp-idf/esp_hid/CMakeFiles/__idf_esp_hid.dir/src/esp_hidh.c.obj	bbb71d30c3a85263
+11553	11661	7935610818158712	esp-idf/cxx/libcxx.a	fa33d2f8a5ac0f4a
+4152	4243	7935610744142530	esp-idf/esp_driver_i2s/CMakeFiles/__idf_esp_driver_i2s.dir/i2s_platform.c.obj	cbf23c116a0c2486
+4176	4274	7935610744378417	esp-idf/esp_driver_mcpwm/CMakeFiles/__idf_esp_driver_mcpwm.dir/src/mcpwm_com.c.obj	dedf852eecd97dbb
+16514	16602	7935610867756299	esp-idf/usb/CMakeFiles/__idf_usb.dir/enum.c.obj	d6777c7b028e340
+4160	4259	7935610744218996	esp-idf/esp_driver_mcpwm/CMakeFiles/__idf_esp_driver_mcpwm.dir/src/mcpwm_cap.c.obj	bfd4e1467c9f39f9
+7814	7888	7935610780759667	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/bignum.c.obj	458bf2b486a8f6d0
+5124	5185	7935610753859553	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/hw_random.c.obj	4f4dbe7392533afe
+6760	6844	7935610770222364	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/port/soc/esp32s3/clk.c.obj	ce2ff2935de59edf
+4183	4288	7935610744450905	esp-idf/esp_driver_mcpwm/CMakeFiles/__idf_esp_driver_mcpwm.dir/src/mcpwm_fault.c.obj	c39e89b867eb4dc9
+6633	6723	7935610768950207	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/port/esp_ipc_isr.c.obj	fed6e51378cac5ee
+7050	7125	7935610773126486	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_clock_init.c.obj	bf18c3e25b80cf9d
+4199	4281	7935610744602362	esp-idf/esp_driver_mcpwm/CMakeFiles/__idf_esp_driver_mcpwm.dir/src/mcpwm_gen.c.obj	44957c62b100390c
+4236	4304	7935610744978608	esp-idf/esp_driver_mcpwm/CMakeFiles/__idf_esp_driver_mcpwm.dir/src/mcpwm_sync.c.obj	ba18d0eb1fd39815
+6237	6294	7935610764989279	esp-idf/hal/CMakeFiles/__idf_hal.dir/spi_slave_hal.c.obj	9d20a75ff41141d1
+16170	16266	7935610864317080	esp-idf/espcoredump/CMakeFiles/__idf_espcoredump.dir/src/core_dump_crc.c.obj	791494f9682b813f
+5487	5551	7935610757489325	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/esp_memprot.c.obj	d8c637f2d79f3117
+4251	4332	7935610745136185	esp-idf/esp_driver_spi/CMakeFiles/__idf_esp_driver_spi.dir/src/gpspi/spi_common.c.obj	586bd4ddbae2163d
+9877	9993	7935610801394347	esp-idf/esp_driver_rmt/libesp_driver_rmt.a	db8daaeededffe
+8552	8631	7935610788142102	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/sha512.c.obj	b42b41ee0e8b7a5d
+15176	15235	7935610854387153	esp-idf/mbedtls/CMakeFiles/__idf_mbedtls.dir/esp_crt_bundle/esp_crt_bundle.c.obj	290020aa3e2d852
+4259	4324	7935610745212391	esp-idf/esp_driver_spi/CMakeFiles/__idf_esp_driver_spi.dir/src/gpspi/spi_master.c.obj	4139578f69d398fc
+5717	5778	7935610759799846	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32s3/touch_sensor_periph.c.obj	493dfe395d8d7349
+4384	4480	7935610746460684	esp-idf/nvs_flash/CMakeFiles/__idf_nvs_flash.dir/src/nvs_partition.cpp.obj	ffd697ab3854430
+4313	4391	7935610745755839	esp-idf/nvs_flash/CMakeFiles/__idf_nvs_flash.dir/src/nvs_item_hash_list.cpp.obj	772558eb9ba9fb1f
+4539	4612	7935610748009004	esp-idf/esp_driver_gptimer/CMakeFiles/__idf_esp_driver_gptimer.dir/src/gptimer_common.c.obj	e0316421cfa0be57
+7018	7082	7935610772802650	esp-idf/esp_mm/CMakeFiles/__idf_esp_mm.dir/esp_cache_utils.c.obj	989e0f615ce88b6d
+315	408	7935623780333933	CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+4305	4408	7935610745670583	esp-idf/nvs_flash/CMakeFiles/__idf_nvs_flash.dir/src/nvs_cxx_api.cpp.obj	c19277e834b2408c
+10100	10215	7935610803615357	esp-idf/esp_driver_sdmmc/libesp_driver_sdmmc.a	4afc8ceecc35e79e
+48077	48397	7935596802781508	esp-idf/mbedtls/x509_crt_bundle	d78ed8f88058aa8c
+4358	4470	7935610746209450	esp-idf/nvs_flash/CMakeFiles/__idf_nvs_flash.dir/src/nvs_handle_simple.cpp.obj	ad7de173164316b1
+4332	4425	7935610745940678	esp-idf/nvs_flash/CMakeFiles/__idf_nvs_flash.dir/src/nvs_pagemanager.cpp.obj	8b1de4f68e226e98
+16548	16636	7935610868101897	esp-idf/usb/CMakeFiles/__idf_usb.dir/usb_helpers.c.obj	fedd9727a4ad3a9e
+4296	4400	7935610745581067	esp-idf/nvs_flash/CMakeFiles/__idf_nvs_flash.dir/src/nvs_api.cpp.obj	9b5077fda83b2012
+4425	4494	7935610746874866	esp-idf/nvs_flash/CMakeFiles/__idf_nvs_flash.dir/src/nvs_bootloader.c.obj	36f0a2591242e241
+5994	6061	7935610762561407	esp-idf/hal/CMakeFiles/__idf_hal.dir/systimer_hal.c.obj	79fc7c1fc470605c
+4694	4769	7935610749559573	esp-idf/newlib/CMakeFiles/__idf_newlib.dir/assert.c.obj	6f2cbab55a4d0faf
+4470	4546	7935610747323537	esp-idf/esp_event/CMakeFiles/__idf_esp_event.dir/esp_event.c.obj	801d17de6234aea
+7250	7319	7935610775128251	esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp_efuse_utility.c.obj	82cbc5f648d23eef
+4494	4589	7935610747569757	esp-idf/esp_driver_uart/CMakeFiles/__idf_esp_driver_uart.dir/src/uhci.c.obj	c4e69c5dbc813a7d
+4502	4631	7935610747647264	esp-idf/esp_driver_uart/CMakeFiles/__idf_esp_driver_uart.dir/src/uart_vfs.c.obj	77597fd9b0b23e87
+7881	7968	7935610781429643	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/ccm.c.obj	c6dbb83dafd2148a
+8640	8733	7935610789019709	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/D_/ESP32-IDF/environment/Espressif/frameworks/esp-idf-v5.4.3/components/mbedtls/port/esp_mem.c.obj	51163d2c8cbcff16
+4510	4581	7935610747719277	esp-idf/esp_ringbuf/CMakeFiles/__idf_esp_ringbuf.dir/ringbuf.c.obj	a2fcbaec0b0e8f4c
+6819	6885	7935610770811094	esp-idf/spi_flash/CMakeFiles/__idf_spi_flash.dir/spi_flash_chip_drivers.c.obj	f99f3f84c78c4a56
+10456	10588	7935610807181011	esp-idf/esp_driver_mcpwm/libesp_driver_mcpwm.a	c43e09581b217cad
+4554	4660	7935610748158285	esp-idf/esp_timer/CMakeFiles/__idf_esp_timer.dir/src/esp_timer_init.c.obj	57748354ff72c69f
+16646	16694	7935610869081666	esp-idf/wifi_provisioning/CMakeFiles/__idf_wifi_provisioning.dir/src/handlers.c.obj	9f85d936cab0ba1e
+4582	4638	7935610748441098	esp-idf/esp_timer/CMakeFiles/__idf_esp_timer.dir/src/system_time.c.obj	821397549a95a599
+4546	4645	7935610748087569	esp-idf/esp_timer/CMakeFiles/__idf_esp_timer.dir/src/esp_timer.c.obj	8bc9de3a3b3b64f9
+8592	8679	7935610788537381	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/version_features.c.obj	f7ab8c65d58c31a9
+5742	5846	7935610760043155	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32s3/usb_dwc_periph.c.obj	ba5e6d15d5d34aa9
+4597	4694	7935610748591422	esp-idf/esp_timer/CMakeFiles/__idf_esp_timer.dir/src/esp_timer_impl_systimer.c.obj	1b84a922dd664307
+4605	4683	7935610748671507	esp-idf/cxx/CMakeFiles/__idf_cxx.dir/cxx_exception_stubs.cpp.obj	cee38a55c7d66397
+12763	13012	7935610830252755	esp-idf/hal/libhal.a	66e114010333a4a5
+5710	5786	7935610759719703	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32s3/sdmmc_periph.c.obj	185c2144d55fa940
+4631	4755	7935610748935304	esp-idf/cxx/CMakeFiles/__idf_cxx.dir/cxx_init.cpp.obj	1aa5204b1073f7e5
+10740	10837	7935610810018070	esp-idf/esp_driver_pcnt/libesp_driver_pcnt.a	d401f905cf821936
+4683	4762	7935610749448798	esp-idf/newlib/CMakeFiles/__idf_newlib.dir/abort.c.obj	d08d18017840b53d
+4815	4922	7935610750770302	esp-idf/newlib/CMakeFiles/__idf_newlib.dir/syscalls.c.obj	178db8721049f766
+4612	4775	7935610748738382	esp-idf/cxx/CMakeFiles/__idf_cxx.dir/cxx_guards.cpp.obj	ec3a084243831a5c
+16146	16245	7935610864081917	esp-idf/espcoredump/CMakeFiles/__idf_espcoredump.dir/src/core_dump_elf.c.obj	c877f270a2a48794
+16434	16514	7935610866956633	esp-idf/spiffs/CMakeFiles/__idf_spiffs.dir/spiffs/src/spiffs_hydrogen.c.obj	d8795a7799691f53
+5225	5309	7935610754875307	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/regi2c_ctrl.c.obj	67b5fa19721a547f
+782	1042	7935611522388118	esp-idf/esp_local_ctrl/libesp_local_ctrl.a	54508eeefc48a0a2
+4755	4792	7935610750176471	esp-idf/newlib/CMakeFiles/__idf_newlib.dir/flockfile.c.obj	fda3a9b17a1637d9
+4409	4517	7935610746712217	esp-idf/nvs_flash/CMakeFiles/__idf_nvs_flash.dir/src/nvs_types.cpp.obj	430ff1cef1e46c29
+98	273	7935623777316974	bootloader/bootloader.elf	b49219955d1d8de2
+6145	6215	7935610764072746	esp-idf/hal/CMakeFiles/__idf_hal.dir/sdm_hal.c.obj	7c6e0182b4cef7f1
+4749	4843	7935610750111388	esp-idf/newlib/CMakeFiles/__idf_newlib.dir/heap.c.obj	3261d8d50ca5c1a5
+4762	4814	7935610750244171	esp-idf/newlib/CMakeFiles/__idf_newlib.dir/locks.c.obj	dcc7466b3bc225e9
+6266	6339	7935610765280241	esp-idf/hal/CMakeFiles/__idf_hal.dir/hmac_hal.c.obj	acb41557e3663679
+4776	4828	7935610750380966	esp-idf/newlib/CMakeFiles/__idf_newlib.dir/pthread.c.obj	65e6559cb4258640
+6618	6716	7935610768798606	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/port/image_process.c.obj	8535631223abcc00
+4783	4836	7935610750451142	esp-idf/newlib/CMakeFiles/__idf_newlib.dir/random.c.obj	a3413e3acc0be2a2
+5875	5957	7935610761370443	esp-idf/log/CMakeFiles/__idf_log.dir/src/log_level/tag_log_level/linked_list/log_linked_list.c.obj	f47c225942661f96
+5671	5732	7935610759335536	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32s3/temperature_sensor_periph.c.obj	54ee7e5afc751ae4
+4400	4502	7935610746623415	esp-idf/nvs_flash/CMakeFiles/__idf_nvs_flash.dir/src/nvs_partition_manager.cpp.obj	e076e22399014d2a
+4455	4574	7935610747173246	esp-idf/nvs_flash/CMakeFiles/__idf_nvs_flash.dir/src/nvs_encrypted_partition.cpp.obj	f79928c46eb40abf
+7828	7904	7935610780899570	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/bignum_mod.c.obj	5b701af45bb579ff
+4821	4930	7935610750831807	esp-idf/newlib/CMakeFiles/__idf_newlib.dir/termios.c.obj	76e6928f0d5cbcd9
+4858	4985	7935610751200560	esp-idf/newlib/CMakeFiles/__idf_newlib.dir/scandir.c.obj	871dcae07919a4f6
+4915	5013	7935610751773125	esp-idf/freertos/CMakeFiles/__idf_freertos.dir/heap_idf.c.obj	28fd4ad87f966396
+48077	48397	7935596802781508	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/esp-idf/mbedtls/x509_crt_bundle	d78ed8f88058aa8c
+4930	5006	7935610751923570	esp-idf/freertos/CMakeFiles/__idf_freertos.dir/port_common.c.obj	6f153a4ae8a3e2f1
+14282	14383	7935610845446460	esp-idf/esp_app_format/libesp_app_format.a	313487d6f45226ee
+16255	16335	7935610865177586	esp-idf/fatfs/CMakeFiles/__idf_fatfs.dir/port/freertos/ffsystem.c.obj	234d2a81c855b948
+5185	5276	7935610754478078	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/sleep_modes.c.obj	56f166d1d57255c9
+4922	5021	7935610751840471	esp-idf/freertos/CMakeFiles/__idf_freertos.dir/app_startup.c.obj	7878aace1e8d41f2
+8355	8422	7935610786173034	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/psa_crypto_cipher.c.obj	8eedbd6b986d11b6
+11441	11553	7935610817033443	esp-idf/esp_timer/libesp_timer.a	2878cf216c5ef2e7
+10985	11101	7935610812469839	esp-idf/esp_event/libesp_event.a	691e9acbb7a7a177
+5021	5108	7935610752832449	esp-idf/freertos/CMakeFiles/__idf_freertos.dir/FreeRTOS-Kernel/portable/xtensa/portasm.S.obj	21d755f780ea1069
+109	358	7935611515662595	esp-idf/protobuf-c/libprotobuf-c.a	804fa7a73697b016
+4999	5078	7935610752607230	esp-idf/freertos/CMakeFiles/__idf_freertos.dir/FreeRTOS-Kernel/event_groups.c.obj	c824fa9525558ca0
+5028	5101	7935610752907788	esp-idf/freertos/CMakeFiles/__idf_freertos.dir/FreeRTOS-Kernel/portable/xtensa/xtensa_init.c.obj	978aa1fd56a3378d
+5063	5132	7935610753248482	esp-idf/freertos/CMakeFiles/__idf_freertos.dir/esp_additions/idf_additions_event_groups.c.obj	a8c981f52f5fe5c1
+682	959	7935611521387841	esp-idf/nvs_sec_provider/libnvs_sec_provider.a	764f58adb9089ead
+5725	5809	7935610759869426	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32s3/twai_periph.c.obj	1b4524070108cfb9
+5085	5154	7935610753479991	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/esp_cpu_intr.c.obj	d0ea00dc8585836f
+4985	5063	7935610752471709	esp-idf/freertos/CMakeFiles/__idf_freertos.dir/FreeRTOS-Kernel/tasks.c.obj	d48ad31645862c66
+5093	5161	7935610753550304	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/esp_memory_utils.c.obj	ae5b6425270a4b09
+15588	15687	7935610858510249	esp-idf/protocomm/CMakeFiles/__idf_protocomm.dir/src/transports/protocomm_console.c.obj	4d06c2fe9486706d
+5139	5195	7935610754007407	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/mac_addr.c.obj	f45c39f14b27368e
+5154	5241	7935610754162600	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/revision.c.obj	9c63b95aeefc2e5b
+6287	6354	7935610765487911	esp-idf/hal/CMakeFiles/__idf_hal.dir/usb_serial_jtag_hal.c.obj	bbdc6e4c225862d1
+11327	11441	7935610815892651	esp-idf/esp_driver_gptimer/libesp_driver_gptimer.a	d997050733c6b40e
+5195	5261	7935610754573719	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/sleep_console.c.obj	d5c8ccb46c3a4e88
+6753	6811	7935610770145909	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/port/soc/esp32s3/highint_hdl.S.obj	e77a8de9334d6f16
+14383	14526	7935610846452201	esp-idf/mbedtls/mbedtls/library/libmbedtls.a	d508c231f6a1c253
+15901	15981	7935610861629639	esp-idf/esp_lcd/CMakeFiles/__idf_esp_lcd.dir/src/esp_lcd_panel_io.c.obj	ed6392e1a941f159
+5234	5292	7935610754952752	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/esp_gpio_reserve.c.obj	f829180422ef608
+5210	5284	7935610754715564	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/sleep_gpio.c.obj	108bd7692f163cca
+6466	6529	7935610767281080	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/crosscore_int.c.obj	88fffd1a715fcaa7
+5284	5361	7935610755459501	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/dma/gdma_link.c.obj	ddbd5efbee14e3f9
+15390	15448	7935610856525468	esp-idf/console/CMakeFiles/__idf_console.dir/argtable3/arg_lit.c.obj	a4052d37845c3ffb
+5391	5494	7935610756531786	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/sleep_wake_stub.c.obj	4f0c20dfb22e5354
+5309	5383	7935610755707820	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/clk_utils.c.obj	50050ef5effca7db
+12265	12371	7935610825272299	esp-idf/esp_security/libesp_security.a	3aa8921358ae69a9
+5301	5407	7935610755637451	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/spi_bus_lock.c.obj	f97db0386ef7e2e7
+7806	7870	7935610780679573	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/base64.c.obj	ec65c2668131212e
+811	1141	7935611522688484	esp-idf/spiffs/libspiffs.a	419af9b082abf99b
+11661	11784	7935610819230336	esp-idf/pthread/libpthread.a	a671a2ecfc30c62a
+6529	6625	7935610767911006	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/startup_funcs.c.obj	c541aa95cb5b481a
+15767	15839	7935610860289050	esp-idf/app_trace/CMakeFiles/__idf_app_trace.dir/app_trace_util.c.obj	ef834a9f5720fdde
+5539	5619	7935610758011080	esp-idf/soc/CMakeFiles/__idf_soc.dir/lldesc.c.obj	570407497de267d3
+16498	16579	7935610867608696	esp-idf/touch_element/CMakeFiles/__idf_touch_element.dir/touch_matrix.c.obj	d1b61313c4ff1224
+5361	5437	7935610756232063	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/systimer.c.obj	ce76b085a59be9f4
+11784	11919	7935610820458321	esp-idf/newlib/libnewlib.a	1d724e833544eec
+5407	5479	7935610756697795	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/rtc_clk.c.obj	e523a4877171bfd
+6480	6552	7935610767419695	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/esp_system_console.c.obj	379adcac5ed1d05
+5424	5502	7935610756858357	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/rtc_init.c.obj	2d15cff9fd1ad820
+48398	48629	7935596805290317	x509_crt_bundle.S	5998bfda80692f65
+5584	5657	7935610758459181	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32s3/adc_periph.c.obj	638583dacfdb73ab
+5634	5717	7935610758958924	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32s3/pcnt_periph.c.obj	eb6c654582e968fc
+5604	5679	7935610758665041	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32s3/dedic_gpio_periph.c.obj	86226523b123d716
+5612	5686	7935610758740428	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32s3/gdma_periph.c.obj	1d53d43cc9d54ed
+7560	7713	7935610778220928	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedtls.dir/D_/ESP32-IDF/environment/Espressif/frameworks/esp-idf-v5.4.3/components/mbedtls/port/net_sockets.c.obj	c3cb6c4ec2b5f110
+5568	5641	7935610758296481	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32s3/gpio_periph.c.obj	59eb1421784e1519
+6273	6324	7935610765349667	esp-idf/hal/CMakeFiles/__idf_hal.dir/ds_hal.c.obj	f34ae6056124c1cc
+5627	5702	7935610758891756	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32s3/ledc_periph.c.obj	91448acc8b900ceb
+7613	7745	7935610778750122	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedx509.dir/x509_crl.c.obj	6c861d5d4145235
+5641	5710	7935610759024581	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32s3/rmt_periph.c.obj	e663e1c08e62984b
+8688	8769	7935610789497914	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/D_/ESP32-IDF/environment/Espressif/frameworks/esp-idf-v5.4.3/components/mbedtls/port/sha/esp_sha.c.obj	7d454fbaa05911b4
+5657	5725	7935610759193323	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32s3/i2s_periph.c.obj	dd62b03ee372dc0e
+5679	5749	7935610759405963	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32s3/timer_periph.c.obj	4d0bc202f9e82b8e
+13245	13416	7935610835074443	esp-idf/esp_system/libesp_system.a	fc34ae514cc550ec
+5696	5764	7935610759579012	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32s3/mcpwm_periph.c.obj	4d9067baa924c2c2
+5702	5771	7935610759649103	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32s3/mpi_periph.c.obj	ff6270160b20fabc
+5732	5831	7935610759941363	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32s3/wdt_periph.c.obj	3fe757f829b95a7a
+8788	8880	7935610790494506	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/9f81bbcb9ea3b00696d95e97f026f64d/esp-idf-v5.4.3/components/mbedtls/port/sha/dma/esp_sha512.c.obj	fc50cbb9c01e3d58
+5757	5801	7935610760192168	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32s3/cam_periph.c.obj	cec687ab7c816da1
+5749	5794	7935610760111974	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32s3/rtc_io_periph.c.obj	2e361e7f08e1ada3
+5809	5875	7935610760713785	esp-idf/heap/CMakeFiles/__idf_heap.dir/port/esp32s3/memory_layout.c.obj	d230ed8890fcb71f
+5801	5867	7935610760626697	esp-idf/heap/CMakeFiles/__idf_heap.dir/port/memory_layout_utils.c.obj	1e0df31c1f43e4cb
+5765	5817	7935610760269137	esp-idf/heap/CMakeFiles/__idf_heap.dir/heap_caps_base.c.obj	66ba550a99c88c6f
+5779	5838	7935610760409344	esp-idf/heap/CMakeFiles/__idf_heap.dir/heap_caps_init.c.obj	f3f93395e1d7085f
+5771	5824	7935610760338746	esp-idf/heap/CMakeFiles/__idf_heap.dir/heap_caps.c.obj	a7cf3327f77ae531
+7991	8055	7935610782537001	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/ecdh.c.obj	aaf2db11f251edbf
+5786	5853	7935610760479458	esp-idf/heap/CMakeFiles/__idf_heap.dir/multi_heap.c.obj	b023003e7b41416f
+841	9875	7935621659005623	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/esp-idf/esp_system/ld/sections.ld	b9ed57d517a0644
+6309	6375	7935610765711377	esp-idf/hal/CMakeFiles/__idf_hal.dir/esp32s3/touch_sensor_hal.c.obj	d377022cf0661188
+5817	5884	7935610760795050	esp-idf/log/CMakeFiles/__idf_log.dir/src/os/log_timestamp.c.obj	1f220b27fd35b6d3
+6738	6796	7935610769997039	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/port/arch/xtensa/debug_stubs.c.obj	5179fb065a87f044
+8584	8660	7935610788457653	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/version.c.obj	ac1a1aeab5519f8
+5824	5901	7935610760856713	esp-idf/log/CMakeFiles/__idf_log.dir/src/log_timestamp_common.c.obj	bc3a7b95f286083a
+5861	5949	7935610761227213	esp-idf/log/CMakeFiles/__idf_log.dir/src/log_level/log_level.c.obj	d97379aa22117703
+5868	5994	7935610761300283	esp-idf/log/CMakeFiles/__idf_log.dir/src/log_level/tag_log_level/tag_log_level.c.obj	2399025c7e0ffbe2
+5794	5861	7935610760561401	esp-idf/heap/CMakeFiles/__idf_heap.dir/tlsf/tlsf.c.obj	918931b7d840c137
+5884	5941	7935610761453930	esp-idf/log/CMakeFiles/__idf_log.dir/src/log_level/tag_log_level/cache/log_binary_heap.c.obj	30212193aa66fe68
+5909	6010	7935610761710639	esp-idf/hal/CMakeFiles/__idf_hal.dir/efuse_hal.c.obj	7df2a7ee2b4eefa0
+5916	5987	7935610761780795	esp-idf/hal/CMakeFiles/__idf_hal.dir/esp32s3/efuse_hal.c.obj	2d2672346780140d
+5941	6025	7935610762028028	esp-idf/hal/CMakeFiles/__idf_hal.dir/cache_hal.c.obj	62caab01c3c6da7d
+8045	8115	7935610783077797	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/entropy.c.obj	15592fda98f610a4
+5977	6047	7935610762398139	esp-idf/hal/CMakeFiles/__idf_hal.dir/spi_flash_encrypt_hal_iram.c.obj	c634820402c2a0ea
+6625	6738	7935610768873765	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/port/brownout.c.obj	a2d9f845a5af2fda
+5957	6033	7935610762197884	esp-idf/hal/CMakeFiles/__idf_hal.dir/spi_flash_hal.c.obj	19e5235d1cc7a2ad
+5987	6055	7935610762488116	esp-idf/hal/CMakeFiles/__idf_hal.dir/esp32s3/clk_tree_hal.c.obj	5b3dc5b20f671cb2
+98	273	7935623777316974	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.map	b49219955d1d8de2
+6017	6102	7935610762799030	esp-idf/hal/CMakeFiles/__idf_hal.dir/gpio_hal.c.obj	8730c5e5bf2f2b71
+15697	15786	7935610859587254	esp-idf/wear_levelling/CMakeFiles/__idf_wear_levelling.dir/WL_Ext_Safe.cpp.obj	c489cb17bbf1dd08
+6025	6083	7935610762869044	esp-idf/hal/CMakeFiles/__idf_hal.dir/rtc_io_hal.c.obj	5b6f9789f572bd2f
+6033	6117	7935610762954262	esp-idf/hal/CMakeFiles/__idf_hal.dir/timer_hal.c.obj	62bce7d8016dbe87
+7621	7738	7935610778834064	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedx509.dir/x509_crt.c.obj	2e3bd1474173b986
+6040	6124	7935610763018847	esp-idf/hal/CMakeFiles/__idf_hal.dir/ledc_hal.c.obj	7fa1bdd020e81c8f
+14959	15073	7935610852203372	esp-idf/mbedtls/mbedtls/3rdparty/p256-m/libp256m.a	c1e080fe23f32ef7
+6047	6109	7935610763097667	esp-idf/hal/CMakeFiles/__idf_hal.dir/ledc_hal_iram.c.obj	f7a9bc84bd0a61cb
+6069	6153	7935610763309340	esp-idf/hal/CMakeFiles/__idf_hal.dir/rmt_hal.c.obj	2558ac60805a94df
+7378	7529	7935610776398081	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedtls.dir/ssl_debug_helpers_generated.c.obj	8f5e48b48f40c12d
+6061	6138	7935610763232258	esp-idf/hal/CMakeFiles/__idf_hal.dir/i2c_hal_iram.c.obj	92211ce03b3dcaa9
+16345	16433	7935610866072919	esp-idf/nvs_sec_provider/CMakeFiles/__idf_nvs_sec_provider.dir/nvs_sec_provider.c.obj	6bb888506c33ca52
+6055	6131	7935610763157749	esp-idf/hal/CMakeFiles/__idf_hal.dir/i2c_hal.c.obj	aafb4c72557b1235
+8055	8138	7935610783168754	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/entropy_poll.c.obj	769d1bd5bc511e14
+6102	6166	7935610763640245	esp-idf/hal/CMakeFiles/__idf_hal.dir/uhci_hal.c.obj	1ac2ed9d5e4bc2f
+8623	8725	7935610788859695	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/5fc1065025931b73bd6dff62d175bd57/mbedtls/port/crypto_shared_gdma/esp_crypto_shared_gdma.c.obj	fd3eaa4419560cb7
+6083	6160	7935610763449174	esp-idf/hal/CMakeFiles/__idf_hal.dir/mcpwm_hal.c.obj	7f4b765ad80a1c27
+6117	6190	7935610763793522	esp-idf/hal/CMakeFiles/__idf_hal.dir/twai_hal_iram.c.obj	d9f4eb05e6bae81b
+107	217	7935623777399455	esp-idf/esptool_py/CMakeFiles/app_check_size	b6df33b9580d12a7
+6124	6181	7935610763853660	esp-idf/hal/CMakeFiles/__idf_hal.dir/gdma_hal_top.c.obj	4c01fe978a82e61a
+6109	6173	7935610763713667	esp-idf/hal/CMakeFiles/__idf_hal.dir/twai_hal.c.obj	21c0139cb82e8d93
+6153	6208	7935610764147894	esp-idf/hal/CMakeFiles/__idf_hal.dir/sdmmc_hal.c.obj	37fcd6c7a3738b3
+7290	7358	7935610775528674	esp-idf/app_update/CMakeFiles/__idf_app_update.dir/esp_ota_ops.c.obj	e2d5ffa5d3160279
+15343	15419	7935610856050477	esp-idf/console/CMakeFiles/__idf_console.dir/argtable3/arg_dbl.c.obj	cc8a55a96326e12a
+6138	6222	7935610764002643	esp-idf/hal/CMakeFiles/__idf_hal.dir/i2s_hal.c.obj	6c2fe1d8b0c361d4
+6215	6273	7935610764773400	esp-idf/hal/CMakeFiles/__idf_hal.dir/brownout_hal.c.obj	a29de4b277c9154b
+6160	6229	7935610764220824	esp-idf/hal/CMakeFiles/__idf_hal.dir/adc_hal_common.c.obj	464435c4adc60983
+15229	15307	7935610854908971	esp-idf/esp_driver_gpio/CMakeFiles/__idf_esp_driver_gpio.dir/src/gpio_pin_glitch_filter.c.obj	26747a1fc659c9f6
+6181	6258	7935610764438592	esp-idf/hal/CMakeFiles/__idf_hal.dir/lcd_hal.c.obj	73a9127ed6e81fae
+6173	6244	7935610764354920	esp-idf/hal/CMakeFiles/__idf_hal.dir/adc_hal.c.obj	c9f40bd19ff908a
+6201	6266	7935610764629795	esp-idf/hal/CMakeFiles/__idf_hal.dir/sha_hal.c.obj	f4800917cb1425aa
+7133	7258	7935610773953593	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_utility.c.obj	ee9a39aa7566bdf7
+6190	6251	7935610764519906	esp-idf/hal/CMakeFiles/__idf_hal.dir/mpi_hal.c.obj	44f1ecb561fc14a
+16127	16223	7935610863891509	esp-idf/espcoredump/CMakeFiles/__idf_espcoredump.dir/src/core_dump_uart.c.obj	28ab9a19139f53f3
+6208	6280	7935610764698346	esp-idf/hal/CMakeFiles/__idf_hal.dir/aes_hal.c.obj	dde8425312e473d7
+6222	6287	7935610764840646	esp-idf/hal/CMakeFiles/__idf_hal.dir/spi_hal.c.obj	6ec9929aac071983
+15382	15455	7935610856447008	esp-idf/console/CMakeFiles/__idf_console.dir/argtable3/arg_int.c.obj	6c642f7052be6212
+6244	6309	7935610765058432	esp-idf/hal/CMakeFiles/__idf_hal.dir/spi_slave_hal_iram.c.obj	9603df2f825f554f
+6229	6301	7935610764910975	esp-idf/hal/CMakeFiles/__idf_hal.dir/spi_hal_iram.c.obj	55998853612a3bed
+6496	6593	7935610767581495	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/int_wdt.c.obj	169dec85b31e2575
+6258	6332	7935610765205102	esp-idf/hal/CMakeFiles/__idf_hal.dir/spi_flash_hal_gpspi.c.obj	927ceafe48f95616
+15254	15321	7935610855160855	esp-idf/xtensa/CMakeFiles/__idf_xtensa.dir/xt_trax.c.obj	4790394c90b37ed0
+6324	6390	7935610765857946	esp-idf/hal/CMakeFiles/__idf_hal.dir/xt_wdt_hal.c.obj	7a740fa60d1acb04
+16155	16255	7935610864168954	esp-idf/espcoredump/CMakeFiles/__idf_espcoredump.dir/src/core_dump_binary.c.obj	eb6f352bc362fe94
+6339	6398	7935610766015249	esp-idf/esp_rom/CMakeFiles/__idf_esp_rom.dir/patches/esp_rom_sys.c.obj	9388d36c92d9c98e
+6317	6383	7935610765795468	esp-idf/hal/CMakeFiles/__idf_hal.dir/touch_sensor_hal.c.obj	93df09d40e09c1c7
+6332	6408	7935610765944230	esp-idf/hal/CMakeFiles/__idf_hal.dir/esp32s3/rtc_cntl_hal.c.obj	e451f56eb55483f
+15278	15343	7935610855397865	esp-idf/xtensa/CMakeFiles/__idf_xtensa.dir/xtensa_intr.c.obj	2927365b36861d11
+6294	6368	7935610765557994	esp-idf/hal/CMakeFiles/__idf_hal.dir/usb_dwc_hal.c.obj	80220456d4f43809
+15773	16210	7935610860351703	esp-idf/esp_driver_gpio/libesp_driver_gpio.a	e1855ec2cfe55ff0
+6346	6439	7935610766090167	esp-idf/esp_rom/CMakeFiles/__idf_esp_rom.dir/patches/esp_rom_print.c.obj	dbd3947ae1d66e2c
+6375	6473	7935610766376052	esp-idf/esp_rom/CMakeFiles/__idf_esp_rom.dir/patches/esp_rom_efuse.c.obj	a9ef77f7d5b7e1f3
+15735	15817	7935610859969557	esp-idf/json/CMakeFiles/__idf_json.dir/cJSON/cJSON.c.obj	63a9795cbc3f7ef9
+6390	6466	7935610766516898	esp-idf/esp_rom/CMakeFiles/__idf_esp_rom.dir/patches/esp_rom_longjmp.S.obj	bab2f0f1df52eeb
+6368	6459	7935610766299001	esp-idf/esp_rom/CMakeFiles/__idf_esp_rom.dir/patches/esp_rom_spiflash.c.obj	d4f5253686156bcc
+6608	6701	7935610768707998	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/port/esp_system_chip.c.obj	e3ce0e7a15df46bd
+6361	6446	7935610766230837	esp-idf/esp_rom/CMakeFiles/__idf_esp_rom.dir/patches/esp_rom_uart.c.obj	269336c9f380f626
+6488	6586	7935610767503076	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/freertos_hooks.c.obj	f07d71be91a80bd3
+6545	6617	7935610768072306	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/stack_check.c.obj	149de8826eae4b88
+6601	6677	7935610768628549	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/port/panic_handler.c.obj	6d5702390a096999
+6446	6545	7935610767080253	esp-idf/esp_common/CMakeFiles/__idf_esp_common.dir/src/esp_err_to_name.c.obj	968d8f0e74e25e84
+6572	6652	7935610768339135	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/xt_wdt.c.obj	bf6525dcdac95bdd
+6580	6669	7935610768413683	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/task_wdt/task_wdt.c.obj	e8f3581157bcee7c
+6594	6708	7935610768558180	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/port/cpu_start.c.obj	f9ef79179f6b6601
+6677	6768	7935610769395903	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/port/arch/xtensa/esp_ipc_isr_routines.S.obj	2f89573244c01511
+8515	8592	7935610787773954	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/rsa_alt_helpers.c.obj	27c069736a8f4ce7
+15448	15521	7935610857100077	esp-idf/unity/CMakeFiles/__idf_unity.dir/unity_compat.c.obj	b11252bcd8fe96f9
+6701	6760	7935610769629744	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/port/arch/xtensa/panic_handler_asm.S.obj	107cffc9b28956cf
+6730	6804	7935610769917001	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/port/arch/xtensa/debug_helpers_asm.S.obj	5afeecad3db6d9ba
+6709	6782	7935610769706707	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/port/arch/xtensa/expression_with_stack.c.obj	3b5cb355aa06a99c
+6685	6753	7935610769471331	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/port/arch/xtensa/panic_arch.c.obj	6026d96add151728
+7976	8038	7935610782381432	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/des.c.obj	2eeaaffc7edd093
+6745	6818	7935610770074455	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/port/arch/xtensa/trax.c.obj	879d74b5df4a3147
+6768	6826	7935610770300741	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/port/soc/esp32s3/reset_reason.c.obj	4b7b017eaddddd38
+6796	6858	7935610770579187	esp-idf/spi_flash/CMakeFiles/__idf_spi_flash.dir/flash_brownout_hook.c.obj	568740989eb2abf
+6782	6874	7935610770443745	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/port/soc/esp32s3/cache_err_int.c.obj	348ebab9ec7ec173
+6811	6900	7935610770729856	esp-idf/spi_flash/CMakeFiles/__idf_spi_flash.dir/spi_flash_hpm_enable.c.obj	ea90c1bcf235050c
+13138	13245	7935610833998484	esp-idf/esp_common/libesp_common.a	788556fa1621f0b6
+6775	6851	7935610770376916	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/port/soc/esp32s3/system_internal.c.obj	5f65249909fee680
+6804	6892	7935610770660439	esp-idf/spi_flash/CMakeFiles/__idf_spi_flash.dir/esp32s3/spi_flash_oct_flash_init.c.obj	c5adfaa54dc2350f
+6844	6908	7935610771055036	esp-idf/spi_flash/CMakeFiles/__idf_spi_flash.dir/spi_flash_chip_issi.c.obj	cbb1254406e651cb
+6874	6988	7935610771362933	esp-idf/spi_flash/CMakeFiles/__idf_spi_flash.dir/spi_flash_chip_boya.c.obj	56e0e37f8abee8f4
+6858	6944	7935610771197191	esp-idf/spi_flash/CMakeFiles/__idf_spi_flash.dir/spi_flash_chip_gd.c.obj	63fb42f9e658ce23
+6851	6926	7935610771135352	esp-idf/spi_flash/CMakeFiles/__idf_spi_flash.dir/spi_flash_chip_mxic.c.obj	992645acf666a5a3
+6866	6952	7935610771279234	esp-idf/spi_flash/CMakeFiles/__idf_spi_flash.dir/spi_flash_chip_winbond.c.obj	e04a21b137a86b26
+15291	15382	7935610855528247	esp-idf/console/CMakeFiles/__idf_console.dir/commands.c.obj	9ed5d2d885f0ace4
+15759	15832	7935610860209251	esp-idf/app_trace/CMakeFiles/__idf_app_trace.dir/app_trace.c.obj	9159df0b1de00a8d
+6826	6916	7935610770881365	esp-idf/spi_flash/CMakeFiles/__idf_spi_flash.dir/spi_flash_chip_generic.c.obj	46104ae8df5eb926
+7870	7928	7935610781321520	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/camellia.c.obj	afe9fc98053a4b1d
+7928	8005	7935610781896770	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/cmac.c.obj	a1db8c650e771e7a
+6900	6995	7935610771627684	esp-idf/spi_flash/CMakeFiles/__idf_spi_flash.dir/memspi_host_driver.c.obj	ef022fd57ab09bfd
+6916	7011	7935610771786295	esp-idf/spi_flash/CMakeFiles/__idf_spi_flash.dir/flash_mmap.c.obj	32ffe7b41784f655
+6926	7018	7935610771877773	esp-idf/spi_flash/CMakeFiles/__idf_spi_flash.dir/flash_ops.c.obj	d6aed16cf1db7a45
+6969	7043	7935610772307808	esp-idf/spi_flash/CMakeFiles/__idf_spi_flash.dir/spi_flash_os_func_app.c.obj	d5a7ec71d3d58b35
+8287	8370	7935610785491002	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/platform.c.obj	1aea99bd661fa5ff
+6961	7058	7935610772234634	esp-idf/spi_flash/CMakeFiles/__idf_spi_flash.dir/esp_flash_spi_init.c.obj	891a84e6493d1bbc
+7003	7073	7935610772651476	esp-idf/esp_mm/CMakeFiles/__idf_esp_mm.dir/port/esp32s3/ext_mem_layout.c.obj	64b18862a1a4038b
+15187	15254	7935610854490000	esp-idf/esp_pm/CMakeFiles/__idf_esp_pm.dir/pm_locks.c.obj	682ce7238c791ba6
+7025	7090	7935610772872639	esp-idf/esp_mm/CMakeFiles/__idf_esp_mm.dir/heap_align_hw.c.obj	531ca1d36e734c94
+8831	8896	7935610790938964	esp-idf/mbedtls/mbedtls/3rdparty/everest/CMakeFiles/everest.dir/library/everest.c.obj	623dc5bd137efb5f
+7058	7118	7935610773193095	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_mem.c.obj	1dea7d32145e3ca8
+7110	7208	7935610773720931	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/bootloader_flash/src/bootloader_flash.c.obj	3f17e7a9a4a0857d
+15610	15705	7935610858721984	esp-idf/protocomm/CMakeFiles/__idf_protocomm.dir/src/security/security0.c.obj	d50cc72dc815f265
+7035	7102	7935610772978055	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_common.c.obj	6c26b9d54e635e64
+7074	7140	7935610773350249	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_efuse.c.obj	b75e800fb3c0df69
+7102	7161	7935610773649339	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_random_esp32s3.c.obj	df1599f65c65e0e
+7082	7175	7935610773438625	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/flash_encrypt.c.obj	2047e80615a92926
+7545	7642	7935610778072883	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedtls.dir/D_/ESP32-IDF/environment/Espressif/frameworks/esp-idf-v5.4.3/components/mbedtls/port/mbedtls_debug.c.obj	60fc6f522d9e7d5b
+16565	16665	7935610868280282	esp-idf/usb/CMakeFiles/__idf_usb.dir/usb_private.c.obj	d6794bec51bad09a
+7090	7168	7935610773517563	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/secure_boot.c.obj	1b93cac1a39128b1
+7140	7235	7935610774018786	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/flash_partitions.c.obj	a5a889e6ecbe2354
+7148	7242	7935610774099552	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/esp_image_format.c.obj	8e4f4892e5d9a32a
+13556	13674	7935610838182158	esp-idf/esp_mm/libesp_mm.a	9ca29fd851b2a20c
+8279	8394	7935610785408235	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/pkwrite.c.obj	3f94fb106501f677
+7168	7269	7935610774306078	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/esp32s3/secure_boot_secure_features.c.obj	2a1e5913b2b5294b
+7184	7298	7935610774456091	esp-idf/efuse/CMakeFiles/__idf_efuse.dir/esp32s3/esp_efuse_fields.c.obj	43a9484a7363b128
+15491	15610	7935610857536798	esp-idf/unity/CMakeFiles/__idf_unity.dir/port/esp/unity_utils_memory_esp.c.obj	e645ff43ce025ff7
+7208	7290	7935610774699312	esp-idf/efuse/CMakeFiles/__idf_efuse.dir/esp32s3/esp_efuse_rtc_calib.c.obj	3bc0d57e93cc06fe
+8777	8861	7935610790388110	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/9f81bbcb9ea3b00696d95e97f026f64d/esp-idf-v5.4.3/components/mbedtls/port/sha/dma/esp_sha256.c.obj	f7b02990d0991eef
+15817	15884	7935610860795112	esp-idf/esp_driver_cam/CMakeFiles/__idf_esp_driver_cam.dir/dvp_share_ctrl.c.obj	e4eb7e46a8693dc8
+44	6692	7935624495747128	build.ninja	9557c1952d18c070
+7223	7305	7935610774856042	esp-idf/efuse/CMakeFiles/__idf_efuse.dir/esp32s3/esp_efuse_utility.c.obj	6109d0a4d739d335
+7235	7313	7935610774973591	esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp_efuse_api.c.obj	e60eb390311a1905
+7242	7283	7935610775040829	esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp_efuse_fields.c.obj	a85916c6533f4960
+7269	7334	7935610775307784	esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp_efuse_startup.c.obj	a8bfeed54ba8ff06
+13945	14066	7935610842058643	esp-idf/esp_partition/libesp_partition.a	91279e1bd9e2e79b
+7258	7327	7935610775200574	esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/efuse_controller/keys/with_key_purposes/esp_efuse_api_key.c.obj	ab2f91bc47ad2c82
+7283	7350	7935610775452111	esp-idf/esp_partition/CMakeFiles/__idf_esp_partition.dir/partition_target.c.obj	76525939d3913da9
+7298	7366	7935610775599721	esp-idf/app_update/CMakeFiles/__idf_app_update.dir/esp_ota_app_desc.c.obj	d4471ead92913ea1
+15945	16107	7935610862071469	esp-idf/esp_lcd/CMakeFiles/__idf_esp_lcd.dir/i2c/esp_lcd_panel_io_i2c_v1.c.obj	aae81b5e8264298e
+7276	7341	7935610775379412	esp-idf/esp_partition/CMakeFiles/__idf_esp_partition.dir/partition.c.obj	8d9e03d3d11be814
+7306	8263	7935610775678298	esp-idf/esp_bootloader_format/CMakeFiles/__idf_esp_bootloader_format.dir/esp_bootloader_desc.c.obj	48e6fc7311793705
+7320	7386	7935610775820274	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedtls.dir/debug.c.obj	518a9e57a9497ce
+7327	7378	7935610775889577	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedtls.dir/mps_reader.c.obj	256542ea238b744
+7334	7393	7935610775969646	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedtls.dir/mps_trace.c.obj	673bc3a89ba02a99
+7313	8272	7935610775748397	esp-idf/esp_app_format/CMakeFiles/__idf_esp_app_format.dir/esp_app_desc.c.obj	961c977caacfb19e
+8138	8234	7935610783997933	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/md.c.obj	b7edcc2ecc922c21
+7350	7470	7935610776121899	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedtls.dir/ssl_ciphersuites.c.obj	fb4f2606c463f4eb
+13822	13944	7935610840844476	esp-idf/efuse/libefuse.a	b42ca0975bf8eef3
+7342	7477	7935610776041526	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedtls.dir/ssl_cache.c.obj	db81274f2b2d4771
+8302	8403	7935610785643342	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/platform_util.c.obj	d0efb8d4fc9f528c
+7358	7485	7935610776204408	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedtls.dir/ssl_client.c.obj	664294e844bc16f1
+7485	7567	7935610777470116	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedtls.dir/ssl_tls13_keys.c.obj	e8c94c6fce293cba
+16277	16345	7935610865390837	esp-idf/fatfs/CMakeFiles/__idf_fatfs.dir/vfs/vfs_fat.c.obj	337beef48e70e6f3
+7538	7613	7935610778007792	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedtls.dir/ssl_tls13_generic.c.obj	2aaf8cc36d2e161d
+7386	7560	7935610776479976	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedtls.dir/ssl_msg.c.obj	76f0fdb67d71a2ff
+7553	7621	7935610778148445	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedtls.dir/e9b30da79fde50eac5f42169ec0d937a/frameworks/esp-idf-v5.4.3/components/mbedtls/port/esp_platform_time.c.obj	b0dc5959004fae22
+7477	7553	7935610777395040	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedtls.dir/ssl_tls12_server.c.obj	6b4faf4ade6ee7d8
+14066	14172	7935610843282763	esp-idf/app_update/libapp_update.a	46e198719c6b728f
+7463	7545	7935610777249171	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedtls.dir/ssl_tls.c.obj	bb6dc5c0f10450ca
+8815	8895	7935610790775764	esp-idf/mbedtls/mbedtls/3rdparty/p256-m/CMakeFiles/p256m.dir/p256-m_driver_entrypoints.c.obj	4ff06655257713fc
+7567	7653	7935610778290727	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedx509.dir/pkcs7.c.obj	9a1126da2640742
+7604	7731	7935610778658856	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedx509.dir/x509_create.c.obj	2ffd1edae0d6fdb6
+14172	14282	7935610844342622	esp-idf/esp_bootloader_format/libesp_bootloader_format.a	fa2248838413c164
+7653	7753	7935610779152209	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedx509.dir/x509write.c.obj	11da5889bec8554a
+7643	7768	7935610779051917	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedx509.dir/x509_csr.c.obj	28d5704277bf5392
+7738	7798	7935610779996043	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/aes.c.obj	6a966c37547df139
+7753	7835	7935610780149965	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/aesce.c.obj	10282f8038914f3c
+7731	7814	7935610779929269	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedx509.dir/x509write_csr.c.obj	1fc9c3d1292e2dff
+7768	7828	7935610780296356	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/asn1parse.c.obj	ae60299742ff3ed8
+315	408	7935623780333933	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+7798	7881	7935610780601686	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/asn1write.c.obj	a0db29f7ade6ec41
+7842	7912	7935610781044271	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/block_cipher.c.obj	9c20a2f5e37e0f7b
+7821	7896	7935610780833955	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/bignum_core.c.obj	17d9ab6b38516b95
+15963	16087	7935610862243933	esp-idf/esp_lcd/CMakeFiles/__idf_esp_lcd.dir/spi/esp_lcd_panel_io_spi.c.obj	ef18ba9a5b051167
+7904	7991	7935610781655476	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/cipher.c.obj	a9f5144bcbd8e610
+8070	8190	7935610783315663	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/error.c.obj	5dd0f42da621af31
+7968	8045	7935610782306284	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/ctr_drbg.c.obj	afa57bf3088525f0
+8006	8098	7935610782679322	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/ecjpake.c.obj	313f293cafc8e2d0
+8108	8154	7935610783697295	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/hkdf.c.obj	39e6e295dae8ec
+8115	8218	7935610783772479	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/hmac_drbg.c.obj	7e65f68c98fae044
+8162	8241	7935610784240318	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/memory_buffer_alloc.c.obj	51b8a63c646e6805
+8122	8210	7935610783837802	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/lmots.c.obj	9203ba2d8a200d6a
+8387	8507	7935610786488574	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/psa_crypto_ffdh.c.obj	b394203c1a66d59c
+8129	8249	7935610783918240	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/lms.c.obj	96c43fd4b04de279
+15209	15284	7935610854709847	esp-idf/esp_driver_gpio/CMakeFiles/__idf_esp_driver_gpio.dir/src/gpio_glitch_filter_ops.c.obj	739e72246f853c2f
+8190	8256	7935610784514264	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/nist_kw.c.obj	f200428ed63b53d1
+8154	8227	7935610784159084	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/md5.c.obj	d7363595890bc33d
+15336	15405	7935610855979150	esp-idf/console/CMakeFiles/__idf_console.dir/argtable3/arg_date.c.obj	fb0e6a6266699f8a
+8218	8279	7935610784809841	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/padlock.c.obj	a8434f0b8a298634
+8241	8320	7935610785027517	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/pk_ecc.c.obj	83a26ce6db011b77
+8227	8302	7935610784890526	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/pem.c.obj	2df623688ad8fb56
+8210	8287	7935610784718238	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/oid.c.obj	1fa5e95e91a7090
+8263	8377	7935610785248051	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/pkcs5.c.obj	e8db6e6de47784cd
+8249	8362	7935610785115826	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/pk_wrap.c.obj	99778c7993afdbdc
+8234	8348	7935610784962044	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/pk.c.obj	568d4ff10ba22075
+8321	8387	7935610785832415	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/poly1305.c.obj	1ed2fdffc0006174
+8362	8461	7935610786243006	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/psa_crypto_client.c.obj	b19c23281aabb5eb
+8370	8470	7935610786321485	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/psa_crypto_driver_wrappers_no_static.c.obj	6d3b7e7d647efc99
+8348	8413	7935610786095059	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/psa_crypto_aead.c.obj	a844c7d124d454da
+8749	8846	7935610790120653	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/9f81bbcb9ea3b00696d95e97f026f64d/esp-idf-v5.4.3/components/mbedtls/port/bignum/esp_bignum.c.obj	8839531e0bd5de9e
+15920	15989	7935610861827061	esp-idf/esp_lcd/CMakeFiles/__idf_esp_lcd.dir/src/esp_lcd_panel_ssd1306.c.obj	bdff2885376a3d2d
+8378	8453	7935610786391691	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/psa_crypto_ecp.c.obj	1791eb35fe09d79c
+8413	8515	7935610786747635	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/psa_crypto_pake.c.obj	efb79b1b687a4a71
+134	471	7935611515909394	esp-idf/unity/libunity.a	51893c1790cb39a2
+8445	8552	7935610787074637	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/psa_crypto_se.c.obj	56c72b30ed7ad36b
+8494	8584	7935610787560154	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/ripemd160.c.obj	528dcd1648d2b6b0
+8422	8522	7935610786847493	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/psa_crypto_rsa.c.obj	8774d5078e2f6404
+8461	8575	7935610787231458	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/psa_crypto_storage.c.obj	fad4fe98a4a8fe70
+8454	8559	7935610787161049	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/psa_crypto_slot_management.c.obj	495c7541cd09286d
+8487	8568	7935610787490752	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/psa_util.c.obj	fdeb5f2aed6f5b9e
+8522	8608	7935610787840447	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/sha1.c.obj	52fcc83552ce7e72
+15366	15433	7935610856278372	esp-idf/console/CMakeFiles/__idf_console.dir/argtable3/arg_file.c.obj	6c472a7d281d09a2
+8560	8623	7935610788218546	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/sha3.c.obj	a8730ad277a00554
+8568	8640	7935610788303650	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/threading.c.obj	6f77824cb5895faf
+8601	8688	7935610788631884	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/9f81bbcb9ea3b00696d95e97f026f64d/esp-idf-v5.4.3/components/mbedtls/port/sha/dma/esp_sha_gdma_impl.c.obj	492d85684316bb6a
+8340	8445	7935610786024764	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/psa_crypto.c.obj	79364d8521c419aa
+8769	8838	7935610790318165	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/9f81bbcb9ea3b00696d95e97f026f64d/esp-idf-v5.4.3/components/mbedtls/port/sha/dma/esp_sha1.c.obj	6d4b1a4f5b322dc3
+98	273	7935623777316974	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+8616	8741	7935610788779560	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/9f81bbcb9ea3b00696d95e97f026f64d/esp-idf-v5.4.3/components/mbedtls/port/aes/dma/esp_aes_dma_core.c.obj	a5e5f5d211d43ded
+8668	8761	7935610789297797	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/9f81bbcb9ea3b00696d95e97f026f64d/esp-idf-v5.4.3/components/mbedtls/port/aes/esp_aes_common.c.obj	a1a9e932bf9e4598
+91	415	7935611515487506	esp-idf/console/libconsole.a	4a67885f1a027c95
+8680	8788	7935610789410112	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/9f81bbcb9ea3b00696d95e97f026f64d/esp-idf-v5.4.3/components/mbedtls/port/aes/dma/esp_aes.c.obj	9e3e99674946b125
+8741	8824	7935610790040147	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/9f81bbcb9ea3b00696d95e97f026f64d/esp-idf-v5.4.3/components/mbedtls/port/esp_ds/esp_ds_common.c.obj	264e065366bbe0
+8803	8882	7935610790650408	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/D_/ESP32-IDF/environment/Espressif/frameworks/esp-idf-v5.4.3/components/mbedtls/port/md/esp_md.c.obj	366a12cf0ed03a7a
+14526	14646	7935610847887294	esp-idf/mbedtls/mbedtls/library/libmbedx509.a	2086a4d99fb25bc0
+8824	8891	7935610790862090	esp-idf/mbedtls/mbedtls/3rdparty/p256-m/CMakeFiles/p256m.dir/p256-m/p256-m.c.obj	5fe632c601d1b984
+8846	8903	7935610791081927	esp-idf/mbedtls/mbedtls/3rdparty/everest/CMakeFiles/everest.dir/library/Hacl_Curve25519_joined.c.obj	7f1692edc114c847
+8796	8883	7935610790580234	esp-idf/mbedtls/mbedtls/library/CMakeFiles/mbedcrypto.dir/9f81bbcb9ea3b00696d95e97f026f64d/esp-idf-v5.4.3/components/mbedtls/port/aes/esp_aes_gcm.c.obj	26331cb420ee2829
+47390	47488	7935596793862074	bootloader-prefix/src/bootloader-stamp/bootloader-update	da4bf0da4668bfaf
+47390	47488	7935596793862074	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-update	da4bf0da4668bfaf
+48398	48629	7935596805290317	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/x509_crt_bundle.S	5998bfda80692f65
+15222	15299	7935610854838351	esp-idf/esp_driver_gpio/CMakeFiles/__idf_esp_driver_gpio.dir/src/dedic_gpio.c.obj	488692f9ef4b45d3
+15724	15809	7935610859858946	esp-idf/wear_levelling/CMakeFiles/__idf_wear_levelling.dir/wear_levelling.cpp.obj	1590c525b05c4422
+15236	15314	7935610854980485	esp-idf/xtensa/CMakeFiles/__idf_xtensa.dir/eri.c.obj	d51258313b97d84
+15197	15270	7935610854588720	esp-idf/esp_pm/CMakeFiles/__idf_esp_pm.dir/pm_impl.c.obj	b51f1e04325b7013
+15261	15329	7935610855235642	esp-idf/xtensa/CMakeFiles/__idf_xtensa.dir/xtensa_context.S.obj	7da8fb15862b80cf
+15284	15351	7935610855457844	esp-idf/xtensa/CMakeFiles/__idf_xtensa.dir/xtensa_vectors.S.obj	943175e63bdf2c80
+16210	16685	7935610864716192	esp-idf/xtensa/libxtensa.a	c3b531f2cf8da52
+15203	15278	7935610854648654	esp-idf/esp_driver_gpio/CMakeFiles/__idf_esp_driver_gpio.dir/src/gpio.c.obj	5876151a7b45e78f
+15534	15773	7935610857962099	esp-idf/esp_pm/libesp_pm.a	337d6ebabdefe490
+15300	15373	7935610855619987	esp-idf/console/CMakeFiles/__idf_console.dir/esp_console_common.c.obj	b845d4a966723c33
+15329	15397	7935610855912426	esp-idf/console/CMakeFiles/__idf_console.dir/argtable3/arg_cmd.c.obj	af8103a1fdf1264b
+15322	15390	7935610855840504	esp-idf/console/CMakeFiles/__idf_console.dir/esp_console_repl_chip.c.obj	b46a98530acdbe4c
+15373	15440	7935610856357678	esp-idf/console/CMakeFiles/__idf_console.dir/argtable3/arg_hashtable.c.obj	abfddf4a79cc6eee
+15397	15462	7935610856587416	esp-idf/console/CMakeFiles/__idf_console.dir/argtable3/arg_rem.c.obj	fdc4dafbe67bea49
+15411	15484	7935610856733783	esp-idf/console/CMakeFiles/__idf_console.dir/argtable3/arg_str.c.obj	793e2c305836f1e0
+15419	15477	7935610856817907	esp-idf/console/CMakeFiles/__idf_console.dir/argtable3/arg_utils.c.obj	2d94ce2a6b0d97e5
+15405	15469	7935610856663091	esp-idf/console/CMakeFiles/__idf_console.dir/argtable3/arg_rex.c.obj	6cb371e4a5394ad0
+16298	16362	7935610865597588	esp-idf/fatfs/CMakeFiles/__idf_fatfs.dir/vfs/vfs_fat_spiflash.c.obj	eaff7194aa89b66d
+15455	15546	7935610857175214	esp-idf/unity/CMakeFiles/__idf_unity.dir/unity_runner.c.obj	c6859b583b593687
+15427	15491	7935610856890498	esp-idf/console/CMakeFiles/__idf_console.dir/argtable3/argtable3.c.obj	76f364627eeafe66
+15462	15558	7935610857236682	esp-idf/unity/CMakeFiles/__idf_unity.dir/unity_utils_freertos.c.obj	5dc17c9afc1b7e70
+15521	15588	7935610857831744	esp-idf/protocomm/CMakeFiles/__idf_protocomm.dir/proto-c/constants.pb-c.c.obj	af52f73f37c07441
+15580	15676	7935610858420122	esp-idf/protocomm/CMakeFiles/__idf_protocomm.dir/proto-c/session.pb-c.c.obj	82f29114c33351a5
+15558	15633	7935610858201479	esp-idf/protocomm/CMakeFiles/__idf_protocomm.dir/proto-c/sec1.pb-c.c.obj	9c1e7f8f38868760
+15569	15666	7935610858319564	esp-idf/protocomm/CMakeFiles/__idf_protocomm.dir/proto-c/sec2.pb-c.c.obj	1d60015960afb889
+15499	15655	7935610857609880	esp-idf/esp_https_server/CMakeFiles/__idf_esp_https_server.dir/src/https_server.c.obj	42e0bf3720986d9f
+15599	15697	7935610858615460	esp-idf/protocomm/CMakeFiles/__idf_protocomm.dir/src/transports/protocomm_httpd.c.obj	f690e2ff412a82
+15676	15759	7935610859386603	esp-idf/wear_levelling/CMakeFiles/__idf_wear_levelling.dir/SPI_Flash.cpp.obj	952c3ebd8cfdf241
+15633	15724	7935610858951183	esp-idf/protocomm/CMakeFiles/__idf_protocomm.dir/src/security/security2.c.obj	95c94a1b450dd32e
+15705	15793	7935610859677848	esp-idf/wear_levelling/CMakeFiles/__idf_wear_levelling.dir/WL_Flash.cpp.obj	dcc09a85b3a729cb
+15741	15824	7935610860029852	esp-idf/json/CMakeFiles/__idf_json.dir/cJSON/cJSON_Utils.c.obj	e3cad8edbbfa7439
+15786	15846	7935610860482041	esp-idf/app_trace/CMakeFiles/__idf_app_trace.dir/host_file_io.c.obj	51a0c7dab4164552
+15802	15861	7935610860640658	esp-idf/cmock/CMakeFiles/__idf_cmock.dir/CMock/src/cmock.c.obj	ef290be9140be763
+15809	15872	7935610860719443	esp-idf/esp_driver_cam/CMakeFiles/__idf_esp_driver_cam.dir/esp_cam_ctlr.c.obj	412b0f6a7f5130a3
+15825	15908	7935610860871459	esp-idf/esp_driver_cam/CMakeFiles/__idf_esp_driver_cam.dir/dvp/src/esp_cam_ctlr_dvp_gdma.c.obj	ec0d86e0e2258e46
+15861	15937	7935610861232021	esp-idf/esp_hid/CMakeFiles/__idf_esp_hid.dir/src/esp_hidd.c.obj	312ba159e35aa220
+15884	15953	7935610861458846	esp-idf/esp_hid/CMakeFiles/__idf_esp_hid.dir/src/esp_hid_common.c.obj	a907e8b86c6ae633
+15839	15893	7935610861008605	esp-idf/esp_eth/CMakeFiles/__idf_esp_eth.dir/src/esp_eth.c.obj	97016c85f57e00ee
+15832	15901	7935610860948070	esp-idf/esp_driver_cam/CMakeFiles/__idf_esp_driver_cam.dir/dvp/src/esp_cam_ctlr_dvp_cam.c.obj	95976ec64d343860
+16419	16506	7935610866812556	esp-idf/spiffs/CMakeFiles/__idf_spiffs.dir/spiffs/src/spiffs_check.c.obj	1e7e12ec1c40b2f
+15894	15962	7935610861559279	esp-idf/esp_lcd/CMakeFiles/__idf_esp_lcd.dir/src/esp_lcd_common.c.obj	880c65cfbf3ec594
+16573	16624	7935610868345438	esp-idf/usb/CMakeFiles/__idf_usb.dir/usbh.c.obj	21bc1984ab236607
+15930	16099	7935610861917837	esp-idf/esp_lcd/CMakeFiles/__idf_esp_lcd.dir/src/esp_lcd_panel_st7789.c.obj	21cb960aff867806
+15953	16074	7935610862151899	esp-idf/esp_lcd/CMakeFiles/__idf_esp_lcd.dir/i2c/esp_lcd_panel_io_i2c_v2.c.obj	30814116d2f53ec5
+415	782	7935611518727597	esp-idf/protocomm/libprotocomm.a	52158eaf7c2aac24
+15971	16116	7935610862325963	esp-idf/esp_lcd/CMakeFiles/__idf_esp_lcd.dir/i80/esp_lcd_panel_io_i80.c.obj	8b85eacbc405400a
+16049	16155	7935610863114395	esp-idf/esp_local_ctrl/CMakeFiles/__idf_esp_local_ctrl.dir/src/esp_local_ctrl_handler.c.obj	ece4d1a169b488e2
+16087	16162	7935610863488436	esp-idf/esp_local_ctrl/CMakeFiles/__idf_esp_local_ctrl.dir/src/esp_local_ctrl_transport_httpd.c.obj	8723e0b0c95aa6f5
+16116	16201	7935610863784197	esp-idf/espcoredump/CMakeFiles/__idf_espcoredump.dir/src/core_dump_flash.c.obj	27d025c91dbb2322
+15981	16127	7935610862426306	esp-idf/esp_lcd/CMakeFiles/__idf_esp_lcd.dir/rgb/esp_lcd_panel_rgb.c.obj	4f0e565776c04246
+160	483	7935611516170218	esp-idf/wear_levelling/libwear_levelling.a	7feb26cb23807e24
+16178	16277	7935610864398085	esp-idf/espcoredump/CMakeFiles/__idf_espcoredump.dir/src/port/xtensa/core_dump_port.c.obj	9de449801e885b07
+172	506	7935611516288772	esp-idf/json/libjson.a	ba3663f5ccb68733
+16288	16375	7935610865498105	esp-idf/fatfs/CMakeFiles/__idf_fatfs.dir/vfs/vfs_fat_sdmmc.c.obj	78fb0d5233aebda3
+16234	16316	7935610864955841	esp-idf/fatfs/CMakeFiles/__idf_fatfs.dir/src/ff.c.obj	494cc52f9f881a50
+16328	16398	7935610865903936	esp-idf/mqtt/CMakeFiles/__idf_mqtt.dir/esp-mqtt/lib/mqtt_outbox.c.obj	4eb0ceb3b701abfc
+16353	16412	7935610866151585	esp-idf/perfmon/CMakeFiles/__idf_perfmon.dir/xtensa_perfmon_access.c.obj	1cf0fe610d9add93
+16375	16419	7935610866374419	esp-idf/perfmon/CMakeFiles/__idf_perfmon.dir/xtensa_perfmon_masks.c.obj	95a2dfc6ca7f5f62
+16335	16490	7935610865970562	esp-idf/mqtt/CMakeFiles/__idf_mqtt.dir/esp-mqtt/lib/platform_esp32_idf.c.obj	d1de72ca28ecf061
+16383	16467	7935610866456704	esp-idf/rt/CMakeFiles/__idf_rt.dir/FreeRTOS_POSIX_mqueue.c.obj	23cd8ee453874566
+483	810	7935611519400964	esp-idf/esp_lcd/libesp_lcd.a	4c2e4b8952ec67d9
+16412	16460	7935610866739833	esp-idf/spiffs/CMakeFiles/__idf_spiffs.dir/spiffs/src/spiffs_cache.c.obj	9291313ae919626a
+16427	16498	7935610866888120	esp-idf/spiffs/CMakeFiles/__idf_spiffs.dir/spiffs/src/spiffs_gc.c.obj	aaa804ec34fc72c6
+16308	16405	7935610865695369	esp-idf/mqtt/CMakeFiles/__idf_mqtt.dir/esp-mqtt/mqtt_client.c.obj	faeb33e859757e35
+16539	16655	7935610868010143	esp-idf/usb/CMakeFiles/__idf_usb.dir/hub.c.obj	77654bfc57c5e075
+16506	16587	7935610867680074	esp-idf/usb/CMakeFiles/__idf_usb.dir/hcd_dwc.c.obj	314bc993ef43c6c4
+16587	16674	7935610868498438	esp-idf/wifi_provisioning/CMakeFiles/__idf_wifi_provisioning.dir/src/wifi_config.c.obj	b3269a3ea4ba2405
+16603	16687	7935610868651554	esp-idf/wifi_provisioning/CMakeFiles/__idf_wifi_provisioning.dir/src/wifi_scan.c.obj	a0b5f55aef1b54a3
+16555	16646	7935610868169871	esp-idf/usb/CMakeFiles/__idf_usb.dir/usb_host.c.obj	d94644756b94e575
+16665	16704	7935610869269711	esp-idf/wifi_provisioning/CMakeFiles/__idf_wifi_provisioning.dir/proto-c/wifi_config.pb-c.c.obj	23ba4abd8658d6e1
+16655	16703	7935610869169366	esp-idf/wifi_provisioning/CMakeFiles/__idf_wifi_provisioning.dir/src/scheme_console.c.obj	d5f56221f313f83e
+197	260	7935611516548163	esp-idf/wifi_provisioning/CMakeFiles/__idf_wifi_provisioning.dir/proto-c/wifi_constants.pb-c.c.obj	398ee366ffc49fe2
+185	242	7935611516439418	esp-idf/wifi_provisioning/CMakeFiles/__idf_wifi_provisioning.dir/proto-c/wifi_ctrl.pb-c.c.obj	eebc197d413e542e
+16674	16716	7935610869361591	esp-idf/wifi_provisioning/CMakeFiles/__idf_wifi_provisioning.dir/proto-c/wifi_scan.pb-c.c.obj	dcbc2c4c2e95133f
+207	279	7935611516638534	esp-idf/wifi_provisioning/CMakeFiles/__idf_wifi_provisioning.dir/src/scheme_softap.c.obj	78f8add8a9735c53
+471	758	7935611519282120	esp-idf/cmock/libcmock.a	13428660a2a42b3
+280	574	7935611517362966	esp-idf/esp_driver_cam/libesp_driver_cam.a	948b315f716ae514
+16636	16688	7935610868979567	esp-idf/wifi_provisioning/CMakeFiles/__idf_wifi_provisioning.dir/src/manager.c.obj	4b8ead950898e531
+442	770	7935611518991288	esp-idf/esp_hid/libesp_hid.a	8d6b4f889f701dbe
+47573	59890	7935596917717497	bootloader-prefix/src/bootloader-stamp/bootloader-configure	caaace2216baab65
+506	871	7935611519627575	esp-idf/espcoredump/libespcoredump.a	d86e8268fbcdebf0
+586	934	7935611520426103	esp-idf/mqtt/libmqtt.a	966bf2ec9197d4cc
+574	932	7935611520314174	esp-idf/fatfs/libfatfs.a	516601429b6e6dfc
+758	1026	7935611522152785	esp-idf/perfmon/libperfmon.a	f2ac494ebe874652
+770	1038	7935611522270099	esp-idf/rt/librt.a	3ed9b3df707d5988
+871	1149	7935611523280702	esp-idf/touch_element/libtouch_element.a	79af9f35378eca48
+115	297	7935612688420938	esp-idf/usb/libusb.a	d02d74c5a313f86f
+130	307	7935612688558007	esp-idf/wifi_provisioning/libwifi_provisioning.a	3696671449a76433
+98	273	7935623777316974	bootloader/bootloader.bin	b49219955d1d8de2
+98	273	7935623777316974	bootloader/bootloader.map	b49219955d1d8de2
+98	273	7935623777316974	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.elf	b49219955d1d8de2
+98	273	7935623777316974	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.bin	b49219955d1d8de2
+274	314	7935623779071708	bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+274	314	7935623779071708	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+315	408	7935623780333933	bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+315	408	7935623780333933	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+108	715	7935621561717407	esp-idf/wifi/CMakeFiles/__idf_wifi.dir/wifi.c.obj	ccb249b083723170
+105	632	7935617610488989	esp-idf/main/CMakeFiles/__idf_main.dir/main.c.obj	b45acbef2215956f
+841	9875	7935621659005623	esp-idf/esp_system/ld/sections.ld	b9ed57d517a0644
+10099	10194	7935615634160588	CMakeFiles/Modbus_Gateway.elf.dir/project_elf_src_esp32s3.c.obj	f0ebe6fcecd2cdce
+9875	12975	7935621659397878	Modbus_Gateway.elf	c46fdc192f317271
+12976	13254	7935621693116277	.bin_timestamp	88f3352163b395df
+12976	13254	7935621693116277	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/.bin_timestamp	88f3352163b395df
+107	217	7935623777399455	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/esp-idf/esptool_py/CMakeFiles/app_check_size	b6df33b9580d12a7
+46	6814	7935624495747128	build.ninja	9557c1952d18c070
+106	222	7935624497569132	esp-idf/esptool_py/CMakeFiles/app_check_size	b6df33b9580d12a7
+106	222	7935624497569132	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/esp-idf/esptool_py/CMakeFiles/app_check_size	b6df33b9580d12a7
+96	282	7935624497465316	bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+96	282	7935624497465316	bootloader/bootloader.elf	b49219955d1d8de2
+96	282	7935624497465316	bootloader/bootloader.bin	b49219955d1d8de2
+96	282	7935624497465316	bootloader/bootloader.map	b49219955d1d8de2
+96	282	7935624497465316	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+96	282	7935624497465316	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.elf	b49219955d1d8de2
+96	282	7935624497465316	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.bin	b49219955d1d8de2
+96	282	7935624497465316	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.map	b49219955d1d8de2
+283	339	7935624499338540	bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+283	339	7935624499338540	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+339	439	7935624500810790	CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+339	439	7935624500810790	bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+339	439	7935624500810790	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+339	439	7935624500810790	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+132	430	7935638175322005	bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+132	430	7935638175322005	bootloader/bootloader.elf	b49219955d1d8de2
+132	430	7935638175322005	bootloader/bootloader.bin	b49219955d1d8de2
+132	430	7935638175322005	bootloader/bootloader.map	b49219955d1d8de2
+132	430	7935638175322005	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+132	430	7935638175322005	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.elf	b49219955d1d8de2
+132	430	7935638175322005	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.bin	b49219955d1d8de2
+132	430	7935638175322005	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.map	b49219955d1d8de2
+431	495	7935638178306455	bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+431	495	7935638178306455	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+495	613	7935638180058601	CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+495	613	7935638180058601	bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+495	613	7935638180058601	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+495	613	7935638180058601	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+120	977	7935638175207371	esp-idf/main/CMakeFiles/__idf_main.dir/main.c.obj	b45acbef2215956f
+106	303	7935638933361520	bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+106	303	7935638933361520	bootloader/bootloader.elf	b49219955d1d8de2
+106	303	7935638933361520	bootloader/bootloader.bin	b49219955d1d8de2
+106	303	7935638933361520	bootloader/bootloader.map	b49219955d1d8de2
+106	303	7935638933361520	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+106	303	7935638933361520	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.elf	b49219955d1d8de2
+106	303	7935638933361520	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.bin	b49219955d1d8de2
+106	303	7935638933361520	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.map	b49219955d1d8de2
+304	356	7935638935332356	bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+304	356	7935638935332356	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+356	459	7935638936808682	CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+356	459	7935638936808682	bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+356	459	7935638936808682	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+356	459	7935638936808682	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+89	713	7935638933188933	esp-idf/wifi/CMakeFiles/__idf_wifi.dir/wifi.c.obj	ccb249b083723170
+714	849	7935638939435191	esp-idf/wifi/libwifi.a	8f27e142de07905c
+850	1014	7935638940789624	esp-idf/main/libmain.a	cd282a84f328c70e
+1014	10469	7935639036610182	esp-idf/esp_system/ld/sections.ld	b9ed57d517a0644
+1014	10469	7935639036610182	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/esp-idf/esp_system/ld/sections.ld	b9ed57d517a0644
+10469	13776	7935639036987889	Modbus_Gateway.elf	c46fdc192f317271
+13777	14109	7935639073301862	.bin_timestamp	88f3352163b395df
+13777	14109	7935639073301862	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/.bin_timestamp	88f3352163b395df
+14110	14228	7935639073389905	esp-idf/esptool_py/CMakeFiles/app_check_size	b6df33b9580d12a7
+14110	14228	7935639073389905	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/esp-idf/esptool_py/CMakeFiles/app_check_size	b6df33b9580d12a7
+106	315	7935640279347311	bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+106	315	7935640279347311	bootloader/bootloader.elf	b49219955d1d8de2
+106	315	7935640279347311	bootloader/bootloader.bin	b49219955d1d8de2
+106	315	7935640279347311	bootloader/bootloader.map	b49219955d1d8de2
+106	315	7935640279347311	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+106	315	7935640279347311	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.elf	b49219955d1d8de2
+106	315	7935640279347311	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.bin	b49219955d1d8de2
+106	315	7935640279347311	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.map	b49219955d1d8de2
+316	363	7935640281449351	bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+316	363	7935640281449351	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+363	467	7935640282889411	CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+363	467	7935640282889411	bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+363	467	7935640282889411	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+363	467	7935640282889411	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+85	778	7935640279144540	esp-idf/wifi/CMakeFiles/__idf_wifi.dir/wifi.c.obj	ccb249b083723170
+83	228	7935640547756575	esp-idf/wifi/libwifi.a	8f27e142de07905c
+106	310	7935640547980274	bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+106	310	7935640547980274	bootloader/bootloader.elf	b49219955d1d8de2
+106	310	7935640547980274	bootloader/bootloader.bin	b49219955d1d8de2
+106	310	7935640547980274	bootloader/bootloader.map	b49219955d1d8de2
+106	310	7935640547980274	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+106	310	7935640547980274	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.elf	b49219955d1d8de2
+106	310	7935640547980274	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.bin	b49219955d1d8de2
+106	310	7935640547980274	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.map	b49219955d1d8de2
+311	356	7935640550024437	bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+311	356	7935640550024437	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+356	448	7935640551330628	CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+356	448	7935640551330628	bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+356	448	7935640551330628	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+356	448	7935640551330628	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+96	603	7935640547889545	esp-idf/main/CMakeFiles/__idf_main.dir/main.c.obj	b45acbef2215956f
+604	720	7935640552966327	esp-idf/main/libmain.a	cd282a84f328c70e
+720	9679	7935640643334959	esp-idf/esp_system/ld/sections.ld	b9ed57d517a0644
+720	9679	7935640643334959	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/esp-idf/esp_system/ld/sections.ld	b9ed57d517a0644
+9679	12826	7935640643715496	Modbus_Gateway.elf	c46fdc192f317271
+12826	13118	7935640678027033	.bin_timestamp	88f3352163b395df
+12826	13118	7935640678027033	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/.bin_timestamp	88f3352163b395df
+13118	13225	7935640678105677	esp-idf/esptool_py/CMakeFiles/app_check_size	b6df33b9580d12a7
+13118	13225	7935640678105677	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/esp-idf/esptool_py/CMakeFiles/app_check_size	b6df33b9580d12a7
+107	321	7935643634853369	bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+107	321	7935643634853369	bootloader/bootloader.elf	b49219955d1d8de2
+107	321	7935643634853369	bootloader/bootloader.bin	b49219955d1d8de2
+107	321	7935643634853369	bootloader/bootloader.map	b49219955d1d8de2
+107	321	7935643634853369	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+107	321	7935643634853369	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.elf	b49219955d1d8de2
+107	321	7935643634853369	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.bin	b49219955d1d8de2
+107	321	7935643634853369	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.map	b49219955d1d8de2
+322	370	7935643636991340	bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+322	370	7935643636991340	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+371	466	7935643638372903	CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+371	466	7935643638372903	bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+371	466	7935643638372903	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+371	466	7935643638372903	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+114	339	7935644347717747	bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+114	339	7935644347717747	bootloader/bootloader.elf	b49219955d1d8de2
+114	339	7935644347717747	bootloader/bootloader.bin	b49219955d1d8de2
+114	339	7935644347717747	bootloader/bootloader.map	b49219955d1d8de2
+114	339	7935644347717747	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+114	339	7935644347717747	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.elf	b49219955d1d8de2
+114	339	7935644347717747	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.bin	b49219955d1d8de2
+114	339	7935644347717747	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.map	b49219955d1d8de2
+339	454	7935644349970140	bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+339	454	7935644349970140	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+454	548	7935644351985287	CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+454	548	7935644351985287	bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+454	548	7935644351985287	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+454	548	7935644351985287	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+95	293	7935644756268890	bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+95	293	7935644756268890	bootloader/bootloader.elf	b49219955d1d8de2
+95	293	7935644756268890	bootloader/bootloader.bin	b49219955d1d8de2
+95	293	7935644756268890	bootloader/bootloader.map	b49219955d1d8de2
+95	293	7935644756268890	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+95	293	7935644756268890	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.elf	b49219955d1d8de2
+95	293	7935644756268890	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.bin	b49219955d1d8de2
+95	293	7935644756268890	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.map	b49219955d1d8de2
+293	346	7935644758251205	bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+293	346	7935644758251205	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+346	451	7935644759759216	CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+346	451	7935644759759216	bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+346	451	7935644759759216	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+346	451	7935644759759216	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+85	686	7935644756169931	esp-idf/wifi/CMakeFiles/__idf_wifi.dir/wifi.c.obj	ccb249b083723170
+686	823	7935644762179461	esp-idf/wifi/libwifi.a	8f27e142de07905c
+823	9806	7935644852940372	esp-idf/esp_system/ld/sections.ld	b9ed57d517a0644
+823	9806	7935644852940372	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/esp-idf/esp_system/ld/sections.ld	b9ed57d517a0644
+9807	12905	7935644853381445	Modbus_Gateway.elf	c46fdc192f317271
+12906	13196	7935644887204878	.bin_timestamp	88f3352163b395df
+12906	13196	7935644887204878	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/.bin_timestamp	88f3352163b395df
+13196	13301	7935644887279989	esp-idf/esptool_py/CMakeFiles/app_check_size	b6df33b9580d12a7
+13196	13301	7935644887279989	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/esp-idf/esptool_py/CMakeFiles/app_check_size	b6df33b9580d12a7
+101	292	7935646166172641	bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+101	292	7935646166172641	bootloader/bootloader.elf	b49219955d1d8de2
+101	292	7935646166172641	bootloader/bootloader.bin	b49219955d1d8de2
+101	292	7935646166172641	bootloader/bootloader.map	b49219955d1d8de2
+101	292	7935646166172641	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+101	292	7935646166172641	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.elf	b49219955d1d8de2
+101	292	7935646166172641	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.bin	b49219955d1d8de2
+101	292	7935646166172641	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.map	b49219955d1d8de2
+293	345	7935646168087565	bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+293	345	7935646168087565	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+345	455	7935646169630941	CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+345	455	7935646169630941	bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+345	455	7935646169630941	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+345	455	7935646169630941	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+152	441	7935647329436659	bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+152	441	7935647329436659	bootloader/bootloader.elf	b49219955d1d8de2
+152	441	7935647329436659	bootloader/bootloader.bin	b49219955d1d8de2
+152	441	7935647329436659	bootloader/bootloader.map	b49219955d1d8de2
+152	441	7935647329436659	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+152	441	7935647329436659	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.elf	b49219955d1d8de2
+152	441	7935647329436659	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.bin	b49219955d1d8de2
+152	441	7935647329436659	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.map	b49219955d1d8de2
+442	509	7935647332334802	bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+442	509	7935647332334802	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+509	665	7935647334430421	CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+509	665	7935647334430421	bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+509	665	7935647334430421	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+509	665	7935647334430421	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+141	1052	7935647329319659	esp-idf/wifi/CMakeFiles/__idf_wifi.dir/wifi.c.obj	ccb249b083723170
+1053	1185	7935647338439366	esp-idf/wifi/libwifi.a	8f27e142de07905c
+1185	10228	7935647429787450	esp-idf/esp_system/ld/sections.ld	b9ed57d517a0644
+1185	10228	7935647429787450	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/esp-idf/esp_system/ld/sections.ld	b9ed57d517a0644
+10228	13492	7935647430188219	Modbus_Gateway.elf	c46fdc192f317271
+13493	13793	7935647465768716	.bin_timestamp	88f3352163b395df
+13493	13793	7935647465768716	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/.bin_timestamp	88f3352163b395df
+13794	13912	7935647465853954	esp-idf/esptool_py/CMakeFiles/app_check_size	b6df33b9580d12a7
+13794	13912	7935647465853954	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/esp-idf/esptool_py/CMakeFiles/app_check_size	b6df33b9580d12a7
+93	276	7935648416759151	bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+93	276	7935648416759151	bootloader/bootloader.elf	b49219955d1d8de2
+93	276	7935648416759151	bootloader/bootloader.bin	b49219955d1d8de2
+93	276	7935648416759151	bootloader/bootloader.map	b49219955d1d8de2
+93	276	7935648416759151	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+93	276	7935648416759151	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.elf	b49219955d1d8de2
+93	276	7935648416759151	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.bin	b49219955d1d8de2
+93	276	7935648416759151	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.map	b49219955d1d8de2
+277	324	7935648418590467	bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+277	324	7935648418590467	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+324	424	7935648419990302	CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+324	424	7935648419990302	bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+324	424	7935648419990302	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+324	424	7935648419990302	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+83	637	7935648416660683	esp-idf/wifi/CMakeFiles/__idf_wifi.dir/wifi.c.obj	ccb249b083723170
+638	756	7935648422203346	esp-idf/wifi/libwifi.a	8f27e142de07905c
+756	9739	7935648512836141	esp-idf/esp_system/ld/sections.ld	b9ed57d517a0644
+756	9739	7935648512836141	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/esp-idf/esp_system/ld/sections.ld	b9ed57d517a0644
+9740	12849	7935648513221550	Modbus_Gateway.elf	c46fdc192f317271
+12849	13145	7935648547199457	.bin_timestamp	88f3352163b395df
+12849	13145	7935648547199457	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/.bin_timestamp	88f3352163b395df
+13145	13247	7935648547266876	esp-idf/esptool_py/CMakeFiles/app_check_size	b6df33b9580d12a7
+13145	13247	7935648547266876	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/esp-idf/esptool_py/CMakeFiles/app_check_size	b6df33b9580d12a7
+133	321	7935649643505047	bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+133	321	7935649643505047	bootloader/bootloader.elf	b49219955d1d8de2
+133	321	7935649643505047	bootloader/bootloader.bin	b49219955d1d8de2
+133	321	7935649643505047	bootloader/bootloader.map	b49219955d1d8de2
+133	321	7935649643505047	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+133	321	7935649643505047	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.elf	b49219955d1d8de2
+133	321	7935649643505047	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.bin	b49219955d1d8de2
+133	321	7935649643505047	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.map	b49219955d1d8de2
+322	371	7935649645390245	bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+322	371	7935649645390245	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+372	476	7935649646830837	CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+372	476	7935649646830837	bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+372	476	7935649646830837	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+372	476	7935649646830837	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+123	695	7935649643403229	esp-idf/wifi/CMakeFiles/__idf_wifi.dir/wifi.c.obj	ccb249b083723170
+695	829	7935649649129460	esp-idf/wifi/libwifi.a	8f27e142de07905c
+829	9761	7935649739407543	esp-idf/esp_system/ld/sections.ld	b9ed57d517a0644
+829	9761	7935649739407543	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/esp-idf/esp_system/ld/sections.ld	b9ed57d517a0644
+9762	12814	7935649739789799	Modbus_Gateway.elf	c46fdc192f317271
+12814	13091	7935649773006787	.bin_timestamp	88f3352163b395df
+12814	13091	7935649773006787	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/.bin_timestamp	88f3352163b395df
+13092	13189	7935649773089483	esp-idf/esptool_py/CMakeFiles/app_check_size	b6df33b9580d12a7
+13092	13189	7935649773089483	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/esp-idf/esptool_py/CMakeFiles/app_check_size	b6df33b9580d12a7
+94	298	7935656619099537	bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+94	298	7935656619099537	bootloader/bootloader.elf	b49219955d1d8de2
+94	298	7935656619099537	bootloader/bootloader.bin	b49219955d1d8de2
+94	298	7935656619099537	bootloader/bootloader.map	b49219955d1d8de2
+94	298	7935656619099537	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+94	298	7935656619099537	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.elf	b49219955d1d8de2
+94	298	7935656619099537	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.bin	b49219955d1d8de2
+94	298	7935656619099537	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.map	b49219955d1d8de2
+299	351	7935656621153915	bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+299	351	7935656621153915	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+351	455	7935656622633649	CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+351	455	7935656622633649	bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+351	455	7935656622633649	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+351	455	7935656622633649	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+82	668	7935656618982542	esp-idf/wifi/CMakeFiles/__idf_wifi.dir/wifi.c.obj	ccb249b083723170
+669	787	7935656624861586	esp-idf/wifi/libwifi.a	8f27e142de07905c
+787	10120	7935656718982377	esp-idf/esp_system/ld/sections.ld	b9ed57d517a0644
+787	10120	7935656718982377	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/esp-idf/esp_system/ld/sections.ld	b9ed57d517a0644
+10121	13240	7935656719372003	Modbus_Gateway.elf	c46fdc192f317271
+13241	13528	7935656753373295	.bin_timestamp	88f3352163b395df
+13241	13528	7935656753373295	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/.bin_timestamp	88f3352163b395df
+13529	13631	7935656753453847	esp-idf/esptool_py/CMakeFiles/app_check_size	b6df33b9580d12a7
+13529	13631	7935656753453847	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/esp-idf/esptool_py/CMakeFiles/app_check_size	b6df33b9580d12a7
+92	280	7935656812026598	bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+92	280	7935656812026598	bootloader/bootloader.elf	b49219955d1d8de2
+92	280	7935656812026598	bootloader/bootloader.bin	b49219955d1d8de2
+92	280	7935656812026598	bootloader/bootloader.map	b49219955d1d8de2
+92	280	7935656812026598	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+92	280	7935656812026598	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.elf	b49219955d1d8de2
+92	280	7935656812026598	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.bin	b49219955d1d8de2
+92	280	7935656812026598	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.map	b49219955d1d8de2
+281	329	7935656813906330	bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+281	329	7935656813906330	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+329	432	7935656815351777	CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+329	432	7935656815351777	bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+329	432	7935656815351777	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+329	432	7935656815351777	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+80	632	7935656811906239	esp-idf/wifi/CMakeFiles/__idf_wifi.dir/wifi.c.obj	ccb249b083723170
+633	748	7935656817434078	esp-idf/wifi/libwifi.a	8f27e142de07905c
+748	9734	7935656908063744	esp-idf/esp_system/ld/sections.ld	b9ed57d517a0644
+748	9734	7935656908063744	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/esp-idf/esp_system/ld/sections.ld	b9ed57d517a0644
+9735	13003	7935656908448058	Modbus_Gateway.elf	c46fdc192f317271
+13004	13283	7935656943855666	.bin_timestamp	88f3352163b395df
+13004	13283	7935656943855666	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/.bin_timestamp	88f3352163b395df
+13284	13386	7935656943940623	esp-idf/esptool_py/CMakeFiles/app_check_size	b6df33b9580d12a7
+13284	13386	7935656943940623	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/esp-idf/esptool_py/CMakeFiles/app_check_size	b6df33b9580d12a7
+92	285	7935657785008731	bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+92	285	7935657785008731	bootloader/bootloader.elf	b49219955d1d8de2
+92	285	7935657785008731	bootloader/bootloader.bin	b49219955d1d8de2
+92	285	7935657785008731	bootloader/bootloader.map	b49219955d1d8de2
+92	285	7935657785008731	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+92	285	7935657785008731	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.elf	b49219955d1d8de2
+92	285	7935657785008731	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.bin	b49219955d1d8de2
+92	285	7935657785008731	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.map	b49219955d1d8de2
+286	338	7935657786951478	bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+286	338	7935657786951478	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+338	436	7935657788398083	CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+338	436	7935657788398083	bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+338	436	7935657788398083	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+338	436	7935657788398083	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+80	631	7935657784901232	esp-idf/wifi/CMakeFiles/__idf_wifi.dir/wifi.c.obj	ccb249b083723170
+631	747	7935657790409665	esp-idf/wifi/libwifi.a	8f27e142de07905c
+747	9795	7935657881665639	esp-idf/esp_system/ld/sections.ld	b9ed57d517a0644
+747	9795	7935657881665639	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/esp-idf/esp_system/ld/sections.ld	b9ed57d517a0644
+9796	12861	7935657882056950	Modbus_Gateway.elf	c46fdc192f317271
+12862	13148	7935657915502877	.bin_timestamp	88f3352163b395df
+12862	13148	7935657915502877	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/.bin_timestamp	88f3352163b395df
+13149	13246	7935657915583378	esp-idf/esptool_py/CMakeFiles/app_check_size	b6df33b9580d12a7
+13149	13246	7935657915583378	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/esp-idf/esptool_py/CMakeFiles/app_check_size	b6df33b9580d12a7
+89	276	7935658517540775	bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+89	276	7935658517540775	bootloader/bootloader.elf	b49219955d1d8de2
+89	276	7935658517540775	bootloader/bootloader.bin	b49219955d1d8de2
+89	276	7935658517540775	bootloader/bootloader.map	b49219955d1d8de2
+89	276	7935658517540775	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	b49219955d1d8de2
+89	276	7935658517540775	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.elf	b49219955d1d8de2
+89	276	7935658517540775	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.bin	b49219955d1d8de2
+89	276	7935658517540775	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader/bootloader.map	b49219955d1d8de2
+276	322	7935658519405232	bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+276	322	7935658519405232	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	470cfe645371c18d
+322	421	7935658520782752	CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+322	421	7935658520782752	bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+322	421	7935658520782752	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/CMakeFiles/bootloader-complete	f906ac9dc6b77d9f
+322	421	7935658520782752	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	f906ac9dc6b77d9f
+81	623	7935658517457136	esp-idf/wifi/CMakeFiles/__idf_wifi.dir/wifi.c.obj	ccb249b083723170
+624	743	7935658522882071	esp-idf/wifi/libwifi.a	8f27e142de07905c
+743	9661	7935658612852383	esp-idf/esp_system/ld/sections.ld	b9ed57d517a0644
+743	9661	7935658612852383	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/esp-idf/esp_system/ld/sections.ld	b9ed57d517a0644
+9661	12732	7935658613247140	Modbus_Gateway.elf	c46fdc192f317271
+12732	13007	7935658646640295	.bin_timestamp	88f3352163b395df
+12732	13007	7935658646640295	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/.bin_timestamp	88f3352163b395df
+13007	13103	7935658646718833	esp-idf/esptool_py/CMakeFiles/app_check_size	b6df33b9580d12a7
+13007	13103	7935658646718833	D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02. Software/Modbus_Gateway/build/esp-idf/esptool_py/CMakeFiles/app_check_size	b6df33b9580d12a7

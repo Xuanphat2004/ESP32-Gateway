@@ -1,0 +1,11 @@
+{
+    "idf.currentSetup": "D:/ESP32-IDF/environment/Espressif/frameworks/esp-idf-v5.4.3/",
+    "idf.portWin": "COM16",
+    "idf.openOcdConfigs": [
+        "board/esp32s3-builtin.cfg"
+    ],
+    "idf.flashType": "UART",
+    "idf.customExtraVars": {
+        "IDF_TARGET": "esp32s3"
+    }
+}
