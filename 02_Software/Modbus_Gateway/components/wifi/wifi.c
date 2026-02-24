@@ -8,7 +8,7 @@
 #include "esp_err.h"
 #include "esp_mac.h"
 
-static const char *TAG = "[MODBUS GATEWAY]";
+static const char *TAG = "[MODBUS GATEWAY - WIFI]";
 static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
 void get_wifi_mac_addr(void)
 {
@@ -45,6 +45,7 @@ void get_wifi_mac_addr(void)
         ESP_LOGI(TAG, "Failed to get MAC address !!!\n");
     }
 }
+
 void wifi_Init(void)
 {
     printf("\n");
