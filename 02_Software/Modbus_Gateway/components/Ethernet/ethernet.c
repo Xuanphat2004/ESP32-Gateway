@@ -143,7 +143,7 @@ esp_err_t eth_init(void)
     return ESP_OK;
 
 err:
-    ESP_LOGE(TAG, "Ethernet W5500 Init Failed!");
+    ESP_LOGE(TAG, "Fail to configure for Ethernet W5500 !!!");
     return ESP_FAIL;
 }
 
