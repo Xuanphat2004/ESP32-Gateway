@@ -7,7 +7,7 @@
 #include "driver/gpio.h"
 #include "driver/spi_common.h"
 
-#define SPI_ETH_HOST SPI2_HOST
+#define SPI_ETH_HOST SPI3_HOST
 #define INT_ETH_PIN GPIO_NUM_10
 #define MOSI_ETH_PIN GPIO_NUM_11
 #define CLK_ETH_PIN GPIO_NUM_12
