@@ -842,6 +842,13 @@ D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway/
 D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway/build/esp-idf/wifi/CMakeFiles/install.dir
 D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway/build/esp-idf/wifi/CMakeFiles/install/local.dir
 D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway/build/esp-idf/wifi/CMakeFiles/install/strip.dir
+D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway/build/esp-idf/Ethernet/CMakeFiles/__idf_Ethernet.dir
+D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway/build/esp-idf/Ethernet/CMakeFiles/edit_cache.dir
+D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway/build/esp-idf/Ethernet/CMakeFiles/rebuild_cache.dir
+D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway/build/esp-idf/Ethernet/CMakeFiles/list_install_components.dir
+D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway/build/esp-idf/Ethernet/CMakeFiles/install.dir
+D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway/build/esp-idf/Ethernet/CMakeFiles/install/local.dir
+D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway/build/esp-idf/Ethernet/CMakeFiles/install/strip.dir
 D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway/build/esp-idf/main/CMakeFiles/__idf_main.dir
 D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway/build/esp-idf/main/CMakeFiles/edit_cache.dir
 D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway/build/esp-idf/main/CMakeFiles/rebuild_cache.dir

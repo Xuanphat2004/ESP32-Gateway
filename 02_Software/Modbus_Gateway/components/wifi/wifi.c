@@ -42,7 +42,7 @@ void get_wifi_mac_addr(void)
     else
     {
         printf("\n");
-        ESP_LOGI(TAG, "Failed to get MAC address !!!\n");
+        ESP_LOGE(TAG, "Failed to get MAC address !!!\n");
     }
 }
 
@@ -83,10 +83,17 @@ void wifi_Init(void)
     esp_event_handler_instance_t instance_got_ip;
 
     // Đăng ký bắt mọi sự kiện liên quan đến trạng thái Wi-Fi (Start, Disconnect...)
-    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler, NULL, &instance_any_id));
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT,
+                                                        ESP_EVENT_ANY_ID,
+                                                        &wifi_event_handler,
+                                                        NULL,
+                                                        &instance_any_id));
 
-    // Đăng ký bắt riêng sự kiện Router cấp phát IP thành công
-    ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &wifi_event_handler, NULL, &instance_got_ip));
+    // Đăng ký bắt riêng sự kiện Router cấp phát IP cho thiết bị
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT,
+                                                        IP_EVENT_STA_GOT_IP,
+                                                        &wifi_event_handler, NULL,
+                                                        &instance_got_ip));
 
     // Thông tin đăng nhập SSID và Password được lưu vào phân vùng NVS
     wifi_config_t wifi_config = {
@@ -126,7 +133,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t e
     {
         try_count++;
         printf("\n");
-        ESP_LOGI(TAG, "Disconnected to Wifi, retry to connect to Wifi ....(attempt: %d)\n", try_count);
+        ESP_LOGE(TAG, "Disconnected to Wifi, retry to connect to Wifi ....(attempt: %d)\n", try_count);
         esp_wifi_connect();
     }
 

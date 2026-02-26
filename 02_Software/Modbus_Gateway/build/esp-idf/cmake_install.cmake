@@ -559,6 +559,11 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
+  include("D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway/build/esp-idf/Ethernet/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
   include("D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway/build/esp-idf/main/cmake_install.cmake")
 endif()
 

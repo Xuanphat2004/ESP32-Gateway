@@ -408,7 +408,7 @@
     "ETH_ENABLED": true,
     "ETH_SPI_ETHERNET_DM9051": false,
     "ETH_SPI_ETHERNET_KSZ8851SNL": false,
-    "ETH_SPI_ETHERNET_W5500": false,
+    "ETH_SPI_ETHERNET_W5500": true,
     "ETH_TRANSMIT_MUTEX": false,
     "ETH_USE_OPENETH": false,
     "ETH_USE_SPI_ETHERNET": true,
