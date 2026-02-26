@@ -1,7 +1,7 @@
 {
     "version":            "1.2",
     "project_name":       "Modbus_Gateway",
-    "project_version":    "ef47120-dirty",
+    "project_version":    "67aea07-dirty",
     "project_path":       "D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway",
     "idf_path":           "D:/ESP32-IDF/environment/Espressif/frameworks/esp-idf-v5.4.3",
     "build_dir":          "D:/08_Semester 8/01. Luan Van Tot Nghiep/03. Project/02_Software/Modbus_Gateway/build",

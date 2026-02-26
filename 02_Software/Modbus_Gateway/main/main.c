@@ -11,7 +11,8 @@
 #include "wifi.h"
 #include "ethernet.h"
 
-static const char *TAG = "[APP MAIN]" void app_main(void)
+static const char *TAG = "[APP MAIN]";
+void app_main(void)
 {
     get_wifi_mac_addr();
     wifi_Init();
@@ -27,7 +28,7 @@ static const char *TAG = "[APP MAIN]" void app_main(void)
     }
     else
     {
-        ESP_LOGI("APP_MAIN", "Successful to get static IP for Ethernet port");
+        ESP_LOGI(TAG, "Successful to get static IP for Ethernet port");
     }
     vTaskDelay(pdMS_TO_TICKS(5000));
 }
