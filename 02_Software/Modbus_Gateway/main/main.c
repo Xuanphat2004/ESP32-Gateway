@@ -11,7 +11,7 @@
 #include "wifi.h"
 #include "ethernet.h"
 
-void app_main(void)
+static const char *TAG = "[APP MAIN]" void app_main(void)
 {
     get_wifi_mac_addr();
     wifi_Init();
@@ -22,12 +22,12 @@ void app_main(void)
     if (eth_status != ESP_OK)
     {
         // In ra log màu đỏ báo lỗi, nhưng TUYỆT ĐỐI KHÔNG reset mạch
-        ESP_LOGE("APP_MAIN", "Khoi tao Ethernet W5500 that bai! Ma loi: %d", eth_status);
-        ESP_LOGW("APP_MAIN", "Bo qua Ethernet, he thong van tiep tuc hoat dong...");
+        ESP_LOGE(TAG, "Fail to configrue for Ethernet, Error code: %d", eth_status);
+        // ESP_LOGW(TAG, "Bo qua Ethernet, he thong van tiep tuc hoat dong...");
     }
     else
     {
-        ESP_LOGI("APP_MAIN", "Khoi tao Ethernet W5500 thanh cong ruc ro!");
+        ESP_LOGI("APP_MAIN", "Successful to get static IP for Ethernet port");
     }
     vTaskDelay(pdMS_TO_TICKS(5000));
 }
