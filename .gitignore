@@ -1,0 +1,6 @@
+# Các file tạm và thư mục biên dịch của ESP-IDF
+build/
+
+# Các file cấu hình của VS Code (chứa thông tin đường dẫn cá nhân trên máy bạn)
+.vscode/
+
