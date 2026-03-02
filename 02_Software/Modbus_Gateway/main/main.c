@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 #include "freertos/semphr.h"
@@ -6,29 +7,33 @@
 #include "freertos/task.h"
 #include "freertos/portable.h"
 #include "freertos/event_groups.h"
-
+#include "esp_netif.h"
+#include "esp_err.h"
+#include "esp_log.h"
+#include "esp_event.h"
 // Thư viện tự khởi tạo
 #include "wifi.h"
 #include "ethernet.h"
 
 static const char *TAG = "[APP MAIN]";
+
 void app_main(void)
 {
+    // Khởi tạo Netif chung cho tất cả các giao tiếp với mạng
+    ESP_ERROR_CHECK(esp_netif_init());
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
+
     get_wifi_mac_addr();
-    wifi_Init();
+    // wifi_Init();
     // ESP_ERROR_CHECK(eth_init());
 
-    esp_err_t eth_status = eth_init();
+    eth_init();
+    // udp_send_task_test();
+    // tcp_send_task_test();
 
-    if (eth_status != ESP_OK)
-    {
-        // In ra log màu đỏ báo lỗi, nhưng TUYỆT ĐỐI KHÔNG reset mạch
-        ESP_LOGE(TAG, "Fail to configrue for Ethernet, Error code: %d", eth_status);
-        // ESP_LOGW(TAG, "Bo qua Ethernet, he thong van tiep tuc hoat dong...");
-    }
-    else
-    {
-        ESP_LOGI(TAG, "Successful to get static IP for Ethernet port");
-    }
+    xTaskCreate((void *)udp_send_task_test, "UDP_test_task", 4096, NULL, 5, NULL);
+    xTaskCreate((void *)tcp_send_task_test, "TCP_test_task", 4096, NULL, 5, NULL);
+
+    ESP_LOGI(TAG, "Here");
     vTaskDelay(pdMS_TO_TICKS(5000));
 }
