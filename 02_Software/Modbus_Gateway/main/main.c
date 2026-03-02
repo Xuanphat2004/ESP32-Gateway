@@ -34,6 +34,7 @@ void app_main(void)
     xTaskCreate((void *)udp_send_task_test, "UDP_test_task", 4096, NULL, 5, NULL);
     xTaskCreate((void *)tcp_send_task_test, "TCP_test_task", 4096, NULL, 5, NULL);
 
-    ESP_LOGI(TAG, "Here");
+    ESP_LOGI(TAG, "Run to here");
+
     vTaskDelay(pdMS_TO_TICKS(5000));
 }

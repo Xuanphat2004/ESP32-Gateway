@@ -194,7 +194,7 @@ esp_err_t eth_init(void)
 
     // Set IP tĩnh cho khối Ethernet
     esp_netif_ip_info_t ip_info;
-    IP4_ADDR(&ip_info.ip, 192, 168, 137, 5); // IP tĩnh muốn set
+    IP4_ADDR(&ip_info.ip, 192, 168, 137, 26); // IP tĩnh muốn set
     IP4_ADDR(&ip_info.gw, 192, 168, 137, 1);
     IP4_ADDR(&ip_info.netmask, 255, 255, 255, 0);
 
