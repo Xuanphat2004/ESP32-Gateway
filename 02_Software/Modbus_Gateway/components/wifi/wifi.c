@@ -48,6 +48,11 @@ void get_wifi_mac_addr(void)
 
 void wifi_Init(void)
 {
+    /*  Khởi tạo bộ LwIP bên trong ESP (Bộ dịch ngôn ngữ TCP/IP)
+        Dữ liệu liên quan tới netif đều nằm trên RAM */
+    ESP_ERROR_CHECK(esp_netif_init());
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
+
     printf("\n");
     ESP_LOGI(TAG, "Started to Configure for Wifi ....\n");
 
@@ -61,13 +66,6 @@ void wifi_Init(void)
 
     // ESP_ERROR_CHECK() - Nếu lỗi sẽ thông báo ra console, nếu không có lỗi sẽ đi tiếp mà không thông báo gì
     ESP_ERROR_CHECK(ret);
-
-    /*  Khởi tạo bộ LwIP bên trong ESP (Bộ dịch ngôn ngữ TCP/IP)
-        Dữ liệu liên quan tới netif đều nằm trên RAM */
-    ESP_ERROR_CHECK(esp_netif_init());
-
-    // Tạo Vòng lặp sự kiện (Event Loop)
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
 
     // Tạo Interface mạng chuẩn cho Wi-Fi Station - netif cho wifi sta
     esp_netif_create_default_wifi_sta();
