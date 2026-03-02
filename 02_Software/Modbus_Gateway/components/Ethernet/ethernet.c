@@ -12,6 +12,7 @@
 #include "lwip/ip4_addr.h"     // Dành cho macro gán IP tĩnh IP4_ADDR
 // #include "esp_eth_mac_w5500.h"
 #include "esp_eth_mac_spi.h"
+#include "lwip/sockets.h"
 //  Thư viện tự tạo
 #include "ethernet.h"
 
@@ -19,9 +20,98 @@ static const char *TAG = "[MODBUS GATEWAY - ETHERNET]";
 esp_err_t eth_init(void);
 static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
 static void got_ip_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
+void udp_send_task_test(void);
+void tcp_send_task_test(void);
+
+void udp_send_task_test(void)
+{
+    ESP_LOGI("UDP", "Start send packet by UDP packet ...");
+    char *payload = "UDP Hello from Modbus Gateway";
+    struct sockaddr_in dest_addr;
+
+    // 1. Cấu hình địa chỉ đích (Laptop của bạn)
+    dest_addr.sin_addr.s_addr = inet_addr("192.168.137.2"); // IP đích - Laptop
+    dest_addr.sin_family = AF_INET;
+    dest_addr.sin_port = htons(1200); // Port gửi
+
+    // 2. Tạo Socket UDP
+    int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_TCP);
+
+    if (sock < 0)
+    {
+        ESP_LOGE("UDP", "Không thể tạo socket");
+        vTaskDelete(NULL);
+    }
+    else
+    {
+        while (1)
+        {
+            // gửi gói tin đi
+            int err = sendto(sock, payload, strlen(payload), 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
+            if (err < 0)
+            {
+                ESP_LOGE("UDP", "Gửi lỗi: %d", errno);
+            }
+            else
+            {
+                ESP_LOGI("UDP", "Đã gửi gói tin sang W5500");
+            }
+
+            vTaskDelay(pdMS_TO_TICKS(5000));
+        }
+    }
+}
+
+void tcp_send_task_test(void)
+{
+    ESP_LOGI("TCP", "Start send packet by TCP packet ...");
+    char *payload = "TCP Hello from Modbus Gateway";
+    struct sockaddr_in dest_addr;
+
+    // 1. Cấu hình địa chỉ đích (Laptop của bạn)
+    dest_addr.sin_addr.s_addr = inet_addr("192.168.137.2"); // IP đích
+    dest_addr.sin_family = AF_INET;
+    dest_addr.sin_port = htons(1200); // Cổng nhận tùy chọn
+
+    // Tạo Socket TDP
+    int sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    int err_1 = connect(sock, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
+    // TCP socket sẽ trả về -1 nếu thành công
+    if (err_1 < 0)
+    {
+        ESP_LOGI("TCP", "Success to create the TCP Socket.");
+    }
+    else
+    {
+        ESP_LOGE("TCP", "Fail to create the TCP socket !!!");
+        vTaskDelete(NULL);
+    }
+
+    if (sock > 0)
+    {
+        ESP_LOGI("TCP", "Success to create the TCP socket");
+    }
+
+    while (1)
+    {
+        // Không cần truyền dest_addr nữa vì đã connect ở trên
+        int err = send(sock, payload, strlen(payload), 0);
+        if (err > 0)
+        {
+            ESP_LOGE("TCP", "Gửi lỗi: %d", errno);
+        }
+        else
+        {
+            ESP_LOGI("TCP", "Đã gửi gói tin sang W5500");
+        }
+        vTaskDelay(pdMS_TO_TICKS(2000)); // Gửi lại sau mỗi 2 giây
+    }
+}
 
 esp_err_t eth_init(void)
 {
+    // ESP_ERROR_CHECK(esp_netif_init());
+    // ESP_ERROR_CHECK(esp_event_loop_create_default());
     esp_err_t ret = ESP_OK;
     ESP_LOGI(TAG, "Start to configure Ethernet use W5500 for device .....");
 
@@ -44,6 +134,7 @@ esp_err_t eth_init(void)
     // netif ethernet đại diện cho phần mềm
     esp_netif_config_t netif_eth_cfg = ESP_NETIF_DEFAULT_ETH();
     esp_netif_t *eth_netif = esp_netif_new(&netif_eth_cfg);
+    assert(eth_netif);
 
     // Khởi tạo SPI bus và tốc độ dùng cho bus
     spi_bus_config_t w5500_spi_bus_config = {
@@ -52,6 +143,7 @@ esp_err_t eth_init(void)
         .sclk_io_num = CLK_ETH_PIN,
         .quadwp_io_num = -1,
         .quadhd_io_num = -1,
+        .max_transfer_sz = 4096,
     };
 
     spi_device_interface_config_t w5500_spi_config = {
@@ -61,6 +153,7 @@ esp_err_t eth_init(void)
         .queue_size = 20,
     };
 
+    // ESP_GOTO_ON_ERROR(bieu_thuc_kiem_tra, nhan_goto, the_log, cau_thong_bao, cac_bien_di_kem);
     ESP_GOTO_ON_ERROR(spi_bus_initialize(SPI_ETH_HOST, &w5500_spi_bus_config, SPI_DMA_CH_AUTO),
                       err,
                       TAG,
@@ -71,13 +164,6 @@ esp_err_t eth_init(void)
     ESP_ERROR_CHECK(spi_bus_add_device(SPI_ETH_HOST, &w5500_spi_config, &spi_handle));
 
     eth_w5500_config_t w5500_config = ETH_W5500_DEFAULT_CONFIG(SPI_ETH_HOST, &w5500_spi_config);
-
-    // ESP_GOTO_ON_ERROR(bieu_thuc_kiem_tra, nhan_goto, the_log, cau_thong_bao, cac_bien_di_kem);
-    // ESP_GOTO_ON_ERROR(spi_bus_initialize(SPI_ETH_HOST, &w5500_spi_bus_config, SPI_DMA_CH_AUTO),
-    //                   err,
-    //                   TAG,
-    //                   "SPI host #%d init failed !!!",
-    //                   SPI_ETH_HOST);
 
     // Khởi tạo MAC và PHY cho W5500 - Sử dụng cấu hình mặc định trong thư viện của IDF
     eth_mac_config_t mac_config = ETH_MAC_DEFAULT_CONFIG();
@@ -103,21 +189,22 @@ esp_err_t eth_init(void)
     esp_eth_handle_t eth_handle = NULL;
     ESP_ERROR_CHECK(esp_eth_driver_install(&eth_config, &eth_handle));
 
-    // Gắn Ethernet Driver với Netif vừa tạo
-    ESP_ERROR_CHECK(esp_netif_attach(eth_netif, esp_eth_new_netif_glue(eth_handle)));
-
     // Tắt DHCP
     ESP_ERROR_CHECK(esp_netif_dhcpc_stop(eth_netif));
 
     // Set IP tĩnh cho khối Ethernet
     esp_netif_ip_info_t ip_info;
-    IP4_ADDR(&ip_info.ip, 192, 168, 137, 26); // IP tĩnh muốn set
+    IP4_ADDR(&ip_info.ip, 192, 168, 137, 5); // IP tĩnh muốn set
     IP4_ADDR(&ip_info.gw, 192, 168, 137, 1);
     IP4_ADDR(&ip_info.netmask, 255, 255, 255, 0);
+
+    // Sử dụng DHCP - xin IP động
+    // ESP_ERROR_CHECK(esp_netif_dhcpc_start(eth_netif));
 
     // Gán địa chỉ ETH MAC của ESP cho W5500 - B4:3A:45:CF:4D:2F
     static uint8_t eth_mac_addr[6] = {0};
     ESP_ERROR_CHECK(esp_read_mac(eth_mac_addr, ESP_MAC_ETH));
+
     ESP_ERROR_CHECK(esp_eth_ioctl(eth_handle, ETH_CMD_S_MAC_ADDR, eth_mac_addr));
     ESP_LOGI(TAG, "Configure Ethernet MAC address for W5500: %02x:%02x:%02x:%02x:%02x:%02x",
              eth_mac_addr[0], eth_mac_addr[1], eth_mac_addr[2],
@@ -139,7 +226,11 @@ esp_err_t eth_init(void)
 
     // Khởi động Ethernet
     ESP_ERROR_CHECK(esp_eth_start(eth_handle));
+
+    // Gắn Ethernet Driver với Netif vừa tạo
+    ESP_ERROR_CHECK(esp_netif_attach(eth_netif, esp_eth_new_netif_glue(eth_handle)));
     ESP_LOGI(TAG, "Successful configure Ethernet use W5500.");
+
     return ESP_OK;
 
 err:

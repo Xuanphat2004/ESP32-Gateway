@@ -19,29 +19,10 @@
 
 // // ETH MAC của ESP
 // #define ETH_MAC_ESP  B4:3A:45:CF:4D:2F
-// Cấu hình IP tinh nếu dùng Laptop làm router
-#define STATIC_IP_ADDRESS 192, 168, 137, 26
-#define STATIC_DEFAULT_GATEWAY 192, 168, 137, 1
-#define STATIC_GATEWAY_NETMASK 255, 255, 255, 0
 
-esp_err_t eth_init(void);
-// typedef struct
-// {
-//     int int_gpio_num;                                 /*!< Interrupt GPIO number, set -1 to not use interrupt and to poll rx status periodically */
-//     uint32_t poll_period_ms;                          /*!< Period in ms to poll rx status when interrupt mode is not used */
-//     spi_host_device_t spi_host_id;                    /*!< SPI peripheral (this field is invalid when custom SPI driver is defined)*/
-//     spi_device_interface_config_t *spi_devcfg;        /*!< SPI device configuration (this field is invalid when custom SPI driver is defined)*/
-//     eth_spi_custom_driver_config_t custom_spi_driver; /*!< Custom SPI driver definitions */
-// } eth_w5500_config_t;
-
-#define ETH_W5500_DEFAULT_CONFIG(spi_host, spi_devcfg_p) \
-    {                                                    \
-        .int_gpio_num = 4,                               \
-        .poll_period_ms = 0,                             \
-        .spi_host_id = spi_host,                         \
-        .spi_devcfg = spi_devcfg_p,                      \
-        .custom_spi_driver = ETH_DEFAULT_SPI,            \
-    }
+esp_err_t eth_init(void);      // Cấu hình và khởi tạo các giá trị cho kết nối Ethernet
+void udp_send_task_test(void); // Test kết nối giữa thiết bị với laptop
+void tcp_send_task_test(void);
 
 #endif // ETHERNET_H
 
