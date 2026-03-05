@@ -194,7 +194,7 @@ esp_err_t eth_init(void)
 
     // Set IP tĩnh cho khối Ethernet
     esp_netif_ip_info_t ip_info;
-    IP4_ADDR(&ip_info.ip, 192, 168, 137, 26); // IP tĩnh muốn set
+    IP4_ADDR(&ip_info.ip, 192, 168, 137, 29); // IP tĩnh muốn set
     IP4_ADDR(&ip_info.gw, 192, 168, 137, 1);
     IP4_ADDR(&ip_info.netmask, 255, 255, 255, 0);
 
@@ -224,11 +224,12 @@ esp_err_t eth_init(void)
                                                &got_ip_event_handler,
                                                NULL));
 
+    // Gắn Ethernet Driver với Netif vừa tạo
+    ESP_ERROR_CHECK(esp_netif_attach(eth_netif, esp_eth_new_netif_glue(eth_handle)));
+
     // Khởi động Ethernet
     ESP_ERROR_CHECK(esp_eth_start(eth_handle));
 
-    // Gắn Ethernet Driver với Netif vừa tạo
-    ESP_ERROR_CHECK(esp_netif_attach(eth_netif, esp_eth_new_netif_glue(eth_handle)));
     ESP_LOGI(TAG, "Successful configure Ethernet use W5500.");
 
     return ESP_OK;
