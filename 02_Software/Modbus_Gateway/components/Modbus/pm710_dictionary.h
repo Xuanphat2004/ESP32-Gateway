@@ -6,6 +6,24 @@
 
 #define PM710_SLAVE_ID 10
 
+// Use modbus slave test function
+#define MBSLAVE_2_TEST_ID 2
+#define MBSLAVE_3_TEST_ID 3
+#define MBSLAVE_4_TEST_ID 4
+
+// struct in IDF library
+typedef struct
+{
+    float value_a;
+    float value_b;
+    float value_c;
+    float value_d;
+} mbslave_data_t;
+typedef enum
+{
+    CID_1,
+    CID_2,
+} mbslave_cid_t;
 typedef enum
 {
     CID_V_LN_AVG = 0,
@@ -49,22 +67,6 @@ typedef enum
     CID_ENERGY_EXPORT,
 } pm710_cid_t;
 
-mb_parameter_descriptor_t device_parameters[] = {
-    CID,
-    "Name",
-    "Units",
-    MB_DEVICE_ADDR,
-    MB_PARAM_HOLDING,
-    REG_START,
-    REG_SIZE,
-    0, // instance_offset
-    PARAM_TYPE_FLOAT,
-    4,             // param_size (bytes)
-    OPTS(0, 0, 0), // options
-    PAR_PERMS_READ // access
-};
-
 extern mb_parameter_descriptor_t pm710_dict[];
-extern const uint16_t pm710_dict_size;
 
 #endif
