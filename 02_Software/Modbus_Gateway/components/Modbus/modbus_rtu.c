@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/param.h>
-#include "unity.h"
-#include "test_utils.h"  // unity_send_signal
 #include "driver/uart.h" // for the uart driver access
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
@@ -13,117 +11,98 @@
 #include "freertos/portable.h"
 #include "freertos/event_groups.h"
 
+// Modbus library
+#include "esp_modbus_master.h"
+#include "esp_modbus_common.h"
+#include "pm710_dictionary.h"
+
 // user library
 #include "modbus_rtu.h"
 
-static const char *TAG = "[MODBUS GATEWAY - RTU]";
-
+static const char *TAG_1 = "[MODBUS GATEWAY - Modbus 1]";
+static const char *TAG_2 = "[MODBUS GATEWAY - Modbus 2]";
+static const char *TAG_3 = "[MODBUS GATEWAY - Modbus]";
 // declare handle variable for UART queue - it contains all information this queue (Queue Control Block - QTB)
-static QueueHandle_t uart_queue;
 
-void modbus_init(void)
+void modbus_rtu_init(void);
+void modbus_test_read(void);
+
+void modbus_master_init(void)
 {
-    ESP_LOGI(TAG, "RS485 port initialization...");
-    uart_config_t uart_config = {
-        .baud_rate = BAUD_RATE,
-        .data_bits = UART_DATA_8_BITS,
-        .parity = UART_PARITY_DISABLE,
-        .stop_bits = UART_STOP_BITS_1,
-        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE, // It determines whether the UART uses RTS and CTS for hardware flow control.
-        .rx_flow_ctrl_thresh = 1200,           // HW FLOWCTRL is disable so Don't use this parameter
-        .source_clk = UART_SCLK_DEFAULT,       // UART clock source
+    ESP_LOGI(TAG_1, "Modbus RTU port 1 initializing...");
+    ESP_LOGI(TAG_2, "Modbus RTU port 2 initializing...");
+    void *master_1_handler = NULL;
+    void *master_2_handler = NULL;
+    esp_err_t err_1, err_2;
+
+    // Init controller
+    err_1 = mbc_master_init(MB_PORT_SERIAL_MASTER, &master_1_handler);
+    err_2 = mbc_master_init(MB_PORT_SERIAL_MASTER, &master_2_handler);
+    ESP_ERROR_CHECK(err_1);
+    ESP_ERROR_CHECK(err_2);
+
+    // Setup UART communication
+    mb_communication_info_t uart_1_info = {
+        .port = UART_1,
+        .mode = MB_MODE_RTU,
+        .baudrate = BAUD_RATE,
+        .parity = MB_PARITY_NONE,
     };
 
-    // ESP_ERROR_CHECK(uart_wait_tx_idle_polling(UART_NUM1));
+    mb_communication_info_t uart_2_info = {
+        .port = UART_2,
+        .mode = MB_MODE_RTU,
+        .baudrate = BAUD_RATE,
+        .parity = MB_PARITY_NONE,
+    };
 
-    // Configure UART1 and UART2 parameters
-    ESP_ERROR_CHECK(uart_param_config(UART_1, &uart_config));
-    ESP_ERROR_CHECK(uart_param_config(UART_2, &uart_config));
+    ESP_ERROR_CHECK(mbc_master_setup((void *)&uart_1_info));
+    ESP_ERROR_CHECK(mbc_master_setup((void *)&uart_2_info));
 
-    // Set UART 1 pins
+    // Set UART pins
     ESP_ERROR_CHECK(uart_set_pin(UART_1,
-                                 UART1_TX_PIN,
-                                 UART1_RX_PIN,
-                                 UART1_EN_PIN,
-                                 UART_PIN_NO_CHANGE)); // if don't use this pin - set UART_PIN_NO_CHANGE
-    // Set UART 2 pins
+                                 UART_1_TX_PIN,
+                                 UART_1_RX_PIN,
+                                 UART_1_EN_PIN,
+                                 UART_PIN_NO_CHANGE));
     ESP_ERROR_CHECK(uart_set_pin(UART_2,
-                                 UART2_TX_PIN,
-                                 UART2_RX_PIN,
-                                 UART2_EN_PIN,
-                                 UART_PIN_NO_CHANGE)); // if don't use this pin - set UART_PIN_NO_CHANGE
+                                 UART_2_TX_PIN,
+                                 UART_2_RX_PIN,
+                                 UART_2_EN_PIN,
+                                 UART_PIN_NO_CHANGE));
 
-    // Install UART driver and create UART queue
-    ESP_ERROR_CHECK(uart_driver_install(UART_1,
-                                        BUF_RX_SIZE,
-                                        BUF_TX_SIZE,
-                                        EVENT_QUEUE_SIZE,
-                                        &uart_queue,
-                                        0));
-    ESP_ERROR_CHECK(uart_driver_install(UART_2,
-                                        BUF_RX_SIZE,
-                                        BUF_TX_SIZE,
-                                        EVENT_QUEUE_SIZE,
-                                        &uart_queue,
-                                        0));
+    esp_err_t dict_check = mbc_master_set_descriptor(mbslave_test_dict, mbslave_dict_size);
+    if (dict_check != ESP_OK)
+    {
+        ESP_LOGW(TAG_3, "Fail to set PM710 Dictionary !!!");
+    }
+    else
+    {
+        ESP_LOGI(TAG_3, "Success to set PM710 Dictionary");
+    }
 
-    // Setup rs485 half duplex mode for both
-    ESP_ERROR_CHECK(uart_set_mode(UART_1, UART_MODE_RS485_HALF_DUPLEX));
-    ESP_ERROR_CHECK(uart_set_mode(UART_2, UART_MODE_RS485_HALF_DUPLEX));
+    // Start controller
+    ESP_ERROR_CHECK(mbc_master_start());
+    ESP_ERROR_CHECK(mbc_master_start());
 
-    ESP_LOGI(TAG, "Successful to configure UART 1 and UART 2");
+    ESP_LOGI(TAG_1, "Modbus RTU 1 Master started");
+    ESP_LOGI(TAG_2, "Modbus RTU 2 Master started");
 }
 
-// Wait event in queue
-static void rx_queue_event_task(void *pvParameters)
+void modbus_test_read(void)
 {
-    // Contatin packet infomation in queue: type, size
-    static uart_event_t uart_event;
+    esp_err_t err;
+    float value = 0;
+    uint8_t type;
 
-    // It will check the length of modbus rtu packet
-    static int len_check = 0;
+    err = mbc_master_get_parameter(CID_1, "Value A", (uint8_t *)&value, &type);
 
-    // allocate temporary memory in heap - 1024 bytes
-    // the temp variable contains this address
-    static uint8_t *temp = (uint8_t *)malloc(BUF_SIZE);
-
-    for (;;) // for(;;) = while(1)
+    if (err == ESP_OK)
     {
-        // make sure to zero out the buffer before storing new data
-        // bzero(temp, 1024) = memset(temp, 0, 1024)
-        memset(temp, 0, BUF_SIZE);
-
-        if ((xQueueReceive(uart_queue, (void *)&uart_event, portMAX_DELAY)) == pdTRUE)
-        {
-            switch (uart_event.type)
-            {
-            case UART_DATA:
-                len_check = uart_read_bytes(UART_1,
-                                            temp,
-                                            uart_event.size,
-                                            portMAX_DELAY);
-                if (len_check >=)
-                {
-                    ESP_LOGI(TAG, "Receive modbus RTU packet from UART 1 with a length of %d bytes", len_check);
-                }
-                break;
-
-            // LUỒNG 2: PHÁT HIỆN NHIỄU (LỖI PARITY)
-            case UART_PARITY_ERR:
-
-                break;
-
-            // LUỒNG 3: BỘ ĐỆM BỊ ĐẦY (CẢNH BÁO HỆ THỐNG CHẬM)
-            case UART_BUFFER_FULL:
-                // Cần tối ưu lại Task xử lý để đọc dữ liệu nhanh hơn
-                uart_flush_input(UART_NUM_1);
-                break;
-
-            default:
-                break;
-            }
-        }
+        printf("value a = %.2f V\n", value);
     }
-    free(dtmp);
-    vTaskDelete(NULL);
+    else
+    {
+        printf("Read failed: %s\n", esp_err_to_name(err));
+    }
 }
