@@ -17,18 +17,19 @@
 #define BUF_RX_SIZE 1024
 #define EVENT_QUEUE_SIZE 10
 
+// UART 1 - Modbus RTU port 1
 #define UART_1_RX_PIN GPIO_NUM_39
 #define UART_1_TX_PIN GPIO_NUM_40
+#define UART_1_EN_PIN GPIO_NUM_41
+
+// UART 1 - Modbus RTU port 2
 #define UART_2_RX_PIN GPIO_NUM_42
 #define UART_2_TX_PIN GPIO_NUM_2
-
-#define UART_1_EN_PIN GPIO_NUM_41
 #define UART_2_EN_PIN GPIO_NUM_1
 
 extern mb_parameter_descriptor_t mbslave_test_dict[];
 extern const uint16_t mbslave_dict_size;
-// Size of device dictionary
-// #define DICT_SIZE (sizeof(pm710_dict) / sizeof(pm710_dict[0]))
 
-void modbus_rtu_init(void);
+void modbus_rtu_port_1_init(void);
+void modbus_rtu_port_2_init(void);
 void modbus_test_read(void);
