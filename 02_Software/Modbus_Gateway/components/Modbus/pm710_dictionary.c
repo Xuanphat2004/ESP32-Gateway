@@ -7,8 +7,8 @@
 #include "mbcontroller.h"
 
 mb_parameter_descriptor_t mbslave_test_dict[] = {
-    {CID_1, "Value A", "V", MBSLAVE_2_TEST_ID, MB_PARAM_INPUT, 3000, 2, offsetof(mbslave_data_t, value_a), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
-    {CID_2, "Value B", "V", MBSLAVE_2_TEST_ID, MB_PARAM_INPUT, 3004, 2, offsetof(mbslave_data_t, value_b), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
+    {CID_1, "Value A", "V", MBSLAVE_1_TEST_ID, MB_PARAM_INPUT, 0, 2, offsetof(mbslave_data_t, value_a), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
+    {CID_2, "Value B", "V", MBSLAVE_1_TEST_ID, MB_PARAM_INPUT, 4, 2, offsetof(mbslave_data_t, value_b), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
 };
 const uint16_t mbslave_dict_size = sizeof(mbslave_test_dict) / sizeof(mbslave_test_dict[0]);
 // mb_parameter_descriptor_t pm710_dict[] = {

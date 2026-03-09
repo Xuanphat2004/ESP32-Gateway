@@ -7,6 +7,7 @@
 #define PM710_SLAVE_ID 10
 
 // Use modbus slave test function
+#define MBSLAVE_1_TEST_ID 1
 #define MBSLAVE_2_TEST_ID 2
 #define MBSLAVE_3_TEST_ID 3
 #define MBSLAVE_4_TEST_ID 4
