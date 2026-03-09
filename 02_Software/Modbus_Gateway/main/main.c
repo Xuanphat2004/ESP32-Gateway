@@ -30,11 +30,11 @@ void app_main(void)
     eth_init();
     // udp_send_task_test();
     // tcp_send_task_test();
-    modbus_rtu_init();
+    modbus_rtu_port_1_init();
     // xTaskCreate((void *)udp_send_task_test, "UDP_test_task", 4096, NULL, 5, NULL);
     // xTaskCreate((void *)tcp_send_task_test, "TCP_test_task", 4096, NULL, 5, NULL);
     xTaskCreate((void *)modbus_test_read, "modbus_rtu_test_task", 4096, NULL, 5, NULL);
-    ESP_LOGI(TAG, "Run to here");
 
+    ESP_LOGI(TAG, "Run to here");
     vTaskDelay(pdMS_TO_TICKS(5000));
 }
