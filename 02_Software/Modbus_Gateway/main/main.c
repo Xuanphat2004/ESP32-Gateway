@@ -15,6 +15,9 @@
 #include "wifi.h"
 #include "ethernet.h"
 #include "modbus_rtu.h"
+#include "eeprom.h"
+#include "i2c_config.h"
+
 static const char *TAG = "[APP MAIN]";
 
 void app_main(void)
@@ -23,16 +26,15 @@ void app_main(void)
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 
-    // get_wifi_mac_addr();
-    wifi_Init();
-    // ESP_ERROR_CHECK(eth_init());
+    i2c_config();
+    eeprom_init();
 
+    wifi_Init();
     eth_init();
-    // udp_send_task_test();
-    // tcp_send_task_test();
-    modbus_rtu_port_1_init();
-    // xTaskCreate((void *)udp_send_task_test, "UDP_test_task", 4096, NULL, 5, NULL);
-    // xTaskCreate((void *)tcp_send_task_test, "TCP_test_task", 4096, NULL, 5, NULL);
+
+    // modbus_rtu_port_1_init();
+    modbus_rtu_port_2_init();
+
     xTaskCreate((void *)modbus_test_read, "modbus_rtu_test_task", 4096, NULL, 5, NULL);
 
     ESP_LOGI(TAG, "Run to here");
