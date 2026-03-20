@@ -4,15 +4,15 @@
 #include "mbcontroller.h"
 #include "esp_modbus_master.h"
 
-#define PM710_SLAVE_ID 10
+#define PM710_DEVICE_ID 10
 
 // Use modbus slave test function
-#define MBSLAVE_1_TEST_ID 1
+#define MBSLAVE_1_TEST_ID 10
 #define MBSLAVE_2_TEST_ID 2
 #define MBSLAVE_3_TEST_ID 3
 #define MBSLAVE_4_TEST_ID 4
 
-// struct in IDF library
+// ---------------- Mbslave App ---------------------------
 typedef struct
 {
     float value_a;
@@ -25,49 +25,30 @@ typedef enum
     CID_1,
     CID_2,
 } mbslave_cid_t;
+
+// --------------- PM710 Device ---------------------------
 typedef enum
 {
-    CID_V_LN_AVG = 0,
-    CID_V_L1N,
-    CID_V_L2N,
-    CID_V_L3N,
-
-    CID_V_LL_AVG,
-    CID_V_L12,
-    CID_V_L23,
-    CID_V_L31,
-
-    CID_I_AVG,
-    CID_I_L1,
-    CID_I_L2,
-    CID_I_L3,
-
-    CID_P_TOTAL,
-    CID_P_L1,
-    CID_P_L2,
-    CID_P_L3,
-
-    CID_Q_TOTAL,
-    CID_Q_L1,
-    CID_Q_L2,
-    CID_Q_L3,
-
-    CID_S_TOTAL,
-    CID_S_L1,
-    CID_S_L2,
-    CID_S_L3,
-
-    CID_PF_TOTAL,
-    CID_PF_L1,
-    CID_PF_L2,
-    CID_PF_L3,
-
-    CID_FREQ,
-
-    CID_ENERGY_IMPORT,
-    CID_ENERGY_EXPORT,
+    CID_USAGE_HOURS_1 = 0,
+    CID_USAGE_MIN_1,
+    CID_USAGE_HOURS_2,
+    CID_USAGE_MIN_2,
+    CID_FREQUENCY,
+    CID_VOLTAGE_A_B,
 } pm710_cid_t;
+typedef struct
+{
+    float usage_hrs_1;
+    int usage_hrs_2;
+    float usage_min_1;
+    int usage_min_2;
+    float frequency;
+    float voltage_a_b;
+} pm710_data_t;
 
 extern mb_parameter_descriptor_t pm710_dict[];
+extern const uint16_t pm710_dict_size;
+extern mb_parameter_descriptor_t mbslave_test_dict[];
+extern const uint16_t mbslave_dict_size;
 
 #endif
