@@ -1,0 +1,13 @@
+Added Component: Designator=L1(L_SMD_0630)
+Added Component: Designator=L2(L_SMD_0630)
+Added Pin To Net: NetName=NetC5_2 Pin=L1-1
+Added Pin To Net: NetName=VDD Pin=L1-2
+Added Pin To Net: NetName=NetD1_2 Pin=L2-1
+Added Pin To Net: NetName=+3.3V Pin=L2-2
+Add Pin To Net: Unknown Pin: Pin U2-9
+Add Pin To Net: Unknown Pin: Pin USB1-A9
+Add Pin To Net: Unknown Pin: Pin USB1-A12
+Add Pin To Net: Unknown Pin: Pin USB1-B9
+Add Pin To Net: Unknown Pin: Pin USB1-B12
+Added Member To Class: ClassName=Power_Supply Member=Component L1 15uH/3A
+Added Member To Class: ClassName=Power_Supply Member=Component L2 22uH/3A

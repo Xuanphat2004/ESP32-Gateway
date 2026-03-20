@@ -1,0 +1,6 @@
+Removed Pin From Net: NetName=+5V Pin=C9-1
+Removed Pin From Net: NetName=GND Pin=C9-2
+Removed Member From Class: ClassName=Power_Supply Member=C9
+Removed Member From Class: ClassName=User_Interface Member=TP13
+Change Component Comment : Designator=C10 Old Comment=0.1uF/50V New Comment=10uF/50V
+Added Member To Class: ClassName=User_Interface Member=Component EN1 Encoder - EC11

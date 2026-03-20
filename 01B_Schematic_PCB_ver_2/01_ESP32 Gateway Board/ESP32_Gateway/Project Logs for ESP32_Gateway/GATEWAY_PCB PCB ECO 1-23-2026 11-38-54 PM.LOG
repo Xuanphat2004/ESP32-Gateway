@@ -1,0 +1,4 @@
+Change Component Footprint: Designator=KF1 Old Footprint=KF-5.08-2-R New Footprint=KF-128-2P
+Change Component Footprint: Designator=KF2 Old Footprint=KF-5.08-2-R New Footprint=KF-128-2P
+Change Component Comment : Designator=KF1 Old Comment=KF-5.08-2-R New Comment=KF 2 Pins
+Change Component Comment : Designator=KF2 Old Comment=KF-5.08-2-R New Comment=KF 2 Pins
