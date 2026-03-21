@@ -13,8 +13,8 @@
 #include <time.h>
 #include "esp_sntp.h"
 
-#define ESP_WIFI_SSID "xuanphatwifi"
-#define ESP_WIFI_PASS "25112008"
+#define ESP_WIFI_SSID "xuanphat_2.4GHz"
+#define ESP_WIFI_PASS "12345678"
 
 void wifi_Init(void);
 void get_wifi_mac_addr(void);

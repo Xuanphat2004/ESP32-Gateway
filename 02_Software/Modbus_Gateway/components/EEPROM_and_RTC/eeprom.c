@@ -36,7 +36,7 @@ esp_err_t eeprom_init(void)
     esp_err_t err = i2c_master_bus_add_device(bus_i2c_handle, &eeprom_config, &eeprom_handle);
     if (err == ESP_OK)
     {
-        ESP_LOGI(TAG, "Successful to configure for EEPROM");
+        ESP_LOGI(TAG, "Successful to configure for EEPROM and add device into I2C bus");
     }
     return err;
 }
