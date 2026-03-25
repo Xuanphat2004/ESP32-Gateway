@@ -30,5 +30,5 @@ typedef struct
 esp_err_t rtc_a_init(void);
 esp_err_t rtc_set_time(uint8_t hours, uint8_t minutes, uint8_t seconds, uint8_t day, uint8_t date, uint8_t month, uint8_t year);
 esp_err_t rtc_read_time(rtc_time_t *time_buffer);
-
+esp_err_t get_time(void);
 #endif
