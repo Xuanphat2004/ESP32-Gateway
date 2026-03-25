@@ -7,8 +7,13 @@
 #include "wifi.h"
 #include "esp_err.h"
 #include "esp_mac.h"
+#include "rtc_mb.h"
+#include "eeprom.h"
+#include "esp_http_server.h"
 
 static const char *TAG = "[MODBUS GATEWAY - WIFI]";
+static bool web_running = false;
+
 static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
 void get_wifi_mac_addr(void)
 {
@@ -45,14 +50,9 @@ void get_wifi_mac_addr(void)
         ESP_LOGE(TAG, "Failed to get MAC address !!!\n");
     }
 }
-
+void start_webserver(void);
 void wifi_Init(void)
 {
-    /*  Khởi tạo bộ LwIP bên trong ESP (Bộ dịch ngôn ngữ TCP/IP)
-        Dữ liệu liên quan tới netif đều nằm trên RAM */
-    // ESP_ERROR_CHECK(esp_netif_init());
-    // ESP_ERROR_CHECK(esp_event_loop_create_default());
-
     printf("\n");
     ESP_LOGI(TAG, "Started to Configure for Wifi ....\n");
 
@@ -66,7 +66,7 @@ void wifi_Init(void)
 
     // ESP_ERROR_CHECK() - Nếu lỗi sẽ thông báo ra console, nếu không có lỗi sẽ đi tiếp mà không thông báo gì
     ESP_ERROR_CHECK(ret);
-
+    esp_netif_create_default_wifi_ap(); // Thêm dòng này để tạo Access Point
     // Tạo Interface mạng chuẩn cho Wi-Fi Station - netif cho wifi sta
     esp_netif_create_default_wifi_sta();
 
@@ -93,57 +93,105 @@ void wifi_Init(void)
                                                         &wifi_event_handler, NULL,
                                                         &instance_got_ip));
 
-    // Thông tin đăng nhập SSID và Password được lưu vào phân vùng NVS
-    wifi_config_t wifi_config = {
-        .sta = {
-            .ssid = ESP_WIFI_SSID,
-            .password = ESP_WIFI_PASS,
-            .threshold.authmode = WIFI_AUTH_WPA2_PSK,
-            /* Ngưỡng tiêu chuẩn bảo mật tối thiểu mà router phát wifi cần có
-            Router Wifi cần có chuẩn WPA2 trở lên thì esp mới chấp nhận kết nối vào */
-        },
-    };
+    // --- LUỒNG LOGIC ĐỌC EEPROM ---
+    wifi_config_t wifi_config = {0};
 
-    // Thiết lập chế độ Sta (Station) - Đóng vai trò là 1 Client
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+    // Đọc SSID (32 bytes) và Password (64 bytes) từ địa chỉ đã định nghĩa
+    eeprom_read(0x0100, (uint8_t *)wifi_config.sta.ssid, 32);
+    eeprom_read(0x0120, (uint8_t *)wifi_config.sta.password, 64);
 
-    // Thực hiện thao tác đăng nhập vào wifi thông qua SSID và Password
-    ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
+    // Kiểm tra nếu EEPROM trống (thường byte đầu là 0xFF hoặc 0)
+    if (wifi_config.sta.ssid[0] == 0xFF || wifi_config.sta.ssid[0] == 0)
+    {
+        ESP_LOGW(TAG, "EEPROM trống hoặc dữ liệu lỗi, bật AP Mode để cấu hình...");
 
-    // Kích hoạt bộ thu phát wifi trên ESP
+        // Cấu hình chế độ phát WiFi (AP) để User kết nối vào
+        wifi_config_t ap_config = {
+            .ap = {
+                .ssid = AP_SSID_CONFIG,
+                .password = AP_PASS_CONFIG,
+                .max_connection = 4,
+                .authmode = WIFI_AUTH_WPA2_PSK},
+        };
+        ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA)); // Vừa AP vừa STA để scan wifi
+        ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &ap_config));
+
+        // Khởi động Web Server (Phát sẽ viết hàm này ở file web_server.c)
+        start_webserver();
+    }
+    else
+    {
+        ESP_LOGI(TAG, "Tìm thấy cấu hình trong EEPROM, đang thử kết nối Station...");
+        ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+        ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
+    }
+    // // Thông tin đăng nhập SSID và Password được lưu vào phân vùng NVS
+    // wifi_config_t wifi_config = {
+    //     .sta = {
+    //         .ssid = ESP_WIFI_SSID,
+    //         .password = ESP_WIFI_PASS,
+    //         .threshold.authmode = WIFI_AUTH_WPA2_PSK,
+    //         /* Ngưỡng tiêu chuẩn bảo mật tối thiểu mà router phát wifi cần có
+    //         Router Wifi cần có chuẩn WPA2 trở lên thì esp mới chấp nhận kết nối vào */
+    //     },
+    // };
+    // ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+    // ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
+
     ESP_ERROR_CHECK(esp_wifi_start());
-
-    printf("\n");
-    ESP_LOGI(TAG, "Completed to configure for Wifi ....\n");
 }
 
 static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
-    ip_event_got_ip_t *event_pkt; // Chứa gói tin Router mạng gửi đến
+    ip_event_got_ip_t *event_pkt;
     static uint8_t try_count = 0;
 
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START)
     {
-        esp_wifi_connect(); // Thực hiện kết nối tới wifi
+        esp_wifi_connect();
     }
-
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED)
     {
         try_count++;
-        printf("\n");
-        ESP_LOGE(TAG, "Disconnected to Wifi, retry to connect to Wifi ....(attempt: %d)\n", try_count);
+        ESP_LOGE(TAG, "Disconnected! Retry attempt: %d", try_count);
+
+        if (try_count >= MAX_WIFI_RETRY)
+        {
+            ESP_LOGE(TAG, "Max retries reached. Opening config portal...");
+
+            if (web_running == false)
+            {
+                start_webserver();
+                web_running = true;
+            }
+            try_count = 0;
+            return;
+        }
         esp_wifi_connect();
     }
-
     else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP)
     {
         event_pkt = (ip_event_got_ip_t *)event_data;
-        printf("\n");
-        ESP_LOGI(TAG, "Connected to Wifi SSID: %s", ESP_WIFI_SSID);
-        ESP_LOGI(TAG, "Got ip: " IPSTR, IP2STR(&event_pkt->ip_info.ip));
-        try_count = 0; // Reset bộ đếm
 
-        // Đánh thức luồng chính đang chờ đợi
-        // xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
+        wifi_config_t config = {0};
+        esp_wifi_get_config(WIFI_IF_STA, &config);
+
+        ESP_LOGI(TAG, "Connected to: %s", (char *)config.sta.ssid);
+        ESP_LOGI(TAG, "IP: " IPSTR, IP2STR(&event_pkt->ip_info.ip));
+
+        get_time();
+        try_count = 0;
+
+        // Nếu trước đó đang bật webserver (do nhập sai), giờ đúng thì reset để lưu EEPROM và chạy mode STA thuần
+        if (web_running == true)
+        {
+            // Đây là lúc bạn thực hiện flow: Ghi EEPROM -> Restart
+            ESP_LOGI(TAG, "New config verified. Saving to EEPROM...");
+            eeprom_write(0x0100, (uint8_t *)config.sta.ssid, 32);
+            eeprom_write(0x0120, (uint8_t *)config.sta.password, 64);
+
+            vTaskDelay(pdMS_TO_TICKS(500));
+            esp_restart(); // Restart để vào mode STA sạch sẽ
+        }
     }
 }

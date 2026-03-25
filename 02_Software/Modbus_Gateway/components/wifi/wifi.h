@@ -12,11 +12,25 @@
 
 #include <time.h>
 #include "esp_sntp.h"
+#include "eeprom.h"
 
-#define ESP_WIFI_SSID "xuanphat_2.4GHz"
-#define ESP_WIFI_PASS "12345678"
+// #define ESP_WIFI_SSID "xuanphat_2.4GHz"
+// #define ESP_WIFI_PASS "12345678"
+
+// Thay đổi SSID mặc định thành SSID dùng cho chế độ cấu hình (AP)
+#define AP_SSID_CONFIG "Modbus_Gateway_Setup"
+#define AP_PASS_CONFIG "12345678"
+#define MAX_WIFI_RETRY 3
+
+// Cấu trúc để lưu SSID/PASS tạm thời từ Web
+typedef struct
+{
+    char ssid[64];
+    char password[64];
+} wifi_config_web_t;
 
 void wifi_Init(void);
+void start_webserver(void); // Hàm khởi tạo Web Server
 void get_wifi_mac_addr(void);
 
 #endif
