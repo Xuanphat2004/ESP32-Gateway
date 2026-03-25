@@ -15,6 +15,7 @@
 #include "esp_modbus_master.h"
 #include "esp_modbus_common.h"
 #include "pm710_dictionary.h"
+#include "rtc_mb.h"
 
 // user library
 #include "modbus_rtu.h"
@@ -118,23 +119,36 @@ void modbus_rtu_port_2_init(void)
 
 void modbus_test_read(void)
 {
-    esp_err_t err_1, err_2;
-    float value = 0.0;
+    esp_err_t err;
     uint8_t type;
+    rtc_time_t now;
+    pm710_data_t pm710_ram_data = {0};
     while (1)
     {
-        err_1 = mbc_master_get_parameter(CID_1, "Value A", (uint8_t *)&value, &type);
-
-        if (err_1 == ESP_OK)
+        for (int i = 0; i < mbslave_dict_size; i++)
         {
-            printf("Real Energy = %.2f kWh\n", value);
+            rtc_read_time(&now);
+            uint8_t *target_addr = (uint8_t *)&pm710_ram_data + mbslave_test_dict[i].param_offset;
+            const char *param_name = mbslave_test_dict[i].param_key;
+            const char *param_unit = mbslave_test_dict[i].param_units;
+            // error = master_interface_ptr->get_parameter(cid, name, value, type);
+            // uint8_t* data_addr = (uint8_t *)&pm710_ram_data + mbslave_test_dict[i].param_offset; -----> Address of the parameter in the RAM data structure
+            err = mbc_master_get_parameter(i, param_name, target_addr, &type);
+            if (err == ESP_OK)
+            {
+                float value = *(float *)target_addr;
+                printf("[-%02dh %02dm %02ds-] %s = %.2f %s\n",
+                       now.hour,
+                       now.minute,
+                       now.second,
+                       param_name, value, param_unit);
+            }
+            else
+            {
+                printf("Failed to read Value %d\n", i + 1);
+            }
         }
-        err_2 = mbc_master_get_parameter(CID_2, "Value B", (uint8_t *)&value, &type);
-
-        if (err_2 == ESP_OK)
-        {
-            printf("Service Frequency = %.2f Hz\n", value);
-        }
-        vTaskDelay(pdMS_TO_TICKS(2000));
+        printf("\n");
+        vTaskDelay(pdMS_TO_TICKS(10000));
     }
 }
