@@ -15,6 +15,7 @@
 #include "lwip/sockets.h"
 //  Thư viện tự tạo
 #include "ethernet.h"
+#include "rtc_mb.h"
 
 static const char *TAG = "[MODBUS GATEWAY - ETHERNET]";
 esp_err_t eth_init(void);
@@ -136,6 +137,12 @@ esp_err_t eth_init(void)
     esp_netif_t *eth_netif = esp_netif_new(&netif_eth_cfg);
     assert(eth_netif);
 
+    // Kiểm tra DHCP client có đang chạy không
+    // 0 = STARTED, 1 = STOPPED
+    esp_netif_dhcp_status_t dhcp_status;
+    esp_netif_dhcpc_get_status(eth_netif, &dhcp_status);
+    ESP_LOGI(TAG, "DHCP client status: %d", dhcp_status);
+
     // Khởi tạo SPI bus và tốc độ dùng cho bus
     spi_bus_config_t w5500_spi_bus_config = {
         .miso_io_num = MISO_ETH_PIN,
@@ -160,8 +167,8 @@ esp_err_t eth_init(void)
                       "SPI host #%d init failed !!!",
                       SPI_ETH_HOST);
 
-    spi_device_handle_t spi_handle = NULL;
-    ESP_ERROR_CHECK(spi_bus_add_device(SPI_ETH_HOST, &w5500_spi_config, &spi_handle));
+    // spi_device_handle_t spi_handle = NULL;
+    // ESP_ERROR_CHECK(spi_bus_add_device(SPI_ETH_HOST, &w5500_spi_config, &spi_handle));
 
     eth_w5500_config_t w5500_config = ETH_W5500_DEFAULT_CONFIG(SPI_ETH_HOST, &w5500_spi_config);
 
@@ -198,13 +205,12 @@ esp_err_t eth_init(void)
     IP4_ADDR(&ip_info.gw, 192, 168, 137, 1);
     IP4_ADDR(&ip_info.netmask, 255, 255, 255, 0);
 
-    // Sử dụng DHCP - xin IP động
-    // ESP_ERROR_CHECK(esp_netif_dhcpc_start(eth_netif));
+    // // Sử dụng DHCP - xin IP động
+    // // ESP_ERROR_CHECK(esp_netif_dhcpc_start(eth_netif));
 
     // Gán địa chỉ ETH MAC của ESP cho W5500 - B4:3A:45:CF:4D:2F
     static uint8_t eth_mac_addr[6] = {0};
     ESP_ERROR_CHECK(esp_read_mac(eth_mac_addr, ESP_MAC_ETH));
-
     ESP_ERROR_CHECK(esp_eth_ioctl(eth_handle, ETH_CMD_S_MAC_ADDR, eth_mac_addr));
     ESP_LOGI(TAG, "Configure Ethernet MAC address for W5500: %02x:%02x:%02x:%02x:%02x:%02x",
              eth_mac_addr[0], eth_mac_addr[1], eth_mac_addr[2],
@@ -212,6 +218,12 @@ esp_err_t eth_init(void)
 
     // Áp dụng IP tĩnh
     ESP_ERROR_CHECK(esp_netif_set_ip_info(eth_netif, &ip_info));
+
+    // dns
+    esp_netif_dns_info_t dns;
+    IP4_ADDR(&dns.ip.u_addr.ip4, 8, 8, 8, 8);
+    dns.ip.type = IPADDR_TYPE_V4;
+    ESP_ERROR_CHECK(esp_netif_set_dns_info(eth_netif, ESP_NETIF_DNS_MAIN, &dns));
 
     // Gọi hàm quản lý các sự kiện ngắt
     ESP_ERROR_CHECK(esp_event_handler_register(ETH_EVENT,
@@ -229,6 +241,7 @@ esp_err_t eth_init(void)
 
     // Khởi động Ethernet
     ESP_ERROR_CHECK(esp_eth_start(eth_handle));
+    // ESP_ERROR_CHECK(esp_netif_dhcpc_start(eth_netif));
 
     ESP_LOGI(TAG, "Successful configure Ethernet use W5500.");
 
@@ -282,19 +295,11 @@ static void got_ip_event_handler(void *arg,
 
     ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
 
-    // eth_sub_netmask = event->ip_info.netmask.addr;
-    // eth_ip_addr = event->ip_info.ip.addr;
-    // eth_gateway_addr = event->ip_info.gw.addr;
+    ESP_LOGI(TAG, "Got IP address: " IPSTR, IP2STR(&event->ip_info.ip));
+    ESP_LOGI(TAG, "Got subnet mask: " IPSTR, IP2STR(&event->ip_info.netmask));
+    ESP_LOGI(TAG, "Got gateway address: " IPSTR, IP2STR(&event->ip_info.gw));
 
-    // Sử dụng hàm của IDF để in giá trị IP ra màn hình
-    ESP_LOGI(TAG, "Got IP address (function): " IPSTR, IP2STR(&event->ip_info.ip));
-
-    // Sử dụng mặt nạ bit để tách từng byte trong eth_ip_addr có kiểu uint32_t để in giá trị IP ra màn hình
-    // ESP_LOGI(TAG, "Got IP address (manual): %d.%d.%d.%d",
-    //          (eth_ip_addr) & 0xFF,
-    //          (eth_ip_addr >> 8) & 0xFF,
-    //          (eth_ip_addr >> 16) & 0xFF,
-    //          (eth_ip_addr >> 24) & 0xFF);
-    ESP_LOGI(TAG, "Got subnet mask (function): " IPSTR, IP2STR(&event->ip_info.netmask));
-    ESP_LOGI(TAG, "Got gateway address (function): " IPSTR, IP2STR(&event->ip_info.gw));
+    // vTaskDelay(pdMS_TO_TICKS(3000));
+    // get_time();
+    // internet_test();
 }

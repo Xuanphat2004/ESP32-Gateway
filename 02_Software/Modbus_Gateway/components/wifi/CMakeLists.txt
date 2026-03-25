@@ -6,4 +6,6 @@ idf_component_register(
                 esp_netif 
                 nvs_flash 
                 freertos  # Các thư viện LÕI mà code wifi.c của bạn cần dùng
+                EEPROM_and_RTC
+                esp_http_server
 )

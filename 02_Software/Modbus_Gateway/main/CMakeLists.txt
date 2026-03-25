@@ -4,4 +4,5 @@ idf_component_register(SRCS "main.c"
                                 Ethernet 
                                 Modbus
                                 EEPROM_and_RTC
+                                LCD
                     )
