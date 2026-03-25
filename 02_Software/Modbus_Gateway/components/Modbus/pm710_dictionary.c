@@ -7,19 +7,22 @@
 #include "mbcontroller.h"
 
 mb_parameter_descriptor_t mbslave_test_dict[] = {
-    {CID_1, "Value A", "V", MBSLAVE_1_TEST_ID, MB_PARAM_HOLDING, 1000, 2, offsetof(mbslave_data_t, value_a), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
-    {CID_2, "Value B", "V", MBSLAVE_1_TEST_ID, MB_PARAM_HOLDING, 1204, 2, offsetof(mbslave_data_t, value_b), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
+    {0, "Real Energy, Total", "kWh", PM710_ID, MB_PARAM_HOLDING, 1000, 2, offsetof(pm710_data_t, value_1), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
+    {1, "Apparent Energy, Total", "kVAh", PM710_ID, MB_PARAM_HOLDING, 1002, 2, offsetof(pm710_data_t, value_2), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
+    {2, "Reactive Energy, Total", "kVARh", PM710_ID, MB_PARAM_HOLDING, 1004, 2, offsetof(pm710_data_t, value_3), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
+    {3, "Real Power, Total", "kW", PM710_ID, MB_PARAM_HOLDING, 1006, 2, offsetof(pm710_data_t, value_4), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
+    {4, "Apparent Power, Total", "kVA", PM710_ID, MB_PARAM_HOLDING, 1008, 2, offsetof(pm710_data_t, value_5), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
+    {5, "Reactive Power, Total", "KVAR", PM710_ID, MB_PARAM_HOLDING, 1010, 2, offsetof(pm710_data_t, value_6), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
+    {6, "Power Factor, Total", " ", PM710_ID, MB_PARAM_HOLDING, 1012, 2, offsetof(pm710_data_t, value_7), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
+    {7, "Voltage, L-L, 3P Average", "Volt", PM710_ID, MB_PARAM_HOLDING, 1014, 2, offsetof(pm710_data_t, value_8), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
+    {8, "Voltage, L-N, 3P Average", "Volt", PM710_ID, MB_PARAM_HOLDING, 1016, 2, offsetof(pm710_data_t, value_9), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
+    {9, "Current, 3P Average", "Amp", PM710_ID, MB_PARAM_HOLDING, 1018, 2, offsetof(pm710_data_t, value_10), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
+    {10, "Frequency", "Hz", PM710_ID, MB_PARAM_HOLDING, 1020, 2, offsetof(pm710_data_t, value_11), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
+    {11, "Current A", "Amp", PM710_ID, MB_PARAM_HOLDING, 1034, 2, offsetof(pm710_data_t, value_12), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
+    {12, "Current B", "Amp", PM710_ID, MB_PARAM_HOLDING, 1036, 2, offsetof(pm710_data_t, value_13), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
+    {13, "Current C", "Amp", PM710_ID, MB_PARAM_HOLDING, 1038, 2, offsetof(pm710_data_t, value_14), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
+    {14, "Current N", "Amp", PM710_ID, MB_PARAM_HOLDING, 1040, 2, offsetof(pm710_data_t, value_15), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
 };
+
+// Size of the dictionary
 const uint16_t mbslave_dict_size = sizeof(mbslave_test_dict) / sizeof(mbslave_test_dict[0]);
-
-mb_parameter_descriptor_t pm710_dict[] = {
-    // Register listing
-    // -------- Setup and Status --------
-    //{Register name, name of param, unit of param, slave address, type of function, }
-    // {CID_USAGE_HOURS_1, "Usage Hours (Float)", "Hrs", PM710_DEVICE_ID, MB_PARAM_INPUT, 1204, 2, offsetof(pm710_data_t, usage_hrs_1), PARAM_TYPE_FLOAT_ABCD, 4, {{0, 0, 0}}, PAR_PERMS_READ},
-    // {CID_USAGE_HOURS_2, "Usage Hours (Integer) ", "Hrs", PM710_DEVICE_ID, MB_PARAM_INPUT, 4110, 2, offsetof(pm710_data_t, usage_hrs_2), PARAM_TYPE_FLOAT_ABCD, 4, {{0, 0, 0}}, PAR_PERMS_READ},
-    // {CID_FREQUENCY, "FREQUENCY", "Hz", PM710_DEVICE_ID, MB_PARAM_INPUT, 1020, 2, offsetof(pm710_data_t, frequency), PARAM_TYPE_FLOAT_ABCD, 4, {{0, 0, 0}}, PAR_PERMS_READ},
-    // {CID_VOLTAGE_A_B, "VOLTAGE A-B", PM710_DEVICE_ID, MB_PARAM_HOLDING, 1054, 2, offsetof(pm710_data_t, voltage_a_b), PARAM_TYPE_FLOAT_ABCD, 4, {{0, 0, 0}}, PAR_PERMS_READ},
-
-};
-const uint16_t pm710_dict_size = sizeof(pm710_dict) / sizeof(pm710_dict[0]);
