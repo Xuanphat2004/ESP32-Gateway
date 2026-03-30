@@ -1,0 +1,9 @@
+Removed Pin From Net: NetName=DEBUG_TXD0_D_N Pin=U15-36
+Change Net Name : Old Net Name=DEBUG_RXD0_D_P New Net Name=DEBUG_D_P
+Change Net Name : Old Net Name=XI_D_N New Net Name=CRYSTAL_N
+Change Net Name : Old Net Name=XO_D_P New Net Name=CRYSTAL_P
+Added Pin To Net: NetName=DEBUG_D_N Pin=U15-36
+Added Net: Name=DEBUG_D_N
+Added Differential Pair: Name=CRYSTAL
+Add Differential Pair: Number of nets in differential pair DEBUG_D is 1 instead of 2
+Add Differential Pair: Number of nets in differential pair DEBUG_TXD0_D is 1 instead of 2

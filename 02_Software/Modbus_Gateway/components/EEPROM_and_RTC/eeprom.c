@@ -27,7 +27,7 @@ esp_err_t eeprom_init(void)
 
     // Set parameter for EEPROM - AT24C256C
     i2c_device_config_t eeprom_config = {
-        .dev_addr_length = LEN_ADDR,
+        .dev_addr_length = I2C_ADDR_BIT_LEN_7,
         .device_address = DEV_ADDR, // Device address, default format: 1010 A2A1A0 (A0,A1,A2 = GND)
         .scl_speed_hz = EEP_SPEED,  // 100kHz
     };
@@ -58,7 +58,14 @@ esp_err_t eeprom_write(uint16_t address, const uint8_t *data, size_t size)
 
     // Send to eeprom, -1 is timeout (no timeout)
     esp_err_t err = i2c_master_transmit(eeprom_handle, buffer, sizeof(buffer), -1);
-
+    if (err == ESP_OK)
+    {
+        ESP_LOGI(TAG, "Successful to transmit I2C packet");
+    }
+    else
+    {
+        ESP_LOGE(TAG, "Fail to transmit packet !!!");
+    }
     // Delay 7ms (>=5ms) to wait for eeprom write data
     vTaskDelay(pdMS_TO_TICKS(7));
     return err;
@@ -72,6 +79,14 @@ esp_err_t eeprom_read(uint16_t address, uint8_t *data, size_t size)
     uint8_t addr_buf[2];
     addr_buf[0] = (address >> 8) & 0xFF; // High byte address want to read
     addr_buf[1] = address & 0xFF;        // Low byte address want to read
-
-    return i2c_master_transmit_receive(eeprom_handle, addr_buf, sizeof(addr_buf), data, size, -1);
+    esp_err_t err = i2c_master_transmit_receive(eeprom_handle, addr_buf, sizeof(addr_buf), data, size, -1);
+    if (err == ESP_OK)
+    {
+        ESP_LOGI(TAG, "Successful to read I2C packet");
+    }
+    else
+    {
+        ESP_LOGE(TAG, "Fail to read packet !!!");
+    }
+    return err;
 }

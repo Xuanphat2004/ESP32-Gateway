@@ -5,4 +5,5 @@ idf_component_register(
                 driver
                 esp-modbus
                 log 
+                Modbus
 )

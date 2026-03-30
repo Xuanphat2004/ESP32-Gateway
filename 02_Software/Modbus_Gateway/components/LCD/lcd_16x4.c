@@ -12,7 +12,10 @@
 #include "freertos/task.h"
 #include "freertos/portable.h"
 #include "freertos/event_groups.h"
+#include "pm710_dictionary.h"
 
+extern SemaphoreHandle_t xDataMutex;
+extern pm710_data_t pm710_latest_data;
 // Send 4 bits to LCD
 void lcd_send_nibble(uint8_t data)
 {
@@ -94,9 +97,7 @@ void lcd_1604_init(void)
     LCD_Print("Welcome to");
     LCD_SetCursor(2, 1);
     LCD_Print("Modbus Gateway");
-    ESP_LOGI("2222222222222222", "Welcome message displayed");
-    vTaskDelay(pdMS_TO_TICKS(3000));
-    // ets_delay_us(2000000); // delay 2ms
+    vTaskDelay(pdMS_TO_TICKS(2000));
     lcd_clear();
 }
 
@@ -156,4 +157,31 @@ void LCD_DisableCursorBlink(void)
 {
     lcd_send_cmd(0x0C);
     ets_delay_us(50); // Delay 100us
+}
+void lcd_display_task(void *pvParameters)
+{
+    char voltage_str[20] = {0};
+    while (1)
+    {
+        if (xSemaphoreTake(xDataMutex, pdMS_TO_TICKS(100)) == pdTRUE)
+        {
+            LCD_SetCursor(0, 0);
+            LCD_Print("--PM710-ID:10--");
+
+            LCD_SetCursor(1, 0);
+            snprintf(voltage_str, sizeof(voltage_str), " F  :%.2f Hz", pm710_latest_data.value_11);
+            LCD_Print(voltage_str);
+
+            LCD_SetCursor(2, 0);
+            snprintf(voltage_str, sizeof(voltage_str), " A-N:%.2f V", pm710_latest_data.value_16);
+            LCD_Print(voltage_str);
+
+            LCD_SetCursor(3, 0);
+            snprintf(voltage_str, sizeof(voltage_str), " I  :%.2f A", pm710_latest_data.value_10);
+            LCD_Print(voltage_str);
+
+            xSemaphoreGive(xDataMutex);
+        }
+        vTaskDelay(pdMS_TO_TICKS(3000));
+    }
 }

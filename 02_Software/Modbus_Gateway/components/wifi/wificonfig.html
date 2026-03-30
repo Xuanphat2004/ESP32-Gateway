@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gateway Config</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 350px;
+        }
+
+        h2 {
+            color: #1a73e8;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        select,
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .footer {
+            font-size: 11px;
+            text-align: center;
+            color: #777;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h2>WiFi Setup</h2>
+        <form action="/save" method="POST">
+            <label>Chọn WiFi xung quanh:</label>
+            <select id="scan_list" onchange="document.getElementById('ssid').value=this.value">
+                <option>Đang quét mạng...</option>
+            </select>
+            <input type="text" name="ssid" id="ssid" placeholder="Hoặc tự nhập SSID" required>
+            <input type="password" name="password" placeholder="Mật khẩu WiFi" required>
+            <button type="submit">LƯU VÀ KẾT NỐI</button>
+        </form>
+        <div class="footer">Modbus Gateway - BK University</div>
+    </div>
+
+    <script>
+        // Tự động gọi API scan khi vừa mở trang
+        fetch('/scan').then(res => res.json()).then(data => {
+            let s = document.getElementById('scan_list');
+            s.innerHTML = '<option value="">-- Chọn danh sách --</option>';
+            data.forEach(n => {
+                let o = document.createElement('option');
+                o.value = o.text = n;
+                s.appendChild(o);
+            });
+        });
+    </script>
+</body>
+
+</html>

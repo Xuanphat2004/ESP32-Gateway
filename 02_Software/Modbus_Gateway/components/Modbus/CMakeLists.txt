@@ -6,4 +6,6 @@ idf_component_register(
                 esp-modbus
                 log 
                 EEPROM_and_RTC
+                esp_netif
+                main
 )

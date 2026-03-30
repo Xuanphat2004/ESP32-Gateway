@@ -22,8 +22,11 @@
 
 // static const char *TAG_1 = "[MODBUS GATEWAY - Modbus 1]";
 static const char *TAG_2 = "[MODBUS GATEWAY - Modbus 2]";
+extern SemaphoreHandle_t xDataMutex;
 // static const char *TAG_3 = "[MODBUS GATEWAY - Modbus]";
 // declare handle variable for UART queue - it contains all information this queue (Queue Control Block - QTB)
+
+pm710_data_t pm710_latest_data = {0};
 
 void modbus_rtu_port_1_init(void);
 void modbus_rtu_port_2_init(void);
@@ -117,38 +120,69 @@ void modbus_rtu_port_2_init(void)
     ESP_LOGI(TAG_2, "Modbus RTU 2 Master started");
 }
 
+static float pm710_decode_float(float input)
+{
+    uint32_t temp;
+    // Copy vùng nhớ float sang uint32 để thao tác bit
+    memcpy(&temp, &input, sizeof(float));
+
+    // Đảo vị trí 2 thanh ghi 16-bit (ABCD -> CDAB)
+    temp = ((temp & 0x0000FFFF) << 16) | ((temp & 0xFFFF0000) >> 16);
+
+    float output;
+    memcpy(&output, &temp, sizeof(float));
+    return output;
+}
+
 void modbus_test_read(void)
 {
     esp_err_t err;
     uint8_t type;
     rtc_time_t now;
-    pm710_data_t pm710_ram_data = {0};
     while (1)
     {
-        for (int i = 0; i < mbslave_dict_size; i++)
+        if (xSemaphoreTake(xDataMutex, pdMS_TO_TICKS(100)) == pdTRUE)
         {
-            rtc_read_time(&now);
-            uint8_t *target_addr = (uint8_t *)&pm710_ram_data + mbslave_test_dict[i].param_offset;
-            const char *param_name = mbslave_test_dict[i].param_key;
-            const char *param_unit = mbslave_test_dict[i].param_units;
-            // error = master_interface_ptr->get_parameter(cid, name, value, type);
-            // uint8_t* data_addr = (uint8_t *)&pm710_ram_data + mbslave_test_dict[i].param_offset; -----> Address of the parameter in the RAM data structure
-            err = mbc_master_get_parameter(i, param_name, target_addr, &type);
-            if (err == ESP_OK)
+            for (int i = 0; i < mbslave_dict_size; i++)
             {
-                float value = *(float *)target_addr;
-                printf("[-%02dh %02dm %02ds-] %s = %.2f %s\n",
-                       now.hour,
-                       now.minute,
-                       now.second,
-                       param_name, value, param_unit);
+                // printf("Task đang chạy trên nhân: %d\n", xPortGetCoreID());
+                rtc_read_time(&now);
+                uint8_t *target_addr = (uint8_t *)&pm710_latest_data + mbslave_test_dict[i].param_offset;
+                char *param_name = mbslave_test_dict[i].param_key;
+                char *param_unit = mbslave_test_dict[i].param_units;
+                err = mbc_master_get_parameter(i, param_name, target_addr, &type);
+                if (err == ESP_OK)
+                {
+                    if (type == PARAM_TYPE_U16)
+                    {
+                        uint16_t value_1 = *(uint16_t *)target_addr;
+                        printf("[-%02dh %02dm %02ds-] %s = %u %s\n",
+                               now.hour,
+                               now.minute,
+                               now.second,
+                               param_name, value_1, param_unit);
+                    }
+                    else if (type == PARAM_TYPE_FLOAT)
+                    {
+                        float value_2 = *(float *)target_addr;
+                        // printf("Raw value read from Modbus: %.2f\n", value);
+                        float decoded_value = pm710_decode_float(value_2);
+                        *(float *)target_addr = decoded_value;
+                        printf("[-%02dh %02dm %02ds-] %s = %.2f %s\n",
+                               now.hour,
+                               now.minute,
+                               now.second,
+                               param_name, decoded_value, param_unit);
+                    }
+                    else
+                    {
+                        printf("Failed to read Value %d\n", i + 1);
+                    }
+                }
             }
-            else
-            {
-                printf("Failed to read Value %d\n", i + 1);
-            }
+            printf("\n");
+            xSemaphoreGive(xDataMutex);
         }
-        printf("\n");
         vTaskDelay(pdMS_TO_TICKS(10000));
     }
 }

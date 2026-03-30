@@ -22,27 +22,31 @@
 #include "eeprom.h"
 #include "rtc_mb.h"
 #include "lcd_16x4.h"
+#include "system_event.h"
 
-// static const char *TAG = "[APP MAIN]";
+SemaphoreHandle_t xDataMutex = NULL;
+// EventGroupHandle_t event_group;
 
 void app_main(void)
 {
-    // ets_delay_us(50000); // Delay 30ms
-    //  Khởi tạo Netif chung cho tất cả các giao tiếp với mạng
+    xDataMutex = xSemaphoreCreateMutex();
+    // if (event_group == NULL)
+    // {
+    //     ESP_LOGE("MAIN", "Khong the tao Event Group!");
+    // }
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
     eth_init();
     ESP_ERROR_CHECK(i2c_config());
     eeprom_init();
     rtc_a_init();
-    // wifi_Init();
-    // get_time();
+    wifi_Init();
     //  modbus_rtu_port_1_init();
     modbus_rtu_port_2_init();
-    modbus_tcp_init();
+    // modbus_tcp_init();
     lcd_1604_init();
-    vTaskDelay(pdMS_TO_TICKS(10000));
-    xTaskCreate((void *)modbus_test_read, "modbus_rtu_test_task", 4096, NULL, 5, NULL);
 
+    xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 4096, NULL, 7, NULL, 1);
+    xTaskCreatePinnedToCore((void *)lcd_display_task, "lcd_task", 3072, NULL, 4, NULL, 1);
     vTaskDelay(pdMS_TO_TICKS(1000));
 }

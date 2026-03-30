@@ -1,0 +1,8 @@
+Removed Pin From Net: NetName=NetR14_2 Pin=U15-20
+Removed Pin From Net: NetName=NetR13_2 Pin=U15-21
+Added Pin To Net: NetName=NetR13_2 Pin=U15-20
+Added Pin To Net: NetName=NetR14_2 Pin=U15-21
+Add Differential Pair: Number of nets in differential pair DEBUG_RXD0_D is 1 instead of 2
+Add Differential Pair: Number of nets in differential pair DEBUG_TXD0_D is 1 instead of 2
+Add Differential Pair: Number of nets in differential pair XI_D is 1 instead of 2
+Add Differential Pair: Number of nets in differential pair XO_D is 1 instead of 2

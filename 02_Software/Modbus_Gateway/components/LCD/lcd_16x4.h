@@ -28,5 +28,6 @@ void LCD_SetCursor(uint8_t row, uint8_t col);
 void LCD_PrintNumber(int32_t number);
 void LCD_CursorBlink(void);
 void LCD_DisableCursorBlink(void);
+void lcd_display_task(void *pvParameters);
 
 #endif
