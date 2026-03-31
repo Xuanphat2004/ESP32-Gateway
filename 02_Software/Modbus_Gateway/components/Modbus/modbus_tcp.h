@@ -23,4 +23,4 @@
 #define TCP_PORT 502
 #define TCP_SLAVE_ADDRESS 1
 
-esp_err_t modbus_tcp_init(void);
+void modbus_tcp_task(void);
