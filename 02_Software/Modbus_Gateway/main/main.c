@@ -25,15 +25,22 @@
 #include "system_event.h"
 
 SemaphoreHandle_t xDataMutex = NULL;
-// EventGroupHandle_t event_group;
+EventGroupHandle_t event_group;
 
 void app_main(void)
 {
+    event_group = xEventGroupCreate();
+    if (event_group == NULL)
+    {
+        ESP_LOGE("[APP MAIN]", "Couldn't create Event Group !!!");
+    }
+    else
+    {
+        ESP_LOGW("MAIN", "Event Group created successfully.");
+    }
+
     xDataMutex = xSemaphoreCreateMutex();
-    // if (event_group == NULL)
-    // {
-    //     ESP_LOGE("MAIN", "Khong the tao Event Group!");
-    // }
+
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
     eth_init();
@@ -43,10 +50,10 @@ void app_main(void)
     wifi_Init();
     //  modbus_rtu_port_1_init();
     modbus_rtu_port_2_init();
-    // modbus_tcp_init();
     lcd_1604_init();
 
-    xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 4096, NULL, 7, NULL, 1);
-    xTaskCreatePinnedToCore((void *)lcd_display_task, "lcd_task", 3072, NULL, 4, NULL, 1);
+    xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 4096, NULL, 8, NULL, 1);
+    xTaskCreatePinnedToCore((void *)lcd_display_task, "lcd_task", 4096, NULL, 4, NULL, 1);
+    xTaskCreatePinnedToCore((void *)modbus_tcp_task, "tcp_server_task", 4096, NULL, 10, NULL, 0);
     vTaskDelay(pdMS_TO_TICKS(1000));
 }
