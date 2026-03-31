@@ -65,7 +65,7 @@ void wifi_Init(void)
     // Đọc SSID (32 bytes) và Password (64 bytes) từ địa chỉ đã định nghĩa
     eeprom_read(0x0100, (uint8_t *)wifi_config.sta.ssid, 32);
     eeprom_read(0x0120, (uint8_t *)wifi_config.sta.password, 64);
-
+    vTaskDelay(pdMS_TO_TICKS(1000)); // Delay để đảm bảo đọc EEPROM ổn định
     // Kiểm tra nếu EEPROM trống (thường byte đầu là 0xFF hoặc 0)
     if (wifi_config.sta.ssid[0] == 0xFF || wifi_config.sta.ssid[0] == 0)
     {
@@ -91,7 +91,7 @@ void wifi_Init(void)
         ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
     }
 
-    ESP_ERROR_CHECK(esp_wifi_start());
+    esp_wifi_start();
 }
 
 static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
@@ -114,6 +114,16 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t e
 
             if (web_running == false)
             {
+                wifi_config_t ap_config = {
+                    .ap = {
+                        .ssid = AP_SSID_CONFIG,
+                        .password = AP_PASS_CONFIG,
+                        .max_connection = 4,
+                        .authmode = WIFI_AUTH_WPA2_PSK},
+                };
+                ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));
+                ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &ap_config));
+
                 start_webserver();
                 web_running = true;
             }
@@ -124,7 +134,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t e
     }
     else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP)
     {
-        // xEventGroupSetBits(event_group, WIFI_CONNECTED_BIT);
+        xEventGroupSetBits(event_group, WIFI_CONNECTED_BIT);
         event_pkt = (ip_event_got_ip_t *)event_data;
 
         wifi_config_t config = {0};
@@ -137,12 +147,12 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t e
 
         if (web_running == true)
         {
-            ESP_LOGI(TAG, "New config verified. Saving to EEPROM...");
+            ESP_LOGI(TAG, "New config verified. Saving to EEPROM ......");
             eeprom_write(0x0100, (uint8_t *)config.sta.ssid, 32);
             eeprom_write(0x0120, (uint8_t *)config.sta.password, 64);
-
+            web_running = false;
             vTaskDelay(pdMS_TO_TICKS(500));
-            esp_restart();
+            // esp_restart();
         }
     }
 }

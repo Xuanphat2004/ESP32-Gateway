@@ -58,7 +58,7 @@ void start_webserver(void)
         ESP_LOGE(TAG, "Error starting server!");
     }
 }
-// 1. Handler hiện trang chủ
+// Handler hiện trang chủ
 esp_err_t wifi_config_get_handler(httpd_req_t *req)
 {
     const size_t wifi_html_size = (wifi_html_end - wifi_html_start);
@@ -68,7 +68,7 @@ esp_err_t wifi_config_get_handler(httpd_req_t *req)
     return httpd_resp_send(req, (const char *)wifi_html_start, wifi_html_size);
 }
 
-// 2. Handler quét WiFi và trả về JSON
+// Handler quét WiFi và trả về JSON
 esp_err_t get_scan_handler(httpd_req_t *req)
 {
     uint16_t number = 10;
@@ -137,11 +137,18 @@ esp_err_t post_save_handler(httpd_req_t *req)
     {
         httpd_resp_send(req, "<h1>Successful to Connect WiFi - Restart WiFi .....</h1>", HTTPD_RESP_USE_STRLEN);
         vTaskDelay(pdMS_TO_TICKS(2000));
-        esp_restart();
+        // esp_restart();
     }
     else
     {
-        httpd_resp_send(req, "<h1> Fail to connect WiFi !!! Please check again SSID/Pass.</h1>", HTTPD_RESP_USE_STRLEN);
+        // httpd_resp_send(req, "<h1> Fail to connect WiFi !!! Please check again SSID/Pass.</h1>", HTTPD_RESP_USE_STRLEN);
+        // Tạo nội dung HTML thông báo lỗi và tự động quay lại trang chủ "/" sau 5 giây
+        const char *error_msg = "<html><head><meta http-equiv=\"refresh\" content=\"3;url=/\" /></head>"
+                                "<body><h1 style='color:red;'>Fail to connect WiFi !!! Please check again SSID/Pass.</h1>"
+                                "<p>TRY AGAIN IN 3 SECOND ......</p></body></html>";
+
+        httpd_resp_set_type(req, "text/html");
+        httpd_resp_send(req, error_msg, HTTPD_RESP_USE_STRLEN);
     }
 
     return ESP_OK;
