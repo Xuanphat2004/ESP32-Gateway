@@ -160,28 +160,35 @@ void LCD_DisableCursorBlink(void)
 }
 void lcd_display_task(void *pvParameters)
 {
-    char voltage_str[20] = {0};
+    char str_lcd[20] = {0};
+    float value_1 = 0;
+    float value_2 = 0;
+    float value_3 = 0;
     while (1)
     {
         if (xSemaphoreTake(xDataMutex, pdMS_TO_TICKS(100)) == pdTRUE)
         {
-            LCD_SetCursor(0, 0);
-            LCD_Print("--PM710-ID:10--");
-
-            LCD_SetCursor(1, 0);
-            snprintf(voltage_str, sizeof(voltage_str), " F  :%.2f Hz", pm710_latest_data.value_11);
-            LCD_Print(voltage_str);
-
-            LCD_SetCursor(2, 0);
-            snprintf(voltage_str, sizeof(voltage_str), " A-N:%.2f V", pm710_latest_data.value_16);
-            LCD_Print(voltage_str);
-
-            LCD_SetCursor(3, 0);
-            snprintf(voltage_str, sizeof(voltage_str), " I  :%.2f A", pm710_latest_data.value_10);
-            LCD_Print(voltage_str);
-
+            value_1 = pm710_latest_data.value_11;
+            value_2 = pm710_latest_data.value_16;
+            value_3 = pm710_latest_data.value_10;
             xSemaphoreGive(xDataMutex);
         }
+
+        LCD_SetCursor(0, 0);
+        LCD_Print("--PM710-ID:10--");
+
+        LCD_SetCursor(1, 0);
+        snprintf(str_lcd, sizeof(str_lcd), " F  :%.1fHz", value_1);
+        LCD_Print(str_lcd);
+
+        LCD_SetCursor(2, 0);
+        snprintf(str_lcd, sizeof(str_lcd), " A-N:%.1fV", value_2);
+        LCD_Print(str_lcd);
+
+        LCD_SetCursor(3, 0);
+        snprintf(str_lcd, sizeof(str_lcd), " I  :%.1fA", value_3);
+        LCD_Print(str_lcd);
+
         vTaskDelay(pdMS_TO_TICKS(3000));
     }
 }
