@@ -6,7 +6,7 @@
 #include "pm710_dictionary.h"
 #include "mbcontroller.h"
 // address of PM710 need to -1 because in modbus, register address is 0 based, but in PM710, register address is 1 based
-mb_parameter_descriptor_t mbslave_test_dict[] = {
+mb_parameter_descriptor_t pm710_dict[] = {
     {0, "Real Energy, Total", "kWh", PM710_ID, MB_PARAM_HOLDING, 999, 2, offsetof(pm710_data_t, value_1), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
     {1, "Apparent Energy, Total", "kVAh", PM710_ID, MB_PARAM_HOLDING, 1001, 2, offsetof(pm710_data_t, value_2), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
     {2, "Reactive Energy, Total", "kVARh", PM710_ID, MB_PARAM_HOLDING, 1003, 2, offsetof(pm710_data_t, value_3), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
@@ -28,6 +28,27 @@ mb_parameter_descriptor_t mbslave_test_dict[] = {
     //     {18, "Voltage A-B", "Volt", PM710_ID, MB_PARAM_HOLDING, 1048, 2, offsetof(pm710_data_t, value_19), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
     //     {19, "Voltage B-C", "Volt", PM710_ID, MB_PARAM_HOLDING, 1050, 2, offsetof(pm710_data_t, value_20), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
 };
+mb_parameter_descriptor_t em07k_dict[] = {
+    {0, "Voltage Transformer Ratio(VTR)", " ", EM07K_ID, MB_PARAM_HOLDING, 4000, 1, offsetof(pm710_data_t, value_1), PARAM_TYPE_U16, 2, {{0, 0, 0}}, PAR_PERMS_READ},
+    {1, "Current Transformer Ratio(CTR)", " ", EM07K_ID, MB_PARAM_HOLDING, 4001, 1, offsetof(pm710_data_t, value_2), PARAM_TYPE_U16, 2, {{0, 0, 0}}, PAR_PERMS_READ},
+    {2, "Voltage L1-N", "V", EM07K_ID, MB_PARAM_HOLDING, 4002, 1, offsetof(pm710_data_t, value_3), PARAM_TYPE_U16, 2, {{0, 0, 0}}, PAR_PERMS_READ},
+    {3, "Voltage L2-N", "V", EM07K_ID, MB_PARAM_HOLDING, 4003, 1, offsetof(pm710_data_t, value_4), PARAM_TYPE_U16, 2, {{0, 0, 0}}, PAR_PERMS_READ},
+    {4, "Voltage L3-N", "V", EM07K_ID, MB_PARAM_HOLDING, 4004, 1, offsetof(pm710_data_t, value_5), PARAM_TYPE_U16, 2, {{0, 0, 0}}, PAR_PERMS_READ},
+};
 
 // Size of the dictionary
-const uint16_t mbslave_dict_size = sizeof(mbslave_test_dict) / sizeof(mbslave_test_dict[0]);
+const uint16_t pm710_dict_size = sizeof(pm710_dict) / sizeof(pm710_dict[0]);
+const uint16_t em07k_dict_size = sizeof(em07k_dict) / sizeof(em07k_dict[0]);
+
+// 1. Mảng chứa địa chỉ các bảng
+mb_parameter_descriptor_t *all_dicts[] = {
+    pm710_dict,
+    em07k_dict};
+
+// 2. Mảng chứa kích thước tương ứng
+uint16_t all_dict_sizes[] = {
+    pm710_dict_size,
+    em07k_dict_size};
+
+// 3. Tổng số lượng Dictionary đang có
+const uint8_t total_dicts = sizeof(all_dicts) / sizeof(all_dicts[0]);

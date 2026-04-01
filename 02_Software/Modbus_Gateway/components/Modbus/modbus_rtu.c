@@ -27,6 +27,7 @@ extern SemaphoreHandle_t xDataMutex;
 // declare handle variable for UART queue - it contains all information this queue (Queue Control Block - QTB)
 
 pm710_data_t pm710_latest_data = {0};
+pm710_data_t latest_data[2] = {0};
 
 void modbus_rtu_port_1_init(void);
 void modbus_rtu_port_2_init(void);
@@ -103,17 +104,6 @@ void modbus_rtu_port_2_init(void)
                                  UART_2_EN_PIN,
                                  UART_PIN_NO_CHANGE));
 
-    esp_err_t mbslave_dict_check = mbc_master_set_descriptor(mbslave_test_dict, mbslave_dict_size);
-
-    if (mbslave_dict_check != ESP_OK)
-    {
-        ESP_LOGW(TAG_2, "Fail to set PM710 Dictionary !!!");
-    }
-    else
-    {
-        ESP_LOGI(TAG_2, "Success to set PM710 Dictionary");
-    }
-
     // Start controller
     ESP_ERROR_CHECK(mbc_master_start());
     ESP_ERROR_CHECK(uart_set_mode(UART_2, UART_MODE_RS485_HALF_DUPLEX));
@@ -143,43 +133,55 @@ void modbus_test_read(void)
     {
         if (xSemaphoreTake(xDataMutex, pdMS_TO_TICKS(100)) == pdTRUE)
         {
-            for (int i = 0; i < mbslave_dict_size; i++)
+            for (int i = 0; i < total_dicts; i++)
             {
-                // printf("Task đang chạy trên nhân: %d\n", xPortGetCoreID());
-                rtc_read_time(&now);
-                uint8_t *target_addr = (uint8_t *)&pm710_latest_data + mbslave_test_dict[i].param_offset;
-                char *param_name = mbslave_test_dict[i].param_key;
-                char *param_unit = mbslave_test_dict[i].param_units;
-                err = mbc_master_get_parameter(i, param_name, target_addr, &type);
-                if (err == ESP_OK)
+                printf("\n");
+                mbc_master_set_descriptor(all_dicts[i], all_dict_sizes[i]);
+                vTaskDelay(pdMS_TO_TICKS(300));
+                uart_flush(UART_2);
+                for (int j = 0; j < all_dict_sizes[i]; j++)
                 {
-                    if (type == PARAM_TYPE_U16)
+                    // printf("Task đang chạy trên nhân: %d\n", xPortGetCoreID());
+                    rtc_read_time(&now);
+                    mb_parameter_descriptor_t *current_register = &all_dicts[i][j];
+
+                    // Calculate the target address in the pm710_latest_data to save value  using the offset from the dictionary
+                    uint8_t *target_addr = (uint8_t *)&latest_data[i] + current_register->param_offset;
+
+                    err = mbc_master_get_parameter(j, current_register->param_key, target_addr, &type);
+                    if (err == ESP_OK)
                     {
-                        uint16_t value_1 = *(uint16_t *)target_addr;
-                        printf("[-%02dh %02dm %02ds-] %s = %u %s\n",
-                               now.hour,
-                               now.minute,
-                               now.second,
-                               param_name, value_1, param_unit);
-                    }
-                    else if (type == PARAM_TYPE_FLOAT)
-                    {
-                        float value_2 = *(float *)target_addr;
-                        // printf("Raw value read from Modbus: %.2f\n", value);
-                        float decoded_value = pm710_decode_float(value_2);
-                        *(float *)target_addr = decoded_value;
-                        printf("[-%02dh %02dm %02ds-] %s = %.2f %s\n",
-                               now.hour,
-                               now.minute,
-                               now.second,
-                               param_name, decoded_value, param_unit);
+                        if (type == PARAM_TYPE_U16)
+                        {
+                            uint16_t value_1 = *(uint16_t *)target_addr;
+                            printf("[-%02dh %02dm %02ds-] %s = %u %s\n",
+                                   now.hour,
+                                   now.minute,
+                                   now.second,
+                                   current_register->param_key,
+                                   value_1,
+                                   current_register->param_units);
+                        }
+                        else if (type == PARAM_TYPE_FLOAT)
+                        {
+                            float value_2 = *(float *)target_addr;
+                            // printf("Raw value read from Modbus: %.2f\n", value);
+                            float decoded_value = pm710_decode_float(value_2);
+                            *(float *)target_addr = decoded_value;
+                            printf("[-%02dh %02dm %02ds-] %s = %.2f %s\n",
+                                   now.hour,
+                                   now.minute,
+                                   now.second,
+                                   current_register->param_key, decoded_value, current_register->param_units);
+                        }
                     }
                     else
                     {
-                        printf("Failed to read Value %d\n", i + 1);
+                        ESP_LOGW(TAG_2, "Fail to read data CID %d from Slave have %d", j, current_register->mb_slave_addr);
                     }
                 }
             }
+
             printf("\n");
             xSemaphoreGive(xDataMutex);
         }

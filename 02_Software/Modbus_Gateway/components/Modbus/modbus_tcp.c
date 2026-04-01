@@ -66,7 +66,7 @@ void modbus_tcp_task(void)
             esp_netif_t *wifi_netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
             mb_communication_info_t tcp_info = {
                 .ip_mode = MB_MODE_TCP,
-                .slave_uid =,
+                .slave_uid = 1,
                 .ip_port = TCP_PORT,
                 .ip_addr_type = MB_IPV4,
                 .ip_addr = (void **)slave_ip_address_list,

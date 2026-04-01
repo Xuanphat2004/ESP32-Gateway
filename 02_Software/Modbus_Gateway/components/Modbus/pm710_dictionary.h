@@ -5,12 +5,7 @@
 #include "esp_modbus_master.h"
 
 #define PM710_ID 10
-
-// Use modbus slave test function
-#define MBSLAVE_1_TEST_ID 1
-#define MBSLAVE_2_TEST_ID 2
-#define MBSLAVE_3_TEST_ID 3
-#define MBSLAVE_4_TEST_ID 4
+#define EM07K_ID 4
 
 // ---------------- Mbslave App ---------------------------
 typedef struct
@@ -35,9 +30,17 @@ typedef struct
     float value_18;
     float value_19;
     float value_20;
+    float value_21;
+    float value_22;
+    float value_23;
+    float value_24;
+    float value_25;
 } pm710_data_t;
 
-extern mb_parameter_descriptor_t mbslave_test_dict[];
-extern const uint16_t mbslave_dict_size;
+// extern mb_parameter_descriptor_t mbslave_test_dict[];
+// extern const uint16_t mbslave_dict_size;
+extern mb_parameter_descriptor_t *all_dicts[];
+extern uint16_t all_dict_sizes[];
+extern const uint8_t total_dicts;
 
 #endif
