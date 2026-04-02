@@ -23,6 +23,7 @@
 #include "rtc_mb.h"
 #include "lcd_16x4.h"
 #include "system_event.h"
+#include "ble.h"
 
 SemaphoreHandle_t xDataMutex = NULL;
 EventGroupHandle_t event_group;
@@ -40,7 +41,7 @@ void app_main(void)
     }
 
     xDataMutex = xSemaphoreCreateMutex();
-
+    ble_server_init();
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
     eth_init();
