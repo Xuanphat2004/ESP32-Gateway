@@ -24,9 +24,10 @@ mb_parameter_descriptor_t mbslave_test_dict[] = {
     {14, "Current N", "Amp", PM710_ID, MB_PARAM_HOLDING, 1039, 2, offsetof(pm710_data_t, value_15), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
     {15, "Voltage A-N", "Volt", PM710_ID, MB_PARAM_HOLDING, 1059, 2, offsetof(pm710_data_t, value_16), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
     {16, "Frequency Maximum", "Hz", PM710_ID, MB_PARAM_HOLDING, 4083, 2, offsetof(pm710_data_t, value_17), PARAM_TYPE_U16, 4, {{0, 0, 0}}, PAR_PERMS_READ},
-    //     {17, "Voltage C-N", "Volt", PM710_ID, MB_PARAM_HOLDING, 1046, 2, offsetof(pm710_data_t, value_18), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
-    //     {18, "Voltage A-B", "Volt", PM710_ID, MB_PARAM_HOLDING, 1048, 2, offsetof(pm710_data_t, value_19), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
-    //     {19, "Voltage B-C", "Volt", PM710_ID, MB_PARAM_HOLDING, 1050, 2, offsetof(pm710_data_t, value_20), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
+    {17, "Voltage C-N", "Volt", PM710_ID, MB_PARAM_HOLDING, 1046, 2, offsetof(pm710_data_t, value_18), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
+    {18, "Voltage A-B", "Volt", PM710_ID, MB_PARAM_HOLDING, 1048, 2, offsetof(pm710_data_t, value_19), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
+    {19, "Voltage B-C", "Volt", PM710_ID, MB_PARAM_HOLDING, 1050, 2, offsetof(pm710_data_t, value_20), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
+    //-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 };
 
 // Size of the dictionary
