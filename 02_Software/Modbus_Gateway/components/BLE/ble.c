@@ -22,7 +22,9 @@ static const char *TAG = "[MODBUS GATEWAY-BLE]";
 // Cấu trúc dữ liệu để lưu trữ thông tin thanh ghi từ JSON
 typedef struct
 {
-    uint16_t cid;        // i: Index
+    uint16_t cid; // i: Index
+    char name[16];
+    char unit[8];
     uint8_t slave_id;    // s: Slave ID
     uint16_t reg_start;  // a: Address
     uint8_t func_code;   // f: Function Code (0: Holding, 1: Input)
@@ -136,15 +138,17 @@ void print_parsed_registers(temp_modbus_reg_t *reg_array, int count)
 
     ESP_LOGW("DEBUG_DATA", "--- DANH SÁCH THANH GHI ĐẦY ĐỦ ---");
     // Thêm các cột Factor vào tiêu đề
-    printf("%-4s | %-5s | %-7s | %-4s | %-4s | %-6s | %-6s | %-6s\n",
-           "CID", "Slave", "Address", "Func", "Type", "Scale", "Ref 1", "Ref 2");
+    printf("%-4s | %-4s | %-4s | %-5s | %-7s | %-4s | %-4s | %-6s | %-6s | %-6s\n",
+           "CID", "Name", "Unit", "Slave", "Address", "Func", "Type", "Scale", "Ref 1", "Ref 2");
     printf("--------------------------------------------------------------------------\n");
 
     for (int i = 0; i < count; i++)
     {
         // In thêm dữ liệu từ mảng ref_cid
-        printf("%-4d | %-5d | %-7d | %-4d | %-4d | %-6.3f | %-6d | %-6d\n",
+        printf("%-4d |%-15s | %-6s| %-5d | %-7d | %-4d | %-4d | %-6.3f | %-6d | %-6d\n",
                reg_array[i].cid,
+               reg_array[i].name, // In tên
+               reg_array[i].unit, // In đơn vị
                reg_array[i].slave_id,
                reg_array[i].reg_start,
                reg_array[i].func_code,
@@ -177,7 +181,7 @@ temp_modbus_reg_t *parse_json_to_struct_array(const char *json_str, int *out_reg
     // 2. Xác định số lượng thanh ghi (phần tử trong mảng JSON)
     int reg_count = cJSON_GetArraySize(root);
     *out_reg_count = reg_count;
-    ESP_LOGI("JSON_PARSE", "Tìm thấy %d thanh ghi trong gói tin.", reg_count);
+    ESP_LOGI("JSON_PARSE", "Found %d Regiser in packet.", reg_count);
 
     // 3. Cấp phát bộ nhớ cho mảng Struct tạm thời trong RAM
     temp_modbus_reg_t *reg_array = malloc(reg_count * sizeof(temp_modbus_reg_t));
@@ -195,6 +199,31 @@ temp_modbus_reg_t *parse_json_to_struct_array(const char *json_str, int *out_reg
 
         // Trích xuất các Key ngắn gọn (Short-key) từ Python
         reg_array[i].cid = cJSON_GetObjectItem(item, "i")->valueint;
+
+        // 2. Trích xuất Tên (n) - Dùng strncpy để copy chuỗi an toàn
+        cJSON *name_obj = cJSON_GetObjectItem(item, "n");
+        if (cJSON_IsString(name_obj) && (name_obj->valuestring != NULL))
+        {
+            // Copy tối đa 15 ký tự vào name[16]
+            strncpy(reg_array[i].name, name_obj->valuestring, sizeof(reg_array[i].name) - 1);
+            reg_array[i].name[sizeof(reg_array[i].name) - 1] = '\0'; // Chốt ký tự kết thúc
+        }
+        else
+        {
+            strcpy(reg_array[i].name, "NoName"); // Mặc định nếu thiếu
+        }
+
+        // 3. Trích xuất Đơn vị (u)
+        cJSON *unit_obj = cJSON_GetObjectItem(item, "u");
+        if (cJSON_IsString(unit_obj) && (unit_obj->valuestring != NULL))
+        {
+            strncpy(reg_array[i].unit, unit_obj->valuestring, sizeof(reg_array[i].unit) - 1);
+            reg_array[i].unit[sizeof(reg_array[i].unit) - 1] = '\0';
+        }
+        else
+        {
+            strcpy(reg_array[i].unit, "N/A"); // Mặc định nếu thiếu
+        }
         reg_array[i].slave_id = (uint8_t)cJSON_GetObjectItem(item, "s")->valueint;
         reg_array[i].reg_start = (uint16_t)cJSON_GetObjectItem(item, "a")->valueint;
         reg_array[i].func_code = (uint8_t)cJSON_GetObjectItem(item, "f")->valueint;
@@ -218,6 +247,59 @@ temp_modbus_reg_t *parse_json_to_struct_array(const char *json_str, int *out_reg
     cJSON_Delete(root);
 
     return reg_array;
+}
+
+/**
+ * @brief Giai đoạn 2: Lưu mảng Struct tạm thời vào bộ nhớ Flash NVS
+ * @param reg_array: Mảng dữ liệu đã parse xong từ Giai đoạn 1
+ * @param count: Số lượng thanh ghi trong mảng
+ */
+void save_regs_to_nvs(temp_modbus_reg_t *reg_array, int count)
+{
+    if (reg_array == NULL || count <= 0)
+        return;
+
+    nvs_handle_t my_handle;
+    esp_err_t err;
+
+    // 1. Mở Namespace "storage" (hoặc "modbus_cfg") với quyền Read/Write
+    // Namespace giống như một thư mục để phân biệt các loại dữ liệu khác nhau
+    err = nvs_open("storage", NVS_READWRITE, &my_handle);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE("NVS_SAVE", "Không thể mở NVS Handle (%s)", esp_err_to_name(err));
+        return;
+    }
+
+    // 2. Lưu số lượng thanh ghi (để lúc khởi động lại biết đường cấp phát RAM)
+    err = nvs_set_u16(my_handle, "reg_count", (uint16_t)count);
+    if (err != ESP_OK)
+        ESP_LOGE("NVS_SAVE", "Lỗi lưu reg_count!");
+
+    // 3. Lưu toàn bộ mảng Struct dưới dạng một khối Binary (Blob)
+    size_t blob_size = count * sizeof(temp_modbus_reg_t);
+    err = nvs_set_blob(my_handle, "reg_table", reg_array, blob_size);
+
+    if (err == ESP_OK)
+    {
+        // 4. QUAN TRỌNG: Phải Commit thì dữ liệu mới thực sự được ghi xuống Flash
+        err = nvs_commit(my_handle);
+        if (err == ESP_OK)
+        {
+            ESP_LOGI("NVS_SAVE", "===> THÀNH CÔNG: Đã lưu %d thanh ghi vào Flash!", count);
+        }
+    }
+    else
+    {
+        ESP_LOGE("NVS_SAVE", "Lỗi ghi Blob vào NVS (%s)", esp_err_to_name(err));
+    }
+
+    // 5. Đóng Handle để giải phóng tài nguyên
+    nvs_close(my_handle);
+
+    // 6. Thông báo và tự động khởi động lại hệ thống
+    ESP_LOGW("SYSTEM", "Hệ thống sẽ khởi động lại sau 3 giây để áp dụng cấu hình mới...");
+    vTaskDelay(pdMS_TO_TICKS(5000));
 }
 
 // --- 6. XỬ LÝ NHẬN GÓI TIN JSON (GATT SERVER) ---
@@ -272,8 +354,9 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
                 {
                     print_parsed_registers(final_regs, count);
                     ESP_LOGI(TAG, "Giai đoạn 1 hoàn tất. Đang chuyển sang lưu NVS...");
-                    // save_to_nvs(final_regs, count);
+                    save_regs_to_nvs(final_regs, count);
                     free(final_regs); // Giải phóng mảng tạm sau khi đã lưu NVS thành công
+                    esp_restart();
                 }
                 ESP_LOGD(TAG, "Nội dung: %s", receive_buffer);
                 // Ở đây Phát gọi hàm Parse_JSON_And_Save_To_NVS(receive_buffer);
