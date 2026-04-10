@@ -27,6 +27,9 @@ mb_parameter_descriptor_t mbslave_test_dict[] = {
     {17, "Voltage C-N", "Volt", PM710_ID, MB_PARAM_HOLDING, 1046, 2, offsetof(pm710_data_t, value_18), PARAM_TYPE_FLOAT_CDAB, 4, {{0, 0, 0}}, PAR_PERMS_READ},
     {18, "Voltage A-B", "Volt", PM710_ID, MB_PARAM_HOLDING, 1048, 2, offsetof(pm710_data_t, value_19), PARAM_TYPE_FLOAT_CDAB, 4, {{0, 0, 0}}, PAR_PERMS_READ},
     {19, "Voltage B-C", "Volt", PM710_ID, MB_PARAM_HOLDING, 1050, 2, offsetof(pm710_data_t, value_20), PARAM_TYPE_FLOAT_CDAB, 4, {{0, 0, 0}}, PAR_PERMS_READ},
+    {20, "Voltage Transformer Ratio(VTR)", " ", EM07K_ID, MB_PARAM_HOLDING, 4001, 1, offsetof(pm710_data_t, value_22), PARAM_TYPE_U16, 2, {{0, 0, 0}}, PAR_PERMS_READ},
+    {21, "Current Transformer Ratio(CTR)", " ", EM07K_ID, MB_PARAM_HOLDING, 4000, 1, offsetof(pm710_data_t, value_21), PARAM_TYPE_U16, 2, {{0, 0, 0}}, PAR_PERMS_READ},
+    {22, "Voltage Transformer Ratio(VTR)", " ", EM07K_ID, MB_PARAM_HOLDING, 4002, 1, offsetof(pm710_data_t, value_23), PARAM_TYPE_U16, 2, {{0, 0, 0}}, PAR_PERMS_READ},
     //-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 };
 

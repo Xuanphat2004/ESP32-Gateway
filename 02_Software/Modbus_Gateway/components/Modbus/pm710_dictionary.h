@@ -5,6 +5,7 @@
 #include "esp_modbus_master.h"
 
 #define PM710_ID 10
+#define EM07K_ID 4
 
 // Use modbus slave test function
 #define MBSLAVE_1_TEST_ID 1
@@ -35,6 +36,9 @@ typedef struct
     float value_18;
     float value_19;
     float value_20;
+    float value_21;
+    float value_22;
+    float value_23;
 } pm710_data_t;
 
 extern mb_parameter_descriptor_t mbslave_test_dict[];
