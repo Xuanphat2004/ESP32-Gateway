@@ -176,7 +176,12 @@ void modbus_test_read(void)
                     }
                     else
                     {
-                        printf("Failed to read Value %d\n", i + 1);
+                        float value_1 = *(float *)target_addr;
+                        printf("[-%02dh %02dm %02ds-] %s = %f %s\n",
+                               now.hour,
+                               now.minute,
+                               now.second,
+                               param_name, value_1, param_unit);
                     }
                 }
             }

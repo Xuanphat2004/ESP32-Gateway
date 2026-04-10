@@ -7,4 +7,6 @@ idf_component_register(SRCS "ble.c"
                                 esp_hw_support 
                                 esp_event
                                 bt
+                                esp-modbus
+                                json
                                 )

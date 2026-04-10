@@ -119,10 +119,10 @@ void modbus_tcp_task(void)
                     if (wifi_netif != 0)
                     {
                         esp_netif_ip_info_t ip_info = {0}; // KHỞI TẠO {0} Ở ĐÂY ĐỂ HẾT LỖI
-                        if (esp_netif_get_ip_info(wifi_netif, &ip_info) == ESP_OK)
-                        {
-                            ESP_LOGI(TAG, "Modbus TCP Server is listening at: " IPSTR ":%d", IP2STR(&ip_info.ip), TCP_PORT);
-                        }
+                        // if (esp_netif_get_ip_info(wifi_netif, &ip_info) == ESP_OK)
+                        // {
+                        //     ESP_LOGI(TAG, "Modbus TCP Server is listening at: " IPSTR ":%d", IP2STR(&ip_info.ip), TCP_PORT);
+                        // }
                     }
 
                     if (xSemaphoreTake(xDataMutex, pdMS_TO_TICKS(100)) == pdTRUE)
@@ -130,7 +130,7 @@ void modbus_tcp_task(void)
                         memcpy(&slave_data, &pm710_latest_data, sizeof(pm710_data_t)); // Copy data to the second located memory for Modbus TCP
                         xSemaphoreGive(xDataMutex);
                     }
-                    ESP_LOGI(TAG, "Modbus TCP Slave is running...");
+                    // ESP_LOGI(TAG, "Modbus TCP Slave is running...");
                     vTaskDelay(pdMS_TO_TICKS(1000));
                 }
                 else

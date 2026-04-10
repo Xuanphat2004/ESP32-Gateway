@@ -23,11 +23,6 @@
 esp_err_t eth_init(void);      // Cấu hình và khởi tạo các giá trị cho kết nối Ethernet
 void udp_send_task_test(void); // Test kết nối giữa thiết bị với laptop
 void tcp_send_task_test(void);
+void internet_test_task(void);
 
 #endif // ETHERNET_H
-
-// Các giá trị trả về khi sử dụng kiểu dữ liệu esp_err_t (int)
-// ESP_OK (giá trị là 0): Nghĩa là mọi thứ đều ổn, không có lỗi.
-// ESP_FAIL (giá trị là -1): Lỗi chung, không xác định rõ nguyên nhân.
-// ESP_ERR_NO_MEM (0x101): Hết bộ nhớ RAM để cấp phát cho driver.
-// ESP_ERR_INVALID_ARG (0x102): Tham số truyền vào hàm bị sai (ví dụ sai số chân GPIO).

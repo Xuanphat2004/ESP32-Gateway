@@ -111,7 +111,9 @@ esp_err_t post_save_handler(httpd_req_t *req)
     wifi_config_t sta_config = {0};
     strncpy((char *)sta_config.sta.ssid, ssid, sizeof(sta_config.sta.ssid));
     strncpy((char *)sta_config.sta.password, pass, sizeof(sta_config.sta.password));
-
+    const char *resp = "Connecting... Please reconnect to your home WiFi to check.";
+    httpd_resp_send(req, resp, HTTPD_RESP_USE_STRLEN);
+    vTaskDelay(pdMS_TO_TICKS(500));
     esp_wifi_set_config(WIFI_IF_STA, &sta_config);
     esp_wifi_disconnect();
     esp_wifi_connect();

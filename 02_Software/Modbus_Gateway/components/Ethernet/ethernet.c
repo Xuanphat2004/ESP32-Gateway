@@ -13,99 +13,81 @@
 // #include "esp_eth_mac_w5500.h"
 #include "esp_eth_mac_spi.h"
 #include "lwip/sockets.h"
+#include "netdb.h"
 //  Thư viện tự tạo
 #include "ethernet.h"
 #include "rtc_mb.h"
+#include "mqtt_client.h"
 
 static const char *TAG = "[MODBUS GATEWAY - ETHERNET]";
 esp_err_t eth_init(void);
 static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
 static void got_ip_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
-void udp_send_task_test(void);
-void tcp_send_task_test(void);
+void internet_test_task(void);
+void start_mqtt_test_simple(void);
 
-void udp_send_task_test(void)
+void internet_test_task(void)
 {
-    ESP_LOGI("UDP", "Start send packet by UDP packet ...");
-    char *payload = "UDP Hello from Modbus Gateway";
-    struct sockaddr_in dest_addr;
+    ESP_LOGI(TAG, "Đang khởi động tiến trình kiểm tra Internet...");
 
-    // 1. Cấu hình địa chỉ đích (Laptop của bạn)
-    dest_addr.sin_addr.s_addr = inet_addr("192.168.137.2"); // IP đích - Laptop
-    dest_addr.sin_family = AF_INET;
-    dest_addr.sin_port = htons(1200); // Port gửi
-
-    // 2. Tạo Socket UDP
-    int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_TCP);
-
-    if (sock < 0)
-    {
-        ESP_LOGE("UDP", "Không thể tạo socket");
-        vTaskDelete(NULL);
-    }
-    else
-    {
-        while (1)
-        {
-            // gửi gói tin đi
-            int err = sendto(sock, payload, strlen(payload), 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
-            if (err < 0)
-            {
-                ESP_LOGE("UDP", "Gửi lỗi: %d", errno);
-            }
-            else
-            {
-                ESP_LOGI("UDP", "Đã gửi gói tin sang W5500");
-            }
-
-            vTaskDelay(pdMS_TO_TICKS(5000));
-        }
-    }
-}
-
-void tcp_send_task_test(void)
-{
-    ESP_LOGI("TCP", "Start send packet by TCP packet ...");
-    char *payload = "TCP Hello from Modbus Gateway";
-    struct sockaddr_in dest_addr;
-
-    // 1. Cấu hình địa chỉ đích (Laptop của bạn)
-    dest_addr.sin_addr.s_addr = inet_addr("192.168.137.2"); // IP đích
-    dest_addr.sin_family = AF_INET;
-    dest_addr.sin_port = htons(1200); // Cổng nhận tùy chọn
-
-    // Tạo Socket TDP
-    int sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    int err_1 = connect(sock, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
-    // TCP socket sẽ trả về -1 nếu thành công
-    if (err_1 < 0)
-    {
-        ESP_LOGI("TCP", "Success to create the TCP Socket.");
-    }
-    else
-    {
-        ESP_LOGE("TCP", "Fail to create the TCP socket !!!");
-        vTaskDelete(NULL);
-    }
-
-    if (sock > 0)
-    {
-        ESP_LOGI("TCP", "Success to create the TCP socket");
-    }
+    // Đợi một chút để Ethernet ổn định IP
+    vTaskDelay(pdMS_TO_TICKS(5000));
 
     while (1)
     {
-        // Không cần truyền dest_addr nữa vì đã connect ở trên
-        int err = send(sock, payload, strlen(payload), 0);
-        if (err > 0)
+        struct sockaddr_in dest_addr;
+
+        // --- BƯỚC 1: KIỂM TRA KẾT NỐI QUA IP TRỰC TIẾP (Google DNS 8.8.8.8) ---
+        // Việc này để xác định xem Routing/Firewall trên Laptop có cho gói tin đi qua không
+        int sock = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
+        if (sock < 0)
         {
-            ESP_LOGE("TCP", "Gửi lỗi: %d", errno);
+            ESP_LOGE(TAG, "Không thể tạo socket. Lỗi: %d", errno);
+            vTaskDelay(pdMS_TO_TICKS(10000));
+            continue;
+        }
+
+        dest_addr.sin_addr.s_addr = inet_addr("8.8.8.8");
+        dest_addr.sin_family = AF_INET;
+        dest_addr.sin_port = htons(53); // Cổng DNS thường mở
+
+        ESP_LOGI(TAG, "Đang thử kết nối trực tiếp tới 8.8.8.8...");
+        int err = connect(sock, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
+
+        if (err == 0)
+        {
+            ESP_LOGI(TAG, "===> THÀNH CÔNG: Gateway đã ra được Internet");
+
+            // --- BƯỚC 2: KIỂM TRA PHÂN GIẢI TÊN MIỀN (DNS) ---
+            // Chỉ thực hiện khi bước 1 đã thông
+            struct addrinfo hints = {.ai_family = AF_INET, .ai_socktype = SOCK_STREAM};
+            struct addrinfo *res;
+
+            ESP_LOGI(TAG, "Đang thử phân giải tên miền google.com...");
+            int dns_err = getaddrinfo("google.com", "80", &hints, &res);
+
+            if (dns_err == 0)
+            {
+                ESP_LOGI(TAG, "===> THÀNH CÔNG: DNS hoạt động tốt, đã thấy Google!");
+                freeaddrinfo(res);
+            }
+            else
+            {
+                ESP_LOGE(TAG, "THẤT BẠI: Internet thông nhưng DNS bị lỗi (Error: %d)", dns_err);
+                ESP_LOGW(TAG, "Hãy kiểm tra lại hàm esp_netif_set_dns_info trong code của em.");
+            }
         }
         else
         {
-            ESP_LOGI("TCP", "Đã gửi gói tin sang W5500");
+            ESP_LOGE(TAG, "THẤT BẠI: Không thể kết nối tới 8.8.8.8 (Lỗi: %d)", errno);
+            ESP_LOGW(TAG, "Nguyên nhân có thể do Laptop chưa bật Sharing hoặc Firewall đang chặn.");
         }
-        vTaskDelay(pdMS_TO_TICKS(2000)); // Gửi lại sau mỗi 2 giây
+
+        close(sock);
+
+        // Cứ 30 giây kiểm tra lại một lần
+        ESP_LOGI(TAG, "Sẽ kiểm tra lại sau 5 giây...");
+        vTaskDelay(pdMS_TO_TICKS(5000));
     }
 }
 
@@ -206,7 +188,7 @@ esp_err_t eth_init(void)
     IP4_ADDR(&ip_info.netmask, 255, 255, 255, 0);
 
     // // Sử dụng DHCP - xin IP động
-    // // ESP_ERROR_CHECK(esp_netif_dhcpc_start(eth_netif));
+    // ESP_ERROR_CHECK(esp_netif_dhcpc_start(eth_netif));
 
     // Gán địa chỉ ETH MAC của ESP cho W5500 - B4:3A:45:CF:4D:2F
     static uint8_t eth_mac_addr[6] = {0};
@@ -219,7 +201,6 @@ esp_err_t eth_init(void)
     // Áp dụng IP tĩnh
     ESP_ERROR_CHECK(esp_netif_set_ip_info(eth_netif, &ip_info));
 
-    // dns
     esp_netif_dns_info_t dns;
     IP4_ADDR(&dns.ip.u_addr.ip4, 8, 8, 8, 8);
     dns.ip.type = IPADDR_TYPE_V4;
@@ -299,7 +280,6 @@ static void got_ip_event_handler(void *arg,
     ESP_LOGI(TAG, "Got subnet mask: " IPSTR, IP2STR(&event->ip_info.netmask));
     ESP_LOGI(TAG, "Got gateway address: " IPSTR, IP2STR(&event->ip_info.gw));
 
-    // vTaskDelay(pdMS_TO_TICKS(3000));
-    // get_time();
-    // internet_test();
+    vTaskDelay(pdMS_TO_TICKS(1000));
+    get_time();
 }
