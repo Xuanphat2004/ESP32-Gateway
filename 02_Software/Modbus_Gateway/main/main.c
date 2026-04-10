@@ -55,15 +55,15 @@ void app_main(void)
     rtc_a_init();
     wifi_Init();
     ble_server_init();
-    // run_nvs_diagnostic();
+    run_nvs_diagnostic();
     //  modbus_rtu_port_1_init();
     modbus_rtu_port_2_init();
     lcd_1604_init();
 
     vTaskDelay(pdMS_TO_TICKS(1000));
-    // xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 4096, NULL, 8, NULL, 1);
-    xTaskCreatePinnedToCore((void *)lcd_display_task, "lcd_task", 4096, NULL, 4, NULL, 1);
-    xTaskCreatePinnedToCore((void *)internet_test_task, "test_internet_task", 4096, NULL, 5, NULL, 0);
+    xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 4096, NULL, 8, NULL, 1);
+    // xTaskCreatePinnedToCore((void *)lcd_display_task, "lcd_task", 4096, NULL, 4, NULL, 1);
+    // xTaskCreatePinnedToCore((void *)internet_test_task, "test_internet_task", 4096, NULL, 5, NULL, 0);
     // xTaskCreatePinnedToCore((void *)modbus_tcp_task, "tcp_server_task", 4096, NULL, 10, NULL, 0);
 
     vTaskDelay(pdMS_TO_TICKS(1000));
