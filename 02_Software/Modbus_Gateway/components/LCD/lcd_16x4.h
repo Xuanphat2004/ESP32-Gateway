@@ -3,7 +3,7 @@
 
 #include "driver/gpio.h"
 
-// --- CẤU HÌNH CHÂN GPIO (Thay đổi theo ý bạn) ---
+// ====== CẤU HÌNH CHÂN GPIO  ======
 #define RS_1604_PIN GPIO_NUM_6
 #define EN_1604_PIN GPIO_NUM_7
 #define D4_1604_PIN GPIO_NUM_15
