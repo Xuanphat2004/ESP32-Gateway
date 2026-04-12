@@ -14,6 +14,9 @@
 #include "rom/ets_sys.h"
 #include "esp_partition.h"
 #include "esp_log.h"
+#include "esp_heap_caps.h"
+#include "esp_flash.h"
+#include "esp_psram.h"
 
 // User components
 #include "wifi.h"
@@ -27,13 +30,19 @@
 #include "system_event.h"
 #include "ble.h"
 #include "nvs_view.h"
+#include "check_device.h"
+#include "encoder_ec11.h"
+#include "lcd_user.h"
 
-static const char *TAG = "FLASH_INFO";
 SemaphoreHandle_t xDataMutex = NULL;
 EventGroupHandle_t event_group;
 void print_partition_table_info(void);
+void check_spi_bus_mode(void);
 void app_main(void)
 {
+    printf("==============================================\n");
+    check_spi_bus_mode();
+    printf("==============================================\n");
     // print_partition_table_info();
     event_group = xEventGroupCreate();
     if (event_group == NULL)
@@ -59,39 +68,18 @@ void app_main(void)
     //  modbus_rtu_port_1_init();
     modbus_rtu_port_2_init();
     lcd_1604_init();
+    init_pcnt_encoder();
 
     vTaskDelay(pdMS_TO_TICKS(1000));
-    xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 4096, NULL, 8, NULL, 1);
-    // xTaskCreatePinnedToCore((void *)lcd_display_task, "lcd_task", 4096, NULL, 4, NULL, 1);
+
+    // Core 0: Các task liên quan tới mạng
     // xTaskCreatePinnedToCore((void *)internet_test_task, "test_internet_task", 4096, NULL, 5, NULL, 0);
     // xTaskCreatePinnedToCore((void *)modbus_tcp_task, "tcp_server_task", 4096, NULL, 10, NULL, 0);
 
+    // Core 1: Các task liên quan tới giao diện người dùng và xử lý tại thiết bị
+    xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 4096, NULL, 8, NULL, 1);
+    xTaskCreatePinnedToCore((void *)ui_task, "ui_manager_task", 4096, NULL, 5, NULL, 1);
+    // xTaskCreatePinnedToCore((void *)encoder_check_task, "encoder_check_task", 4096, NULL, 3, NULL, 1);
+
     vTaskDelay(pdMS_TO_TICKS(1000));
-}
-void print_partition_table_info(void)
-{
-    ESP_LOGI(TAG, "--------------------------------------------------");
-    ESP_LOGI(TAG, "        DANH SACH PHAN VUNG TRÊN CHIP FLASH       ");
-    ESP_LOGI(TAG, "--------------------------------------------------");
-
-    // Tìm iterator để duyệt qua toàn bộ phân vùng
-    esp_partition_iterator_t it = esp_partition_find(ESP_PARTITION_TYPE_ANY,
-                                                     ESP_PARTITION_SUBTYPE_ANY,
-                                                     NULL);
-
-    while (it != NULL)
-    {
-        const esp_partition_t *p = esp_partition_get(it);
-
-        // Tính toán kích thước ra KB cho dễ đọc
-        float size_kb = (float)p->size / 1024.0f;
-
-        ESP_LOGI(TAG, "Vung: %-10s | Loai: 0x%02x | Sub: 0x%02x | Size: %7.2f KB | Offset: 0x%08x",
-                 p->label, p->type, p->subtype, size_kb, (unsigned int)p->address);
-
-        it = esp_partition_next(it);
-    }
-
-    ESP_LOGI(TAG, "--------------------------------------------------");
-    esp_partition_iterator_release(it);
 }
