@@ -13,7 +13,9 @@
 #include "config_wifi_web.h"
 #include "modbus_tcp.h"
 #include "system_event.h"
-static const char *TAG = "[MODBUS GATEWAY - WIFI]";
+
+static const char *TAG = "[WIFI]";
+extern bool wifi_connected;
 
 static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
 extern bool web_running;
@@ -106,6 +108,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t e
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED)
     {
         try_count++;
+        wifi_connected = false; // Biến global để UI biết trạng thái kết nối Wi-Fi hiện tại
         ESP_LOGE(TAG, "Disconnected! Retry attempt: %d", try_count);
 
         if (try_count >= MAX_WIFI_RETRY)
@@ -143,6 +146,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t e
         ESP_LOGI(TAG, "Connected to: %s", (char *)config.sta.ssid);
         ESP_LOGI(TAG, "IP: " IPSTR, IP2STR(&event_pkt->ip_info.ip));
         get_time();
+        wifi_connected = true; // Biến global để UI biết trạng thái kết nối Wi-Fi hiện tại
         try_count = 0;
 
         if (web_running == true)

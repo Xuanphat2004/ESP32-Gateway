@@ -111,14 +111,28 @@ void check_spi_bus_mode(void)
     // 3. KẾT LUẬN CUỐI CÙNG
     if (flash_is_octal || psram_is_octal)
     {
-        printf("\n[KET LUAN]: Chip cua em dang dung OCTAL SPI.\n");
-        printf("==> TUYET DOI KHONG SU DUNG GPIO 33, 34, 35, 36, 37.\n");
+        printf("\n[SUMMARY]: Chip is using OCTAL SPI.\n");
+        printf("==> Can NOT use GPIO 33-37 !!!\n");
     }
     else
     {
-        printf("\n[KET LUAN]: Chip cua em dang chay QUAD/DUAL MODE.\n");
-        printf("==> Em CO THE tan dung GPIO 33-37 cho cac muc dich khac.\n");
+        printf("\n[SUMMARY]: Chip is NOT running at QUAD/DUAL mode.\n");
+        printf("==> Can use GPIO 33-37 for other purpose.\n");
     }
 
     printf("=================================================================\n\n");
+}
+
+void check_heap_memory(void)
+{
+    printf("============================================================================\n");
+    printf("\n=========================== Check RAM Memorry ===========================\n");
+
+    // 1. In bảng tóm tắt dung lượng RAM hiện tại
+    heap_caps_print_heap_info(MALLOC_CAP_8BIT);
+
+    // 2. In chi tiết danh tính từng khối RAM (Đòi hỏi Enable heap task tracking trong menuconfig)
+    // Nó sẽ in tên Task đã malloc khối đó ngay bên cạnh địa chỉ bộ nhớ.
+    heap_caps_dump_all();
+    printf("============================================================================\n");
 }

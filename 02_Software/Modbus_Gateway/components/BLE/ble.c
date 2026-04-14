@@ -13,18 +13,20 @@
 
 static const char *TAG = "[MODBUS GATEWAY-BLE]";
 
-// --- 1. CẤU HÌNH UUID (Phải khớp với file logic.py trên App) ---
+// --- CẤU HÌNH UUID (Phải khớp với file logic.py trên App) ---
 #define GATTS_SERVICE_UUID 0xFF10
 #define GATTS_CHAR_UUID 0xFF11
 #define GATTS_NUM_HANDLE 4
 #define DEVICE_NAME "MODBUS-GATEWAY"
 
+extern bool blu_connected; // Biến global để UI biết trạng thái kết nối BLE hiện tại
+
 // Cấu trúc dữ liệu để lưu trữ thông tin thanh ghi từ JSON
 typedef struct
 {
-    uint16_t cid; // i: Index
-    char name[16];
-    char unit[8];
+    uint16_t cid;        // i: Index
+    char name[16];       // n: Name
+    char unit[8];        // u: Unit
     uint8_t slave_id;    // s: Slave ID
     uint16_t reg_start;  // a: Address
     uint8_t func_code;   // f: Function Code (0: Holding, 1: Input)
@@ -35,7 +37,7 @@ typedef struct
     uint16_t ref_cid[2]; // r: Factor 1 & Factor 2 CIDs
 } temp_modbus_reg_t;
 
-// --- 2. BIẾN TOÀN CỤC VÀ QUẢN LÝ BUFFER DỮ LIỆU ---
+// --- BIẾN TOÀN CỤC VÀ QUẢN LÝ BUFFER DỮ LIỆU ---
 static uint16_t gatts_handle_table[GATTS_NUM_HANDLE];
 static esp_gatt_srvc_id_t service_id;
 
@@ -44,7 +46,7 @@ static char *receive_buffer = NULL;
 static int received_len = 0;
 #define MAX_JSON_SIZE 8192 // Giới hạn 8KB cho an toàn RAM
 
-// --- 3. PROTOTYPES ---
+// --- PROTOTYPES ---
 static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param);
 static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param);
 
@@ -57,7 +59,7 @@ static esp_ble_adv_params_t adv_params = {
     .adv_filter_policy = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY,
 };
 
-// --- 4. HÀM KHỞI TẠO HỆ THỐNG BLE ---
+// --- HÀM KHỞI TẠO HỆ THỐNG BLE ---
 void ble_server_init(void)
 {
     esp_err_t ret;
@@ -87,7 +89,7 @@ void ble_server_init(void)
     // Cấu hình nội dung gói tin quảng bá
     esp_ble_adv_data_t adv_data = {
         .set_scan_rsp = false,
-        .include_name = true, // BẮT BUỘC: Cho phép bao gồm tên trong gói tin
+        .include_name = true, // Cho phép bao gồm tên trong gói tin
         .include_txpower = true,
         .min_interval = 0x0006,
         .max_interval = 0x0010,
@@ -115,28 +117,32 @@ void ble_server_init(void)
     ESP_LOGI(TAG, "BLE Gateway System Ready. Waiting for App...");
 }
 
-// --- 5. XỬ LÝ QUẢNG BÁ (ADVERTISING) ---
+// XỬ LÝ QUẢNG BÁ (ADVERTISING)
 static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param)
 {
     switch (event)
     {
     case ESP_GAP_BLE_ADV_DATA_SET_COMPLETE_EVT:
         esp_ble_gap_start_advertising(&adv_params);
+        blu_connected = false; // Cập nhật trạng thái kết nối BLE
+        ESP_LOGI(TAG, "Đang phát quảng bá BLE...");
         break;
     case ESP_GAP_BLE_UPDATE_CONN_PARAMS_EVT:
         ESP_LOGI(TAG, "Đã cập nhật tham số kết nối (MTU/Interval)");
+        blu_connected = true; // Cập nhật trạng thái kết nối BLE
         break;
     default:
         break;
     }
 }
 
+// In các thanh ghi sau khi đã xử lý xong từ gói tin JSON
 void print_parsed_registers(temp_modbus_reg_t *reg_array, int count)
 {
     if (reg_array == NULL)
         return;
 
-    ESP_LOGW("DEBUG_DATA", "--- DANH SÁCH THANH GHI ĐẦY ĐỦ ---");
+    printf("=============== RECEIVE LIST FROM APP============");
     // Thêm các cột Factor vào tiêu đề
     printf("%-4s | %-4s | %-4s | %-5s | %-7s | %-4s | %-4s | %-6s | %-6s | %-6s\n",
            "CID", "Name", "Unit", "Slave", "Address", "Func", "Type", "Scale", "Ref 1", "Ref 2");
@@ -160,11 +166,7 @@ void print_parsed_registers(temp_modbus_reg_t *reg_array, int count)
     ESP_LOGW("DEBUG_DATA", "----------------------------------------------------------");
 }
 
-/**
- * @brief Giai đoạn 1: Giải mã chuỗi JSON từ App thành mảng Struct C
- * @param json_str: Chuỗi JSON nhận được từ BLE
- * @param out_reg_count: Biến để lưu số lượng thanh ghi tìm thấy
- */
+// Xử lý dữ liệu ban đầu được từ app
 temp_modbus_reg_t *parse_json_to_struct_array(const char *json_str, int *out_reg_count)
 {
     if (json_str == NULL)
@@ -249,12 +251,8 @@ temp_modbus_reg_t *parse_json_to_struct_array(const char *json_str, int *out_reg
     return reg_array;
 }
 
-/**
- * @brief Giai đoạn 2: Lưu mảng Struct tạm thời vào bộ nhớ Flash NVS
- * @param reg_array: Mảng dữ liệu đã parse xong từ Giai đoạn 1
- * @param count: Số lượng thanh ghi trong mảng
- */
-void save_regs_to_nvs(temp_modbus_reg_t *reg_array, int count)
+// Hàm lưu dữ liệu vào vùng nhớ NVS
+static void save_regs_to_nvs(temp_modbus_reg_t *reg_array, int count)
 {
     if (reg_array == NULL || count <= 0)
         return;
@@ -302,7 +300,7 @@ void save_regs_to_nvs(temp_modbus_reg_t *reg_array, int count)
     vTaskDelay(pdMS_TO_TICKS(5000));
 }
 
-// --- 6. XỬ LÝ NHẬN GÓI TIN JSON (GATT SERVER) ---
+// Hàm xử lý sự kiện GATT Server - Nhận dữ liệu từ App qua BLE
 static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param)
 {
     switch (event)
@@ -321,7 +319,8 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
 
     case ESP_GATTS_CONNECT_EVT:
         ESP_LOGI(TAG, "App đã kết nối. Chờ nhận cấu hình...");
-        received_len = 0; // Reset buffer cho lượt nhận mới
+        blu_connected = true; // Cập nhật trạng thái kết nối BLE
+        received_len = 0;     // Reset buffer cho lượt nhận mới
         memset(receive_buffer, 0, MAX_JSON_SIZE);
         break;
 
@@ -367,6 +366,7 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
 
     case ESP_GATTS_DISCONNECT_EVT:
         ESP_LOGW(TAG, "App đã ngắt kết nối. Tiếp tục phát Advertising...");
+        blu_connected = false; // Cập nhật trạng thái kết nối BLE
         esp_ble_gap_start_advertising(&adv_params);
         break;
 

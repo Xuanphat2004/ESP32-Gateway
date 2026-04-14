@@ -43,7 +43,11 @@ void app_main(void)
     printf("==============================================\n");
     check_spi_bus_mode();
     printf("==============================================\n");
+    // check_heap_memory();
+    printf("==============================================\n");
     // print_partition_table_info();
+    printf("==============================================\n");
+
     event_group = xEventGroupCreate();
     if (event_group == NULL)
     {
@@ -65,12 +69,12 @@ void app_main(void)
     wifi_Init();
     ble_server_init();
     run_nvs_diagnostic();
-    //  modbus_rtu_port_1_init();
-    modbus_rtu_port_2_init();
+    modbus_rtu_port_1_init();
+    // modbus_rtu_port_2_init();
     lcd_1604_init();
     init_pcnt_encoder();
 
-    vTaskDelay(pdMS_TO_TICKS(1000));
+    vTaskDelay(pdMS_TO_TICKS(2000)); // đợi hệ thông ổn định trước khi tạo task
 
     // Core 0: Các task liên quan tới mạng
     // xTaskCreatePinnedToCore((void *)internet_test_task, "test_internet_task", 4096, NULL, 5, NULL, 0);
@@ -80,6 +84,10 @@ void app_main(void)
     xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 4096, NULL, 8, NULL, 1);
     xTaskCreatePinnedToCore((void *)ui_task, "ui_manager_task", 4096, NULL, 5, NULL, 1);
     // xTaskCreatePinnedToCore((void *)encoder_check_task, "encoder_check_task", 4096, NULL, 3, NULL, 1);
+
+    printf("==============================================\n");
+    // check_heap_memory();
+    printf("==============================================\n");
 
     vTaskDelay(pdMS_TO_TICKS(1000));
 }

@@ -19,7 +19,9 @@
 #include "rtc_mb.h"
 #include "mqtt_client.h"
 
-static const char *TAG = "[MODBUS GATEWAY - ETHERNET]";
+static const char *TAG = "[ETHERNET]";
+extern bool eth_connected;
+
 esp_err_t eth_init(void);
 static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
 static void got_ip_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
@@ -248,17 +250,19 @@ static void eth_event_handler(void *arg,
     case ETHERNET_EVENT_CONNECTED:
         esp_eth_ioctl(*eth_isr_handle, ETH_CMD_G_MAC_ADDR, mac_addr);
         ESP_LOGI(TAG, "Ethernet Link Up");
-        ESP_LOGI(TAG, "Ethernet MAC address: %02x:%02x:%02x:%02x:%02x:%02x",
-                 mac_addr[0], mac_addr[1], mac_addr[2], mac_addr[3], mac_addr[4], mac_addr[5]);
+        // ESP_LOGI(TAG, "Ethernet MAC address: %02x:%02x:%02x:%02x:%02x:%02x",
+        //          mac_addr[0], mac_addr[1], mac_addr[2], mac_addr[3], mac_addr[4], mac_addr[5]);
         break;
     case ETHERNET_EVENT_DISCONNECTED:
         ESP_LOGI(TAG, "Ethernet Link Down");
+        eth_connected = false; // Biến global để UI biết trạng thái kết nối Ethernet hiện tại
         break;
     case ETHERNET_EVENT_START:
         ESP_LOGI(TAG, "Ethernet Started");
         break;
     case ETHERNET_EVENT_STOP:
         ESP_LOGI(TAG, "Ethernet Stopped");
+        eth_connected = false; // Biến global để UI biết trạng thái kết nối Ethernet hiện tại
         break;
     default:
         break;
@@ -280,6 +284,7 @@ static void got_ip_event_handler(void *arg,
     ESP_LOGI(TAG, "Got subnet mask: " IPSTR, IP2STR(&event->ip_info.netmask));
     ESP_LOGI(TAG, "Got gateway address: " IPSTR, IP2STR(&event->ip_info.gw));
 
-    vTaskDelay(pdMS_TO_TICKS(1000));
+    vTaskDelay(pdMS_TO_TICKS(2000));
+    eth_connected = true; // Biến global để UI biết trạng thái kết nối Ethernet hiện tại
     get_time();
 }

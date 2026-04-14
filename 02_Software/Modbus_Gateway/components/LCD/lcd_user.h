@@ -13,12 +13,13 @@
 #include "lcd_16x4.h"
 #include "encoder_ec11.h"
 
+// ====== CẤU HÌNH CHÂN GPIO NÚT NHẤN =======
 #define SELECT_PIN GPIO_NUM_47     // Nút Select
 #define BACK_PIN GPIO_NUM_35       // Nút Back
 #define NEXT_PIN GPIO_NUM_21       // Nút Next
 #define ENCODER_SW_PIN GPIO_NUM_36 // Nút nhấn của Encoder
 
-// ====== QUẢN LÝ TRẠNG THÁI =======
+// ====== QUẢN LÝ TRẠNG THÁI SỰ KIỆN =======
 typedef enum
 {
     EVENT_UP,   // Dùng cho Encoder khi xoay lên
@@ -28,28 +29,22 @@ typedef enum
     EVENT_NEXT
 } ui_event_t;
 
+// ====== QUẢN LÝ CÁC TRANG HIỂN THỊ =======
 typedef enum
 {
     PAGE_1_HOME,
     PAGE_2_SETTINGS,
-    PAGE_3_INFO_DEVICE
+    PAGE_3_INFO_DEVICE,
+    PAGE_SCAN_RESULT // Trang hiển thị kết quả sau khi quét xong
 } ui_page_t;
 
-// // Các mục bên trong các mục con ở Menu Settings
-// typedef enum
-// {
+// ====== BIẾN TOÀN CỤC (EXTERN) =======
+extern bool is_scanning;
+extern bool wifi_connected;
+extern bool eth_connected;
+extern bool blu_connected;
 
-// } ui_baurate_t;
-
-// typedef enum
-// {
-
-// } ui_scan_t;
-// typedef enum
-// {
-
-// } ui_info_t;
-
+// ====== HÀM GIAO DIỆN CHÍNH =======
 void ui_task(void);
 
 #endif
