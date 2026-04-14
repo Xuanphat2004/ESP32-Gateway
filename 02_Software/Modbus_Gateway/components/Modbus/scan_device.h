@@ -1,0 +1,241 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include "esp_log.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/semphr.h"
+#include "esp_modbus_master.h"
+#include "esp_modbus_common.h"
+#include "esp_modbus_slave.h" // Thêm thư viện Slave
+#include "mbc_master.h"
+#include "modbus_rtu.h"
+#include "lcd_user.h"
+
+extern ui_page_t current_page;
+extern bool is_scanning;
+
+void scan_device(void);
+// Cấu trúc để lưu danh sách ID online
+typedef struct
+{
+    uint8_t id[248]; // Chứa các ID cụ thể của Port scan được
+    int count;       // Tổng số ID scan được
+} id_scan_result_t;
+
+// Dùng để lưu các ID để hiển thị lên LCD
+id_scan_result_t list_p1;
+id_scan_result_t list_p2;
+
+extern uint16_t register_count;
+extern factor_dict_t *factor_dict;
+extern mb_parameter_descriptor_t *basic_dict;
+extern SemaphoreHandle_t xDataMutex;
+
+// Hàm kiểm tra ID đã tồn tại trong danh sách hay chưa
+static bool is_id_in_result(uint8_t id, id_scan_result_t *list)
+{
+    for (int i = 0; i < list->count; i++)
+    {
+        if (list->id[i] == id)
+            return true;
+    }
+    return false;
+}
+
+// =============================================================================
+// Hàm tạo Dictionary tạm thời để quét thiết bị - lấy tối đa 3 thanh ghi của một thiết bị
+static uint16_t generate_temp_scan_dict(mb_parameter_descriptor_t *scan_dict, uint8_t *original_ids, uint8_t *unique_id_count)
+{
+    uint16_t scan_reg_count = 0;
+    uint8_t id_tracker[248] = {0};
+    *unique_id_count = 0;
+
+    for (int i = 0; i < register_count; i++)
+    {
+        uint8_t sid = factor_dict[i].slave_id;
+
+        if (id_tracker[sid] == 0)
+        {
+            original_ids[*unique_id_count] = sid;
+            (*unique_id_count)++;
+        }
+
+        if (id_tracker[sid] < 3) // Giới hạn 3 thanh ghi
+        {
+            scan_dict[scan_reg_count] = (mb_parameter_descriptor_t){
+                .cid = scan_reg_count,
+                .param_key = factor_dict[i].name,
+                .mb_slave_addr = sid,
+                .mb_reg_start = factor_dict[i].reg_start,
+                .mb_size = factor_dict[i].quantity,
+                .mb_param_type = (factor_dict[i].func_code == 0) ? MB_PARAM_HOLDING : MB_PARAM_INPUT,
+                .param_type = factor_dict[i].data_type,
+                .param_size = factor_dict[i].quantity * 2,
+                .access = PAR_PERMS_READ};
+            scan_reg_count++;
+            id_tracker[sid]++;
+        }
+    }
+    return scan_reg_count;
+}
+
+// ===============================================================================================================================
+// Khởi tạo Modbus Master scan cho UART port mong muốn
+// Truyền vào UART Port, Dictionary quét, Kích thước dictionary, và con trỏ để lưu kết quả scan
+static void execute_port_scan(uint8_t uart_port, mb_parameter_descriptor_t *dict, uint16_t dict_size, id_scan_result_t *results)
+{
+    results->count = 0;
+    uint8_t online_flags[248] = {0};
+
+    // Nạp cấu hình Modbus Master cho port hiện tại
+    void *master_handler = NULL;
+    mbc_master_init(MB_PORT_SERIAL_MASTER, &master_handler);
+    mb_communication_info_t comm_info = {
+        .port = uart_port,
+        .mode = MB_MODE_RTU,
+        .baudrate = 9600,
+        .parity = MB_PARITY_NONE};
+    mbc_master_setup((void *)&comm_info);
+    mbc_master_set_descriptor(dict, dict_size);
+    if (uart_port == UART_NUM_1)
+    {
+        // Cấu hình chân cho Port 1
+        modbus_rtu_port_2_slave_init();
+        uart_set_pin(UART_NUM_1, UART_1_TX_PIN, UART_1_RX_PIN, UART_1_EN_PIN, UART_PIN_NO_CHANGE);
+        ESP_LOGI("UART_CFG", "Configured Pins for UART1");
+    }
+    else if (uart_port == UART_NUM_2)
+    {
+        // Cấu hình chân cho Port 2
+        modbus_rtu_port_1_slave_init();
+        uart_set_pin(UART_NUM_2, UART_2_TX_PIN, UART_2_RX_PIN, UART_2_EN_PIN, UART_PIN_NO_CHANGE);
+        ESP_LOGI("UART_CFG", "Configured Pins for UART2");
+    }
+    mbc_master_start();
+    uart_set_mode(uart_port, UART_MODE_RS485_HALF_DUPLEX);
+
+    for (int i = 0; i < dict_size; i++) // quét qua từng hàng có trong temp_dict
+    {
+        uint8_t slave_id = dict[i].mb_slave_addr; // Lấy ra ID của thiết bị của hàng đang scan
+        if (online_flags[slave_id] == 1)          // Xét bit tương ứng với ID này lên 1 - có phản hồi trên đường truyền
+            continue;
+
+        uint8_t temp_buf[4]; // chứa tạm giá trị của thiết bị phản hồi về
+        uint8_t type;
+        if (mbc_master_get_parameter(dict[i].cid, dict[i].param_key, temp_buf, &type) == ESP_OK)
+        {
+            if (results->count < 248) // Đảm bảo biến count có tổng số lượng ID không vượt quá 247
+            {
+                results->id[results->count++] = slave_id; // Ghi ID vừa scan được vào danh sách kết quả
+                online_flags[slave_id] = 1;               // Xét bit tương ứng với ID này lên 1 - có phản hồi trên đường truyền
+                ESP_LOGI("[SCAN DEVICE]", "Port %d -> Slave %d: [ONLINE]", uart_port, slave_id);
+            }
+        }
+        vTaskDelay(pdMS_TO_TICKS(50));
+    }
+
+    vTaskDelay(pdMS_TO_TICKS(200));
+}
+
+uint8_t original_id[248];
+uint8_t original_id_count = 0;
+//=============================================================================
+// TASK CHẨN ĐOÁN LỖI HỆ THỐNG
+void scan_task(void *pvParameters)
+{
+
+    memset(&list_p1, 0, sizeof(id_scan_result_t));
+    memset(&list_p2, 0, sizeof(id_scan_result_t));
+
+    ESP_LOGI("[SCAN DEVICE]", "Bat dau Task quet thiet bi. Dang dung RTU Polling...");
+
+    if (xSemaphoreTake(xDataMutex, pdMS_TO_TICKS(1500)) == pdTRUE)
+    {
+
+        mbc_slave_destroy();
+        mbc_master_destroy();
+
+        // Chuẩn bị dữ liệu quét
+        mb_parameter_descriptor_t *temp_dict = malloc(register_count * sizeof(mb_parameter_descriptor_t));
+        uint16_t temp_dict_size = generate_temp_scan_dict(temp_dict, original_id, &original_id_count); // Tổng số hàng có trong temp_dict
+
+        // id_scan_result_t list_p1, list_p2;
+
+        ESP_LOGI("[SCAN DEVICE]", "Port 1 is scanning ...");
+        execute_port_scan(UART_NUM_1, temp_dict, temp_dict_size, &list_p1); // Kết quả quét được đưa vào list_p1
+
+        mbc_slave_destroy();
+        mbc_master_destroy();
+
+        ESP_LOGI("[SCAN DEVICE]", "Port 2 is scanning ...");
+        execute_port_scan(UART_NUM_2, temp_dict, temp_dict_size, &list_p2); // Kết quả quét được đưa vào list_p2
+
+        ESP_LOGI("[SCAN DEVICE]", "Result of scan: Port 1 found %d device, Port 2 found %d device", list_p1.count, list_p2.count);
+        bool network_error = false; // Cờ báo nếu có lỗi
+
+        for (int i = 0; i < original_id_count; i++)
+        {
+            uint8_t slave_id = original_id[i];                // Lấy từng ID trong list ID gốc ra để so sánh
+            bool in_p1 = is_id_in_result(slave_id, &list_p1); // kiểm tra ID đó có trong list ID của port 1 không
+            bool in_p2 = is_id_in_result(slave_id, &list_p2); // kiểm tra ID đó có trong list ID của port 2 không
+
+            if (in_p1 == false && in_p2 == false) // cả 2 port đều không scan được ID này
+            {
+                ESP_LOGW("[SCAN DEVICE]", "Not found in both ports, device ID %d !!!", slave_id);
+                network_error = true;
+            }
+            else if (in_p1 == true && in_p2 == false) // ID Chỉ có trong list scan port 1
+            {
+                ESP_LOGW("[SCAN DEVICE]", "Only appear in List 1, ID device: %d", slave_id);
+                network_error = true;
+            }
+            else if (!in_p1 && in_p2) // ID Chỉ có trong list scan port 2
+            {
+                ESP_LOGW("[SCAN DEVICE]", "Only appear in List 2, ID device: %d", slave_id);
+                network_error = true;
+            }
+        }
+
+        // Kiểm tra đứt tại Port đầu vào
+        if (list_p1.count == 0 && original_id_count > 0)
+            ESP_LOGW("[SCAN DEVICE]", "Have problem at Port 1 !!!");
+        if (list_p2.count == 0 && original_id_count > 0)
+            ESP_LOGW("[SCAN DEVICE]", "Have problem at Port 2 !!!");
+
+        if (!network_error && (list_p1.count == original_id_count))
+        {
+            ESP_LOGI("[SCAN DEVICE]", "====> Stable system: Found %d/%d device.", list_p1.count, original_id_count);
+        }
+        current_page = PAGE_SCAN_RESULT;
+        is_scanning = false;
+        ESP_LOGI("[SCAN DEVICE]", "Scan finished. Switching to Result Page.");
+
+        free(temp_dict);
+        mbc_slave_destroy();
+        mbc_master_destroy();
+        modbus_rtu_port_2_slave_init();
+        // Khôi phục task chính - RTU task
+        void *master_handler = NULL;
+        mbc_master_init(MB_PORT_SERIAL_MASTER, &master_handler);
+        mb_communication_info_t main_comm = {
+            .port = UART_NUM_1,
+            .mode = MB_MODE_RTU,
+            .baudrate = 9600};
+        mbc_master_setup((void *)&main_comm);
+        mbc_master_set_descriptor(basic_dict, register_count);
+        ESP_ERROR_CHECK(uart_set_pin(UART_1, UART_1_TX_PIN, UART_1_RX_PIN, UART_1_EN_PIN, UART_PIN_NO_CHANGE));
+        mbc_master_start();
+        uart_set_mode(UART_NUM_1, UART_MODE_RS485_HALF_DUPLEX);
+
+        xSemaphoreGive(xDataMutex);
+        ESP_LOGI("[SCAN DEVICE]", "Restoring RTU task polling ............");
+    }
+
+    vTaskDelete(NULL);
+}
+
+void scan_device(void)
+{
+    xTaskCreatePinnedToCore((void *)scan_task, "scan_task", 4096, NULL, 7, NULL, 1);
+}
