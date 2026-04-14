@@ -1,3 +1,6 @@
+#ifndef MODBUS_RTU_H
+#define MODBUS_RTU_H
+
 #include <string.h>
 #include <sys/param.h>
 #include "driver/uart.h" // for the uart driver access
@@ -27,9 +30,30 @@
 #define UART_2_TX_PIN GPIO_NUM_2
 #define UART_2_EN_PIN GPIO_NUM_1
 
+typedef struct
+{
+    uint16_t cid;
+    char name[16];
+    char unit[8];
+    uint8_t slave_id;
+    uint16_t reg_start;
+    uint8_t func_code;
+    uint8_t data_type;
+    uint16_t quantity;
+    float scale;
+    uint8_t mul_type;
+    uint16_t ref_cid[2];
+} factor_dict_t; // Struct cho bảng B
+
 extern mb_parameter_descriptor_t mbslave_test_dict[];
 extern const uint16_t mbslave_dict_size;
+extern factor_dict_t *factor_dict;
 
 void modbus_rtu_port_1_init(void);
 void modbus_rtu_port_2_init(void);
+
+void modbus_rtu_port_1_slave_init(void);
+void modbus_rtu_port_2_slave_init(void);
 void modbus_test_read(void);
+
+#endif // MODBUS_RTU_H

@@ -9,39 +9,27 @@
 
 // Modbus library
 #include "esp_modbus_master.h"
+#include "esp_modbus_slave.h" // Thêm thư viện Slave
 #include "esp_modbus_common.h"
 #include "rtc_mb.h"
 #include "modbus_rtu.h"
 
 static const char *TAG = "[GATEWAY - RTU]";
 
-typedef struct
-{
-    uint16_t cid;
-    char name[16];
-    char unit[8];
-    uint8_t slave_id;
-    uint16_t reg_start;
-    uint8_t func_code;
-    uint8_t data_type;
-    uint16_t quantity;
-    float scale;
-    uint8_t mul_type;
-    uint16_t ref_cid[2];
-} factor_dict_t; // Struct cho bảng B
-
 // Vì chưa biết dict cần dung lượng bao nhiêu nên ta chỉ tạo 1 con trỏ trước
 mb_parameter_descriptor_t *basic_dict = NULL; // Tạo vùng nhớ để tạo Dictionary động - bảng A
 factor_dict_t *factor_dict = NULL;            // Vùng nhớ để mapping factor và scale - bảng B
 uint8_t *raw_data = NULL;                     // Chứa dữ liệu thô
 float *final_data = NULL;                     // Chứa kết quả float cuối cùng (Để nhân Factor)
-uint16_t register_count = 0;
-uint16_t g_total_raw_bytes = 0; // Tổng số byte thực tế của tất cả thanh ghi
+uint16_t register_count = 0;                  // Tổng số lượng CID đang có trong NVS
+uint16_t g_total_raw_bytes = 0;               // Tổng số byte thực tế của tất cả thanh ghi
 
 extern SemaphoreHandle_t xDataMutex; // Mutex dùng cho việc ghi vào vùng nhớ chung
 
+void *slave_handler = NULL;
 //==========================================================================================================
 //====== Hàm hỗ trợ - In bảng A trong RAM ra terminal =======
+
 void print_ram_tables(void)
 {
     if (register_count == 0 || basic_dict == NULL || factor_dict == NULL)
@@ -108,8 +96,8 @@ esp_err_t load_modbus_dynamic_config(void)
     if (final_data)
         free(final_data);
 
-    basic_dict = malloc(register_count * sizeof(mb_parameter_descriptor_t)); // Vùng nhớ bảng A
-    factor_dict = malloc(register_count * sizeof(factor_dict_t));            // Vùng nhớ bảng B
+    basic_dict = malloc(register_count * sizeof(mb_parameter_descriptor_t)); // Vùng nhớ bảng A - tạo ra số hàng tương ứng với số hàng của dictionary
+    factor_dict = malloc(register_count * sizeof(factor_dict_t));            // Vùng nhớ bảng B - dữ liệu ban đầu đọc ra từ NVS
     final_data = calloc(register_count, sizeof(float));                      // Vùng nhớ chứa data người dùng có thể hiểu được
     size_t blob_size = register_count * sizeof(factor_dict_t);
 
@@ -163,7 +151,7 @@ esp_err_t load_modbus_dynamic_config(void)
 }
 
 // Cấu hình UART cho Modbus RTU - Port 2
-void modbus_rtu_port_2_init(void)
+void modbus_rtu_port_1_init(void)
 {
     if (load_modbus_dynamic_config() != ESP_OK)
     {
@@ -175,16 +163,17 @@ void modbus_rtu_port_2_init(void)
     ESP_ERROR_CHECK(mbc_master_init(MB_PORT_SERIAL_MASTER, &master_handler));
 
     mb_communication_info_t comm_info = {
-        .port = UART_2,
+        .port = UART_1,
         .mode = MB_MODE_RTU,
         .baudrate = BAUD_RATE,
         .parity = MB_PARITY_NONE,
     };
     ESP_ERROR_CHECK(mbc_master_setup((void *)&comm_info));
     ESP_ERROR_CHECK(mbc_master_set_descriptor(basic_dict, register_count));
-    ESP_ERROR_CHECK(uart_set_pin(UART_2, UART_2_TX_PIN, UART_2_RX_PIN, UART_2_EN_PIN, UART_PIN_NO_CHANGE));
+    ESP_ERROR_CHECK(uart_set_pin(UART_1, UART_1_TX_PIN, UART_1_RX_PIN, UART_1_EN_PIN, UART_PIN_NO_CHANGE));
     ESP_ERROR_CHECK(mbc_master_start());
-    ESP_ERROR_CHECK(uart_set_mode(UART_2, UART_MODE_RS485_HALF_DUPLEX));
+    ESP_ERROR_CHECK(uart_set_mode(UART_1, UART_MODE_RS485_HALF_DUPLEX));
+    modbus_rtu_port_2_slave_init();
 }
 
 void modbus_test_read(void)
@@ -204,7 +193,9 @@ void modbus_test_read(void)
         }
         if (xSemaphoreTake(xDataMutex, pdMS_TO_TICKS(500)) == pdTRUE)
         {
-            rtc_read_time(&now); // Lấy thời gian từ RTC
+            // uart_flush_input(UART_2);       // Xóa rác buffer trước mỗi ID
+            vTaskDelay(pdMS_TO_TICKS(150)); // Guard time (Khoảng nghỉ t3.5)
+            rtc_read_time(&now);            // Lấy thời gian từ RTC
             for (int i = 0; i < register_count; i++)
             {
                 // Đọc vào vùng nhớ thô dựa trên offset đã tính toán
@@ -240,6 +231,90 @@ void modbus_test_read(void)
             printf("Data: %d =====================================================\n", count);
             printf("\n");
         }
-        vTaskDelay(pdMS_TO_TICKS(5000)); // Cứ 5s polling data 1 lần
+        vTaskDelay(pdMS_TO_TICKS(10000)); // Cứ 5s polling data 1 lần
+    }
+}
+void modbus_rtu_port_1_slave_init(void)
+{
+    void *slave_handler = NULL;
+    // 2. INIT SLAVE: Khởi tạo thực thể Slave
+    esp_err_t err = mbc_slave_init(MB_PORT_SERIAL_SLAVE, &slave_handler);
+
+    // 3. SETUP: Cấu hình thông số truyền thông
+    mb_communication_info_t comm_info = {
+        .port = UART_NUM_1,
+        .mode = MB_MODE_RTU,
+        .baudrate = 9600,
+        .parity = MB_PARITY_NONE,
+        .slave_addr = 1};
+    err = mbc_slave_setup((void *)&comm_info);
+
+    // 4. DESCRIPTOR: Slave BẮT BUỘC phải có vùng nhớ để hoạt động (Dù là rỗng)
+    // Nếu thiếu bước này, mbc_slave_start sẽ trả về 0x103 ngay lập tức
+    mb_register_area_descriptor_t reg_area = {
+        .type = MB_PARAM_HOLDING,
+        .start_offset = 0,
+        .address = (void *)raw_data, // Tận dụng vùng nhớ raw_data bạn đã malloc
+        .size = 100                  // Khai báo kích thước vùng nhớ
+    };
+    mbc_slave_set_descriptor(reg_area);
+
+    // 5. PIN CONFIG: Gán chân theo Define của Phát
+    uart_set_pin(UART_NUM_1, UART_1_TX_PIN, UART_1_RX_PIN, UART_1_EN_PIN, UART_PIN_NO_CHANGE);
+
+    // 6. START: Bắt đầu chạy Slave
+    err = mbc_slave_start();
+
+    if (err == ESP_OK)
+    {
+        uart_set_mode(UART_NUM_1, UART_MODE_RS485_HALF_DUPLEX);
+        ESP_LOGI("SLAVE", "Port 1 started as Slave successfully.");
+    }
+    else
+    {
+        ESP_LOGE("SLAVE", "Failed to start Slave, error: 0x%x", err);
+    }
+}
+
+void modbus_rtu_port_2_slave_init(void)
+{
+    void *slave_handler = NULL;
+    // 2. INIT SLAVE: Khởi tạo thực thể Slave
+    esp_err_t err = mbc_slave_init(MB_PORT_SERIAL_SLAVE, &slave_handler);
+
+    // 3. SETUP: Cấu hình thông số truyền thông
+    mb_communication_info_t comm_info = {
+        .port = UART_NUM_2,
+        .mode = MB_MODE_RTU,
+        .baudrate = 9600,
+        .parity = MB_PARITY_NONE,
+        .slave_addr = 1};
+    err = mbc_slave_setup((void *)&comm_info);
+
+    // 4. DESCRIPTOR: Slave BẮT BUỘC phải có vùng nhớ để hoạt động (Dù là rỗng)
+    // Nếu thiếu bước này, mbc_slave_start sẽ trả về 0x103 ngay lập tức
+    mb_register_area_descriptor_t reg_area = {
+        .type = MB_PARAM_HOLDING,
+        .start_offset = 0,
+        .address = (void *)raw_data, // Tận dụng vùng nhớ raw_data bạn đã malloc
+        .size = 100                  // Khai báo kích thước vùng nhớ
+    };
+    mbc_slave_set_descriptor(reg_area);
+
+    // 5. PIN CONFIG: Gán chân theo Define của Phát
+    uart_set_pin(UART_NUM_2, UART_2_TX_PIN, UART_2_RX_PIN, UART_2_EN_PIN, UART_PIN_NO_CHANGE);
+
+    // 6. START: Bắt đầu chạy Slave
+    err = mbc_slave_start();
+
+    if (err == ESP_OK)
+    {
+        // 7. RS485 MODE: Chế độ Half-Duplex để tự điều khiển chân EN (DE/RE)
+        uart_set_mode(UART_NUM_2, UART_MODE_RS485_HALF_DUPLEX);
+        ESP_LOGI("SLAVE", "Port 2 started as Slave successfully.");
+    }
+    else
+    {
+        ESP_LOGE("SLAVE", "Failed to start Slave, error: 0x%x", err);
     }
 }
