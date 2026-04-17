@@ -12,39 +12,66 @@
 #include "lcd_user.h"
 #include "rtc_mb.h"
 #include "scan_device.h"
+#include "change_baudrate.h"
 
-static const char *TAG = "[LCD USER]";
+// static const char *TAG = "[LCD USER]";
 ui_page_t current_page = PAGE_1_HOME; // Trang mặc định ban đầu khi khởi động
 static int menu_cursor = 1;           // Dòng đang chọn 1, 2, 3 cho Page 2
 static QueueHandle_t ui_queue = NULL;
+uint32_t baud_options[] = {1200, 2400, 4800, 9600, 19200, 38400, 115200};
+int baudrate_id = 3; // Mặc định là 9600
 
 bool wifi_connected = false;
 bool eth_connected = false;
 bool blu_connected = false;
 bool is_scanning = false; // Biền trạng thái để khóa UI khi thực hiện chức năng scan
+bool is_baudrate = false; // trạng thái có đang thực hiện chức năng chỉnh tốc độ baudrate
 
-// Các biến kết quả từ scan_device.h
 extern id_scan_result_t list_p1;
 extern uint8_t original_id[248];
 extern uint8_t original_id_count;
 
-// --- CÁC HÀM VẼ GIAO DIỆN ---
+//=============================================================================================
+// ========================== CÁC HÀM CHỨC NĂNG PHỤ KÈM THEO ==================================
+//=============================================================================================
+// Hàm chuyển mảng ID thành chuỗi "1, 4, 5"
+static void format_id_list(uint8_t *ids, int count, char *output)
+{
+    output[0] = '\0';
+    char temp[5];
+    for (int i = 0; i < count; i++)
+    {
+        snprintf(temp, sizeof(temp), (i == count - 1) ? "%d" : "%d,", ids[i]);
 
+        // Kiểm tra nếu thêm ID tiếp theo sẽ vượt quá 12 ký tự (để vừa dòng LCD)
+        if (strlen(output) + strlen(temp) > 12)
+        {
+            strcat(output, ".."); // Thêm dấu .. báo hiệu còn nữa nhưng hết chỗ
+            break;
+        }
+        strcat(output, temp);
+    }
+}
+//============================================================================================
+
+//=============================================================================================
+// ========================== CÁC HÀM XỬ LÝ HIỂN THỊ TRÊN LCD =================================
+//=============================================================================================
 static void page_1_home(void)
 {
     char buffer[20] = {0};
     rtc_time_t now;
-    rtc_read_time(&now);
+    rtc_read_time(&now); // Thời gian từ module RTC rời
 
     LCD_SetCursor(0, 0);
     snprintf(buffer, sizeof(buffer), "TIME:  %02d:%02d:%02d", now.hour, now.minute, now.second);
     LCD_Print(buffer);
     LCD_SetCursor(1, 0);
-    LCD_Print(eth_connected ? "ETH : Connected  " : "ETH : Disconnected");
+    LCD_Print(eth_connected ? "ETH : Connected  " : "ETH : Disconnected  ");
     LCD_SetCursor(2, 0);
-    LCD_Print(wifi_connected ? "WIFI: Connected  " : "WIFI: Disconnected");
+    LCD_Print(wifi_connected ? "WIFI: Connected  " : "WIFI: Disconnected  ");
     LCD_SetCursor(3, 0);
-    LCD_Print(blu_connected ? "BLU : Connected  " : "BLU : Disconnected");
+    LCD_Print(blu_connected ? "BLU : Connected  " : "BLU : Disconnected  ");
 }
 
 static void page_2_settings(void)
@@ -72,48 +99,28 @@ static void page_3_info_device(void)
     time_t now_time;
     struct tm time_active;
     time(&now_time);
-    localtime_r(&now_time, &time_active);
+    localtime_r(&now_time, &time_active); // Thời gian trong bộ RTC nội của ESP
     snprintf(buffer, sizeof(buffer), "Active: %02d:%02d:%02d",
              time_active.tm_hour, time_active.tm_min, time_active.tm_sec);
     LCD_Print(buffer);
 }
 
-// Hàm chuyển mảng ID thành chuỗi "1, 4, 5"
-void format_id_list(uint8_t *ids, int count, char *output)
-{
-    output[0] = '\0';
-    char temp[5];
-    for (int i = 0; i < count; i++)
-    {
-        snprintf(temp, sizeof(temp), (i == count - 1) ? "%d" : "%d,", ids[i]);
-
-        // Kiểm tra nếu thêm ID tiếp theo sẽ vượt quá 12 ký tự (để vừa dòng LCD)
-        if (strlen(output) + strlen(temp) > 12)
-        {
-            strcat(output, ".."); // Thêm dấu .. báo hiệu còn nữa nhưng hết chỗ
-            break;
-        }
-        strcat(output, temp);
-    }
-}
-
-// TRANG HIỂN THỊ KẾT QUẢ SAU KHI SCAN
 static void page_scan_result(void)
 {
-    lcd_clear();
+    // lcd_clear();
     char buffer[17] = {0}; // Giới hạn đúng 16 ký tự + 1 null cho LCD 1604
     LCD_SetCursor(0, 0);
     LCD_Print("-Scan ID Detail-");
 
     // Hiển thị danh sách ID Active
     LCD_SetCursor(1, 0);
-    LCD_Print("Active:"); // In nhãn trước
-    LCD_SetCursor(1, 8);  // Nhảy con trỏ đến vị trí thứ 5 (sau chữ "Act:")
+    LCD_Print("Active:");
+    LCD_SetCursor(1, 8);
     format_id_list(list_p1.id, list_p1.count, buffer);
     LCD_Print(buffer); // In danh sách ID
 
     // Tìm ID Inactive
-    uint8_t inactive_ids[20];
+    uint8_t inactive_id[20];
     int inactive_count = 0;
     for (int i = 0; i < original_id_count; i++)
     {
@@ -126,8 +133,8 @@ static void page_scan_result(void)
                 break;
             }
         }
-        if (!found)
-            inactive_ids[inactive_count++] = original_id[i];
+        if (found == false)
+            inactive_id[inactive_count++] = original_id[i];
     }
 
     // Hiển thị danh sách ID Inactive
@@ -136,16 +143,33 @@ static void page_scan_result(void)
     LCD_SetCursor(2, 10);
     if (inactive_count > 0)
     {
-        format_id_list(inactive_ids, inactive_count, buffer);
+        format_id_list(inactive_id, inactive_count, buffer);
         LCD_Print(buffer);
     }
     else
     {
-        LCD_Print("None");
+        LCD_Print("None"); // Nếu danh sách trống
     }
 }
 
-// Quản lý tình trạng các nút nhấn
+static void page_set_baud(void)
+{
+    char buffer_1[20], buffer_2[20]; // Dừng để giá trị tốc độ hiện tại đọc ra từ NVS và giá trị tốc độ người dùng muốn chọn
+    uint32_t current_baud = load_baud_from_nvs();
+    LCD_SetCursor(0, 1);
+    LCD_Print("-Set Baudrate-");
+    LCD_SetCursor(1, 0);
+    snprintf(buffer_1, sizeof(buffer_1), "Current: %ld  ", current_baud);
+    LCD_Print(buffer_1);
+    LCD_SetCursor(2, 0);
+    snprintf(buffer_2, sizeof(buffer_2), "Select>%ld  ", baud_options[baudrate_id]);
+    LCD_Print(buffer_2);
+}
+//=====================================================================================================
+
+//=====================================================================================================
+//============================= QUẢN LÝ CÁC TÁC VỤ LIÊN QUAN ĐẾN NÚT NHẤN =============================
+//=====================================================================================================
 void button_handler_task(void *arg)
 {
     gpio_config_t btn_cfg = {
@@ -156,7 +180,7 @@ void button_handler_task(void *arg)
     ui_event_t button_event;
     while (1)
     {
-        if (gpio_get_level(SELECT_PIN) == 0)
+        if (gpio_get_level(SELECT_PIN) == 0) // Nút Select thường
         {
             vTaskDelay(pdMS_TO_TICKS(100));
             if (gpio_get_level(SELECT_PIN) == 0)
@@ -167,6 +191,19 @@ void button_handler_task(void *arg)
                     vTaskDelay(pdMS_TO_TICKS(10));
             }
         }
+
+        if (gpio_get_level(ENCODER_SELECT_PIN) == 0) // Nút Select của Encoder
+        {
+            vTaskDelay(pdMS_TO_TICKS(100));
+            if (gpio_get_level(ENCODER_SELECT_PIN) == 0)
+            {
+                button_event = EVENT_EN_SELECT;
+                xQueueSend(ui_queue, &button_event, 0);
+                while (gpio_get_level(ENCODER_SELECT_PIN) == 0)
+                    vTaskDelay(pdMS_TO_TICKS(10));
+            }
+        }
+
         if (gpio_get_level(BACK_PIN) == 0)
         {
             vTaskDelay(pdMS_TO_TICKS(100));
@@ -178,6 +215,7 @@ void button_handler_task(void *arg)
                     vTaskDelay(pdMS_TO_TICKS(10));
             }
         }
+
         if (gpio_get_level(NEXT_PIN) == 0)
         {
             vTaskDelay(pdMS_TO_TICKS(100));
@@ -193,20 +231,21 @@ void button_handler_task(void *arg)
     }
 }
 
+// Xử lý tác vụ của Encoder khi người dừng thao tác với nó
 static void encoder_handler_task(void *arg)
 {
-    int last_count = 0;
-    int current_count = 0;
+    int last_count = 0;    // Số đếm lần gần nhất trước đó
+    int current_count = 0; // Số đếm hiện tại
     ui_event_t encoder_event;
     while (1)
     {
-        pcnt_unit_get_count(pcnt_unit, &current_count);
+        pcnt_unit_get_count(pcnt_unit, &current_count); // Đọc số đếm hiện tại trong thanh ghi của bộ PCNT
         if (current_count != last_count)
         {
-            if (current_count > last_count)
+            if (current_count > last_count) // Số đếm mà tăng lên thì là sẽ cuộn xuống
                 encoder_event = EVENT_DOWN;
             else
-                encoder_event = EVENT_UP;
+                encoder_event = EVENT_UP; // Số đếm giảm thì cuộn lên
             xQueueSend(ui_queue, &encoder_event, 0);
             last_count = current_count;
         }
@@ -224,65 +263,103 @@ void ui_task(void)
 
     while (1)
     {
-        // 1. CHỈ XỬ LÝ NÚT NHẤN KHI KHÔNG SCANNING
+        // CHỈ XỬ LÝ NÚT NHẤN KHI KHÔNG SCANNING
         if (xQueueReceive(ui_queue, &event, pdMS_TO_TICKS(100)) == pdTRUE)
         {
-            if (!is_scanning)
+            if (is_scanning == false)
             {
                 switch (event)
                 {
+
+                case EVENT_EN_SELECT: // 2 nút này có chung 1 chức năng
                 case EVENT_SELECT:
                     if (current_page == PAGE_1_HOME)
                     {
+                        lcd_clear();
                         current_page = PAGE_2_SETTINGS;
                         menu_cursor = 1;
-                        lcd_clear();
                     }
                     else if (current_page == PAGE_2_SETTINGS)
                     {
-                        if (menu_cursor == 2) // Chọn Scan Device
+                        if (menu_cursor == 1)
                         {
-                            is_scanning = true; // Khóa UI
                             lcd_clear();
+                            current_page = PAGE_SET_BAUDRATE;
+                        }
+                        else if (menu_cursor == 2) // Chọn Scan Device
+                        {
+                            lcd_clear();
+                            is_scanning = true; // Khóa UI
                             LCD_SetCursor(1, 1);
-                            LCD_Print("System Scanning");
+                            LCD_Print("Scanning ...");
                             LCD_SetCursor(2, 1);
-                            LCD_Print("Please wait...");
+                            LCD_Print("Please wait ...");
+                            vTaskDelay(pdMS_TO_TICKS(1000));
+                            lcd_clear();
                             scan_device(); // Gọi hàm scan đã cấu hình task
                         }
+                    }
+                    else if (current_page == PAGE_SET_BAUDRATE)
+                    {
+                        lcd_clear();
+                        is_scanning = true; // Khóa UI để tránh người dùng bấm nút khác lúc đang nạp
+                        LCD_SetCursor(1, 1);
+                        LCD_Print("Changing ...");
+                        LCD_SetCursor(2, 1);
+                        LCD_Print("Please wait ...");
+                        change_baudrate();
                     }
                     break;
 
                 case EVENT_BACK:
-                    if (current_page == PAGE_2_SETTINGS || current_page == PAGE_SCAN_RESULT)
-                    {
+                    if (current_page == PAGE_1_HOME)
                         current_page = PAGE_1_HOME;
+
+                    else if (current_page == PAGE_2_SETTINGS)
+                    {
                         lcd_clear();
+                        current_page = PAGE_1_HOME;
                     }
+                    else if (current_page == PAGE_SCAN_RESULT)
+                    {
+                        lcd_clear();
+                        current_page = PAGE_2_SETTINGS;
+                    }
+
                     else if (current_page == PAGE_3_INFO_DEVICE)
                     {
+                        lcd_clear();
                         current_page = PAGE_2_SETTINGS;
                         menu_cursor = 1;
+                    }
+                    else if (current_page == PAGE_SET_BAUDRATE)
+                    {
                         lcd_clear();
+                        current_page = PAGE_2_SETTINGS;
+                        menu_cursor = 1;
                     }
                     break;
 
                 case EVENT_DOWN:
                     if (current_page == PAGE_2_SETTINGS && menu_cursor < 3)
                         menu_cursor++;
+                    else if (current_page == PAGE_SET_BAUDRATE && baudrate_id < 6)
+                        baudrate_id++;
                     break;
 
                 case EVENT_UP:
                     if (current_page == PAGE_2_SETTINGS && menu_cursor > 1)
                         menu_cursor--;
+                    else if (current_page == PAGE_SET_BAUDRATE && baudrate_id > 0)
+                        baudrate_id--;
                     break;
 
                 case EVENT_NEXT:
+                    lcd_clear();
                     if (current_page == PAGE_1_HOME)
-                        current_page = PAGE_2_SETTINGS;
+                        current_page = PAGE_1_HOME;
                     else if (current_page == PAGE_2_SETTINGS)
                         current_page = PAGE_3_INFO_DEVICE;
-                    lcd_clear(); // Quan trọng: Xóa màn hình để vẽ trang mới sạch sẽ
                     break;
 
                 default:
@@ -291,21 +368,27 @@ void ui_task(void)
             }
         }
 
-                if (!is_scanning)
+        if (is_scanning == false)
         {
             if (current_page == PAGE_1_HOME)
                 page_1_home();
+
             else if (current_page == PAGE_2_SETTINGS)
                 page_2_settings();
+
             else if (current_page == PAGE_3_INFO_DEVICE)
                 page_3_info_device();
+
             else if (current_page == PAGE_SCAN_RESULT)
                 page_scan_result();
+
+            else if (current_page == PAGE_SET_BAUDRATE)
+                page_set_baud();
         }
         else
         {
             // Trong lúc scan, không làm gì cả để giữ nguyên thông báo "Please wait"
-            vTaskDelay(pdMS_TO_TICKS(200));
+            vTaskDelay(pdMS_TO_TICKS(100));
         }
     }
 }

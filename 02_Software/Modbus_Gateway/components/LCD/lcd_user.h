@@ -14,10 +14,10 @@
 #include "encoder_ec11.h"
 
 // ====== CẤU HÌNH CHÂN GPIO NÚT NHẤN =======
-#define SELECT_PIN GPIO_NUM_47     // Nút Select
-#define BACK_PIN GPIO_NUM_35       // Nút Back
-#define NEXT_PIN GPIO_NUM_21       // Nút Next
-#define ENCODER_SW_PIN GPIO_NUM_36 // Nút nhấn của Encoder
+#define SELECT_PIN GPIO_NUM_47         // Nút Select
+#define BACK_PIN GPIO_NUM_35           // Nút Back
+#define NEXT_PIN GPIO_NUM_21           // Nút Next
+#define ENCODER_SELECT_PIN GPIO_NUM_36 // Nút nhấn của Encoder
 
 // ====== QUẢN LÝ TRẠNG THÁI SỰ KIỆN =======
 typedef enum
@@ -25,6 +25,7 @@ typedef enum
     EVENT_UP,   // Dùng cho Encoder khi xoay lên
     EVENT_DOWN, // Dùng cho Encoder khi xoay xuống
     EVENT_SELECT,
+    EVENT_EN_SELECT,
     EVENT_BACK,
     EVENT_NEXT
 } ui_event_t;
@@ -35,7 +36,8 @@ typedef enum
     PAGE_1_HOME,
     PAGE_2_SETTINGS,
     PAGE_3_INFO_DEVICE,
-    PAGE_SCAN_RESULT // Trang hiển thị kết quả sau khi quét xong
+    PAGE_SCAN_RESULT, // Trang hiển thị kết quả sau khi quét xong
+    PAGE_SET_BAUDRATE
 } ui_page_t;
 
 // ====== BIẾN TOÀN CỤC (EXTERN) =======
