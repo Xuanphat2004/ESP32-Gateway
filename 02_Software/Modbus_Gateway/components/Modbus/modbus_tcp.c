@@ -1,150 +1,229 @@
 #include <stdio.h>
 #include <string.h>
-#include <sys/param.h>
-#include "driver/uart.h" // for the uart driver access
 #include "esp_log.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/queue.h"
-#include "freertos/semphr.h"
-#include "freertos/portmacro.h"
-#include "freertos/task.h"
-#include "freertos/portable.h"
-#include "freertos/event_groups.h"
 #include "esp_err.h"
-#include "esp_netif.h"
-// Modbus library
-#include "esp_modbus_master.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/event_groups.h"
+#include "esp_modbus_slave.h"
 #include "esp_modbus_common.h"
-#include "pm710_dictionary.h"
+#include "esp_netif.h"
 
 // user library
 #include "modbus_rtu.h"
 #include "modbus_tcp.h"
-#include "esp_modbus_slave.h"
-#include "esp_modbus_common.h"
-#include "pm710_dictionary.h"
 #include "system_event.h"
 
-static const char *TAG = "[MODBUS GATEWAY - Modbus TCP]";
+static const char *TAG = "[Modbus-TCP]";
 
-// handler for Modbus TCP slave
-void *slave_mb_tcp_handler = NULL;
-pm710_data_t slave_data = {0};
-extern pm710_data_t pm710_latest_data;
+// Tài liệu PDF yêu cầu handler phải được khởi tạo và quản lý xuyên suốt
+void *tcp_slave_handler = NULL;
+void *target_netif = NULL;
+float *tcp_virtual_storage = NULL;
+
+extern mb_parameter_descriptor_t *basic_dict;
 extern SemaphoreHandle_t xDataMutex;
-static const char *slave_ip_address_list[] = {"0.0.0.0", NULL};
+extern EventGroupHandle_t event_group;
+extern uint16_t register_count;
+extern float *final_data;
 
-void modbus_tcp_task(void)
+extern bool is_change_baud;
+extern bool is_scan_device;
+
+bool is_tcp_running = false;
+
+static const char *slave_ip_addr_list[] = {"0.0.0.0", NULL};
+
+static void modbus_tcp_destroy(void)
 {
-    ESP_LOGW(TAG, "Modbus TCP Task started, waiting for WiFi connection...");
-    // pm710_data_t pm710_ram_data;
+    if (tcp_slave_handler != NULL)
+    {
+        // mbc_slave_stop();
+        mbc_slave_destroy();
+        tcp_slave_handler = NULL;
+        is_tcp_running = false;
+        ESP_LOGW(TAG, "Đã giải phóng tài nguyên Modbus TCP.");
+    }
+}
+static void print_modbus_tcp_table(void)
+{
+    if (tcp_virtual_storage == NULL || basic_dict == NULL || register_count == 0)
+    {
+        ESP_LOGW(TAG, "Table empty: TCP Virtual Storage not initialized yet.");
+        return;
+    }
+
+    printf("\n");
+    printf("|--------------------------------------------|\n");
+    printf("|Index |    Parameter Key    |     Value     |\n");
+    printf("|------|---------------------|---------------|\n");
+
+    for (int i = 0; i < register_count; i++)
+    {
+        // Lấy tên từ Dictionary và giá trị từ mảng ảo
+        const char *key = basic_dict[i].param_key;
+        float value = tcp_virtual_storage[i];
+
+        // In từng dòng với định dạng căn lề
+        printf("│ %-4d │ %-20s │ %-13.2f │\n", i, key, value);
+    }
+    printf("|------| ---------------------|---------------|\n");
+}
+
+void modbus_tcp_server_task(void *arg)
+{
+    printf("==================================================================================================================\n");
+    ESP_LOGW(TAG, "TCP Task is starting...");
     esp_err_t err = ESP_OK;
+
+    // Đợi cấu hình từ NVS - phải có để biết số lượng thanh ghi
+    while (register_count == 0)
+    {
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+
+    // Khởi tạo vùng nhớ ảo
+    if (tcp_virtual_storage == NULL)
+    {
+        tcp_virtual_storage = (float *)calloc(register_count, sizeof(float));
+    }
+
     while (1)
     {
+        if (is_change_baud == true || is_scan_device == true)
+        {
+            vTaskDelay(pdMS_TO_TICKS(200));
+            continue;
+        }
 
         EventBits_t uxBits = xEventGroupWaitBits(
-            event_group,        // Nhóm sự kiện
-            WIFI_CONNECTED_BIT, // Bit cần chờ
-            pdFALSE,            // Không xóa bit (để các Task khác cũng biết là có WiFi)
-            pdTRUE,             // Đợi bit này lên 1
-            portMAX_DELAY       // Đợi vô tận cho đến khi có mạng
-        );
-        if ((uxBits & WIFI_CONNECTED_BIT) != 0)
+            event_group,
+            WIFI_CONNECTED_BIT | ETHERNET_CONNECTED_BIT,
+            pdFALSE,
+            pdFALSE,
+            pdMS_TO_TICKS(2000));
+
+        bool network_ready = (uxBits & (WIFI_CONNECTED_BIT | ETHERNET_CONNECTED_BIT));
+
+        if (network_ready && !is_tcp_running)
         {
-            ESP_LOGI(TAG, "WiFi connected, proceeding with Modbus TCP initialization...");
-            err = mbc_slave_init_tcp(&slave_mb_tcp_handler);
-            if (err == ESP_OK)
+            ESP_LOGI(TAG, "Network ready, starting init Modbus TCP Server...");
+            err = mbc_slave_init_tcp(&tcp_slave_handler);
+            if (err != ESP_OK)
             {
-                ESP_LOGI(TAG, "Modbus TCP Slave initialized successfully");
-            }
-            else
-            {
-                ESP_LOGE(TAG, "Modbus TCP Slave initialization failed with error: %d", err);
-                // mbc_slave_destroy();
+                ESP_LOGE(TAG, "Fail to init tcp_slave, error code: 0x%x", err);
+                vTaskDelay(pdMS_TO_TICKS(2000));
                 continue;
             }
-            esp_netif_t *wifi_netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+
+            // Kiểm tra mạng hiện có trên gateway
+            if (uxBits & ETHERNET_CONNECTED_BIT)
+            {
+                target_netif = (void *)esp_netif_get_handle_from_ifkey("ETH_DEF");
+                ESP_LOGI(TAG, "Select Ethernet for Modbus TCP");
+            }
+            else if (uxBits & WIFI_CONNECTED_BIT)
+            {
+                target_netif = (void *)esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+                ESP_LOGI(TAG, "Select WiFi for Modbus TCP");
+            }
+            if (target_netif != NULL)
+            {
+                esp_netif_ip_info_t ip_info;
+                // Lấy thông tin IP từ handle netif đã chọn
+                if (esp_netif_get_ip_info(target_netif, &ip_info) == ESP_OK)
+                {
+                    // In ra địa chỉ IP dưới dạng số (dùng IPSTR để định dạng chuỗi)
+                    ESP_LOGI(TAG, "Modbus TCP Server is binding to IP: " IPSTR, IP2STR(&ip_info.ip));
+                }
+            }
+            // Khắc phục lỗi iface address bằng cách truyền đúng mảng con trỏ
             mb_communication_info_t tcp_info = {
                 .ip_mode = MB_MODE_TCP,
                 .slave_uid = 1,
-                .ip_port = TCP_PORT,
+                .ip_port = 502,
                 .ip_addr_type = MB_IPV4,
-                .ip_addr = (void **)slave_ip_address_list,
-                .ip_netif_ptr = (void *)wifi_netif,
-            };
-            err = mbc_slave_setup(&tcp_info);
-            if (err == ESP_OK)
-            {
-                ESP_LOGI(TAG, "Modbus TCP Slave setup successful");
-            }
-            else
-            {
-                ESP_LOGE(TAG, "Modbus TCP Slave setup failed with error: %d", err);
-                mbc_slave_destroy();
-                continue;
-            }
-            mb_register_area_descriptor_t dict = {
-                .type = MB_PARAM_HOLDING,
-                .start_offset = 0,
-                .address = (void *)&slave_data,
-                .size = sizeof(slave_data)};
+                .ip_addr = (void **)slave_ip_addr_list,
+                .ip_netif_ptr = target_netif};
 
-            err = mbc_slave_set_descriptor(dict);
+            err = mbc_slave_setup(&tcp_info);
             if (err != ESP_OK)
             {
-                ESP_LOGW(TAG, "Fail to set modbus data for TCP Server !!!");
-                mbc_slave_destroy();
+                ESP_LOGW(TAG, "Fail to setup, error code: 0x%x", err);
+                modbus_tcp_destroy();
+                vTaskDelay(pdMS_TO_TICKS(5000)); // Đợi lâu hơn nếu lỗi tham số
                 continue;
             }
-            else
+
+            // Configuring Slave Data Access (Mục 2 trong PDF)
+            mb_register_area_descriptor_t reg_area = {
+                .type = MB_PARAM_HOLDING,
+                .start_offset = 0,
+                .address = (void *)tcp_virtual_storage,
+                .size = register_count * sizeof(float)};
+
+            err = mbc_slave_set_descriptor(reg_area);
+            if (err != ESP_OK)
             {
-                ESP_LOGI(TAG, "Success to set modbus data for TCP Server");
+                ESP_LOGW(TAG, "Fail to set descriptor, error code: 0x%x", err);
+                modbus_tcp_destroy();
+                continue;
             }
+
             err = mbc_slave_start();
             if (err == ESP_OK)
             {
-                ESP_LOGI(TAG, "Modbus TCP Slave started successfully");
+                is_tcp_running = true;
+                ESP_LOGI(TAG, "Modbus TCP Server is running on Port 502");
             }
             else
             {
-                ESP_LOGE(TAG, "Modbus TCP Slave failed to start with error: %d", err);
-                mbc_slave_destroy();
-                continue;
-            }
-
-            while (1)
-            {
-                if ((xEventGroupGetBits(event_group) & WIFI_CONNECTED_BIT) != 0)
-                {
-                    if (wifi_netif != 0)
-                    {
-                        esp_netif_ip_info_t ip_info = {0}; // KHỞI TẠO {0} Ở ĐÂY ĐỂ HẾT LỖI
-                        // if (esp_netif_get_ip_info(wifi_netif, &ip_info) == ESP_OK)
-                        // {
-                        //     ESP_LOGI(TAG, "Modbus TCP Server is listening at: " IPSTR ":%d", IP2STR(&ip_info.ip), TCP_PORT);
-                        // }
-                    }
-
-                    if (xSemaphoreTake(xDataMutex, pdMS_TO_TICKS(100)) == pdTRUE)
-                    {
-                        memcpy(&slave_data, &pm710_latest_data, sizeof(pm710_data_t)); // Copy data to the second located memory for Modbus TCP
-                        xSemaphoreGive(xDataMutex);
-                    }
-                    // ESP_LOGI(TAG, "Modbus TCP Slave is running...");
-                    vTaskDelay(pdMS_TO_TICKS(1000));
-                }
-                else
-                {
-                    ESP_LOGW(TAG, "WiFi disconnected! Stopping Modbus TCP Slave...");
-                    mbc_slave_destroy();
-                    break;
-                }
+                is_tcp_running = false;
+                ESP_LOGE(TAG, "Fail to start Modbus TCP server: 0x%x", err);
+                modbus_tcp_destroy();
             }
         }
-        else
+        printf("==================================================================================================================\n");
+        if (!network_ready && is_tcp_running)
         {
-            ESP_LOGW(TAG, "Failed to connect to Network, cannot initialize Modbus TCP !!!");
+
+            ESP_LOGW(TAG, " Disconnect the network, free TCP Server memorry ..."); // Xử lý rớt mạng
+            modbus_tcp_destroy();
+        }
+        if (is_change_baud == true || is_scan_device == true)
+        {
+            vTaskDelay(pdMS_TO_TICKS(200));
             continue;
         }
+
+        if ((xSemaphoreTake(xDataMutex, pdMS_TO_TICKS(100)) == pdTRUE) && is_tcp_running)
+        {
+            if (is_change_baud == true || is_scan_device == true) // Kiểm tra xem nút có đang được nhấn không
+            {
+                xSemaphoreGive(xDataMutex);
+                goto exit_and_wait_2;
+            }
+            for (int i = 0; i < register_count; i++)
+            {
+                if (is_change_baud == true || is_scan_device == true) // Kiểm tra xem nút có đang được nhấn không
+                {
+                    xSemaphoreGive(xDataMutex);
+                    goto exit_and_wait_2;
+                }
+                tcp_virtual_storage[i] = final_data[i];
+                        }
+
+            // print_modbus_tcp_table(); // In ra bảng giá trị mapping vào bảng giá trị của modbus tcp
+            printf("Just copy data \n");
+            xSemaphoreGive(xDataMutex);
+
+        exit_and_wait_2:
+            if (is_change_baud == true || is_scan_device == true) // Kiểm tra xem nút có đang được nhấn không
+            {
+                vTaskDelay(pdMS_TO_TICKS(200));
+                continue;
+            }
+        }
+        vTaskDelay(pdMS_TO_TICKS(5000));
     }
 }

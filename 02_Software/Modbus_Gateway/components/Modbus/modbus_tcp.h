@@ -14,7 +14,6 @@
 // Modbus library
 #include "esp_modbus_master.h"
 #include "esp_modbus_common.h"
-#include "pm710_dictionary.h"
 #include "rtc_mb.h"
 
 // user library
@@ -23,4 +22,5 @@
 #define TCP_PORT 502
 #define TCP_SLAVE_ADDRESS 1
 
-void modbus_tcp_task(void);
+void modbus_tcp_server_init(void);
+void modbus_tcp_server_task(void *pvParameters);
