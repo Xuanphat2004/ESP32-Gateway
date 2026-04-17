@@ -12,10 +12,9 @@
 #include "freertos/task.h"
 #include "freertos/portable.h"
 #include "freertos/event_groups.h"
-#include "pm710_dictionary.h"
 
 extern SemaphoreHandle_t xDataMutex;
-extern pm710_data_t pm710_latest_data;
+
 // Send 4 bits to LCD
 void lcd_send_nibble(uint8_t data)
 {
@@ -157,38 +156,4 @@ void LCD_DisableCursorBlink(void)
 {
     lcd_send_cmd(0x0C);
     ets_delay_us(50); // Delay 100us
-}
-void lcd_display_task(void *pvParameters)
-{
-    char str_lcd[20] = {0};
-    float value_1 = 0;
-    float value_2 = 0;
-    float value_3 = 0;
-    while (1)
-    {
-        if (xSemaphoreTake(xDataMutex, pdMS_TO_TICKS(100)) == pdTRUE)
-        {
-            value_1 = pm710_latest_data.value_11;
-            value_2 = pm710_latest_data.value_16;
-            value_3 = pm710_latest_data.value_10;
-            xSemaphoreGive(xDataMutex);
-        }
-
-        LCD_SetCursor(0, 0);
-        LCD_Print("--PM710-ID:10--");
-
-        LCD_SetCursor(1, 0);
-        snprintf(str_lcd, sizeof(str_lcd), " F  :%.1fHz", value_1);
-        LCD_Print(str_lcd);
-
-        LCD_SetCursor(2, 0);
-        snprintf(str_lcd, sizeof(str_lcd), " A-N:%.1fV", value_2);
-        LCD_Print(str_lcd);
-
-        LCD_SetCursor(3, 0);
-        snprintf(str_lcd, sizeof(str_lcd), " I  :%.1fA", value_3);
-        LCD_Print(str_lcd);
-
-        vTaskDelay(pdMS_TO_TICKS(3000));
-    }
 }

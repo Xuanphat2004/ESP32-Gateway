@@ -38,7 +38,7 @@ typedef struct
 } temp_modbus_reg_t;
 
 // --- BIẾN TOÀN CỤC VÀ QUẢN LÝ BUFFER DỮ LIỆU ---
-static uint16_t gatts_handle_table[GATTS_NUM_HANDLE];
+// static uint16_t gatts_handle_table[GATTS_NUM_HANDLE];
 static esp_gatt_srvc_id_t service_id;
 
 // Buffer động để chứa chuỗi JSON (Vì chuỗi 100 thanh ghi rất dài)
@@ -62,7 +62,6 @@ static esp_ble_adv_params_t adv_params = {
 // --- HÀM KHỞI TẠO HỆ THỐNG BLE ---
 void ble_server_init(void)
 {
-    esp_err_t ret;
 
     // Giải phóng bộ nhớ BT Classic để dồn cho BLE
     ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT));
@@ -254,50 +253,52 @@ temp_modbus_reg_t *parse_json_to_struct_array(const char *json_str, int *out_reg
 // Hàm lưu dữ liệu vào vùng nhớ NVS
 static void save_regs_to_nvs(temp_modbus_reg_t *reg_array, int count)
 {
+    printf("==========================================Save Config from APP to NVS ====================================================");
     if (reg_array == NULL || count <= 0)
         return;
 
     nvs_handle_t my_handle;
     esp_err_t err;
 
-    // 1. Mở Namespace "storage" (hoặc "modbus_cfg") với quyền Read/Write
+    // Mở Namespace "storage_config_app" với quyền Read/Write
     // Namespace giống như một thư mục để phân biệt các loại dữ liệu khác nhau
-    err = nvs_open("storage", NVS_READWRITE, &my_handle);
+    err = nvs_open("storage_app", NVS_READWRITE, &my_handle);
     if (err != ESP_OK)
     {
-        ESP_LOGE("NVS_SAVE", "Không thể mở NVS Handle (%s)", esp_err_to_name(err));
+        ESP_LOGW("NVS_SAVE", "Can NOT open NVS Handle (%s)", esp_err_to_name(err));
         return;
     }
 
-    // 2. Lưu số lượng thanh ghi (để lúc khởi động lại biết đường cấp phát RAM)
-    err = nvs_set_u16(my_handle, "reg_count", (uint16_t)count);
+    // Lưu số lượng thanh ghi - thật ra là số lượng CID
+    err = nvs_set_u16(my_handle, "register_count", (uint16_t)count);
     if (err != ESP_OK)
-        ESP_LOGE("NVS_SAVE", "Lỗi lưu reg_count!");
+        ESP_LOGE("NVS_SAVE", "Fail to save in reg_count !!!");
 
-    // 3. Lưu toàn bộ mảng Struct dưới dạng một khối Binary (Blob)
+    // Lưu toàn bộ mảng Struct dưới dạng một khối Binary (Blob)
     size_t blob_size = count * sizeof(temp_modbus_reg_t);
-    err = nvs_set_blob(my_handle, "reg_table", reg_array, blob_size);
+    err = nvs_set_blob(my_handle, "register_table", reg_array, blob_size);
 
     if (err == ESP_OK)
     {
-        // 4. QUAN TRỌNG: Phải Commit thì dữ liệu mới thực sự được ghi xuống Flash
+        // Phải Commit thì dữ liệu mới thực sự được ghi xuống Flash
         err = nvs_commit(my_handle);
         if (err == ESP_OK)
         {
-            ESP_LOGI("NVS_SAVE", "===> THÀNH CÔNG: Đã lưu %d thanh ghi vào Flash!", count);
+            ESP_LOGI("NVS_SAVE", "===> SUCCESSFUL: Saved %d registers into Flash!", count);
         }
     }
     else
     {
-        ESP_LOGE("NVS_SAVE", "Lỗi ghi Blob vào NVS (%s)", esp_err_to_name(err));
+        ESP_LOGE("NVS_SAVE", "Fail to write into Flash memorry (%s)", esp_err_to_name(err)); // Flash memorry ở đây là phân vùng NVS trên flash
     }
 
-    // 5. Đóng Handle để giải phóng tài nguyên
+    // Đóng Handle để giải phóng tài nguyên
     nvs_close(my_handle);
 
-    // 6. Thông báo và tự động khởi động lại hệ thống
-    ESP_LOGW("SYSTEM", "Hệ thống sẽ khởi động lại sau 3 giây để áp dụng cấu hình mới...");
-    vTaskDelay(pdMS_TO_TICKS(5000));
+    // // Thông báo và tự động khởi động lại hệ thống
+    // ESP_LOGW("SYSTEM", "System will restart after 3 second ...");
+    // vTaskDelay(pdMS_TO_TICKS(3000));
+    printf("===========================================================================================================================");
 }
 
 // Hàm xử lý sự kiện GATT Server - Nhận dữ liệu từ App qua BLE
@@ -309,23 +310,24 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
         esp_ble_gatts_create_service(gatts_if, &service_id, GATTS_NUM_HANDLE);
         break;
 
-    case ESP_GATTS_CREATE_EVT:
+    case ESP_GATTS_CREATE_EVT: // Sảy ra khi tạo service và tạo characteristic
         esp_ble_gatts_start_service(param->create.service_handle);
-        // Tạo đặc tính (Characteristic) để App ghi dữ liệu vào
+        // Tạo đặc tính và thêm đặc tính đó vào trong service vừa tạo
         esp_bt_uuid_t char_uuid = {.len = ESP_UUID_LEN_16, .uuid.uuid16 = GATTS_CHAR_UUID};
         esp_ble_gatts_add_char(param->create.service_handle, &char_uuid,
                                ESP_GATT_PERM_WRITE, ESP_GATT_CHAR_PROP_BIT_WRITE, NULL, NULL);
         break;
 
-    case ESP_GATTS_CONNECT_EVT:
-        ESP_LOGI(TAG, "App đã kết nối. Chờ nhận cấu hình...");
+    case ESP_GATTS_CONNECT_EVT: // sảy ra khi app thực hiện kết nối thành công với gateway
+        ESP_LOGI(TAG, "Connected with App, waiting for config packet ...");
         blu_connected = true; // Cập nhật trạng thái kết nối BLE
         received_len = 0;     // Reset buffer cho lượt nhận mới
         memset(receive_buffer, 0, MAX_JSON_SIZE);
         break;
 
-    case ESP_GATTS_WRITE_EVT:
+    case ESP_GATTS_WRITE_EVT: // Sảy ra khi app gửi dữ liệu cấu hình (JSON) xuống qua đặc tính đã tạo
     {
+        blu_connected = true; // Cập nhật trạng thái đang trong quá trình nhận dữ liệu
         // Kiểm tra tránh tràn buffer
         if (received_len + param->write.len < MAX_JSON_SIZE)
         {
@@ -333,39 +335,42 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
             received_len += param->write.len;
             receive_buffer[received_len] = '\0'; // Kết thúc chuỗi để Log
 
-            ESP_LOGI(TAG, "Đã nhận mảnh: %d bytes. Tổng: %d bytes", param->write.len, received_len);
+            ESP_LOGI(TAG, "Received: %d bytes. ====> Total: %d bytes", param->write.len, received_len);
 
             // Gửi xác nhận (ACK) về cho Python App (Cơ chế response=True)
             if (param->write.need_rsp)
             {
                 esp_ble_gatts_send_response(gatts_if, param->write.conn_id, param->write.trans_id, ESP_GATT_OK, NULL);
             }
-
-            // Kiểm tra nếu là mảnh cuối cùng (thường kết thúc bằng dấu đóng ngoặc JSON ']')
+            vTaskDelay(pdMS_TO_TICKS(100)); // Delay nhỏ để đảm bảo dữ liệu được ghi đầy đủ trước khi kiểm tra
+            // Kiểm tra nếu là mảnh cuối cùng - kết thúc bằng dấu đóng ngoặc JSON ']'
             if (receive_buffer[received_len - 1] == ']')
             {
-                ESP_LOGW(TAG, "ĐÃ NHẬN ĐỦ JSON! Bắt đầu xử lý...");
-                // Trong gatts_event_handler, khi nhận đủ JSON:
+                ESP_LOGW(TAG, "Received total JSON packets from App, Processing ...");
+                // Trong gatts_event_handler, khi nhận đủ JSON
                 int count = 0;
                 temp_modbus_reg_t *final_regs = parse_json_to_struct_array(receive_buffer, &count);
 
                 if (final_regs != NULL)
                 {
                     print_parsed_registers(final_regs, count);
-                    ESP_LOGI(TAG, "Giai đoạn 1 hoàn tất. Đang chuyển sang lưu NVS...");
+                    ESP_LOGI(TAG, "Saving to NVS flash memorry ...");
                     save_regs_to_nvs(final_regs, count);
                     free(final_regs); // Giải phóng mảng tạm sau khi đã lưu NVS thành công
+                    ESP_LOGI(TAG, "Closing connection before restart...");
+                    esp_ble_gatts_close(gatts_if, param->write.conn_id);          // Đóng kết nối trước khi khởi động lại
+                    ESP_LOGW("SYSTEM", "System will restart after 3 second ..."); // Thông báo và tự động khởi động lại hệ thống
+                    vTaskDelay(pdMS_TO_TICKS(3000));
                     esp_restart();
                 }
-                ESP_LOGD(TAG, "Nội dung: %s", receive_buffer);
-                // Ở đây Phát gọi hàm Parse_JSON_And_Save_To_NVS(receive_buffer);
+                // ESP_LOGD(TAG, "Nội dung: %s", receive_buffer);
             }
         }
         break;
     }
 
     case ESP_GATTS_DISCONNECT_EVT:
-        ESP_LOGW(TAG, "App đã ngắt kết nối. Tiếp tục phát Advertising...");
+        ESP_LOGW(TAG, "App Disconnect ...");
         blu_connected = false; // Cập nhật trạng thái kết nối BLE
         esp_ble_gap_start_advertising(&adv_params);
         break;

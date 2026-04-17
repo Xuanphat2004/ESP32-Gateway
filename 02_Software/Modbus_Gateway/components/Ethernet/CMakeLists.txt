@@ -8,4 +8,5 @@ idf_component_register(SRCS "ethernet.c"
                                 esp_event
                                 EEPROM_and_RTC
                                 mqtt
+                                main
                                 )

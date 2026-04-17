@@ -56,7 +56,7 @@ void init_pcnt_encoder(void)
     ESP_ERROR_CHECK(pcnt_unit_clear_count(pcnt_unit));
     ESP_ERROR_CHECK(pcnt_unit_start(pcnt_unit));
 
-    ESP_LOGI(TAG, "Khoi tao PCNT che do x1 (1 click = 1 unit) thanh cong");
+    // ESP_LOGI(TAG, "Khoi tao PCNT che do x1 (1 click = 1 unit) thanh cong");
 }
 
 void encoder_check_task(void *arg)
