@@ -10,6 +10,7 @@
 #include "esp_modbus_slave.h" // Thêm thư viện Slave
 #include "mbc_master.h"
 #include "modbus_rtu.h"
+#include "modbus_tcp.h"
 #include "lcd_user.h"
 
 extern ui_page_t current_page;
@@ -31,6 +32,9 @@ extern uint16_t register_count;
 extern factor_dict_t *factor_dict;
 extern mb_parameter_descriptor_t *basic_dict;
 extern SemaphoreHandle_t xDataMutex;
+extern TaskHandle_t tcp_handle_task;
+extern bool is_tcp_running;
+volatile bool is_scan_device = false; // Biến giúp thông báo với các task khác là nút scan đang được nhấn
 
 // Hàm kiểm tra ID đã tồn tại trong danh sách hay chưa
 static bool is_id_in_result(uint8_t id, id_scan_result_t *list)
@@ -87,6 +91,7 @@ static void execute_port_scan(uint8_t uart_port, mb_parameter_descriptor_t *dict
 {
     results->count = 0;
     uint8_t online_flags[248] = {0};
+    uint32_t current_baud = load_baud_from_nvs(); // LUÔN ĐỌC TỪ NVS
 
     // Nạp cấu hình Modbus Master cho port hiện tại
     void *master_handler = NULL;
@@ -94,7 +99,7 @@ static void execute_port_scan(uint8_t uart_port, mb_parameter_descriptor_t *dict
     mb_communication_info_t comm_info = {
         .port = uart_port,
         .mode = MB_MODE_RTU,
-        .baudrate = 9600,
+        .baudrate = current_baud,
         .parity = MB_PARITY_NONE};
     mbc_master_setup((void *)&comm_info);
     mbc_master_set_descriptor(dict, dict_size);
@@ -144,98 +149,106 @@ uint8_t original_id_count = 0;
 // TASK CHẨN ĐOÁN LỖI HỆ THỐNG
 void scan_task(void *pvParameters)
 {
-
+    is_scan_device = true;
     memset(&list_p1, 0, sizeof(id_scan_result_t));
     memset(&list_p2, 0, sizeof(id_scan_result_t));
 
-    ESP_LOGI("[SCAN DEVICE]", "Bat dau Task quet thiet bi. Dang dung RTU Polling...");
+    ESP_LOGI("[SCAN DEVICE]", "Start to scanning ...");
 
-    if (xSemaphoreTake(xDataMutex, pdMS_TO_TICKS(1500)) == pdTRUE)
+    if (tcp_handle_task != NULL)
     {
+        vTaskDelete(tcp_handle_task);
+        tcp_handle_task = NULL; // Xóa xong phải gán NULL để tránh xóa nhầm lần sau
+        ESP_LOGW("[SCAN-TASK]", "Đã hủy Task TCP để chuẩn bị quét thiết bị.");
+    }
+    mbc_slave_destroy();
+    mbc_master_destroy();
+    uart_driver_delete(UART_NUM_1);
+    uart_driver_delete(UART_NUM_2);
 
-        mbc_slave_destroy();
-        mbc_master_destroy();
+    // Chuẩn bị dữ liệu quét
+    mb_parameter_descriptor_t *temp_dict = malloc(register_count * sizeof(mb_parameter_descriptor_t));
+    uint16_t temp_dict_size = generate_temp_scan_dict(temp_dict, original_id, &original_id_count); // Tổng số hàng có trong temp_dict
 
-        // Chuẩn bị dữ liệu quét
-        mb_parameter_descriptor_t *temp_dict = malloc(register_count * sizeof(mb_parameter_descriptor_t));
-        uint16_t temp_dict_size = generate_temp_scan_dict(temp_dict, original_id, &original_id_count); // Tổng số hàng có trong temp_dict
+    ESP_LOGI("[SCAN DEVICE]", "Port 1 is scanning ...");
+    execute_port_scan(UART_NUM_1, temp_dict, temp_dict_size, &list_p1); // Kết quả quét được đưa vào list_p1
 
-        // id_scan_result_t list_p1, list_p2;
+    mbc_slave_destroy();
+    mbc_master_destroy();
 
-        ESP_LOGI("[SCAN DEVICE]", "Port 1 is scanning ...");
-        execute_port_scan(UART_NUM_1, temp_dict, temp_dict_size, &list_p1); // Kết quả quét được đưa vào list_p1
+    ESP_LOGI("[SCAN DEVICE]", "Port 2 is scanning ...");
+    execute_port_scan(UART_NUM_2, temp_dict, temp_dict_size, &list_p2); // Kết quả quét được đưa vào list_p2
 
-        mbc_slave_destroy();
-        mbc_master_destroy();
+    ESP_LOGI("[SCAN DEVICE]", "Result of scan: Port 1 found %d device, Port 2 found %d device", list_p1.count, list_p2.count);
+    bool network_error = false; // Cờ báo nếu có lỗi
 
-        ESP_LOGI("[SCAN DEVICE]", "Port 2 is scanning ...");
-        execute_port_scan(UART_NUM_2, temp_dict, temp_dict_size, &list_p2); // Kết quả quét được đưa vào list_p2
+    for (int i = 0; i < original_id_count; i++)
+    {
+        uint8_t slave_id = original_id[i];                // Lấy từng ID trong list ID gốc ra để so sánh
+        bool in_p1 = is_id_in_result(slave_id, &list_p1); // kiểm tra ID đó có trong list ID của port 1 không
+        bool in_p2 = is_id_in_result(slave_id, &list_p2); // kiểm tra ID đó có trong list ID của port 2 không
 
-        ESP_LOGI("[SCAN DEVICE]", "Result of scan: Port 1 found %d device, Port 2 found %d device", list_p1.count, list_p2.count);
-        bool network_error = false; // Cờ báo nếu có lỗi
-
-        for (int i = 0; i < original_id_count; i++)
+        if (in_p1 == false && in_p2 == false) // cả 2 port đều không scan được ID này
         {
-            uint8_t slave_id = original_id[i];                // Lấy từng ID trong list ID gốc ra để so sánh
-            bool in_p1 = is_id_in_result(slave_id, &list_p1); // kiểm tra ID đó có trong list ID của port 1 không
-            bool in_p2 = is_id_in_result(slave_id, &list_p2); // kiểm tra ID đó có trong list ID của port 2 không
-
-            if (in_p1 == false && in_p2 == false) // cả 2 port đều không scan được ID này
-            {
-                ESP_LOGW("[SCAN DEVICE]", "Not found in both ports, device ID %d !!!", slave_id);
-                network_error = true;
-            }
-            else if (in_p1 == true && in_p2 == false) // ID Chỉ có trong list scan port 1
-            {
-                ESP_LOGW("[SCAN DEVICE]", "Only appear in List 1, ID device: %d", slave_id);
-                network_error = true;
-            }
-            else if (!in_p1 && in_p2) // ID Chỉ có trong list scan port 2
-            {
-                ESP_LOGW("[SCAN DEVICE]", "Only appear in List 2, ID device: %d", slave_id);
-                network_error = true;
-            }
+            ESP_LOGW("[SCAN DEVICE]", "Not found in both ports, device ID %d !!!", slave_id);
+            network_error = true;
         }
-
-        // Kiểm tra đứt tại Port đầu vào
-        if (list_p1.count == 0 && original_id_count > 0)
-            ESP_LOGW("[SCAN DEVICE]", "Have problem at Port 1 !!!");
-        if (list_p2.count == 0 && original_id_count > 0)
-            ESP_LOGW("[SCAN DEVICE]", "Have problem at Port 2 !!!");
-
-        if (!network_error && (list_p1.count == original_id_count))
+        else if (in_p1 == true && in_p2 == false) // ID Chỉ có trong list scan port 1
         {
-            ESP_LOGI("[SCAN DEVICE]", "====> Stable system: Found %d/%d device.", list_p1.count, original_id_count);
+            ESP_LOGW("[SCAN DEVICE]", "Only appear in List 1, ID device: %d", slave_id);
+            network_error = true;
         }
-        current_page = PAGE_SCAN_RESULT;
-        is_scanning = false;
-        ESP_LOGI("[SCAN DEVICE]", "Scan finished. Switching to Result Page.");
-
-        free(temp_dict);
-        mbc_slave_destroy();
-        mbc_master_destroy();
-        modbus_rtu_port_2_slave_init();
-        // Khôi phục task chính - RTU task
-        void *master_handler = NULL;
-        mbc_master_init(MB_PORT_SERIAL_MASTER, &master_handler);
-        mb_communication_info_t main_comm = {
-            .port = UART_NUM_1,
-            .mode = MB_MODE_RTU,
-            .baudrate = 9600};
-        mbc_master_setup((void *)&main_comm);
-        mbc_master_set_descriptor(basic_dict, register_count);
-        ESP_ERROR_CHECK(uart_set_pin(UART_1, UART_1_TX_PIN, UART_1_RX_PIN, UART_1_EN_PIN, UART_PIN_NO_CHANGE));
-        mbc_master_start();
-        uart_set_mode(UART_NUM_1, UART_MODE_RS485_HALF_DUPLEX);
-
-        xSemaphoreGive(xDataMutex);
-        ESP_LOGI("[SCAN DEVICE]", "Restoring RTU task polling ............");
+        else if (!in_p1 && in_p2) // ID Chỉ có trong list scan port 2
+        {
+            ESP_LOGW("[SCAN DEVICE]", "Only appear in List 2, ID device: %d", slave_id);
+            network_error = true;
+        }
     }
 
+    // Kiểm tra đứt tại Port đầu vào
+    if (list_p1.count == 0 && original_id_count > 0)
+        ESP_LOGW("[SCAN DEVICE]", "Have problem at Port 1 !!!");
+    if (list_p2.count == 0 && original_id_count > 0)
+        ESP_LOGW("[SCAN DEVICE]", "Have problem at Port 2 !!!");
+
+    if (!network_error && (list_p1.count == original_id_count))
+    {
+        ESP_LOGI("[SCAN DEVICE]", "====> Stable system: Found %d/%d device.", list_p1.count, original_id_count);
+    }
+    current_page = PAGE_SCAN_RESULT;
+    is_scanning = false;
+    ESP_LOGI("[SCAN DEVICE]", "Scan finished. Switching to Result Page.");
+
+    free(temp_dict);
+    mbc_slave_destroy();
+    mbc_master_destroy();
+
+    modbus_rtu_port_2_slave_init();
+
+    // Khôi phục task chính - RTU task
+    uint32_t current_baud = load_baud_from_nvs();
+    void *master_handler = NULL;
+    mbc_master_init(MB_PORT_SERIAL_MASTER, &master_handler);
+    mb_communication_info_t main_comm = {
+        .port = UART_NUM_1,
+        .mode = MB_MODE_RTU,
+        .baudrate = current_baud};
+    mbc_master_setup((void *)&main_comm);
+    mbc_master_set_descriptor(basic_dict, register_count);
+    ESP_ERROR_CHECK(uart_set_pin(UART_1, UART_1_TX_PIN, UART_1_RX_PIN, UART_1_EN_PIN, UART_PIN_NO_CHANGE));
+    mbc_master_start();
+    uart_set_mode(UART_NUM_1, UART_MODE_RS485_HALF_DUPLEX);
+    is_scan_device = false;
+    vTaskDelay(pdMS_TO_TICKS(2000));
+
+    ESP_LOGI("[SCAN DEVICE]", "Restoring RTU task polling ............");
+
+    is_tcp_running = false;
+    xTaskCreatePinnedToCore(modbus_tcp_server_task, "tcp_server_task", 4096, NULL, 10, &tcp_handle_task, 0);
     vTaskDelete(NULL);
 }
 
 void scan_device(void)
 {
-    xTaskCreatePinnedToCore((void *)scan_task, "scan_task", 4096, NULL, 7, NULL, 1);
+    xTaskCreatePinnedToCore((void *)scan_task, "scan_task", 4096, NULL, 11, NULL, 1);
 }
