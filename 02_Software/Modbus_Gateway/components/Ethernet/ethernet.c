@@ -18,9 +18,11 @@
 #include "ethernet.h"
 #include "rtc_mb.h"
 #include "mqtt_client.h"
+#include "system_event.h"
 
 static const char *TAG = "[ETHERNET]";
 extern bool eth_connected;
+extern EventGroupHandle_t event_group;
 
 esp_err_t eth_init(void);
 static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
@@ -250,20 +252,26 @@ static void eth_event_handler(void *arg,
     case ETHERNET_EVENT_CONNECTED:
         esp_eth_ioctl(*eth_isr_handle, ETH_CMD_G_MAC_ADDR, mac_addr);
         ESP_LOGI(TAG, "Ethernet Link Up");
-        // ESP_LOGI(TAG, "Ethernet MAC address: %02x:%02x:%02x:%02x:%02x:%02x",
-        //          mac_addr[0], mac_addr[1], mac_addr[2], mac_addr[3], mac_addr[4], mac_addr[5]);
+        xEventGroupSetBits(event_group, ETHERNET_CONNECTED_BIT);
         break;
+
     case ETHERNET_EVENT_DISCONNECTED:
         ESP_LOGI(TAG, "Ethernet Link Down");
+        xEventGroupClearBits(event_group, ETHERNET_CONNECTED_BIT);
         eth_connected = false; // Biến global để UI biết trạng thái kết nối Ethernet hiện tại
         break;
+
     case ETHERNET_EVENT_START:
         ESP_LOGI(TAG, "Ethernet Started");
+        xEventGroupSetBits(event_group, ETHERNET_CONNECTED_BIT);
         break;
+
     case ETHERNET_EVENT_STOP:
         ESP_LOGI(TAG, "Ethernet Stopped");
+        xEventGroupClearBits(event_group, ETHERNET_CONNECTED_BIT);
         eth_connected = false; // Biến global để UI biết trạng thái kết nối Ethernet hiện tại
         break;
+
     default:
         break;
     }
@@ -274,15 +282,11 @@ static void got_ip_event_handler(void *arg,
                                  int32_t event_id,
                                  void *event_data)
 {
-    // static uint32_t eth_sub_netmask = 0;
-    // static uint32_t eth_ip_addr = 0;
-    // static uint32_t eth_gateway_addr = 0;
-
     ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
-
     ESP_LOGI(TAG, "Got IP address: " IPSTR, IP2STR(&event->ip_info.ip));
     ESP_LOGI(TAG, "Got subnet mask: " IPSTR, IP2STR(&event->ip_info.netmask));
     ESP_LOGI(TAG, "Got gateway address: " IPSTR, IP2STR(&event->ip_info.gw));
+    xEventGroupSetBits(event_group, ETHERNET_CONNECTED_BIT);
 
     vTaskDelay(pdMS_TO_TICKS(2000));
     eth_connected = true; // Biến global để UI biết trạng thái kết nối Ethernet hiện tại
