@@ -49,6 +49,9 @@ extern mb_parameter_descriptor_t mbslave_test_dict[];
 extern const uint16_t mbslave_dict_size;
 extern factor_dict_t *factor_dict;
 
+esp_err_t save_baud_to_nvs(uint32_t baud);
+uint32_t load_baud_from_nvs(void);
+
 void modbus_rtu_port_1_init(void);
 void modbus_rtu_port_2_init(void);
 

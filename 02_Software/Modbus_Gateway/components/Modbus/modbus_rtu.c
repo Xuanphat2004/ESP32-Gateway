@@ -13,18 +13,21 @@
 #include "esp_modbus_common.h"
 #include "rtc_mb.h"
 #include "modbus_rtu.h"
+#include "change_baudrate.h"
 
-static const char *TAG = "[GATEWAY - RTU]";
+static const char *TAG = "[RTU]";
 
 // Vì chưa biết dict cần dung lượng bao nhiêu nên ta chỉ tạo 1 con trỏ trước
 mb_parameter_descriptor_t *basic_dict = NULL; // Tạo vùng nhớ để tạo Dictionary động - bảng A
 factor_dict_t *factor_dict = NULL;            // Vùng nhớ để mapping factor và scale - bảng B
 uint8_t *raw_data = NULL;                     // Chứa dữ liệu thô
-float *final_data = NULL;                     // Chứa kết quả float cuối cùng (Để nhân Factor)
+float *final_data = NULL;                     // Chứa kết quả float cuối cùng (Đã nhân Factor)
 uint16_t register_count = 0;                  // Tổng số lượng CID đang có trong NVS
 uint16_t g_total_raw_bytes = 0;               // Tổng số byte thực tế của tất cả thanh ghi
 
 extern SemaphoreHandle_t xDataMutex; // Mutex dùng cho việc ghi vào vùng nhớ chung
+extern bool is_change_baud;
+extern bool is_scan_device;
 
 void *slave_handler = NULL;
 //==========================================================================================================
@@ -68,17 +71,16 @@ void print_ram_tables(void)
 }
 
 // --- HÀM NẠP CẤU HÌNH TỪ NVS ---
-
 esp_err_t load_modbus_dynamic_config(void)
 {
     nvs_handle_t my_handle;
     esp_err_t err;
 
-    err = nvs_open("storage", NVS_READONLY, &my_handle); // Mở namespace "storage" và cấp quyền cho handle - READ ONLY
+    err = nvs_open("storage_app", NVS_READONLY, &my_handle); // Mở namespace "storage" và cấp quyền cho handle - READ ONLY
     if (err != ESP_OK)
         return err;
 
-    err = nvs_get_u16(my_handle, "reg_count", &register_count); // Đọc số lượng thanh ghi hiện có trong NVS
+    err = nvs_get_u16(my_handle, "register_count", &register_count); // Đọc số lượng thanh ghi hiện có trong NVS
     if (err != ESP_OK || register_count == 0)
     {
         nvs_close(my_handle);
@@ -101,7 +103,7 @@ esp_err_t load_modbus_dynamic_config(void)
     final_data = calloc(register_count, sizeof(float));                      // Vùng nhớ chứa data người dùng có thể hiểu được
     size_t blob_size = register_count * sizeof(factor_dict_t);
 
-    err = nvs_get_blob(my_handle, "reg_table", factor_dict, &blob_size); // Đọc toàn bộ bảng factor từ NVS vào RAM - bảng B
+    err = nvs_get_blob(my_handle, "register_table", factor_dict, &blob_size); // Đọc toàn bộ bảng factor từ NVS vào RAM - bảng B
     if (err != ESP_OK)
     {
         nvs_close(my_handle);
@@ -153,6 +155,7 @@ esp_err_t load_modbus_dynamic_config(void)
 // Cấu hình UART cho Modbus RTU - Port 2
 void modbus_rtu_port_1_init(void)
 {
+    uint32_t current_baud = load_baud_from_nvs(); // LUÔN ĐỌC TỪ NVS
     if (load_modbus_dynamic_config() != ESP_OK)
     {
         ESP_LOGE(TAG, "Fail to read data from NVS memorry !!!");
@@ -165,7 +168,7 @@ void modbus_rtu_port_1_init(void)
     mb_communication_info_t comm_info = {
         .port = UART_1,
         .mode = MB_MODE_RTU,
-        .baudrate = BAUD_RATE,
+        .baudrate = current_baud,
         .parity = MB_PARITY_NONE,
     };
     ESP_ERROR_CHECK(mbc_master_setup((void *)&comm_info));
@@ -191,18 +194,50 @@ void modbus_test_read(void)
             vTaskDelay(pdMS_TO_TICKS(5000)); // Nếu bảng danh sách trống
             continue;
         }
+
+        if (is_change_baud == true || is_scan_device == true)
+        {
+            vTaskDelay(pdMS_TO_TICKS(200));
+            continue;
+        }
+
         if (xSemaphoreTake(xDataMutex, pdMS_TO_TICKS(500)) == pdTRUE)
         {
+            if (is_change_baud == true || is_scan_device == true)
+            {
+                xSemaphoreGive(xDataMutex);
+                goto exit_and_wait;
+            }
+
             // uart_flush_input(UART_2);       // Xóa rác buffer trước mỗi ID
             vTaskDelay(pdMS_TO_TICKS(150)); // Guard time (Khoảng nghỉ t3.5)
             rtc_read_time(&now);            // Lấy thời gian từ RTC
             for (int i = 0; i < register_count; i++)
             {
+                if (is_change_baud == true || is_scan_device == true) // Kiểm tra xem nút change baudrate có đang được nhấn không
+                {
+                    xSemaphoreGive(xDataMutex);
+                    goto exit_and_wait;
+                }
+
                 // Đọc vào vùng nhớ thô dựa trên offset đã tính toán
                 uint8_t *target_address = raw_data + basic_dict[i].param_offset;
                 err = mbc_master_get_parameter(basic_dict[i].cid, basic_dict[i].param_key, target_address, &type);
+
+                if (is_change_baud == true || is_scan_device == true) // Kiểm tra xem nút change baudrate có đang được nhấn không
+                {
+                    xSemaphoreGive(xDataMutex);
+                    goto exit_and_wait;
+                }
+
                 if (err == ESP_OK)
                 {
+                    if (is_change_baud == true || is_scan_device == true) // Kiểm tra xem nút change baudrate có đang được nhấn không
+                    {
+                        xSemaphoreGive(xDataMutex);
+                        goto exit_and_wait;
+                    }
+
                     // Lấy giá trị thô ra dựa trên kiểu dữ liệu
                     float raw_value = 0;
                     if (basic_dict[i].mb_size == 1)
@@ -214,9 +249,21 @@ void modbus_test_read(void)
                     float final_result = raw_value * factor_dict[i].scale;
                     for (int j = 0; j < 2; j++)
                     {
+                        if (is_change_baud == true || is_scan_device == true) // Kiểm tra xem nút change baudrate có đang được nhấn không
+                        {
+                            xSemaphoreGive(xDataMutex);
+                            goto exit_and_wait;
+                        }
+
                         uint16_t r_cid = factor_dict[i].ref_cid[j];
                         if (r_cid < register_count)
                             final_result *= final_data[r_cid];
+                    }
+
+                    if (is_change_baud == true || is_scan_device == true) // Kiểm tra xem nút change baudrate có đang được nhấn không
+                    {
+                        xSemaphoreGive(xDataMutex);
+                        goto exit_and_wait;
                     }
 
                     final_data[i] = final_result;
@@ -225,13 +272,27 @@ void modbus_test_read(void)
                            basic_dict[i].param_key, final_result, basic_dict[i].param_units);
                 }
                 else
+                {
+                    if (is_change_baud == true || is_scan_device == true) // Kiểm tra xem nút change baudrate có đang được nhấn không
+                    {
+                        xSemaphoreGive(xDataMutex);
+                        goto exit_and_wait;
+                    }
                     ESP_LOGW(TAG, "Fail to read data at [CID: %d] %s (Err: 0x%x)", i, basic_dict[i].param_key, err);
+                }
             }
             xSemaphoreGive(xDataMutex);
+
+        exit_and_wait:
+            if (is_change_baud == true || is_scan_device == true)
+            {
+                vTaskDelay(pdMS_TO_TICKS(200));
+                continue;
+            }
             printf("Data: %d =====================================================\n", count);
             printf("\n");
         }
-        vTaskDelay(pdMS_TO_TICKS(10000)); // Cứ 5s polling data 1 lần
+        vTaskDelay(pdMS_TO_TICKS(10000)); // Cứ 10s polling data 1 lần
     }
 }
 void modbus_rtu_port_1_slave_init(void)
