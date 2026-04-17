@@ -110,6 +110,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t e
         try_count++;
         wifi_connected = false; // Biến global để UI biết trạng thái kết nối Wi-Fi hiện tại
         ESP_LOGE(TAG, "Disconnected! Retry attempt: %d", try_count);
+        xEventGroupClearBits(event_group, WIFI_CONNECTED_BIT); // Xóa cờ nếu bị mất kết nối wifi
 
         if (try_count >= MAX_WIFI_RETRY)
         {
