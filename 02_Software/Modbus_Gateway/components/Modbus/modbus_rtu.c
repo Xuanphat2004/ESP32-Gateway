@@ -292,7 +292,7 @@ void modbus_test_read(void)
             printf("Data: %d =====================================================\n", count);
             printf("\n");
         }
-        vTaskDelay(pdMS_TO_TICKS(10000)); // Cứ 10s polling data 1 lần
+        vTaskDelay(pdMS_TO_TICKS(5000)); // Cứ 10s polling data 1 lần
     }
 }
 void modbus_rtu_port_1_slave_init(void)

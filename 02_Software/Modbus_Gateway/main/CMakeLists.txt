@@ -6,8 +6,9 @@ idf_component_register(SRCS "main.c"
                                 Modbus
                                 EEPROM_and_RTC
                                 LCD   
-                                NVS   
+                                   
                                 spi_flash
                                 esp_psram  
-                                User_Interface                 
+                                User_Interface       
+                                MQTT_to_Web          
                     )

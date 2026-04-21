@@ -79,7 +79,9 @@ void wifi_Init(void)
                 .ssid = AP_SSID_CONFIG,
                 .password = AP_PASS_CONFIG,
                 .max_connection = 4,
-                .authmode = WIFI_AUTH_WPA2_PSK},
+                .authmode = WIFI_AUTH_WPA2_PSK,
+                .sae_pwe_h2e = WPA3_SAE_PWE_BOTH,
+            },
         };
         ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));
         ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &ap_config));

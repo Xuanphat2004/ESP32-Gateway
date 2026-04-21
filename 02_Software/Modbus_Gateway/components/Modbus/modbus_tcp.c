@@ -54,20 +54,20 @@ static void print_modbus_tcp_table(void)
     }
 
     printf("\n");
-    printf("|--------------------------------------------|\n");
-    printf("|Index |    Parameter Key    |     Value     |\n");
-    printf("|------|---------------------|---------------|\n");
+    printf("|---------------------------------------------------------------|\n");
+    printf("| Index  |      Parameter       |   Slave ID    |     Value     |\n");
+    printf("|--------|----------------------|---------------|---------------|\n");
 
     for (int i = 0; i < register_count; i++)
     {
         // Lấy tên từ Dictionary và giá trị từ mảng ảo
-        const char *key = basic_dict[i].param_key;
+        const char *param_name = basic_dict[i].param_key;
+        uint8_t slave_id = basic_dict[i].mb_slave_addr;
         float value = tcp_virtual_storage[i];
-
-        // In từng dòng với định dạng căn lề
-        printf("│ %-4d │ %-20s │ %-13.2f │\n", i, key, value);
+        printf("| %-4d   | %-20s |        %d      |  %-13.2f|\n",
+               i, param_name, slave_id, value);
     }
-    printf("|------| ---------------------|---------------|\n");
+    printf("|--------|----------------------|---------------|---------------|\n");
 }
 
 void modbus_tcp_server_task(void *arg)
@@ -211,10 +211,10 @@ void modbus_tcp_server_task(void *arg)
                     goto exit_and_wait_2;
                 }
                 tcp_virtual_storage[i] = final_data[i];
-                        }
+            }
 
             // print_modbus_tcp_table(); // In ra bảng giá trị mapping vào bảng giá trị của modbus tcp
-            printf("Just copy data \n");
+            // printf("Just copy data \n");
             xSemaphoreGive(xDataMutex);
 
         exit_and_wait_2:
@@ -224,6 +224,6 @@ void modbus_tcp_server_task(void *arg)
                 continue;
             }
         }
-        vTaskDelay(pdMS_TO_TICKS(5000));
+        vTaskDelay(pdMS_TO_TICKS(7000));
     }
 }
