@@ -34,6 +34,7 @@
 #include "encoder_ec11.h"
 #include "lcd_user.h"
 #include "mqtt_to_web.h"
+#include "sd_card.h"
 
 SemaphoreHandle_t xDataMutex = NULL;
 EventGroupHandle_t event_group;
@@ -45,13 +46,6 @@ void print_partition_table_info(void);
 void check_spi_bus_mode(void);
 void app_main(void)
 {
-    // printf("==============================================\n");
-    // check_spi_bus_mode();
-    // printf("==============================================\n");
-    // // check_heap_memory();
-    // printf("==============================================\n");
-    // print_partition_table_info();
-    // printf("==============================================\n");
 
     event_group = xEventGroupCreate();
     if (event_group == NULL)
@@ -73,13 +67,12 @@ void app_main(void)
     rtc_a_init();
     wifi_Init();
     ble_server_init();
-    // run_nvs_diagnostic();
-
+    sd_card_init();
     modbus_rtu_port_1_init();
     lcd_1604_init();
     init_pcnt_encoder();
 
-    vTaskDelay(pdMS_TO_TICKS(3000)); // đợi hệ thông ổn định trước khi tạo task
+    vTaskDelay(pdMS_TO_TICKS(2000)); // đợi hệ thông ổn định trước khi tạo task
     mqtt_app_start();
 
     // Core 0: Các task liên quan tới mạng
@@ -90,6 +83,6 @@ void app_main(void)
     // Core 1: Các task liên quan tới giao diện người dùng và xử lý tại thiết bị
     xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 4096, NULL, 8, &rtu_handle_task, 1);
     xTaskCreatePinnedToCore((void *)ui_task, "ui_manager_task", 4096, NULL, 5, NULL, 1);
-
+    xTaskCreatePinnedToCore(sd_card_logger_task, "sd_card_logger", 8192, NULL, 4, NULL, 1);
     vTaskDelay(pdMS_TO_TICKS(1000));
 }

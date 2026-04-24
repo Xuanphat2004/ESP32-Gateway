@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "esp_log.h"
 #include "nvs_flash.h"
+#include "esp_partition.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
@@ -70,13 +71,41 @@ void print_ram_tables(void)
     printf("=========================================================================================================================\n\n");
 }
 
+// --- KHỞI TẠO PARTITION NVS RIÊNG CHO THANH GHI ---
+static esp_err_t init_storage_partition(void)
+{
+    // Tìm partition tên "storage" trong bảng phân vùng
+    const esp_partition_t *partition = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_NVS, "storage");
+
+    if (partition == NULL)
+    {
+        ESP_LOGE(TAG, "Not found partition 'storage' !!!");
+        return ESP_ERR_NOT_FOUND;
+    }
+
+    // Mount NVS lên partition này
+    esp_err_t err = nvs_flash_init_partition("storage");
+    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)
+    {
+        ESP_LOGW(TAG, "Storage partition error, erasing ...");
+        ESP_ERROR_CHECK(nvs_flash_erase_partition("storage"));
+        err = nvs_flash_init_partition("storage");
+    }
+
+    if (err == ESP_OK)
+    {
+        ESP_LOGI(TAG, "Storage partition mounted OK (offset=0x%lx, size=0x%lx)", partition->address, partition->size);
+    }
+    return err;
+}
+
 // --- HÀM NẠP CẤU HÌNH TỪ NVS ---
 esp_err_t load_modbus_dynamic_config(void)
 {
     nvs_handle_t my_handle;
     esp_err_t err;
 
-    err = nvs_open("storage_app", NVS_READONLY, &my_handle); // Mở namespace "storage" và cấp quyền cho handle - READ ONLY
+    err = nvs_open_from_partition("storage", "storage_app", NVS_READONLY, &my_handle); // Mở từ partition "storage" riêng
     if (err != ESP_OK)
         return err;
 
@@ -115,8 +144,8 @@ esp_err_t load_modbus_dynamic_config(void)
     for (int i = 0; i < register_count; i++)
     {
         // Làm sạch chuỗi tên
-        factor_dict[i].name[15] = '\0';
-        for (int n = 0; n < 15; n++)
+        factor_dict[i].name[63] = '\0';
+        for (int n = 0; n < 63; n++)
         {
             if ((uint8_t)factor_dict[i].name[n] == 0xFF) // thay ký tự 0xFF thành ký tự \0
             {
@@ -142,11 +171,9 @@ esp_err_t load_modbus_dynamic_config(void)
     }
 
     g_total_raw_bytes = current_offset;
-    raw_data = calloc(1, g_total_raw_bytes); // Cấp phát vừa đủ RAM thô
+    raw_data = calloc(1, g_total_raw_bytes); // Vùng nhớ để chứa dữ liệu thô ban đầu
 
     nvs_close(my_handle);
-    // ESP_LOGI(TAG, "Da nap thanh cong %d thanh ghi. Raw RAM tiet kiem: %d bytes.",register_count, g_total_raw_bytes);
-
     print_ram_tables();
 
     return ESP_OK;
@@ -156,6 +183,11 @@ esp_err_t load_modbus_dynamic_config(void)
 void modbus_rtu_port_1_init(void)
 {
     uint32_t current_baud = load_baud_from_nvs(); // LUÔN ĐỌC TỪ NVS
+    if (init_storage_partition() != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Không thể mount partition storage !");
+        return;
+    }
     if (load_modbus_dynamic_config() != ESP_OK)
     {
         ESP_LOGE(TAG, "Fail to read data from NVS memorry !!!");
@@ -298,19 +330,17 @@ void modbus_test_read(void)
 void modbus_rtu_port_1_slave_init(void)
 {
     void *slave_handler = NULL;
-    // 2. INIT SLAVE: Khởi tạo thực thể Slave
     esp_err_t err = mbc_slave_init(MB_PORT_SERIAL_SLAVE, &slave_handler);
+    uint32_t current_baud = load_baud_from_nvs(); // LUÔN ĐỌC TỪ NVS
 
-    // 3. SETUP: Cấu hình thông số truyền thông
     mb_communication_info_t comm_info = {
         .port = UART_NUM_1,
         .mode = MB_MODE_RTU,
-        .baudrate = 9600,
+        .baudrate = current_baud,
         .parity = MB_PARITY_NONE,
         .slave_addr = 1};
     err = mbc_slave_setup((void *)&comm_info);
 
-    // 4. DESCRIPTOR: Slave BẮT BUỘC phải có vùng nhớ để hoạt động (Dù là rỗng)
     // Nếu thiếu bước này, mbc_slave_start sẽ trả về 0x103 ngay lập tức
     mb_register_area_descriptor_t reg_area = {
         .type = MB_PARAM_HOLDING,
@@ -320,10 +350,8 @@ void modbus_rtu_port_1_slave_init(void)
     };
     mbc_slave_set_descriptor(reg_area);
 
-    // 5. PIN CONFIG: Gán chân theo Define của Phát
     uart_set_pin(UART_NUM_1, UART_1_TX_PIN, UART_1_RX_PIN, UART_1_EN_PIN, UART_PIN_NO_CHANGE);
 
-    // 6. START: Bắt đầu chạy Slave
     err = mbc_slave_start();
 
     if (err == ESP_OK)
@@ -340,19 +368,17 @@ void modbus_rtu_port_1_slave_init(void)
 void modbus_rtu_port_2_slave_init(void)
 {
     void *slave_handler = NULL;
-    // 2. INIT SLAVE: Khởi tạo thực thể Slave
     esp_err_t err = mbc_slave_init(MB_PORT_SERIAL_SLAVE, &slave_handler);
+    uint32_t current_baud = load_baud_from_nvs(); // LUÔN ĐỌC TỪ NVS
 
-    // 3. SETUP: Cấu hình thông số truyền thông
     mb_communication_info_t comm_info = {
         .port = UART_NUM_2,
         .mode = MB_MODE_RTU,
-        .baudrate = 9600,
+        .baudrate = current_baud,
         .parity = MB_PARITY_NONE,
         .slave_addr = 1};
     err = mbc_slave_setup((void *)&comm_info);
 
-    // 4. DESCRIPTOR: Slave BẮT BUỘC phải có vùng nhớ để hoạt động (Dù là rỗng)
     // Nếu thiếu bước này, mbc_slave_start sẽ trả về 0x103 ngay lập tức
     mb_register_area_descriptor_t reg_area = {
         .type = MB_PARAM_HOLDING,
@@ -362,10 +388,8 @@ void modbus_rtu_port_2_slave_init(void)
     };
     mbc_slave_set_descriptor(reg_area);
 
-    // 5. PIN CONFIG: Gán chân theo Define của Phát
     uart_set_pin(UART_NUM_2, UART_2_TX_PIN, UART_2_RX_PIN, UART_2_EN_PIN, UART_PIN_NO_CHANGE);
 
-    // 6. START: Bắt đầu chạy Slave
     err = mbc_slave_start();
 
     if (err == ESP_OK)

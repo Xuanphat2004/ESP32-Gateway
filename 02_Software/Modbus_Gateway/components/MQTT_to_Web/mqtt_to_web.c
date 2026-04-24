@@ -12,7 +12,7 @@
 #include "esp_netif.h"
 #include "esp_eth.h"
 
-static const char *TAG = "[MQTT_APP]";
+static const char *TAG = "[MQTT]";
 
 // Khai báo biến flag để kiểm tra trạng thái kết nối
 static bool is_mqtt_connected = false;
@@ -124,7 +124,7 @@ void mqtt_network_event_handler(void *arg, esp_event_base_t event_base, int32_t 
 {
     if (event_base == IP_EVENT && (event_id == IP_EVENT_STA_GOT_IP || event_id == IP_EVENT_ETH_GOT_IP))
     {
-        ESP_LOGI(TAG, "Đã có IP, khởi động kết nối MQTT...");
+        ESP_LOGI(TAG, "Received IP address, restart to connect with MQTT ...");
         mqtt_app_start();
     }
 }
@@ -209,7 +209,7 @@ void mqtt_publish_task(void *pvParameters)
                 {
                     meter_count++;
                     char meter_name[32];
-                    sprintf(meter_name, "Meter_%d_(ID_%d)", meter_count, current_id);
+                    sprintf(meter_name, "Meter %d (ID %d)", meter_count, current_id);
 
                     // Đóng gói dữ liệu dựa trên ID thực tế này
                     char *payload = pack_data_to_json(current_id, meter_name, "EM_07K");
@@ -229,7 +229,7 @@ void mqtt_publish_task(void *pvParameters)
         }
         else
         {
-            ESP_LOGW(TAG, "Chờ kết nối MQTT hoặc dữ liệu chưa sẵn sàng...");
+            ESP_LOGW(TAG, "Lose connection to MQTT Broker, Waiting for connect again ...");
         }
 
         vTaskDelay(pdMS_TO_TICKS(10000)); // Chu kỳ gửi 10 giây

@@ -112,6 +112,7 @@ static void execute_port_scan(uint8_t uart_port, mb_parameter_descriptor_t *dict
     }
     else if (uart_port == UART_NUM_2)
     {
+        vTaskDelay(pdMS_TO_TICKS(100));
         // Cấu hình chân cho Port 2
         modbus_rtu_port_1_slave_init();
         uart_set_pin(UART_NUM_2, UART_2_TX_PIN, UART_2_RX_PIN, UART_2_EN_PIN, UART_PIN_NO_CHANGE);

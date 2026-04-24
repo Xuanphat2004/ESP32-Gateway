@@ -11,7 +11,9 @@
 // #define PASSWORD "Xp123456"
 
 // Sử dụng test.mosquitto.org làm Broker
-#define URL_BROKER "mqtt://test.mosquitto.org:1883"
+// #define URL_BROKER "mqtt://test.mosquitto.org:1883"
+#define URL_BROKER "mqtt://broker.emqx.io:1883"
+// #define URL_BROKER "mqtt://broker.hivemq.com"
 #define BROKER_PORT 1883
 #define PUBLISH_TOPIC "xuanphat2004/mbgateway/meter/update/data"
 #define CLIENT_ID "XTXP-251104"

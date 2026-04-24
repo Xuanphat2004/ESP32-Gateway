@@ -33,7 +33,7 @@
 typedef struct
 {
     uint16_t cid;
-    char name[16];
+    char name[64];
     char unit[8];
     uint8_t slave_id;
     uint16_t reg_start;

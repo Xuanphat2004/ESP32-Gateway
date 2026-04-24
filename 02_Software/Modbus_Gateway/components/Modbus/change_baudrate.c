@@ -24,6 +24,7 @@ extern TaskHandle_t tcp_handle_task; // biến handle cho task tcp
 extern TaskHandle_t rtu_handle_task;
 extern SemaphoreHandle_t xDataMutex;
 volatile bool is_change_baud = false;
+uint32_t baudrate = 0;
 
 void change_baudrate_task(void *arg)
 {
@@ -88,11 +89,13 @@ void change_baudrate_task(void *arg)
 esp_err_t save_baud_to_nvs(uint32_t baud)
 {
     nvs_handle_t baud_handle;
-    esp_err_t err = nvs_open("baudrate", NVS_READWRITE, &baud_handle);
+    esp_err_t err;
+
+    err = nvs_open_from_partition("storage", "baud_app", NVS_READWRITE, &baud_handle); // Mở từ partition "storage" với quyền ghi
     if (err != ESP_OK)
         return err;
 
-    err = nvs_set_u32(baud_handle, "modbus_baudrate", baud);
+    err = nvs_set_u32(baud_handle, "baudrate_sto", baud);
     if (err == ESP_OK)
         nvs_commit(baud_handle);
 
@@ -105,14 +108,14 @@ uint32_t load_baud_from_nvs(void)
 {
     nvs_handle_t baud_handle;
     uint32_t baudrate = 9600; // Giá trị mặc định nếu NVS trống
-    if (nvs_open("baudrate", NVS_READONLY, &baud_handle) == ESP_OK)
+    if (nvs_open_from_partition("storage", "baud_app", NVS_READONLY, &baud_handle) == ESP_OK)
     {
-        nvs_get_u32(baud_handle, "modbus_baudrate", &baudrate);
+        nvs_get_u32(baud_handle, "baudrate_sto", &baudrate);
         nvs_close(baud_handle);
     }
     return baudrate;
 }
 void change_baudrate(void)
 {
-    xTaskCreatePinnedToCore((void *)change_baudrate_task, "change_buadrate_task", 4096, NULL, 8, NULL, 1);
+    xTaskCreatePinnedToCore((void *)change_baudrate_task, "change_baudrate_task", 4096, NULL, 8, NULL, 1);
 }

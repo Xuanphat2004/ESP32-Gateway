@@ -106,9 +106,10 @@ class RegisterEditorWidget(QGroupBox):  #  Form nhập liệu thanh ghi
                 "---",
                 "Unsigned 16 bits",
                 "Unsigned 32 bits",
+                "Integer 32 bits CDAB",
+                "Integer 32 bits ABCD",
                 "Float ABCD",
                 "Float CDAB",
-                "Integer",
                 "Long",
             ]
         )
@@ -156,12 +157,12 @@ class RegisterEditorWidget(QGroupBox):  #  Form nhập liệu thanh ghi
         grid.addWidget(self.cb_mul, 2, 5)
 
         # Ô nhập cho Factor 1
-        self.ent_f1 = QLineEdit("1.0")
+        self.ent_f1 = QLineEdit("")
         grid.addWidget(QLabel("Factor 1:"), 3, 0)
         grid.addWidget(self.ent_f1, 3, 1)
 
         # Ô nhập cho Factor 2
-        self.ent_f2 = QLineEdit("1.0")
+        self.ent_f2 = QLineEdit("")
         grid.addWidget(QLabel("Factor 2:"), 3, 2)
         grid.addWidget(self.ent_f2, 3, 3)
 

@@ -25,7 +25,7 @@ extern bool blu_connected; // Biến global để UI biết trạng thái kết 
 typedef struct
 {
     uint16_t cid;        // i: Index
-    char name[16];       // n: Name
+    char name[64];       // n: Name
     char unit[8];        // u: Unit
     uint8_t slave_id;    // s: Slave ID
     uint16_t reg_start;  // a: Address
@@ -38,15 +38,13 @@ typedef struct
 } temp_modbus_reg_t;
 
 // --- BIẾN TOÀN CỤC VÀ QUẢN LÝ BUFFER DỮ LIỆU ---
-// static uint16_t gatts_handle_table[GATTS_NUM_HANDLE];
 static esp_gatt_srvc_id_t service_id;
 
 // Buffer động để chứa chuỗi JSON (Vì chuỗi 100 thanh ghi rất dài)
 static char *receive_buffer = NULL;
-static int received_len = 0;
-#define MAX_JSON_SIZE 8192 // Giới hạn 8KB cho an toàn RAM
+static int received_len = 0; // Dung lượng tổng các gói tin đã nhận
+#define MAX_JSON_SIZE 16192  // Giới hạn 16KB cho an toàn RAM
 
-// --- PROTOTYPES ---
 static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param);
 static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param);
 
@@ -124,10 +122,10 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
     case ESP_GAP_BLE_ADV_DATA_SET_COMPLETE_EVT:
         esp_ble_gap_start_advertising(&adv_params);
         blu_connected = false; // Cập nhật trạng thái kết nối BLE
-        ESP_LOGI(TAG, "Đang phát quảng bá BLE...");
+        ESP_LOGI(TAG, "Advertising BLE packet ...");
         break;
     case ESP_GAP_BLE_UPDATE_CONN_PARAMS_EVT:
-        ESP_LOGI(TAG, "Đã cập nhật tham số kết nối (MTU/Interval)");
+        // ESP_LOGI(TAG, "Đã cập nhật tham số kết nối (MTU/Interval)");
         blu_connected = true; // Cập nhật trạng thái kết nối BLE
         break;
     default:
@@ -150,7 +148,7 @@ void print_parsed_registers(temp_modbus_reg_t *reg_array, int count)
     for (int i = 0; i < count; i++)
     {
         // In thêm dữ liệu từ mảng ref_cid
-        printf("%-4d |%-15s | %-6s| %-5d | %-7d | %-4d | %-4d | %-6.3f | %-6d | %-6d\n",
+        printf("%-4d |%-32s | %-6s| %-5d | %-7d | %-4d | %-4d | %-6.3f | %-6d | %-6d\n",
                reg_array[i].cid,
                reg_array[i].name, // In tên
                reg_array[i].unit, // In đơn vị
@@ -171,50 +169,51 @@ temp_modbus_reg_t *parse_json_to_struct_array(const char *json_str, int *out_reg
     if (json_str == NULL)
         return NULL;
 
-    // 1. Phân tích chuỗi JSON thô thành cây đối tượng cJSON
+    // Phân tích chuỗi JSON thô thành cây đối tượng cJSON
+    // root là con trỏ đại diện cho toàn bộ chuỗi JSON gốc mà hệ thống vừa phân tích thành công.
     cJSON *root = cJSON_Parse(json_str);
     if (root == NULL)
     {
-        ESP_LOGE("JSON_PARSE", "Lỗi định dạng JSON! Không thể Parse.");
+        ESP_LOGE("JSON_PARSE", "Fail to format JSON ! Can't Parse."); // Lỗi có thể do không đủ RAM trong vùng heap để phân tích JSON
         return NULL;
     }
 
-    // 2. Xác định số lượng thanh ghi (phần tử trong mảng JSON)
+    // Xác định số lượng thanh ghi (phần tử trong mảng JSON)
     int reg_count = cJSON_GetArraySize(root);
     *out_reg_count = reg_count;
     ESP_LOGI("JSON_PARSE", "Found %d Regiser in packet.", reg_count);
 
-    // 3. Cấp phát bộ nhớ cho mảng Struct tạm thời trong RAM
+    // Cấp phát bộ nhớ cho mảng Struct tạm thời trong RAM
+    // Sử dụng số lượng thanh ghi để tạo ra 1 vùng nhớ để mapping gói tin vào bảng thanh ghi
     temp_modbus_reg_t *reg_array = malloc(reg_count * sizeof(temp_modbus_reg_t));
     if (reg_array == NULL)
     {
-        ESP_LOGE("JSON_PARSE", "Không đủ RAM để cấp phát mảng Struct!");
+        ESP_LOGE("JSON_PARSE", "No enough RAM !!!");
         cJSON_Delete(root);
         return NULL;
     }
 
-    // 4. Duyệt qua từng phần tử JSON và ánh xạ vào Struct
+    // Duyệt qua từng phần tử JSON và ánh xạ vào Struct
     for (int i = 0; i < reg_count; i++)
     {
         cJSON *item = cJSON_GetArrayItem(root, i);
 
-        // Trích xuất các Key ngắn gọn (Short-key) từ Python
+        // cid
         reg_array[i].cid = cJSON_GetObjectItem(item, "i")->valueint;
 
-        // 2. Trích xuất Tên (n) - Dùng strncpy để copy chuỗi an toàn
+        // name
         cJSON *name_obj = cJSON_GetObjectItem(item, "n");
         if (cJSON_IsString(name_obj) && (name_obj->valuestring != NULL))
         {
-            // Copy tối đa 15 ký tự vào name[16]
             strncpy(reg_array[i].name, name_obj->valuestring, sizeof(reg_array[i].name) - 1);
             reg_array[i].name[sizeof(reg_array[i].name) - 1] = '\0'; // Chốt ký tự kết thúc
         }
         else
         {
-            strcpy(reg_array[i].name, "NoName"); // Mặc định nếu thiếu
+            strcpy(reg_array[i].name, "No Name"); // Mặc định nếu thiếu
         }
 
-        // 3. Trích xuất Đơn vị (u)
+        // Trích xuất Đơn vị (u)
         cJSON *unit_obj = cJSON_GetObjectItem(item, "u");
         if (cJSON_IsString(unit_obj) && (unit_obj->valuestring != NULL))
         {
@@ -225,6 +224,7 @@ temp_modbus_reg_t *parse_json_to_struct_array(const char *json_str, int *out_reg
         {
             strcpy(reg_array[i].unit, "N/A"); // Mặc định nếu thiếu
         }
+
         reg_array[i].slave_id = (uint8_t)cJSON_GetObjectItem(item, "s")->valueint;
         reg_array[i].reg_start = (uint16_t)cJSON_GetObjectItem(item, "a")->valueint;
         reg_array[i].func_code = (uint8_t)cJSON_GetObjectItem(item, "f")->valueint;
@@ -244,7 +244,7 @@ temp_modbus_reg_t *parse_json_to_struct_array(const char *json_str, int *out_reg
         ESP_LOGD("JSON_PARSE", "Đã Parse xong thanh ghi: %d", reg_array[i].cid);
     }
 
-    // 5. Giải phóng cây JSON (Quan trọng để tránh tràn RAM)
+    // Giải phóng cây JSON (Quan trọng để tránh tràn RAM)
     cJSON_Delete(root);
 
     return reg_array;
@@ -260,9 +260,11 @@ static void save_regs_to_nvs(temp_modbus_reg_t *reg_array, int count)
     nvs_handle_t my_handle;
     esp_err_t err;
 
-    // Mở Namespace "storage_config_app" với quyền Read/Write
-    // Namespace giống như một thư mục để phân biệt các loại dữ liệu khác nhau
-    err = nvs_open("storage_app", NVS_READWRITE, &my_handle);
+    // Mount partition "storage" trước khi mở
+    nvs_flash_init_partition("storage");
+
+    // Mở Namespace "storage_app" từ partition "storage" riêng với quyền Read/Write
+    err = nvs_open_from_partition("storage", "storage_app", NVS_READWRITE, &my_handle);
     if (err != ESP_OK)
     {
         ESP_LOGW("NVS_SAVE", "Can NOT open NVS Handle (%s)", esp_err_to_name(err));
@@ -274,7 +276,7 @@ static void save_regs_to_nvs(temp_modbus_reg_t *reg_array, int count)
     if (err != ESP_OK)
         ESP_LOGE("NVS_SAVE", "Fail to save in reg_count !!!");
 
-    // Lưu toàn bộ mảng Struct dưới dạng một khối Binary (Blob)
+    // Lưu toàn bộ bảng thanh ghi dưới dạng một khối Binary (Blob)
     size_t blob_size = count * sizeof(temp_modbus_reg_t);
     err = nvs_set_blob(my_handle, "register_table", reg_array, blob_size);
 
@@ -292,12 +294,8 @@ static void save_regs_to_nvs(temp_modbus_reg_t *reg_array, int count)
         ESP_LOGE("NVS_SAVE", "Fail to write into Flash memorry (%s)", esp_err_to_name(err)); // Flash memorry ở đây là phân vùng NVS trên flash
     }
 
-    // Đóng Handle để giải phóng tài nguyên
+    // Giải phóng biến handles
     nvs_close(my_handle);
-
-    // // Thông báo và tự động khởi động lại hệ thống
-    // ESP_LOGW("SYSTEM", "System will restart after 3 second ...");
-    // vTaskDelay(pdMS_TO_TICKS(3000));
     printf("===========================================================================================================================");
 }
 
