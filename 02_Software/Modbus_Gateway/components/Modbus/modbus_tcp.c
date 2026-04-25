@@ -82,7 +82,7 @@ void modbus_tcp_server_task(void *arg)
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
 
-    // Khởi tạo vùng nhớ ảo
+    // Khởi tạo vùng nhớ ảo để lưu dữ liệu đọc về từ task rtu
     if (tcp_virtual_storage == NULL)
     {
         tcp_virtual_storage = (float *)calloc(register_count, sizeof(float));
@@ -181,6 +181,7 @@ void modbus_tcp_server_task(void *arg)
                 is_tcp_running = false;
                 ESP_LOGE(TAG, "Fail to start Modbus TCP server: 0x%x", err);
                 modbus_tcp_destroy();
+                continue;
             }
         }
         printf("==================================================================================================================\n");
@@ -189,6 +190,7 @@ void modbus_tcp_server_task(void *arg)
 
             ESP_LOGW(TAG, " Disconnect the network, free TCP Server memorry ..."); // Xử lý rớt mạng
             modbus_tcp_destroy();
+            continue;
         }
         if (is_change_baud == true || is_scan_device == true)
         {
@@ -196,34 +198,27 @@ void modbus_tcp_server_task(void *arg)
             continue;
         }
 
-        if ((xSemaphoreTake(xDataMutex, pdMS_TO_TICKS(100)) == pdTRUE) && is_tcp_running)
+        // Dùng timeout dài hơn để tránh priority inheritance timeout trên dual-core
+        // RTU task có thể giữ mutex đến vài trăm ms khi chờ thiết bị Modbus trả lời
+        if (is_tcp_running && xSemaphoreTake(xDataMutex, pdMS_TO_TICKS(2000)) == pdTRUE)
         {
-            if (is_change_baud == true || is_scan_device == true) // Kiểm tra xem nút có đang được nhấn không
+            if (is_change_baud == true || is_scan_device == true)
             {
                 xSemaphoreGive(xDataMutex);
-                goto exit_and_wait_2;
-            }
-            for (int i = 0; i < register_count; i++)
-            {
-                if (is_change_baud == true || is_scan_device == true) // Kiểm tra xem nút có đang được nhấn không
-                {
-                    xSemaphoreGive(xDataMutex);
-                    goto exit_and_wait_2;
-                }
-                tcp_virtual_storage[i] = final_data[i];
-            }
-
-            // print_modbus_tcp_table(); // In ra bảng giá trị mapping vào bảng giá trị của modbus tcp
-            // printf("Just copy data \n");
-            xSemaphoreGive(xDataMutex);
-
-        exit_and_wait_2:
-            if (is_change_baud == true || is_scan_device == true) // Kiểm tra xem nút có đang được nhấn không
-            {
                 vTaskDelay(pdMS_TO_TICKS(200));
                 continue;
             }
+
+            // Copy toàn bộ final_data vào tcp_virtual_storage trong 1 lần có mutex
+            memcpy(tcp_virtual_storage, final_data, register_count * sizeof(float));
+            xSemaphoreGive(xDataMutex);
         }
+        else if (is_tcp_running)
+        {
+            // Timeout sau 2 giây — RTU task có vấn đề, bỏ qua lần này
+            ESP_LOGW(TAG, "xDataMutex timeout sau 2s, bỏ qua lần copy này.");
+        }
+
         vTaskDelay(pdMS_TO_TICKS(7000));
     }
 }

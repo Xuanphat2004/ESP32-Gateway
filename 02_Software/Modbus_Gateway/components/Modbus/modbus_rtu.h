@@ -55,8 +55,8 @@ uint32_t load_baud_from_nvs(void);
 void modbus_rtu_port_1_init(void);
 void modbus_rtu_port_2_init(void);
 
-void modbus_rtu_port_1_slave_init(void);
-void modbus_rtu_port_2_slave_init(void);
+void modbus_rtu_port_2_dummy_init(void);
+void modbus_rtu_port_1_dummy_init(void);
 void modbus_test_read(void);
 
 #endif // MODBUS_RTU_H

@@ -7,11 +7,11 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
+#include "driver/uart.h"
 
 // Modbus library
 #include "esp_modbus_master.h"
-#include "esp_modbus_slave.h" // Thêm thư viện Slave
-#include "esp_modbus_common.h"
+#include "esp_modbus_common.h" // Bỏ esp_modbus_slave.h vì không dùng slave nữa
 #include "rtc_mb.h"
 #include "modbus_rtu.h"
 #include "change_baudrate.h"
@@ -30,7 +30,6 @@ extern SemaphoreHandle_t xDataMutex; // Mutex dùng cho việc ghi vào vùng nh
 extern bool is_change_baud;
 extern bool is_scan_device;
 
-void *slave_handler = NULL;
 //==========================================================================================================
 //====== Hàm hỗ trợ - In bảng A trong RAM ra terminal =======
 
@@ -57,7 +56,7 @@ void print_ram_tables(void)
                basic_dict[i].mb_reg_start,
                basic_dict[i].mb_param_type,
                basic_dict[i].mb_size,
-               basic_dict[i].param_offset, // Sẽ thấy Offset nhảy 2 hoặc 4 tùy Quantity người dùng nhập
+               basic_dict[i].param_offset,
                basic_dict[i].param_type,
                basic_dict[i].param_size,
                basic_dict[i].access,
@@ -74,7 +73,6 @@ void print_ram_tables(void)
 // --- KHỞI TẠO PARTITION NVS RIÊNG CHO THANH GHI ---
 static esp_err_t init_storage_partition(void)
 {
-    // Tìm partition tên "storage" trong bảng phân vùng
     const esp_partition_t *partition = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_NVS, "storage");
 
     if (partition == NULL)
@@ -83,7 +81,6 @@ static esp_err_t init_storage_partition(void)
         return ESP_ERR_NOT_FOUND;
     }
 
-    // Mount NVS lên partition này
     esp_err_t err = nvs_flash_init_partition("storage");
     if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)
     {
@@ -105,19 +102,17 @@ esp_err_t load_modbus_dynamic_config(void)
     nvs_handle_t my_handle;
     esp_err_t err;
 
-    err = nvs_open_from_partition("storage", "storage_app", NVS_READONLY, &my_handle); // Mở từ partition "storage" riêng
+    err = nvs_open_from_partition("storage", "storage_app", NVS_READONLY, &my_handle);
     if (err != ESP_OK)
         return err;
 
-    err = nvs_get_u16(my_handle, "register_count", &register_count); // Đọc số lượng thanh ghi hiện có trong NVS
+    err = nvs_get_u16(my_handle, "register_count", &register_count);
     if (err != ESP_OK || register_count == 0)
     {
         nvs_close(my_handle);
         return ESP_ERR_NOT_FOUND;
     }
 
-    // Giải phóng toàn bộ vùng RAM cũ nếu cập nhật config mới từ app
-    // Mặc dù đã có lệnh reset nhưng vẫn dùng free để đảm bảo vùng nhớ này sẽ được xóa :))))
     if (basic_dict)
         free(basic_dict);
     if (factor_dict)
@@ -127,12 +122,12 @@ esp_err_t load_modbus_dynamic_config(void)
     if (final_data)
         free(final_data);
 
-    basic_dict = malloc(register_count * sizeof(mb_parameter_descriptor_t)); // Vùng nhớ bảng A - tạo ra số hàng tương ứng với số hàng của dictionary
-    factor_dict = malloc(register_count * sizeof(factor_dict_t));            // Vùng nhớ bảng B - dữ liệu ban đầu đọc ra từ NVS
-    final_data = calloc(register_count, sizeof(float));                      // Vùng nhớ chứa data người dùng có thể hiểu được
+    basic_dict = malloc(register_count * sizeof(mb_parameter_descriptor_t));
+    factor_dict = malloc(register_count * sizeof(factor_dict_t));
+    final_data = calloc(register_count, sizeof(float));
     size_t blob_size = register_count * sizeof(factor_dict_t);
 
-    err = nvs_get_blob(my_handle, "register_table", factor_dict, &blob_size); // Đọc toàn bộ bảng factor từ NVS vào RAM - bảng B
+    err = nvs_get_blob(my_handle, "register_table", factor_dict, &blob_size);
     if (err != ESP_OK)
     {
         nvs_close(my_handle);
@@ -143,35 +138,33 @@ esp_err_t load_modbus_dynamic_config(void)
 
     for (int i = 0; i < register_count; i++)
     {
-        // Làm sạch chuỗi tên
         factor_dict[i].name[63] = '\0';
         for (int n = 0; n < 63; n++)
         {
-            if ((uint8_t)factor_dict[i].name[n] == 0xFF) // thay ký tự 0xFF thành ký tự \0
+            if ((uint8_t)factor_dict[i].name[n] == 0xFF)
             {
                 factor_dict[i].name[n] = '\0';
                 break;
             }
         }
 
-        // Mapping dữ liệu từ bảng B sang bảng A
         basic_dict[i].cid = i;
         basic_dict[i].param_key = factor_dict[i].name;
         basic_dict[i].param_units = factor_dict[i].unit;
         basic_dict[i].mb_slave_addr = factor_dict[i].slave_id;
         basic_dict[i].mb_param_type = (factor_dict[i].func_code == 0) ? MB_PARAM_HOLDING : MB_PARAM_INPUT;
         basic_dict[i].mb_reg_start = factor_dict[i].reg_start;
-        basic_dict[i].mb_size = factor_dict[i].quantity; // Số lượng thanh ghi cần đọc (1 hoặc 2)
+        basic_dict[i].mb_size = factor_dict[i].quantity;
         basic_dict[i].param_type = factor_dict[i].data_type;
-        basic_dict[i].param_size = factor_dict[i].quantity * 2; // Tùy vào quantity mà ta cấp 2 (1 thanh ghi) hoặc 4 bytes (2 thanh ghi)
-        basic_dict[i].access = PAR_PERMS_READ;                  // Version hiện tại chỉ hỗ trợ đọc
+        basic_dict[i].param_size = factor_dict[i].quantity * 2;
+        basic_dict[i].access = PAR_PERMS_READ;
         basic_dict[i].param_offset = current_offset;
 
-        current_offset += basic_dict[i].param_size; // Tăng offset đúng theo kích thước thực tế
+        current_offset += basic_dict[i].param_size;
     }
 
     g_total_raw_bytes = current_offset;
-    raw_data = calloc(1, g_total_raw_bytes); // Vùng nhớ để chứa dữ liệu thô ban đầu
+    raw_data = calloc(1, g_total_raw_bytes);
 
     nvs_close(my_handle);
     print_ram_tables();
@@ -179,10 +172,63 @@ esp_err_t load_modbus_dynamic_config(void)
     return ESP_OK;
 }
 
-// Cấu hình UART cho Modbus RTU - Port 2
+//======================================================================
+// DUMMY INIT: Chỉ init UART + RS485 half-duplex để MAX485 giữ DE=LOW
+// KHÔNG dùng mbc_slave_init → không đụng singleton → TCP slave an toàn
+//======================================================================
+void modbus_rtu_port_1_dummy_init(void)
+{
+    uint32_t current_baud = load_baud_from_nvs();
+
+    uart_config_t uart_config = {
+        .baud_rate = current_baud,
+        .data_bits = UART_DATA_8_BITS,
+        .parity = UART_PARITY_DISABLE,
+        .stop_bits = UART_STOP_BITS_1,
+        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
+        .source_clk = UART_SCLK_DEFAULT,
+    };
+    uart_param_config(UART_NUM_1, &uart_config);
+    uart_set_pin(UART_NUM_1, UART_1_TX_PIN, UART_1_RX_PIN, UART_1_EN_PIN, UART_PIN_NO_CHANGE);
+    uart_driver_install(UART_NUM_1, 256, 0, 0, NULL, 0);
+
+    // RS485 half-duplex → ESP32 tự kéo DE=LOW khi không phát
+    // → MAX485 port 1 ở chế độ nhận, không tranh bus với master ở port 2
+    uart_set_mode(UART_NUM_1, UART_MODE_RS485_HALF_DUPLEX);
+
+    ESP_LOGI(TAG, "Port 1 dummy: MAX485 DE=LOW, bus stable (no Modbus slave stack).");
+}
+
+void modbus_rtu_port_2_dummy_init(void)
+{
+    uint32_t current_baud = load_baud_from_nvs();
+
+    uart_config_t uart_config = {
+        .baud_rate = current_baud,
+        .data_bits = UART_DATA_8_BITS,
+        .parity = UART_PARITY_DISABLE,
+        .stop_bits = UART_STOP_BITS_1,
+        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
+        .source_clk = UART_SCLK_DEFAULT,
+    };
+    uart_param_config(UART_NUM_2, &uart_config);
+    uart_set_pin(UART_NUM_2, UART_2_TX_PIN, UART_2_RX_PIN, UART_2_EN_PIN, UART_PIN_NO_CHANGE);
+    uart_driver_install(UART_NUM_2, 256, 0, 0, NULL, 0);
+
+    // RS485 half-duplex → ESP32 tự kéo DE=LOW khi không phát
+    // → MAX485 port 2 ở chế độ nhận, không tranh bus với master ở port 1
+    uart_set_mode(UART_NUM_2, UART_MODE_RS485_HALF_DUPLEX);
+
+    ESP_LOGI(TAG, "Port 2 dummy: MAX485 DE=LOW, bus stable (no Modbus slave stack).");
+}
+
+//======================================================================
+// KHỞI TẠO CHÍNH: Port 1 làm Master + Port 2 làm dummy
+//======================================================================
 void modbus_rtu_port_1_init(void)
 {
-    uint32_t current_baud = load_baud_from_nvs(); // LUÔN ĐỌC TỪ NVS
+    uint32_t current_baud = load_baud_from_nvs();
+
     if (init_storage_partition() != ESP_OK)
     {
         ESP_LOGE(TAG, "Không thể mount partition storage !");
@@ -190,7 +236,7 @@ void modbus_rtu_port_1_init(void)
     }
     if (load_modbus_dynamic_config() != ESP_OK)
     {
-        ESP_LOGE(TAG, "Fail to read data from NVS memorry !!!");
+        ESP_LOGE(TAG, "Fail to read data from NVS memory !!!");
         return;
     }
 
@@ -208,14 +254,20 @@ void modbus_rtu_port_1_init(void)
     ESP_ERROR_CHECK(uart_set_pin(UART_1, UART_1_TX_PIN, UART_1_RX_PIN, UART_1_EN_PIN, UART_PIN_NO_CHANGE));
     ESP_ERROR_CHECK(mbc_master_start());
     ESP_ERROR_CHECK(uart_set_mode(UART_1, UART_MODE_RS485_HALF_DUPLEX));
-    modbus_rtu_port_2_slave_init();
+
+    // Thay slave init bằng dummy init → không dùng singleton slave
+    // → TCP slave có thể init sau mà không bị ghi đè hay crash
+    modbus_rtu_port_2_dummy_init();
 }
 
+//======================================================================
+// TASK ĐỌC DỮ LIỆU MODBUS RTU
+//======================================================================
 void modbus_test_read(void)
 {
     esp_err_t err;
     uint8_t type;
-    rtc_time_t now; // Lấy thời gian từ RTC
+    rtc_time_t now;
     int count = 0;
 
     while (1)
@@ -223,7 +275,7 @@ void modbus_test_read(void)
         count++;
         if (register_count == 0)
         {
-            vTaskDelay(pdMS_TO_TICKS(5000)); // Nếu bảng danh sách trống
+            vTaskDelay(pdMS_TO_TICKS(5000));
             continue;
         }
 
@@ -233,173 +285,88 @@ void modbus_test_read(void)
             continue;
         }
 
-        if (xSemaphoreTake(xDataMutex, pdMS_TO_TICKS(500)) == pdTRUE)
+        if (is_change_baud == true || is_scan_device == true)
+        {
+            vTaskDelay(pdMS_TO_TICKS(200));
+            continue;
+        }
+
+        // ── BƯỚC 1: Đọc Modbus NGOÀI mutex ──────────────────────────────────
+        // mbc_master_get_parameter có thể block vài trăm ms chờ thiết bị trả lời
+        // Nếu giữ mutex trong lúc này → TCP task bị timeout → priority inheritance crash
+        vTaskDelay(pdMS_TO_TICKS(150)); // Guard time t3.5
+        rtc_read_time(&now);
+
+        // Dùng buffer tạm để tính toán trước, chưa ghi vào final_data
+        float temp_result[register_count];
+        bool read_ok[register_count];
+
+        for (int i = 0; i < register_count; i++)
         {
             if (is_change_baud == true || is_scan_device == true)
-            {
-                xSemaphoreGive(xDataMutex);
                 goto exit_and_wait;
-            }
 
-            // uart_flush_input(UART_2);       // Xóa rác buffer trước mỗi ID
-            vTaskDelay(pdMS_TO_TICKS(150)); // Guard time (Khoảng nghỉ t3.5)
-            rtc_read_time(&now);            // Lấy thời gian từ RTC
+            uint8_t *target_address = raw_data + basic_dict[i].param_offset;
+            err = mbc_master_get_parameter(basic_dict[i].cid, basic_dict[i].param_key, target_address, &type);
+
+            if (err == ESP_OK)
+            {
+                float raw_value = 0;
+                if (basic_dict[i].mb_size == 1)
+                    raw_value = (float)(*(uint16_t *)target_address);
+                else
+                    raw_value = *(float *)target_address;
+
+                temp_result[i] = raw_value * factor_dict[i].scale;
+                read_ok[i] = true;
+            }
+            else
+            {
+                temp_result[i] = 0;
+                read_ok[i] = false;
+                ESP_LOGW(TAG, "Fail [CID: %d] %s (Err: 0x%x)", i, basic_dict[i].param_key, err);
+            }
+        }
+
+        // Xử lý Factor (cần final_data của các CID trước) — vẫn ngoài mutex
+        // vì chỉ đọc final_data, chưa ghi
+        for (int i = 0; i < register_count; i++)
+        {
+            if (!read_ok[i])
+                continue;
+            for (int j = 0; j < 2; j++)
+            {
+                uint16_t r_cid = factor_dict[i].ref_cid[j];
+                if (r_cid < register_count)
+                    temp_result[i] *= final_data[r_cid];
+            }
+        }
+
+        // ── BƯỚC 2: Ghi kết quả vào final_data CÓ mutex ─────────────────────
+        // Lấy mutex chỉ để ghi — rất nhanh, không block lâu
+        if (xSemaphoreTake(xDataMutex, pdMS_TO_TICKS(500)) == pdTRUE)
+        {
             for (int i = 0; i < register_count; i++)
             {
-                if (is_change_baud == true || is_scan_device == true) // Kiểm tra xem nút change baudrate có đang được nhấn không
+                if (read_ok[i])
                 {
-                    xSemaphoreGive(xDataMutex);
-                    goto exit_and_wait;
-                }
-
-                // Đọc vào vùng nhớ thô dựa trên offset đã tính toán
-                uint8_t *target_address = raw_data + basic_dict[i].param_offset;
-                err = mbc_master_get_parameter(basic_dict[i].cid, basic_dict[i].param_key, target_address, &type);
-
-                if (is_change_baud == true || is_scan_device == true) // Kiểm tra xem nút change baudrate có đang được nhấn không
-                {
-                    xSemaphoreGive(xDataMutex);
-                    goto exit_and_wait;
-                }
-
-                if (err == ESP_OK)
-                {
-                    if (is_change_baud == true || is_scan_device == true) // Kiểm tra xem nút change baudrate có đang được nhấn không
-                    {
-                        xSemaphoreGive(xDataMutex);
-                        goto exit_and_wait;
-                    }
-
-                    // Lấy giá trị thô ra dựa trên kiểu dữ liệu
-                    float raw_value = 0;
-                    if (basic_dict[i].mb_size == 1)
-                        raw_value = (float)(*(uint16_t *)target_address);
-                    else
-                        raw_value = *(float *)target_address;
-
-                    // Nhân Scale và Factor - Dùng mảng final_data để tham chiếu
-                    float final_result = raw_value * factor_dict[i].scale;
-                    for (int j = 0; j < 2; j++)
-                    {
-                        if (is_change_baud == true || is_scan_device == true) // Kiểm tra xem nút change baudrate có đang được nhấn không
-                        {
-                            xSemaphoreGive(xDataMutex);
-                            goto exit_and_wait;
-                        }
-
-                        uint16_t r_cid = factor_dict[i].ref_cid[j];
-                        if (r_cid < register_count)
-                            final_result *= final_data[r_cid];
-                    }
-
-                    if (is_change_baud == true || is_scan_device == true) // Kiểm tra xem nút change baudrate có đang được nhấn không
-                    {
-                        xSemaphoreGive(xDataMutex);
-                        goto exit_and_wait;
-                    }
-
-                    final_data[i] = final_result;
+                    final_data[i] = temp_result[i];
                     printf("[CID: %d] - [%02d:%02d:%02d] %s = %.2f %s\n",
                            i, now.hour, now.minute, now.second,
-                           basic_dict[i].param_key, final_result, basic_dict[i].param_units);
-                }
-                else
-                {
-                    if (is_change_baud == true || is_scan_device == true) // Kiểm tra xem nút change baudrate có đang được nhấn không
-                    {
-                        xSemaphoreGive(xDataMutex);
-                        goto exit_and_wait;
-                    }
-                    ESP_LOGW(TAG, "Fail to read data at [CID: %d] %s (Err: 0x%x)", i, basic_dict[i].param_key, err);
+                           basic_dict[i].param_key, final_data[i], basic_dict[i].param_units);
                 }
             }
             xSemaphoreGive(xDataMutex);
-
-        exit_and_wait:
-            if (is_change_baud == true || is_scan_device == true)
-            {
-                vTaskDelay(pdMS_TO_TICKS(200));
-                continue;
-            }
-            printf("Data: %d =====================================================\n", count);
-            printf("\n");
         }
-        vTaskDelay(pdMS_TO_TICKS(5000)); // Cứ 10s polling data 1 lần
-    }
-}
-void modbus_rtu_port_1_slave_init(void)
-{
-    void *slave_handler = NULL;
-    esp_err_t err = mbc_slave_init(MB_PORT_SERIAL_SLAVE, &slave_handler);
-    uint32_t current_baud = load_baud_from_nvs(); // LUÔN ĐỌC TỪ NVS
 
-    mb_communication_info_t comm_info = {
-        .port = UART_NUM_1,
-        .mode = MB_MODE_RTU,
-        .baudrate = current_baud,
-        .parity = MB_PARITY_NONE,
-        .slave_addr = 1};
-    err = mbc_slave_setup((void *)&comm_info);
-
-    // Nếu thiếu bước này, mbc_slave_start sẽ trả về 0x103 ngay lập tức
-    mb_register_area_descriptor_t reg_area = {
-        .type = MB_PARAM_HOLDING,
-        .start_offset = 0,
-        .address = (void *)raw_data, // Tận dụng vùng nhớ raw_data bạn đã malloc
-        .size = 100                  // Khai báo kích thước vùng nhớ
-    };
-    mbc_slave_set_descriptor(reg_area);
-
-    uart_set_pin(UART_NUM_1, UART_1_TX_PIN, UART_1_RX_PIN, UART_1_EN_PIN, UART_PIN_NO_CHANGE);
-
-    err = mbc_slave_start();
-
-    if (err == ESP_OK)
-    {
-        uart_set_mode(UART_NUM_1, UART_MODE_RS485_HALF_DUPLEX);
-        ESP_LOGI("SLAVE", "Port 1 started as Slave successfully.");
-    }
-    else
-    {
-        ESP_LOGE("SLAVE", "Failed to start Slave, error: 0x%x", err);
-    }
-}
-
-void modbus_rtu_port_2_slave_init(void)
-{
-    void *slave_handler = NULL;
-    esp_err_t err = mbc_slave_init(MB_PORT_SERIAL_SLAVE, &slave_handler);
-    uint32_t current_baud = load_baud_from_nvs(); // LUÔN ĐỌC TỪ NVS
-
-    mb_communication_info_t comm_info = {
-        .port = UART_NUM_2,
-        .mode = MB_MODE_RTU,
-        .baudrate = current_baud,
-        .parity = MB_PARITY_NONE,
-        .slave_addr = 1};
-    err = mbc_slave_setup((void *)&comm_info);
-
-    // Nếu thiếu bước này, mbc_slave_start sẽ trả về 0x103 ngay lập tức
-    mb_register_area_descriptor_t reg_area = {
-        .type = MB_PARAM_HOLDING,
-        .start_offset = 0,
-        .address = (void *)raw_data, // Tận dụng vùng nhớ raw_data bạn đã malloc
-        .size = 100                  // Khai báo kích thước vùng nhớ
-    };
-    mbc_slave_set_descriptor(reg_area);
-
-    uart_set_pin(UART_NUM_2, UART_2_TX_PIN, UART_2_RX_PIN, UART_2_EN_PIN, UART_PIN_NO_CHANGE);
-
-    err = mbc_slave_start();
-
-    if (err == ESP_OK)
-    {
-        // 7. RS485 MODE: Chế độ Half-Duplex để tự điều khiển chân EN (DE/RE)
-        uart_set_mode(UART_NUM_2, UART_MODE_RS485_HALF_DUPLEX);
-        ESP_LOGI("SLAVE", "Port 2 started as Slave successfully.");
-    }
-    else
-    {
-        ESP_LOGE("SLAVE", "Failed to start Slave, error: 0x%x", err);
+    exit_and_wait:
+        if (is_change_baud == true || is_scan_device == true)
+        {
+            vTaskDelay(pdMS_TO_TICKS(200));
+            continue;
+        }
+        printf("Data: %d =====================================================\n", count);
+        printf("\n");
+        vTaskDelay(pdMS_TO_TICKS(5000));
     }
 }

@@ -38,9 +38,9 @@
 
 SemaphoreHandle_t xDataMutex = NULL;
 EventGroupHandle_t event_group;
-TaskHandle_t tcp_handle_task = NULL; // biến handle cho task tcp
-TaskHandle_t rtu_handle_task = NULL; // biến handle cho task rt
-TaskHandle_t mqtt_handle_task = NULL;
+TaskHandle_t tcp_handle_task = NULL;  // biến handle cho task tcp
+TaskHandle_t rtu_handle_task = NULL;  // biến handle cho task rtu
+TaskHandle_t mqtt_handle_task = NULL; // biến handle cho task mqtt
 
 void print_partition_table_info(void);
 void check_spi_bus_mode(void);
@@ -81,7 +81,7 @@ void app_main(void)
     xTaskCreatePinnedToCore(mqtt_publish_task, "mqtt_task", 4096, NULL, 9, &mqtt_handle_task, 0);
 
     // Core 1: Các task liên quan tới giao diện người dùng và xử lý tại thiết bị
-    xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 4096, NULL, 8, &rtu_handle_task, 1);
+    xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 4096, NULL, 9, &rtu_handle_task, 1);
     xTaskCreatePinnedToCore((void *)ui_task, "ui_manager_task", 4096, NULL, 5, NULL, 1);
     xTaskCreatePinnedToCore(sd_card_logger_task, "sd_card_logger", 8192, NULL, 4, NULL, 1);
     vTaskDelay(pdMS_TO_TICKS(1000));
