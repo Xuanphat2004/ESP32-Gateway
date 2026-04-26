@@ -78,10 +78,10 @@ void app_main(void)
     // Core 0: Các task liên quan tới mạng
     // xTaskCreatePinnedToCore((void *)internet_test_task, "test_internet_task", 4096, NULL, 5, NULL, 0);
     xTaskCreatePinnedToCore(modbus_tcp_server_task, "tcp_server_task", 4096, NULL, 8, &tcp_handle_task, 0);
-    xTaskCreatePinnedToCore(mqtt_publish_task, "mqtt_task", 4096, NULL, 9, &mqtt_handle_task, 0);
+    xTaskCreatePinnedToCore(mqtt_publish_task, "mqtt_task", 8192, NULL, 9, &mqtt_handle_task, 0);
 
     // Core 1: Các task liên quan tới giao diện người dùng và xử lý tại thiết bị
-    xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 4096, NULL, 9, &rtu_handle_task, 1);
+    xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 4096, NULL, 10, &rtu_handle_task, 1);
     xTaskCreatePinnedToCore((void *)ui_task, "ui_manager_task", 4096, NULL, 5, NULL, 1);
     xTaskCreatePinnedToCore(sd_card_logger_task, "sd_card_logger", 8192, NULL, 4, NULL, 1);
     vTaskDelay(pdMS_TO_TICKS(1000));
