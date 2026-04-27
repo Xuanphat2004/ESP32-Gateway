@@ -1,0 +1,33 @@
+1. how to run venv was created in repo ?
++ run "source xp_venv/bin/activate" - for Linux
+
+
+2. how to run backend for web ? 
+- refer to the instructions repo "https://github.com/baobuibk/SolarMonitoringWeb_Thuc" on github if you have never downloaded it before. 
+- if you have downloaded it:
++ cd backend
++ run virtual environment (venv)
++ run "daphne -b 0.0.0.0 -p 8000 SolarMontoring.asgi:application"
+
+
+3. how to check tables in DB ?
+- use terminal of Django - it will open the python environment (interactive shell).
++ run "python3 manage.py shell" - after you run this command:
+ ++ Django will load "setting.py" file.
+ ++ connect to database.
+ ++ accept to typing python code for interact with database.
+ 
+ 
+ 4.
+ + sudo -i -u postgres
+ + psql
+ 
+ #######################################################################################
+ USE TMUX IN LINUX
+ + nano ~/.tmux.conf
+ => change or add something in this file, after saving it.
+ + tmux source-file ~/.tmux.conf 
+ => reload tmux, or you can run "tmux kil-server" to restart tmux
+
+**FRONTEND
+app.jsx: contain urls of frontend.
