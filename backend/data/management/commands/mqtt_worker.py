@@ -4,6 +4,7 @@ import django
 import paho.mqtt.client as mqtt
 from django.utils import timezone
 from pathlib import Path
+from django.utils.timezone import localtime
 
 
 # ==========================================
@@ -22,7 +23,7 @@ from data.models import Site, Meter, MeterRegister
 MQTT_BROKER  = "broker.emqx.io"
 MQTT_PORT    = 1883
 MQTT_TOPIC   = "xuanphat2004/mbgateway/meter/update/data"
-MQTT_CLIENT  = "DJANGO-WORKER-001"  # Client ID riêng, khác với ESP32 ("XTXP-251104")
+MQTT_CLIENT  = "DJANGO-WORKER-001" 
 
 # ==========================================
 # LOGIC XỬ LÝ DỮ LIỆU
@@ -92,9 +93,6 @@ def on_message(client, userdata, msg):
         if not registers_list:
             print("Không có mảng 'registers' trong gói tin.")
         else:
-            # Tạo 1 timestamp chung cho toàn bộ batch này
-            # → tất cả thanh ghi trong cùng 1 gói MQTT sẽ có cùng received_at
-            # → frontend dùng received_at để nhận biết "đây là cùng 1 lần đo"
             now = timezone.now()
 
             # Danh sách các object cần INSERT — chưa lưu vào DB
@@ -140,7 +138,7 @@ def on_message(client, userdata, msg):
             new_rows = []
             for obj in to_insert:
                 new_rows.append({
-                    "timestamp":      now.strftime('%Y-%m-%d %H:%M:%S'),
+                    "timestamp": localtime(now).strftime('%Y-%m-%d %H:%M:%S'), # Gio Viet Nam
                     "parameter_name": obj.register_name,
                     "register":       obj.register_address if obj.register_address is not None else "--",
                     "value":          float(obj.value) if obj.value is not None else "--",

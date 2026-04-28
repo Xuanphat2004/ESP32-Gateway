@@ -7,6 +7,7 @@ from .models import Inverter, Meter, Weather_station
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 import json
+from django.utils.timezone import localtime
 
 channel_layer = get_channel_layer()
 
@@ -151,7 +152,7 @@ def send_meter_update(sender, instance, created, **kwargs):
                 "site_id": latest_record.site_id_id,
                 "meter_name": latest_record.meter_name,
                 "meter_id": latest_record.meter_id,
-                "device_model": latest_record.device_model, # vd: EM-07k
+                "device_model": latest_record.device_model, 
                 "attribute": latest_record.attribute,
                 "status": latest_record.status,
 
@@ -164,7 +165,7 @@ def send_meter_update(sender, instance, created, **kwargs):
                 "real_power": float(latest_record.real_power) if latest_record.real_power else 0,
 
                 # cap nhat thoi gian
-                "timestamp": latest_record.timestamp.strftime('%Y-%m-%d %H:%M:%S') if latest_record.timestamp else "--",
+                "timestamp": localtime(latest_record.timestamp).strftime('%Y-%m-%d %H:%M:%S') if latest_record.timestamp else "--",
 
             })
 

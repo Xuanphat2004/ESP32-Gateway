@@ -463,64 +463,99 @@ const MeterTable = ({ siteId }) => {
   }, [siteId]);
 
   // ─────────────────────────────────────────────────
-  // EFFECT 3: WebSocket cập nhật real-time bảng CHI TIẾT
-  // Chỉ mở khi người dùng đang xem chi tiết 1 meter (selectedMeter != null)
-  // Tự đóng khi người dùng bấm "Quay lại"
-  // ─────────────────────────────────────────────────
-  useEffect(() => {
-    // Nếu chưa chọn meter nào thì không làm gì
+// EFFECT 3: WS bảng chi tiết — cố định dòng, chỉ update value
+// ─────────────────────────────────────────────────
+useEffect(() => {
     if (!selectedMeter) return;
 
-    // Mở WS tới group riêng của meter này
-    // mqtt_worker sẽ gửi vào đúng group này sau mỗi lần bulk_create
     const socket = new WebSocket(
-      `ws://localhost:8000/ws/meter_register/${selectedMeter.meter_id}/`
+        `ws://localhost:8000/ws/meter_register/${selectedMeter.meter_id}/`
     );
 
     socket.onopen = () => {
-      console.log(`WS chi tiết connected, meter_id: ${selectedMeter.meter_id}`);
+        console.log(`WS chi tiết connected: meter_id=${selectedMeter.meter_id}`);
     };
 
     socket.onmessage = (event) => {
-      // Nhận được danh sách các dòng thanh ghi MỚI vừa được lưu vào DB
-      const newRows = JSON.parse(event.data);
+        const newRows = JSON.parse(event.data);
 
-      // Thêm các dòng mới lên ĐẦU bảng (mới nhất ở trên cùng)
-      // prev = danh sách dòng cũ đang hiển thị
-      // [...newRows, ...prev] = dòng mới + dòng cũ
-      setDetailRows(prev => [...newRows, ...prev]);
+        setDetailRows(prev => {
+            // Nếu chưa có data (prev rỗng) → dùng thẳng newRows làm nền
+            if (prev.length === 0) return newRows;
+
+            // Tạo map từ danh sách hiện tại, key = parameter_name
+            const currentMap = {};
+            prev.forEach(row => {
+                currentMap[row.parameter_name] = row;
+            });
+
+            newRows.forEach(newRow => {
+                if (currentMap[newRow.parameter_name]) {
+                    // Thanh ghi đã có → CHỈ cập nhật value + timestamp
+                    // Giữ nguyên: register, unit, vị trí dòng
+                    currentMap[newRow.parameter_name] = {
+                        ...currentMap[newRow.parameter_name], // giữ các field cũ
+                        value:     newRow.value,              // ← chỉ đổi value
+                        timestamp: newRow.timestamp,          // ← và timestamp
+                    };
+                } else {
+                    // Thanh ghi MỚI (thiết bị gửi thêm thanh ghi chưa từng có)
+                    // → thêm vào cuối bảng
+                    currentMap[newRow.parameter_name] = newRow;
+                }
+            });
+
+            // Giữ nguyên thứ tự dòng cũ
+            const existingNames = prev.map(r => r.parameter_name);
+            // Tìm các tên thanh ghi mới chưa có trong bảng
+            const newNames = Object.keys(currentMap).filter(
+                name => !existingNames.includes(name)
+            );
+
+            return [
+                // Dòng cũ — đã được update value mới
+                ...prev.map(row => currentMap[row.parameter_name]),
+                // Dòng mới — thanh ghi mới từ thiết bị, thêm vào cuối
+                ...newNames.map(name => currentMap[name]),
+            ];
+        });
     };
 
-    socket.onerror = (e) => console.error("WS chi tiết error:", e);
+    socket.onerror = e => console.error("WS chi tiết error:", e);
 
-    // Cleanup: khi selectedMeter thay đổi (bấm Quay lại hoặc chọn meter khác)
-    // → đóng WS cũ để không nhận data thừa
+    // Cleanup: đóng WS khi quay lại hoặc đổi meter
     return () => socket.close();
 
-  }, [selectedMeter]); // Chạy lại mỗi khi selectedMeter thay đổi
+}, [selectedMeter]);
 
   // ─────────────────────────────────────────────────
   // HÀM: Xử lý khi click vào 1 dòng trong bảng tổng quát
   // ─────────────────────────────────────────────────
   const handleRowClick = async (meter_id, meter_name) => {
-    // Lưu meter đang được chọn → EFFECT 3 sẽ tự động chạy và mở WS
-    setSelectedMeter({ meter_id, meter_name });
     setLoadingDetail(true);
+    setDetailRows([]); // xóa data cũ trước khi load mới
 
     try {
-      // Fetch lịch sử thanh ghi của meter này từ API
-      // Đây là dữ liệu CŨ đã có trong DB trước khi WS kết nối
-      const res  = await fetch(`http://localhost:8000/solardb/get-meter-registers/${meter_id}/`);
-      const data = await res.json();
+        // Bước 1: fetch lịch sử batch mới nhất từ API trước
+        const res  = await fetch(
+            `http://localhost:8000/solardb/get-meter-registers/${meter_id}/`
+        );
+        const data = await res.json();
 
-      // Lưu vào state để render bảng chi tiết
-      setDetailRows(data);
+        // Bước 2: lưu data vào state
+        setDetailRows(data);
+
+        // Bước 3: SAU KHI có data rồi mới set selectedMeter
+        // → EFFECT 3 lúc này mới chạy → mở WS
+        // → WS sẽ update tiếp trên nền data đã có sẵn
+        setSelectedMeter({ meter_id, meter_name });
+
     } catch (err) {
-      console.error("Fetch chi tiết error:", err);
+        console.error("Fetch chi tiết error:", err);
     } finally {
-      setLoadingDetail(false);
+        setLoadingDetail(false);
     }
-  };
+};
 
   // ─────────────────────────────────────────────────
   // RENDER: Bảng CHI TIẾT (hiển thị khi đã chọn 1 meter)

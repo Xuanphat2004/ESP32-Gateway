@@ -6,6 +6,7 @@ from datetime import timedelta
 from django.http import JsonResponse
 # Chỉ import 1 lần, lấy cả Meter lẫn MeterRegister từ cùng 1 chỗ
 from data.models import Meter, MeterRegister
+from django.utils.timezone import localtime  # thêm import này
 
 
 # Lấy 1 record duy nhất của 1 meter cụ thể theo tên
@@ -74,7 +75,7 @@ def get_latest_records(request):
             "apparent_power_l1": float(m.apparent_power_l1) if m.apparent_power_l1 else 0,
             "real_power":        float(m.real_power)         if m.real_power        else 0,
           
-            "timestamp":         m.timestamp.strftime('%Y-%m-%d %H:%M:%S') if m.timestamp else "--",
+            "timestamp": localtime(m.timestamp).strftime('%Y-%m-%d %H:%M:%S'),
         })
 
     return JsonResponse(result, safe=False)
@@ -83,21 +84,37 @@ def get_latest_records(request):
 # Lấy toàn bộ thanh ghi của 1 meter cụ thể — dùng khi click vào dòng
 @csrf_exempt
 def get_meter_registers(request, meter_id):
-    # Lọc theo meter_id, mới nhất lên đầu, trong cùng batch thì theo thứ tự địa chỉ Modbus
-    registers = (
+    from django.utils.timezone import localtime
+
+    # ← ĐỔI HOÀN TOÀN LOGIC
+    # Cũ: lấy TẤT CẢ lịch sử → nhiều dòng trùng register_name
+    # Mới: chỉ lấy batch MỚI NHẤT → mỗi register_name xuất hiện đúng 1 lần
+
+    # Bước 1: tìm received_at của lần gửi mới nhất
+    latest_batch = (
         MeterRegister.objects
         .filter(meter_id=meter_id)
-        .order_by('-received_at', 'register_address')
+        .order_by('-received_at')
+        .values('received_at')
+        .first()
     )
 
-    result = []
-    for reg in registers:
-        result.append({
-            "timestamp":      reg.received_at.strftime('%Y-%m-%d %H:%M:%S'),
-            "parameter_name": reg.register_name,
-            "register":       reg.register_address if reg.register_address is not None else "--",
-            "value":          float(reg.value) if reg.value is not None else "--",
-            "unit":           reg.unit if reg.unit else "--",
-        })
+    if not latest_batch:
+        return JsonResponse([], safe=False)
+
+    # Bước 2: lấy tất cả thanh ghi của đúng batch mới nhất đó
+    registers = (
+        MeterRegister.objects
+        .filter(meter_id=meter_id, received_at=latest_batch['received_at'])
+        .order_by('register_address')
+    )
+
+    result = [{
+        "timestamp":      localtime(reg.received_at).strftime('%Y-%m-%d %H:%M:%S'),
+        "parameter_name": reg.register_name,
+        "register":       reg.register_address if reg.register_address is not None else "--",
+        "value":          float(reg.value) if reg.value is not None else "--",
+        "unit":           reg.unit if reg.unit else "--",
+    } for reg in registers]
 
     return JsonResponse(result, safe=False)
