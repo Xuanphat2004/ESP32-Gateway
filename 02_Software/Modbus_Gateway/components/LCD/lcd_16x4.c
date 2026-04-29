@@ -92,9 +92,9 @@ void lcd_1604_init(void)
 
     // Intro
     lcd_clear();
-    LCD_SetCursor(1, 3);
+    LCD_SetCursor(1, 5);
     LCD_Print("Welcome to");
-    LCD_SetCursor(2, 1);
+    LCD_SetCursor(2, 3);
     LCD_Print("Modbus Gateway");
     vTaskDelay(pdMS_TO_TICKS(2000));
     lcd_clear();
@@ -112,10 +112,10 @@ void LCD_SetCursor(uint8_t row, uint8_t col)
         address = 0x40 + col;
         break; // Row 2
     case 2:
-        address = 0x10 + col;
+        address = 0x14 + col;
         break; // Row 3
     case 3:
-        address = 0x50 + col;
+        address = 0x54 + col;
         break; // Row 4
     default:
         address = 0x00;
