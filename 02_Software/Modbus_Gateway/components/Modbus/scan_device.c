@@ -35,6 +35,8 @@ extern SemaphoreHandle_t xDataMutex;
 extern TaskHandle_t tcp_handle_task;
 
 // Kiểm tra id đã tồn tại trong list hay chưa
+// uint8_t id = original_id[i];
+// bool in_p1 = is_id_in_result(id, &list_p1)
 static bool is_id_in_result(uint8_t id, id_scan_result_t *list)
 {
     for (int i = 0; i < list->count; i++)
@@ -148,7 +150,7 @@ void analyse_scan_result(void)
 {
     memset(&scan_result, 0, sizeof(scan_analysis_t)); // Reset kết quả cũ
 
-    // Lọc danh sách id mất hoàn toàn (không có ở cả 2 port)
+    // Tìm id không có cả ở 2 port
     for (int i = 0; i < original_id_count; i++)
     {
         uint8_t id = original_id[i];
@@ -157,9 +159,20 @@ void analyse_scan_result(void)
 
         if (in_p1 == false && in_p2 == false)
         {
-            scan_result.lose_list[scan_result.lose_count++] = id;
+            scan_result.lose_list[scan_result.lose_count++] = id; // Danh sách cái id không phản hồi
+            printf("lose id: %d\n", id);
         }
     }
+    // debug code ======================================================
+    printf("list_p1.count: %d\n", list_p1.count);
+    printf("list_p2.count: %d\n", list_p2.count);
+    for (int i = 0; i < original_id_count; i++)
+        printf("id in original at index %d: %d\n", i, original_id[i]);
+    for (int i = 0; i < list_p1.count; i++)
+        printf("id in list_p1 at index %d: %d\n", i, list_p1.id[i]);
+    for (int i = 0; i < list_p2.count; i++)
+        printf("id in list_p2 at index %d: %d\n", i, list_p2.id[i]);
+    //==================================================================
 
     // Port nào nhiều id hơn thì làm Master
     if (list_p2.count > list_p1.count)
@@ -169,20 +182,12 @@ void analyse_scan_result(void)
 
     // Tìm biên điểm đứt trên dây trên port 1
     scan_result.final_id_p1 = -1;
-    printf("original_id_count =  %d\n", original_id_count);
-    for (int i = 0; i < 10; i++)
-        printf("ID in Port 1: %d \n", list_p1.id[i]);
-
     for (int i = 0; i < original_id_count; i++)
     {
-        printf("AAAAAAAAAAAAAAAAAAA\n");
         if (is_id_in_result(original_id[i], &list_p1) == true) // Nếu id của port 1 trùng với original_id[]
         {
-            scan_result.final_id_p1 = i;
-            // printf("AAAAAAAAAAAAAAAAAAA\n"); // index của id đó trong original_id[]
+            scan_result.final_id_p1 = i; // index của id cuối cùng mà port đó có thể quét được trong original_id[]
         }
-        else
-            break;
     }
 
     // Tìm biên điểm đứt trên dây trên port 2
@@ -192,20 +197,14 @@ void analyse_scan_result(void)
         if (is_id_in_result(original_id[i], &list_p2) == true)
         {
             scan_result.final_id_p2 = i;
-            printf("BBBBBBBBBBBBBBBBBBBB\n");
         }
-
-        else
-            break;
     }
 
     ESP_LOGI(TAG, "Analysis done: lose = %d, active_port = %d, final_id_p1 = %d, final_id_p2 = %d",
-             scan_result.lose_count,
-             scan_result.active_port,
-             scan_result.final_id_p1,
-             scan_result.final_id_p2);
+             scan_result.lose_count, scan_result.active_port, scan_result.final_id_p1, scan_result.final_id_p2);
 }
 
+//====================================================================================================================
 // Destroy -> Delete -> Nạp cấu hình mới
 static void scan_task(void *pvParameters)
 {

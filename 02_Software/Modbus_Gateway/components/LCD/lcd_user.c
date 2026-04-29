@@ -75,30 +75,30 @@ static void page_1_home(void)
 static void page_2_settings(void)
 {
     LCD_SetCursor(0, 1);
-    LCD_Print("--MENU SETTINGS--");
+    LCD_Print("-=MENU SETTINGS=-");
     LCD_SetCursor(1, 1);
-    LCD_Print(menu_cursor == 1 ? "-->Baudrate        " : "   Baudrate          ");
+    LCD_Print(menu_cursor == 1 ? "-->Baudrate   " : "   Baudrate       ");
     LCD_SetCursor(2, 1);
-    LCD_Print(menu_cursor == 2 ? "-->Scan Device     " : "   Scan Device       ");
+    LCD_Print(menu_cursor == 2 ? "-->Scan Device   " : "   Scan Device    ");
     LCD_SetCursor(3, 1);
-    LCD_Print(menu_cursor == 3 ? "-->Network Info    " : "   Network Info      ");
+    LCD_Print(menu_cursor == 3 ? "-->Network Info   " : "   Network Info   ");
 }
 
 static void page_3_info_device(void)
 {
     LCD_SetCursor(0, 2);
-    LCD_Print("--DEVICE INFO--");
+    LCD_Print("-=DEVICE INFO=- ");
     LCD_SetCursor(1, 0);
-    LCD_Print("Name    : MB-Gateway  ");
+    LCD_Print("  Name  : MB-Gateway");
     LCD_SetCursor(2, 0);
-    LCD_Print("Firmware: v1.0.0       ");
+    LCD_Print("Firmware: v1.0.0");
     LCD_SetCursor(3, 0);
     char buffer[21] = {0}; // 20 Ký tự + 1 ký tự \0
     time_t now_time;
     struct tm time_active;
     time(&now_time);
     localtime_r(&now_time, &time_active); // Thời gian trong bộ RTC nội của ESP
-    snprintf(buffer, sizeof(buffer), "Active  : %02d:%02d:%02d  ", time_active.tm_hour, time_active.tm_min, time_active.tm_sec);
+    snprintf(buffer, sizeof(buffer), " Active : %02d:%02d:%02d", time_active.tm_hour, time_active.tm_min, time_active.tm_sec);
     LCD_Print(buffer);
 }
 
@@ -106,13 +106,13 @@ static void page_scan_result(void)
 {
     // lcd_clear();
     char buffer[21] = {0};
-    LCD_SetCursor(0, 4);
-    LCD_Print("--SCAN RESULT--");
+    LCD_SetCursor(0, 2);
+    LCD_Print("-=SCAN RESULT=-");
 
     // Hiển thị danh sách ID Active
     LCD_SetCursor(1, 1);
-    LCD_Print("Active  :");
-    LCD_SetCursor(1, 9);
+    LCD_Print("Active  :   ");
+    LCD_SetCursor(1, 11);
     format_id_list(list_p1.id, list_p1.count, buffer); // Biến mảng thành chuỗi string
     LCD_Print(buffer);                                 // In danh sách ID
 
@@ -147,8 +147,8 @@ static void page_scan_result(void)
     {
         LCD_Print("None"); // Nếu danh sách trống
     }
-    LCD_SetCursor(3, 11);
-    LCD_Print("Detail ->");
+    LCD_SetCursor(3, 12);
+    LCD_Print("Detail->");
 }
 
 // hiển thị chi tiết tình trạng trên đường truyền
@@ -158,61 +158,71 @@ static void page_scan_detail(void)
     char line_3[32] = ""; // Chứa danh sách Lose
     char line_4[32] = ""; // Chứa thông tin Master port
 
-    // Xử lý để hiển thị line2
-    if (scan_result.final_id_p1 + 1 == scan_result.final_id_p2) // Nếu chỉ có đứt 1 chỗ
+    // Nếu chỉ đứt 1 chỗ
+    if (scan_result.final_id_p1 + 1 == scan_result.final_id_p2 ||
+        (scan_result.final_id_p2 == original_id_count && scan_result.final_id_p1 == original_id_count - 2) ||
+        (scan_result.final_id_p1 == -1 && scan_result.final_id_p2 == 1))
     {
-        if (scan_result.final_id_p1 == -1)
-            sprintf(line_2, "P1-X-%d", original_id[0]);
+        if (scan_result.final_id_p1 == -1) // Nếu đứt tại port 1
+            sprintf(line_2, "    P1-X-%d", original_id[0]);
         else if (scan_result.final_id_p2 == original_id_count)
-            sprintf(line_2, "%d-X-P2", original_id[original_id_count - 1]);
+            sprintf(line_2, "    %d-X-P2", original_id[original_id_count - 1]);
         else
-            sprintf(line_2, "%d-X-%d", original_id[scan_result.final_id_p1], original_id[scan_result.final_id_p2]);
+            sprintf(line_2, "    %d-X-%d", original_id[scan_result.final_id_p1], original_id[scan_result.final_id_p2]);
     }
-    else if (scan_result.final_id_p1 + 1 < scan_result.final_id_p2) // Nếu đứt 2 chỗ
+
+    // Nếu đứt 2 chỗ
+    else if (scan_result.final_id_p1 + 1 < scan_result.final_id_p2)
     {
         char cut_1[10] = ""; //
         char cut_2[10] = "";
 
         if (scan_result.final_id_p1 == -1) // Nếu đứt tại port 1
-            sprintf(cut_1, "P1-X- ");
+            sprintf(cut_2, "P1-X-%d", original_id[0]);
+
         else
+        {
             sprintf(cut_1, "%d-X-%d", original_id[scan_result.final_id_p1], original_id[scan_result.final_id_p1 + 1]);
+            // printf("try_1\n");
+        }
 
         if (scan_result.final_id_p2 == original_id_count) // Nếu đứt tại port 2
-            sprintf(cut_2, " -X-P2");
+            sprintf(cut_2, "%d-X-P2", original_id[original_id_count - 1]);
         else
+        {
             sprintf(cut_2, "%d-X-%d", original_id[scan_result.final_id_p2 - 1], original_id[scan_result.final_id_p2]);
+            // printf("try_2\n");
+        }
 
-        // Gộp 2 điểm đứt vào cùng 1 dòng
-        sprintf(line_2, "%s %s", cut_1, cut_2);
+        sprintf(line_2, "%s  %s", cut_1, cut_2); // Gộp 2 điểm đứt vào cùng 1 dòng
     }
     else
     {
-        sprintf(line_2, " Status Normal ");
+        sprintf(line_2, "  Line Normal");
     }
 
-    // --- Xử lý Dòng 3: Hiển thị Lose List ---
+    // Hiển thị Lose List
     if (scan_result.lose_count > 0)
     {
         char lose_str[16] = "";
-        format_id_list(scan_result.lose_list, scan_result.lose_count, lose_str); // Ghép chuỗi
-        sprintf(line_3, "LOSE: %s", lose_str);
+        format_id_list(scan_result.lose_list, scan_result.lose_count, lose_str); // Ghép chuỗi các id mất kết nối
+        sprintf(line_3, "Lose: %s", lose_str);
     }
     else
     {
-        sprintf(line_3, " No Lose    ");
+        sprintf(line_3, "No Lose   ");
     }
 
     // Xử lý dòng 4
-    sprintf(line_4, "Master-Port: %d ", scan_result.active_port);
+    sprintf(line_4, "Master: Port %d ", scan_result.active_port);
 
     char buf2[21], buf3[21], buf4[21];
     sprintf(buf2, "%-20.20s", line_2); //"-16.16s", -: căn lề trái, 16.16: đảm bảo chỉ 16 ký tự
     sprintf(buf3, "%-20.20s", line_3);
     sprintf(buf4, "%-20.20s", line_4);
 
-    LCD_SetCursor(0, 5);
-    LCD_Print("--DETAIL--    ");
+    LCD_SetCursor(0, 2);
+    LCD_Print("-=LINE DETAIL=-  ");
     LCD_SetCursor(1, 2);
     LCD_Print(buf2);
     LCD_SetCursor(2, 2);
@@ -227,7 +237,7 @@ static void page_set_baud(void)
     char buffer_1[21], buffer_2[21]; // Dừng để giá trị tốc độ hiện tại đọc ra từ NVS và giá trị tốc độ người dùng muốn chọn
     uint32_t current_baud = load_baud_from_nvs();
     LCD_SetCursor(0, 2);
-    LCD_Print("--SET BAUDRATE--  ");
+    LCD_Print("-=SET BAUDRATE=-  ");
     LCD_SetCursor(1, 2);
     snprintf(buffer_1, sizeof(buffer_1), "Current: %ld bps ", current_baud);
     LCD_Print(buffer_1);
