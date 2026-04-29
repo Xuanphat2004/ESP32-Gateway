@@ -29,21 +29,19 @@
 #include "lcd_16x4.h"
 #include "system_event.h"
 #include "ble.h"
-// #include "nvs_view.h"
-// #include "check_device.h"
 #include "encoder_ec11.h"
 #include "lcd_user.h"
 #include "mqtt_to_web.h"
 #include "sd_card.h"
+#include "scan_device.h"
 
 SemaphoreHandle_t xDataMutex = NULL;
 EventGroupHandle_t event_group;
 TaskHandle_t tcp_handle_task = NULL;  // biến handle cho task tcp
 TaskHandle_t rtu_handle_task = NULL;  // biến handle cho task rtu
 TaskHandle_t mqtt_handle_task = NULL; // biến handle cho task mqtt
+extern scan_analysis_t scan_result;
 
-void print_partition_table_info(void);
-void check_spi_bus_mode(void);
 void app_main(void)
 {
 
@@ -58,7 +56,7 @@ void app_main(void)
     }
 
     xDataMutex = xSemaphoreCreateMutex();
-
+    lcd_clear();
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
     eth_init();
@@ -76,7 +74,6 @@ void app_main(void)
     mqtt_app_start();
 
     // Core 0: Các task liên quan tới mạng
-    // xTaskCreatePinnedToCore((void *)internet_test_task, "test_internet_task", 4096, NULL, 5, NULL, 0);
     xTaskCreatePinnedToCore(modbus_tcp_server_task, "tcp_server_task", 4096, NULL, 8, &tcp_handle_task, 0);
     xTaskCreatePinnedToCore(mqtt_publish_task, "mqtt_task", 8192, NULL, 9, &mqtt_handle_task, 0);
 

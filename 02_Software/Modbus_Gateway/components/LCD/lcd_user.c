@@ -30,9 +30,8 @@ bool is_baudrate = false; // trạng thái có đang thực hiện chức năng 
 extern id_scan_result_t list_p1;
 extern uint8_t original_id[248];
 extern uint8_t original_id_count;
+extern scan_analysis_t scan_result;
 
-//=============================================================================================
-// ========================== CÁC HÀM CHỨC NĂNG PHỤ KÈM THEO ==================================
 //=============================================================================================
 // Hàm chuyển mảng ID thành chuỗi "1, 4, 5"
 static void format_id_list(uint8_t *ids, int count, char *output)
@@ -44,19 +43,18 @@ static void format_id_list(uint8_t *ids, int count, char *output)
         snprintf(temp, sizeof(temp), (i == count - 1) ? "%d" : "%d,", ids[i]);
 
         // Kiểm tra nếu thêm ID tiếp theo sẽ vượt quá 12 ký tự (để vừa dòng LCD)
-        if (strlen(output) + strlen(temp) > 12)
+        if (strlen(output) + strlen(temp) > 12) // strlen: đếm số lượng ký tự không tính \0
         {
             strcat(output, ".."); // Thêm dấu .. báo hiệu còn nữa nhưng hết chỗ
             break;
         }
-        strcat(output, temp);
+        strcat(output, temp); // nối chuỗi
     }
 }
 //============================================================================================
 
 //=============================================================================================
-// ========================== CÁC HÀM XỬ LÝ HIỂN THỊ TRÊN LCD =================================
-//=============================================================================================
+// Các page
 static void page_1_home(void)
 {
     char buffer[20] = {0};
@@ -116,11 +114,11 @@ static void page_scan_result(void)
     LCD_SetCursor(1, 0);
     LCD_Print("Active:");
     LCD_SetCursor(1, 8);
-    format_id_list(list_p1.id, list_p1.count, buffer);
-    LCD_Print(buffer); // In danh sách ID
+    format_id_list(list_p1.id, list_p1.count, buffer); // Biến mảng thành chuỗi string
+    LCD_Print(buffer);                                 // In danh sách ID
 
     // Tìm ID Inactive
-    uint8_t inactive_id[20];
+    uint8_t inactive_id[248];
     int inactive_count = 0;
     for (int i = 0; i < original_id_count; i++)
     {
@@ -152,6 +150,77 @@ static void page_scan_result(void)
     }
 }
 
+// hiển thị chi tiết tình trạng trên đường truyền
+static void page_scan_detail(void)
+{
+    char line_2[32] = ""; // Chứa thông tin đoạn dây đứt
+    char line_3[32] = ""; // Chứa danh sách Lose
+    char line_4[32] = ""; // Chứa thông tin Master port
+
+    // Xử lý để hiển thị line2
+    if (scan_result.final_id_p1 + 1 == scan_result.final_id_p2) // Nếu chỉ có đứt 1 chỗ
+    {
+        if (scan_result.final_id_p1 == -1)
+            sprintf(line_2, "P1-X-%d", original_id[0]);
+        else if (scan_result.final_id_p2 == original_id_count)
+            sprintf(line_2, "%d-X-P2", original_id[original_id_count - 1]);
+        else
+            sprintf(line_2, "%d-X-%d", original_id[scan_result.final_id_p1], original_id[scan_result.final_id_p2]);
+    }
+    else if (scan_result.final_id_p1 + 1 < scan_result.final_id_p2) // Nếu đứt 2 chỗ
+    {
+        char cut_1[10] = "";
+        char cut_2[10] = "";
+
+        if (scan_result.final_id_p1 == -1) // Nếu đứt tại port 1
+            sprintf(cut_1, "P1-X-");
+        else
+            sprintf(cut_1, "%d-X-%d", original_id[scan_result.final_id_p1], original_id[scan_result.final_id_p1 + 1]);
+
+        if (scan_result.final_id_p2 == original_id_count) // Nếu đứt tại port 2
+            sprintf(cut_2, "-X-P2");
+        else
+            sprintf(cut_2, "%d-X-%d", original_id[scan_result.final_id_p2 - 1], original_id[scan_result.final_id_p2]);
+
+        // Gộp 2 điểm đứt vào cùng 1 dòng
+        sprintf(line_2, "%s %s", cut_1, cut_2);
+    }
+    else
+    {
+        sprintf(line_2, " Status Normal ");
+    }
+
+    // --- Xử lý Dòng 3: Hiển thị Lose List ---
+    if (scan_result.lose_count > 0)
+    {
+        char lose_str[12] = "";
+        format_id_list(scan_result.lose_list, scan_result.lose_count, lose_str); // Ghép chuỗi
+        sprintf(line_3, "LOSE: %s", lose_str);
+    }
+    else
+    {
+        sprintf(line_3, " No Lose    ");
+    }
+
+    // Xử lý dòng 4
+    sprintf(line_4, " Master-Port: %d ", scan_result.active_port);
+
+    char buf2[17], buf3[17], buf4[17];
+    sprintf(buf2, "%-16.16s", line_2); //"-16.16s", -: căn lề trái, 16.16: đảm bảo chỉ 16 ký tự
+    sprintf(buf3, "%-16.16s", line_3);
+    sprintf(buf4, "%-16.16s", line_4);
+
+    LCD_SetCursor(0, 2);
+    LCD_Print("-- DETAIL --    ");
+    LCD_SetCursor(1, 0);
+    LCD_Print(buf2);
+    LCD_SetCursor(2, 0);
+    LCD_Print(buf3);
+    LCD_SetCursor(3, 0);
+    LCD_Print(buf4);
+}
+
+// Page người dùng set baudrate
 static void page_set_baud(void)
 {
     char buffer_1[20], buffer_2[20]; // Dừng để giá trị tốc độ hiện tại đọc ra từ NVS và giá trị tốc độ người dùng muốn chọn
@@ -167,8 +236,6 @@ static void page_set_baud(void)
 }
 //=====================================================================================================
 
-//=====================================================================================================
-//============================= QUẢN LÝ CÁC TÁC VỤ LIÊN QUAN ĐẾN NÚT NHẤN =============================
 //=====================================================================================================
 void button_handler_task(void *arg)
 {
@@ -263,10 +330,10 @@ void ui_task(void)
 
     while (1)
     {
-        // CHỈ XỬ LÝ NÚT NHẤN KHI KHÔNG SCANNING
+
         if (xQueueReceive(ui_queue, &event, pdMS_TO_TICKS(100)) == pdTRUE)
         {
-            if (is_scanning == false)
+            if (is_scanning == false) // Tránh người dùng bấm nút khi đang scan
             {
                 switch (event)
                 {
@@ -326,6 +393,12 @@ void ui_task(void)
                         current_page = PAGE_2_SETTINGS;
                     }
 
+                    else if (current_page == PAGE_SCAN_DETAIL)
+                    {
+                        lcd_clear();
+                        current_page = PAGE_SCAN_RESULT;
+                    }
+
                     else if (current_page == PAGE_3_INFO_DEVICE)
                     {
                         lcd_clear();
@@ -360,6 +433,8 @@ void ui_task(void)
                         current_page = PAGE_1_HOME;
                     else if (current_page == PAGE_2_SETTINGS)
                         current_page = PAGE_3_INFO_DEVICE;
+                    else if (current_page == PAGE_SCAN_RESULT)
+                        current_page = PAGE_SCAN_DETAIL;
                     break;
 
                 default:
@@ -370,20 +445,26 @@ void ui_task(void)
 
         if (is_scanning == false)
         {
+            // Page Home
             if (current_page == PAGE_1_HOME)
                 page_1_home();
 
+            // Page settings
             else if (current_page == PAGE_2_SETTINGS)
+
                 page_2_settings();
-
-            else if (current_page == PAGE_3_INFO_DEVICE)
-                page_3_info_device();
-
             else if (current_page == PAGE_SCAN_RESULT)
                 page_scan_result();
 
+            else if (current_page == PAGE_SCAN_DETAIL)
+                page_scan_detail();
+
             else if (current_page == PAGE_SET_BAUDRATE)
                 page_set_baud();
+
+            // Page info device
+            else if (current_page == PAGE_3_INFO_DEVICE)
+                page_3_info_device();
         }
         else
         {

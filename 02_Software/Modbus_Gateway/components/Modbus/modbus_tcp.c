@@ -155,7 +155,7 @@ void modbus_tcp_server_task(void *arg)
                 continue;
             }
 
-            // Configuring Slave Data Access (Mục 2 trong PDF)
+            // Configuring Slave Data Access
             mb_register_area_descriptor_t reg_area = {
                 .type = MB_PARAM_HOLDING,
                 .start_offset = 0,
@@ -208,8 +208,7 @@ void modbus_tcp_server_task(void *arg)
                 vTaskDelay(pdMS_TO_TICKS(200));
                 continue;
             }
-
-            // Copy toàn bộ final_data vào tcp_virtual_storage trong 1 lần có mutex
+            // Copy toàn bộ final_data vào tcp_virtual_storage
             memcpy(tcp_virtual_storage, final_data, register_count * sizeof(float));
             xSemaphoreGive(xDataMutex);
         }

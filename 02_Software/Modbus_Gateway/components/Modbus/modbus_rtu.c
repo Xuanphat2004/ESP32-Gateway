@@ -15,6 +15,7 @@
 #include "rtc_mb.h"
 #include "modbus_rtu.h"
 #include "change_baudrate.h"
+#include "scan_device.h"
 
 static const char *TAG = "[RTU]";
 
@@ -28,7 +29,8 @@ uint16_t g_total_raw_bytes = 0;               // Tổng số byte thực tế c�
 
 extern SemaphoreHandle_t xDataMutex; // Mutex dùng cho việc ghi vào vùng nhớ chung
 extern bool is_change_baud;
-extern bool is_scan_device;
+extern volatile bool is_scan_device;
+extern scan_analysis_t scan_result;
 
 //==========================================================================================================
 //====== Hàm hỗ trợ - In bảng A trong RAM ra terminal =======
@@ -223,10 +225,10 @@ void modbus_rtu_port_2_dummy_init(void)
 }
 
 //======================================================================
-// KHỞI TẠO CHÍNH: Port 1 làm Master + Port 2 làm dummy
-//======================================================================
+// Port 1 làm Master + Port 2 làm dummy
 void modbus_rtu_port_1_init(void)
 {
+    scan_result.active_port = 1;
     uint32_t current_baud = load_baud_from_nvs();
 
     if (init_storage_partition() != ESP_OK)
@@ -255,14 +257,46 @@ void modbus_rtu_port_1_init(void)
     ESP_ERROR_CHECK(mbc_master_start());
     ESP_ERROR_CHECK(uart_set_mode(UART_1, UART_MODE_RS485_HALF_DUPLEX));
 
-    // Thay slave init bằng dummy init → không dùng singleton slave
-    // → TCP slave có thể init sau mà không bị ghi đè hay crash
     modbus_rtu_port_2_dummy_init();
 }
 
 //======================================================================
-// TASK ĐỌC DỮ LIỆU MODBUS RTU
+// Port 1 làm Master + Port 2 làm dummy
+void modbus_rtu_port_2_init(void)
+{
+    scan_result.active_port = 2;
+    uint32_t current_baud = load_baud_from_nvs();
+
+    if (init_storage_partition() != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Không thể mount partition storage !");
+        return;
+    }
+    if (load_modbus_dynamic_config() != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Fail to read data from NVS memory !!!");
+        return;
+    }
+
+    void *master_handler = NULL;
+    ESP_ERROR_CHECK(mbc_master_init(MB_PORT_SERIAL_MASTER, &master_handler));
+
+    mb_communication_info_t comm_info = {
+        .port = UART_2,
+        .mode = MB_MODE_RTU,
+        .baudrate = current_baud,
+        .parity = MB_PARITY_NONE,
+    };
+    ESP_ERROR_CHECK(mbc_master_setup((void *)&comm_info));
+    ESP_ERROR_CHECK(mbc_master_set_descriptor(basic_dict, register_count));
+    ESP_ERROR_CHECK(uart_set_pin(UART_2, UART_2_TX_PIN, UART_2_RX_PIN, UART_2_EN_PIN, UART_PIN_NO_CHANGE));
+    ESP_ERROR_CHECK(mbc_master_start());
+    ESP_ERROR_CHECK(uart_set_mode(UART_2, UART_MODE_RS485_HALF_DUPLEX));
+
+    modbus_rtu_port_1_dummy_init();
+}
 //======================================================================
+// RTU Task
 void modbus_test_read(void)
 {
     esp_err_t err;
@@ -285,15 +319,6 @@ void modbus_test_read(void)
             continue;
         }
 
-        if (is_change_baud == true || is_scan_device == true)
-        {
-            vTaskDelay(pdMS_TO_TICKS(200));
-            continue;
-        }
-
-        // ── BƯỚC 1: Đọc Modbus NGOÀI mutex ──────────────────────────────────
-        // mbc_master_get_parameter có thể block vài trăm ms chờ thiết bị trả lời
-        // Nếu giữ mutex trong lúc này → TCP task bị timeout → priority inheritance crash
         vTaskDelay(pdMS_TO_TICKS(150)); // Guard time t3.5
         rtc_read_time(&now);
 
@@ -342,13 +367,12 @@ void modbus_test_read(void)
             }
         }
 
-        // ── BƯỚC 2: Ghi kết quả vào final_data CÓ mutex ─────────────────────
         // Lấy mutex chỉ để ghi — rất nhanh, không block lâu
         if (xSemaphoreTake(xDataMutex, pdMS_TO_TICKS(500)) == pdTRUE)
         {
             for (int i = 0; i < register_count; i++)
             {
-                if (read_ok[i])
+                if (read_ok[i] == true)
                 {
                     final_data[i] = temp_result[i];
                     printf("[CID: %d] - [%02d:%02d:%02d] %s = %.2f %s\n",
@@ -365,7 +389,7 @@ void modbus_test_read(void)
             vTaskDelay(pdMS_TO_TICKS(200));
             continue;
         }
-        printf("Data: %d =====================================================\n", count);
+        // printf("Data: %d =====================================================\n", count);
         printf("\n");
         vTaskDelay(pdMS_TO_TICKS(5000));
     }

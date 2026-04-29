@@ -15,6 +15,7 @@
 #include "modbus_rtu.h"
 #include "modbus_tcp.h"
 #include "lcd_user.h"
+#include "scan_device.h"
 
 extern bool is_baudrate;
 extern bool is_tcp_running;
@@ -24,6 +25,7 @@ extern int baudrate_id;
 extern TaskHandle_t tcp_handle_task;
 extern TaskHandle_t rtu_handle_task;
 extern SemaphoreHandle_t xDataMutex;
+extern scan_analysis_t scan_result; // Sử dụng kết quả scan để chọn port master
 volatile bool is_change_baud = false;
 uint32_t baudrate = 0;
 
@@ -42,11 +44,6 @@ void change_baudrate_task(void *arg)
         ESP_LOGW("[CHANGE BAUDRATE]", "=====> Saved new baudrate %ld to NVS", new_baud);
     }
 
-    // KHÔNG dùng vTaskDelete trực tiếp vì task có thể đang giữ spinlock của
-    // lwIP hoặc Modbus stack → spinlock không được release → crash lần sau init
-    //
-    // Gọi mbc_slave_destroy() để giải phóng toàn bộ spinlock, semaphore,
-    // socket, và internal state của Modbus TCP stack TRƯỚC khi xóa task
     if (is_tcp_running == true)
     {
         mbc_slave_destroy(); // Giải phóng spinlock + đóng socket port 502
@@ -54,8 +51,6 @@ void change_baudrate_task(void *arg)
         ESP_LOGW("[CHANGE BAUDRATE]", "=====> TCP slave stack destroyed cleanly");
     }
 
-    // Đợi TCP task tự nhận is_change_baud=true và thoát ra vTaskDelay
-    // Sau đó mới xóa để chắc chắn task không đang giữ resource nào
     vTaskDelay(pdMS_TO_TICKS(500));
 
     if (tcp_handle_task != NULL)
@@ -65,8 +60,6 @@ void change_baudrate_task(void *arg)
         ESP_LOGW("[CHANGE BAUDRATE]", "=====> Deleted TCP task");
     }
 
-    // RTU task đang ở vTaskDelay(5000) hoặc kiểm tra is_change_baud
-    // Đợi thêm để chắc task không đang trong mbc_master_get_parameter
     vTaskDelay(pdMS_TO_TICKS(500));
 
     if (rtu_handle_task != NULL)
@@ -85,7 +78,11 @@ void change_baudrate_task(void *arg)
     vTaskDelay(pdMS_TO_TICKS(500)); // Đợi hệ thống ổn định
 
     // Khởi tạo lại
-    modbus_rtu_port_1_init();
+    if (scan_result.active_port == 1)
+        modbus_rtu_port_1_init();
+    else
+        modbus_rtu_port_2_init();
+
     vTaskDelay(pdMS_TO_TICKS(200));
 
     xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 4096, NULL, 8, &rtu_handle_task, 1);

@@ -30,24 +30,24 @@ typedef struct
 } name_mapping_t;
 
 const name_mapping_t master_mapping[] = {
-    {"Volt-L1-N", "volt"},
-    {"Volt-L1-N_10", "volt"},
-    {"Cur-L1", "curr"},
-    {"Cur-L1_10", "curr"},
-    {"Cur-L1-Dmd", "curr_dmd"},
-    {"Frequency", "freq"},
-    {"Frequency_10", "freq"},
-    {"AcPower-L1", "real_pwr"},
-    {"AcPower-L1_10", "real_pwr"},
-    {"AppPower-L1", "app_pwr"},
-    {"AppPower-L1_10", "app_pwr"}};
+    {"Voltage-L1-N", "volt"},
+    {"Voltage-A-N", "volt"},
+    {"Current-L1", "curr"},
+    {"Current-A", "curr"},
+    {"Current-L1-Demand", "curr_dmd"},
+    {"Current A-Demand-Present", "curr_dmd"},
+    {"Frequency-ID-10", "freq"},
+    {"Frequency-ID-4", "freq"},
+    {"Real-Power-A", "real_pwr"},
+    {"Active-Power-L1", "real_pwr"},
+    {"Apparent-Power-L1", "app_pwr"},
+    {"Apparent-Power-A", "app_pwr"}};
 const int mapping_size = sizeof(master_mapping) / sizeof(name_mapping_t);
 
 //======================================================================
 // MQTT Event Handler
 //======================================================================
-static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
-                               int32_t event_id, void *event_data)
+static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
     esp_mqtt_event_handle_t event = event_data;
     switch ((esp_mqtt_event_id_t)event_id)
@@ -67,8 +67,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
         ESP_LOGE(TAG, "  tls_err       = %d", event->error_handle->esp_tls_last_esp_err);
         ESP_LOGE(TAG, "  tls_stack_err = %d", event->error_handle->esp_tls_stack_err);
         if (event->error_handle->error_type == MQTT_ERROR_TYPE_TCP_TRANSPORT)
-            ESP_LOGE(TAG, "TCP error, esp_tls_last_esp_err=%d",
-                     event->error_handle->esp_tls_last_esp_err);
+            ESP_LOGE(TAG, "TCP error, esp_tls_last_esp_err=%d", event->error_handle->esp_tls_last_esp_err);
         else if (event->error_handle->connect_return_code == MQTT_CONNECTION_REFUSE_NOT_AUTHORIZED)
             ESP_LOGE(TAG, "Sai username/password hoặc chưa tạo credentials!");
         break;
@@ -109,8 +108,7 @@ void mqtt_app_start(void)
 
 void mqtt_network_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
-    if (event_base == IP_EVENT &&
-        (event_id == IP_EVENT_STA_GOT_IP || event_id == IP_EVENT_ETH_GOT_IP))
+    if (event_base == IP_EVENT && (event_id == IP_EVENT_STA_GOT_IP || event_id == IP_EVENT_ETH_GOT_IP))
     {
         ESP_LOGI(TAG, "Received IP address, restarting MQTT...");
         mqtt_app_start();

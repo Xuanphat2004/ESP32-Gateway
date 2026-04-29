@@ -91,7 +91,7 @@ void lcd_1604_init(void)
     ets_delay_us(2000); // delay 2ms
 
     // Intro
-
+    lcd_clear();
     LCD_SetCursor(1, 3);
     LCD_Print("Welcome to");
     LCD_SetCursor(2, 1);
