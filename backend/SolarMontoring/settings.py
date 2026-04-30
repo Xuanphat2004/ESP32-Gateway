@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "data",
     'rest_framework',
+    'rest_framework.authtoken',  # để dùng Token
     'rest_framework_simplejwt.token_blacklist',
     'account',
     'django_extensions',
@@ -145,5 +146,11 @@ CHANNEL_LAYERS = {
             "hosts": [("127.0.0.1", 6379)],
         },
     },
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
 }
 

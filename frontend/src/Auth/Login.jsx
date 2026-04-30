@@ -1,55 +1,74 @@
 import { useState } from "react";
-import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const navigate = useNavigate();
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [message, setMessage] = useState("");  // thêm state thông báo lỗi
+    const navigate = useNavigate();
 
-  const handleLogin = async () => {
-    const res = await fetch("http://localhost:8000/api/login/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    });
+    const handleLogin = async () => {
+        try { 
+            // Login dùng fetch thẳng vì chưa có token để gắn — mục đích của login chính là để nhận token về 
+            const res = await fetch("http://localhost:8000/api/login/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password }),
+            });
 
-    const data = await res.json();
-    if (res.ok && data.token) {
-      sessionStorage.setItem("token", data.token);
-      navigate("/fleetview");
-    } else {
-      alert("Login failed");
-    }
-  };
+            const data = await res.json();
 
-  return (
-    <div style={styles.container}>
-      <div style={styles.form}>
-        <h2 style={styles.heading}>Đăng nhập</h2>
-        <input
-          style={styles.input}
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="Tên đăng nhập"
-        />
-        <input
-          style={styles.input}
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Mật khẩu"
-        />
-        <button style={styles.button} onClick={handleLogin}>Đăng nhập</button>
-        <p style={styles.text}>
-          Chưa có tài khoản?{" "}
-          <span style={styles.link} onClick={() => navigate("/signup")}>
-            Đăng ký
-          </span>
-        </p>
-      </div>
-    </div>
-  );
+            if (res.ok && data.token) {
+                sessionStorage.setItem("token", data.token);
+                navigate("/fleetview");
+            } else {
+                setMessage(data.error || "Login failed"); // hiển thị lỗi cụ thể
+            }
+
+        } catch (error) {
+            // Bắt lỗi khi không kết nối được server
+            setMessage("Can't connect to server, Please try again !!!");
+            console.error(error);
+        }
+    };
+
+    return (
+        <div style={styles.container}>
+            <div style={styles.form}>
+                <h2 style={styles.heading}>Login to Dashboard</h2>
+                <input
+                    style={styles.input}
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Username"
+                />
+                <input
+                    style={styles.input}
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Password"
+                />
+                <button style={styles.button} onClick={handleLogin}>
+                    Login
+                </button>
+
+                {/* Hiển thị thông báo lỗi nếu có */}
+                {message && (
+                    <p style={{ color: "red", textAlign: "center" }}>
+                        {message}
+                    </p>
+                )}
+
+                <p style={styles.text}>
+                    Don't have an account ?{" "}
+                    <span style={styles.link} onClick={() => navigate("/signup")}>
+                        Sign Up
+                    </span>
+                </p>
+            </div>
+        </div>
+    );
 }
 
 const styles = {

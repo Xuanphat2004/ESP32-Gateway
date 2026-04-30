@@ -4,7 +4,7 @@ import MyLineChart from "../ChartComponents/LineChart2";
 import InverterRanking from "../DataComponents/InverterRanking";
 import { useState, useEffect } from "react";
 import { Bar } from "react-chartjs-2";
-import axios from "axios";
+// import axios from "axios";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker"; // table to choose calendar
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider"; // support datepicker to know: which lib?, format data?...
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs"; // “bộ chuyển đổi” để MUI hiểu được thư viện Day.js mà bạn đang dùng.
@@ -30,6 +30,7 @@ import {
   TableContainer,
   Paper,
 } from "@mui/material";
+import { getData } from "../ApiComponent/api";
 
 //======================================== INVERTER SITE ===================================================
 const InverterTable = ({ siteId }) => {
@@ -372,34 +373,23 @@ const InverterTable = ({ siteId }) => {
 //======================================================================================================================
 
 const MeterTable = ({ siteId }) => {
+
+
   const theme = useTheme();
+  const [rows, setRows] = useState([]); // khung bảng tổng quát, rỗng
+  const [selectedMeter, setSelectedMeter] = useState(null); // chưa chọn meter nào
+  const [detailRows, setDetailRows] = useState([]); // khung bảng chi tiết, rỗng
+  const [loadingDetail, setLoadingDetail] = useState(false); // chưa loading
 
-  // Dữ liệu cho bảng TỔNG QUÁT (danh sách các meter)
-  const [rows, setRows] = useState([]);
-
-  // Meter đang được chọn để xem chi tiết
-  // null = đang ở bảng tổng quát | { meter_id, meter_name } = đang xem chi tiết
-  const [selectedMeter, setSelectedMeter] = useState(null);
-
-  // Dữ liệu cho bảng CHI TIẾT (các dòng thanh ghi của meter đang chọn)
-  const [detailRows, setDetailRows] = useState([]);
-
-  // Trạng thái loading khi đang fetch chi tiết
-  const [loadingDetail, setLoadingDetail] = useState(false);
-
-  // ─────────────────────────────────────────────────
+  
+  // ============================================================================================
   // EFFECT 1: Fetch dữ liệu tổng quát lần đầu khi mở trang
-  // Chạy 1 lần khi component mount hoặc khi siteId thay đổi
-  // ─────────────────────────────────────────────────
   useEffect(() => {
     const fetchMeter = async () => {
       try {
         // Gọi API lấy danh sách tất cả meter của site này
-        const response = await fetch(
-          `http://localhost:8000/solardb/get-latest-meter-records/?site_id=${siteId}`
-        );
-        if (!response.ok) throw new Error("Network error");
-        const data = await response.json();
+        const data = await getData("/solardb/get-latest-meter-records/");
+        if (!data) throw new Error("Network error");
 
         // Chuẩn hóa field, field nào thiếu thì để "--"
         const normalized = data.map(item => ({
@@ -424,17 +414,13 @@ const MeterTable = ({ siteId }) => {
     fetchMeter();
   }, [siteId]);
 
-  // ─────────────────────────────────────────────────
+
+  // ====================================================================================
   // EFFECT 2: WebSocket cập nhật real-time bảng TỔNG QUÁT
-  // Khi ESP32 gửi data mới → signal → WS → bảng tự cập nhật
-  // Đây là WS đã có sẵn, giữ nguyên logic
-  // ─────────────────────────────────────────────────
   useEffect(() => {
     const socket = new WebSocket(`ws://localhost:8000/ws/meter/${siteId}/`);
 
-    socket.onopen = () => {
-      console.log(`WS bảng tổng quát connected, siteId: ${siteId}`);
-    };
+    socket.onopen = () => {console.log(`WS bảng tổng quát connected, siteId: ${siteId}`); };
 
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -462,10 +448,10 @@ const MeterTable = ({ siteId }) => {
     return () => socket.close();
   }, [siteId]);
 
-  // ─────────────────────────────────────────────────
-// EFFECT 3: WS bảng chi tiết — cố định dòng, chỉ update value
-// ─────────────────────────────────────────────────
-useEffect(() => {
+
+  // ==================================================================================
+  // EFFECT 3: WS bảng chi tiết — cố định dòng, chỉ update value
+  useEffect(() => {
     if (!selectedMeter) return;
 
     const socket = new WebSocket(
@@ -491,6 +477,7 @@ useEffect(() => {
 
             newRows.forEach(newRow => {
                 if (currentMap[newRow.parameter_name]) {
+
                     // Thanh ghi đã có → CHỈ cập nhật value + timestamp
                     // Giữ nguyên: register, unit, vị trí dòng
                     currentMap[newRow.parameter_name] = {
@@ -499,8 +486,9 @@ useEffect(() => {
                         timestamp: newRow.timestamp,          // ← và timestamp
                     };
                 } else {
+
                     // Thanh ghi MỚI (thiết bị gửi thêm thanh ghi chưa từng có)
-                    // → thêm vào cuối bảng
+                    // Thêm vào cuối bảng
                     currentMap[newRow.parameter_name] = newRow;
                 }
             });
@@ -508,9 +496,7 @@ useEffect(() => {
             // Giữ nguyên thứ tự dòng cũ
             const existingNames = prev.map(r => r.parameter_name);
             // Tìm các tên thanh ghi mới chưa có trong bảng
-            const newNames = Object.keys(currentMap).filter(
-                name => !existingNames.includes(name)
-            );
+            const newNames = Object.keys(currentMap).filter(name => !existingNames.includes(name));
 
             return [
                 // Dòng cũ — đã được update value mới
@@ -528,27 +514,19 @@ useEffect(() => {
 
 }, [selectedMeter]);
 
-  // ─────────────────────────────────────────────────
+
+  // ===================================================================================
   // HÀM: Xử lý khi click vào 1 dòng trong bảng tổng quát
-  // ─────────────────────────────────────────────────
   const handleRowClick = async (meter_id, meter_name) => {
     setLoadingDetail(true);
-    setDetailRows([]); // xóa data cũ trước khi load mới
-
+    setDetailRows([]); 
     try {
-        // Bước 1: fetch lịch sử batch mới nhất từ API trước
-        const res  = await fetch(
-            `http://localhost:8000/solardb/get-meter-registers/${meter_id}/`
-        );
-        const data = await res.json();
+        // fetch lịch sử batch mới nhất từ API trước
+        const data = await getData(`/solardb/get-meter-registers/${meter_id}/`);
+        if (!data) throw new Error("Fetch chi tiết thất bại");
 
-        // Bước 2: lưu data vào state
-        setDetailRows(data);
-
-        // Bước 3: SAU KHI có data rồi mới set selectedMeter
-        // → EFFECT 3 lúc này mới chạy → mở WS
-        // → WS sẽ update tiếp trên nền data đã có sẵn
-        setSelectedMeter({ meter_id, meter_name });
+        setDetailRows(data); // lưu data vào state
+        setSelectedMeter({ meter_id, meter_name }); // sau khi có data rồi mới set selectedMeter
 
     } catch (err) {
         console.error("Fetch chi tiết error:", err);
@@ -573,31 +551,29 @@ useEffect(() => {
     return (
       <Box>
         {/* Nút quay lại → xóa selectedMeter → EFFECT 3 cleanup → đóng WS */}
-        <Button
-          variant="outlined"
-          onClick={() => {
+        <Button // Component nút nhấn của MUI
+          variant="outlined" // Quyết định hình dạng nút - Nút có viền, trong suốt
+          onClick={() => { // Làm gì khi bấm
             setSelectedMeter(null); // → WS tự đóng nhờ cleanup trong EFFECT 3
             setDetailRows([]);      // xóa dữ liệu chi tiết
           }}
-          sx={{
-            mb: 2,
+          sx={{ // Style của nút
+            mb: 2, // margin bottom
             color: theme.palette.text.header_option,
             borderColor: theme.palette.text.header_option,
           }}
         >
-          ← Quay lại danh sách
+          ← Return Summary List
         </Button>
 
         {/* Tiêu đề bảng chi tiết */}
         <Typography sx={{ color: theme.palette.text.header_option, mb: 1 }}>
-          Thanh ghi của:{" "}
-          <strong>{selectedMeter.meter_name}</strong>{" "}
-          (ID: {selectedMeter.meter_id})
+          Register of:{" "} <strong>{selectedMeter.meter_name}</strong> {" "} (ID {selectedMeter.meter_id})
         </Typography>
 
         {/* Hiển thị loading hoặc bảng */}
         {loadingDetail ? (
-          <Typography sx={{ color: "gray" }}>Đang tải dữ liệu...</Typography>
+          <Typography sx={{ color: "gray" }}>Loading data .... </Typography>
         ) : (
           <TableContainer
             component={Paper}
@@ -674,7 +650,7 @@ useEffect(() => {
     { key: "voltage_l1",        label: "Voltage L1"        },
     { key: "frequency_l1",      label: "Frequency L1"      },
     { key: "current_l1",        label: "Current L1"        },
-    { key: "current_l1_dmd",    label: "Current L1 Dmd"   },
+    { key: "current_l1_dmd",    label: "Current L1 Dmd"    },
     { key: "apparent_power_l1", label: "Apparent Power L1" },
     { key: "real_power",        label: "Real Power"        },
     { key: "timestamp",         label: "Timestamp"         },
@@ -714,12 +690,12 @@ useEffect(() => {
           {rows.map((row, i) => (
             <TableRow
               key={i}
-              // ← THÊM: click vào dòng → gọi handleRowClick
+              // Click vào dòng → gọi handleRowClick
               onClick={() => handleRowClick(row.meter_id, row.name)}
               sx={{
                 cursor: "pointer",          // con trỏ dạng bàn tay khi hover
                 "&:hover": {
-                  filter: "brightness(1.4)", // sáng lên khi hover để người dùng biết có thể click
+                  filter: "brightness(1.7)", // sáng lên khi hover để người dùng biết có thể click
                 },
               }}
             >

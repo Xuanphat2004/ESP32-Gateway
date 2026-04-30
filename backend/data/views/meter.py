@@ -4,23 +4,26 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from datetime import timedelta
 from django.http import JsonResponse
-# Chỉ import 1 lần, lấy cả Meter lẫn MeterRegister từ cùng 1 chỗ
 from data.models import Meter, MeterRegister
-from django.utils.timezone import localtime  # thêm import này
+from data.models import Site
+from django.utils.timezone import localtime  
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 
 
-# Lấy 1 record duy nhất của 1 meter cụ thể theo tên
-@csrf_exempt  # ← decorator phải đặt NGAY trên def
+#=======================================================================================================
+@api_view(['GET']) # Chỉ cho vào bằng cửa GET
+@authentication_classes([TokenAuthentication]) # Kiểm tra thẻ token
+@permission_classes([IsAuthenticated]) # Chỉ cho vào nếu đã đăng nhập
 def get_latest_record(request):
-    site_id    = request.GET.get('site_id')
     meter_name = request.GET.get('meter_name')
 
-    record = (
-        Meter.objects
-        .filter(site_id=site_id, meter_name=meter_name)
-        .order_by('-timestamp')
-        .first()
-    )
+    # Lấy site của user đang đăng nhập
+    user_site_ids = Site.objects.filter(user = request.user).values_list('site_id', flat = True)
+
+    # Tìm record của meter đó nhưng chỉ trong site của user
+    record = (Meter.objects.filter(site_id__in = user_site_ids, meter_name = meter_name).order_by('-timestamp').first())
 
     if record:
         return JsonResponse({
@@ -38,9 +41,10 @@ def get_latest_record(request):
             "real_power":        float(record.real_power)         if record.real_power        else 0,
         })
     else:
-        return JsonResponse({"error": "No record found"}, status=404)
+        return JsonResponse({"error": "No record found"}, status = 404)
 
 
+#=======================================================================================================
 # Hàm tiện ích tính ngày 30 ngày trước — giữ nguyên, không đụng vào
 def get_time_last_month(request):
     today     = timezone.now().date()
@@ -48,16 +52,20 @@ def get_time_last_month(request):
     return start_day
 
 
+#=======================================================================================================
 # Lấy tất cả meter của 1 site — mỗi meter 1 dòng (giá trị mới nhất)
-@csrf_exempt
+# Decorator @csrf_exempt: cửa mở toang
+# Decorator:  bảo vệ đứng trước cửa phòng
+@api_view(['GET']) # Chỉ cho vào bằng cửa GET
+@authentication_classes([TokenAuthentication]) # Kiểm tra thẻ token
+@permission_classes([IsAuthenticated]) # Chỉ cho vào nếu đã đăng nhập
 def get_latest_records(request):
-    site_id = request.GET.get("site_id")
-    if not site_id:
-        return JsonResponse({"error": "site_id isn't exist !!!"}, status=400)
 
-    # Query thẳng — không cần annotate Max vì mqtt_worker dùng update_or_create
-    # → bảng Meter luôn chỉ có đúng 1 dòng/thiết bị, đã là mới nhất rồi
-    meters = Meter.objects.filter(site_id=site_id)
+    # Tự động lấy tất cả site thuộc về user đang đăng nhập
+    user_site_ids = Site.objects.filter(user = request.user).values_list('site_id', flat = True)
+
+    # Chỉ lấy meter thuộc site của user đó
+    meters = Meter.objects.filter(site_id__in = user_site_ids)
 
     result = []
     for m in meters:
@@ -68,6 +76,7 @@ def get_latest_records(request):
             "meter_id":          m.meter_id,
             "attribute":         m.attribute,
             "status":            m.status,
+
             "voltage_l1":        float(m.voltage_l1)        if m.voltage_l1        else 0,
             "current_l1":        float(m.current_l1)        if m.current_l1        else 0,
             "current_l1_dmd":    float(m.current_l1_dmd)    if m.current_l1_dmd    else 0,
@@ -78,37 +87,31 @@ def get_latest_records(request):
             "timestamp": localtime(m.timestamp).strftime('%Y-%m-%d %H:%M:%S'),
         })
 
-    return JsonResponse(result, safe=False)
+    return JsonResponse(result, safe = False)
 
 
+#=======================================================================================================
 # Lấy toàn bộ thanh ghi của 1 meter cụ thể — dùng khi click vào dòng
-@csrf_exempt
+@api_view(['GET']) # Chỉ cho vào bằng cửa GET
+@authentication_classes([TokenAuthentication]) # Kiểm tra thẻ token
+@permission_classes([IsAuthenticated]) # Chỉ cho vào nếu đã đăng nhập
 def get_meter_registers(request, meter_id):
-    from django.utils.timezone import localtime
 
-    # ← ĐỔI HOÀN TOÀN LOGIC
-    # Cũ: lấy TẤT CẢ lịch sử → nhiều dòng trùng register_name
-    # Mới: chỉ lấy batch MỚI NHẤT → mỗi register_name xuất hiện đúng 1 lần
+    # Kiểm tra meter_id này có thuộc site của user không
+    user_site_ids = Site.objects.filter(user = request.user).values_list('site_id', flat = True)
 
-    # Bước 1: tìm received_at của lần gửi mới nhất
-    latest_batch = (
-        MeterRegister.objects
-        .filter(meter_id=meter_id)
-        .order_by('-received_at')
-        .values('received_at')
-        .first()
-    )
+    # Xác nhận meter này thuộc về user — nếu không thì từ chối
+    meter_exists = Meter.objects.filter(meter_id = meter_id, site_id__in = user_site_ids).exists()
+    if not meter_exists:
+        return JsonResponse({"error": "No permission to access !!!"}, status = 403)
 
+    # Vào bảng này với id này, sắp xếp theo thời gian mới nhất, sau đó lưu lại thời gian mới nhất đó, sau đó lọc các dữ liệu với mốc thời gian mới nhất đó
+    latest_batch = (MeterRegister.objects.filter(meter_id = meter_id).order_by('-received_at').values('received_at').first())
     if not latest_batch:
-        return JsonResponse([], safe=False)
+        return JsonResponse([], safe = False)
 
-    # Bước 2: lấy tất cả thanh ghi của đúng batch mới nhất đó
-    registers = (
-        MeterRegister.objects
-        .filter(meter_id=meter_id, received_at=latest_batch['received_at'])
-        .order_by('register_address')
-    )
-
+    # lấy tất cả thanh ghi của đúng batch mới nhất đó
+    registers = (MeterRegister.objects.filter(meter_id = meter_id, received_at = latest_batch['received_at']).order_by('register_address'))
     result = [{
         "timestamp":      localtime(reg.received_at).strftime('%Y-%m-%d %H:%M:%S'),
         "parameter_name": reg.register_name,
@@ -117,4 +120,4 @@ def get_meter_registers(request, meter_id):
         "unit":           reg.unit if reg.unit else "--",
     } for reg in registers]
 
-    return JsonResponse(result, safe=False)
+    return JsonResponse(result, safe = False)
