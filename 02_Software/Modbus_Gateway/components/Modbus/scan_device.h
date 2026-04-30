@@ -31,6 +31,8 @@ extern scan_analysis_t scan_result;  // Kết quả sau khi scan
 extern volatile bool is_scan_device; // Cờ báo đang scan
 
 void scan_device(void);
+void get_active_list(void);
+void get_inactive_list(void);
 void analyse_scan_result(void);
 
 #endif // SCAN_DEVICE_H

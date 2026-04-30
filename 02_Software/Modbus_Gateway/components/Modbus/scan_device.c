@@ -20,6 +20,9 @@ static const char *TAG = "[SCAN DEVICE]";
 
 id_scan_result_t list_p1; // Kết quả scan Port 1
 id_scan_result_t list_p2; // Kết quả scan Port 2
+id_scan_result_t active_list;
+id_scan_result_t inactive_list;
+
 uint8_t original_id[248]; // Danh sách toàn bộ id hiện có trong flash
 uint8_t original_id_count = 0;
 scan_analysis_t scan_result = {0}; // Kết quả phân tích — page detail sẽ đọc cái này
@@ -34,6 +37,7 @@ extern mb_parameter_descriptor_t *basic_dict;
 extern SemaphoreHandle_t xDataMutex;
 extern TaskHandle_t tcp_handle_task;
 
+//===========================================================================================================
 // Kiểm tra id đã tồn tại trong list hay chưa
 // uint8_t id = original_id[i];
 // bool in_p1 = is_id_in_result(id, &list_p1)
@@ -47,6 +51,96 @@ static bool is_id_in_result(uint8_t id, id_scan_result_t *list)
     return false;
 }
 
+//===========================================================================================================
+// Lấy toàn bộ danh sách các node có phản hồi trong list_p1[] và list_p2[]
+void get_active_list(void)
+{
+    active_list.count = 0;
+    bool is_exist = false; // Biến đã tồn tại trong active_list[] chưa
+
+    for (int i = 0; i < list_p1.count; i++) // Thêm toàn bộ id đang có trong list_p1[] vào active_list[]
+    {
+        active_list.id[i] = list_p1.id[i];
+        active_list.count++;
+    }
+
+    if (list_p2.count != 0) // Nếu list_p2 không trống
+    {
+        for (int i = 0; i < list_p2.count; i++) // Kiểm tra từng id trong list_p2[]
+        {
+            is_exist = false;
+
+            // Đối chiếu với active_list[]
+            for (int j = 0; j < active_list.count; j++)
+            {
+                if (list_p2.id[i] == active_list.id[j])
+                {
+                    is_exist = true; // Đã tồn tại trong active_list
+                    break;           // Chuyển qua id tiếp theo trong list_p2
+                }
+            }
+            if (is_exist == false) // Nếu chưa có thì thêm vào active_list
+            {
+                active_list.id[active_list.count] = list_p2.id[i];
+                active_list.count++;
+            }
+        }
+    }
+    // debug code ====================================================
+    // for (int i = 0; i < active_list.count; i++)
+    //     printf("active id at index %d: %d\n", i, active_list.id[i]);
+    //================================================================
+}
+
+//==================================================================================================
+// Lọc ra các id không phản hồi
+void get_inactive_list(void)
+{
+    inactive_list.count = 0;
+    uint8_t current_id = 0;
+    bool found_in_p1 = false;
+    bool found_in_p2 = false;
+
+    for (int i = 0; i < original_id_count; i++) // Kiểm tra từng id trong original_list[]
+    {
+        current_id = original_id[i];
+
+        // Kiểm tra với list_p1[] trước
+        for (int j = 0; j < list_p1.count; j++)
+        {
+            if (current_id == list_p1.id[j]) // Nếu id đã tồn tại trong list_p1
+            {
+                found_in_p1 = true;
+                break; // nếu tồn tại thì nhảy qua id tiếp theo
+            }
+        }
+
+        if (found_in_p1 == true)
+        {
+            continue; // Nếu mà đã tìm thấy trong list_p1 rồi thì nhảy tới kiểm tra id tiếp theo
+        }
+
+        // Kiểm tra với list_p2[]
+        for (int k = 0; k < list_p2.count; k++)
+        {
+            if (current_id == list_p2.id[k])
+            {
+                found_in_p2 = true;
+                break;
+            }
+        }
+
+        if (found_in_p2 == true)
+        {
+            continue; // Nếu mà đã tìm thấy trong list_p2 rồi thì nhảy tới kiểm tra id tiếp theo
+        }
+
+        inactive_list.id[inactive_list.count] = current_id;
+        inactive_list.count++;
+    }
+}
+
+//==================================================================================================================================
 // Tạo Dictionary tạm để quét thiết bị — lấy tối đa 3 thanh ghi mỗi thiết bị
 // Trả về số lượng CID trong scan_dict
 static uint16_t generate_temp_scan_dict(mb_parameter_descriptor_t *scan_dict, uint8_t *out_original_id, uint8_t *id_count)
@@ -84,8 +178,9 @@ static uint16_t generate_temp_scan_dict(mb_parameter_descriptor_t *scan_dict, ui
     return scan_reg_count;
 }
 
+//==================================================================================================================================
 // Khởi tạo Modbus Master trên uart_port chỉ định
-// Port còn lại được init dummy (DE=LOW) để không tranh bus
+// Port còn lại được init dummy (DE=LOW) - làm 1 slave giả trên bus
 static void execute_port_scan(uint8_t uart_port, mb_parameter_descriptor_t *dict, uint16_t dict_size, id_scan_result_t *results)
 {
     results->count = 0;
@@ -144,7 +239,7 @@ static void execute_port_scan(uint8_t uart_port, mb_parameter_descriptor_t *dict
     vTaskDelay(pdMS_TO_TICKS(200));
 }
 
-// ============================================================
+// =================================================================================================================================
 // Kết quả lưu vào g_scan_result để ui đọc khi xuất lên LCD
 void analyse_scan_result(void)
 {
@@ -164,14 +259,14 @@ void analyse_scan_result(void)
         }
     }
     // debug code ======================================================
-    printf("list_p1.count: %d\n", list_p1.count);
-    printf("list_p2.count: %d\n", list_p2.count);
-    for (int i = 0; i < original_id_count; i++)
-        printf("id in original at index %d: %d\n", i, original_id[i]);
-    for (int i = 0; i < list_p1.count; i++)
-        printf("id in list_p1 at index %d: %d\n", i, list_p1.id[i]);
-    for (int i = 0; i < list_p2.count; i++)
-        printf("id in list_p2 at index %d: %d\n", i, list_p2.id[i]);
+    // printf("list_p1.count: %d\n", list_p1.count);
+    // printf("list_p2.count: %d\n", list_p2.count);
+    // for (int i = 0; i < original_id_count; i++)
+    //     printf("id in original at index %d: %d\n", i, original_id[i]);
+    // for (int i = 0; i < list_p1.count; i++)
+    //     printf("id in list_p1 at index %d: %d\n", i, list_p1.id[i]);
+    // for (int i = 0; i < list_p2.count; i++)
+    //     printf("id in list_p2 at index %d: %d\n", i, list_p2.id[i]);
     //==================================================================
 
     // Port nào nhiều id hơn thì làm Master
@@ -200,7 +295,7 @@ void analyse_scan_result(void)
         }
     }
 
-    ESP_LOGI(TAG, "Analysis done: lose = %d, active_port = %d, final_id_p1 = %d, final_id_p2 = %d",
+    ESP_LOGI(TAG, "Analysis done: lose = %d, active_port = %d, final_id_p1 = %d, final_id_p2 = %d\n",
              scan_result.lose_count, scan_result.active_port, scan_result.final_id_p1, scan_result.final_id_p2);
 }
 
@@ -313,8 +408,7 @@ static void scan_task(void *pvParameters)
 }
 
 // ============================================================
-// scan_device() — Wrapper public, gọi từ ui_task()
-// ============================================================
+// Tạo task scan device
 void scan_device(void)
 {
     xTaskCreatePinnedToCore((void *)scan_task, "scan_task", 4096, NULL, 11, NULL, 1);

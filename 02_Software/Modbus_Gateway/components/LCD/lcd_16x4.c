@@ -93,9 +93,9 @@ void lcd_1604_init(void)
     // Intro
     lcd_clear();
     LCD_SetCursor(1, 5);
-    LCD_Print("Welcome to");
+    LCD_Print("WELCOME TO");
     LCD_SetCursor(2, 3);
-    LCD_Print("Modbus Gateway");
+    LCD_Print("MODBUS GATEWAY");
     vTaskDelay(pdMS_TO_TICKS(2000));
     lcd_clear();
 }

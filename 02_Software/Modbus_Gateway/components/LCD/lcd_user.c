@@ -28,6 +28,9 @@ bool is_scanning = false; // Biền trạng thái để khóa UI khi thực hi�
 bool is_baudrate = false; // trạng thái có đang thực hiện chức năng chỉnh tốc độ baudrate
 
 extern id_scan_result_t list_p1;
+extern id_scan_result_t list_p2;
+extern id_scan_result_t active_list;
+extern id_scan_result_t inactive_list;
 extern uint8_t original_id[248];
 extern uint8_t original_id_count;
 extern scan_analysis_t scan_result;
@@ -108,45 +111,33 @@ static void page_scan_result(void)
     char buffer[21] = {0};
     LCD_SetCursor(0, 2);
     LCD_Print("-=SCAN RESULT=-");
+    get_active_list();
 
     // Hiển thị danh sách ID Active
     LCD_SetCursor(1, 1);
-    LCD_Print("Active  :   ");
+    LCD_Print("Active  :");
     LCD_SetCursor(1, 11);
-    format_id_list(list_p1.id, list_p1.count, buffer); // Biến mảng thành chuỗi string
-    LCD_Print(buffer);                                 // In danh sách ID
-
-    // Tìm ID Inactive
-    uint8_t inactive_id[248];
-    int inactive_count = 0;
-    for (int i = 0; i < original_id_count; i++)
+    if (active_list.count > 0)
     {
-        bool found = false;
-        for (int j = 0; j < list_p1.count; j++)
-        {
-            if (original_id[i] == list_p1.id[j])
-            {
-                found = true;
-                break;
-            }
-        }
-        if (found == false)
-            inactive_id[inactive_count++] = original_id[i];
+        format_id_list(active_list.id, active_list.count, buffer); // Biến mảng thành chuỗi string
+        LCD_Print(buffer);                                         // In danh sách ID
     }
+    else
+        LCD_Print("None"); // Nếu danh sách trống
 
     // Hiển thị danh sách ID Inactive
+    get_inactive_list();
     LCD_SetCursor(2, 1);
     LCD_Print("Inactive:");
     LCD_SetCursor(2, 11);
-    if (inactive_count > 0)
+    if (inactive_list.count > 0)
     {
-        format_id_list(inactive_id, inactive_count, buffer);
+        format_id_list(inactive_list.id, inactive_list.count, buffer);
         LCD_Print(buffer);
     }
     else
-    {
         LCD_Print("None"); // Nếu danh sách trống
-    }
+
     LCD_SetCursor(3, 12);
     LCD_Print("Detail->");
 }
@@ -174,31 +165,37 @@ static void page_scan_detail(void)
     // Nếu đứt 2 chỗ
     else if (scan_result.final_id_p1 + 1 < scan_result.final_id_p2)
     {
-        char cut_1[10] = ""; //
+        char cut_1[10] = "";
         char cut_2[10] = "";
 
         if (scan_result.final_id_p1 == -1) // Nếu đứt tại port 1
-            sprintf(cut_2, "P1-X-%d", original_id[0]);
+        {
+            sprintf(cut_1, "P1-X-%d", original_id[0]);
+            // printf("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n");
+        }
 
         else
         {
             sprintf(cut_1, "%d-X-%d", original_id[scan_result.final_id_p1], original_id[scan_result.final_id_p1 + 1]);
-            // printf("try_1\n");
+            // printf("try_1111111111111111\n");
         }
 
         if (scan_result.final_id_p2 == original_id_count) // Nếu đứt tại port 2
+        {
             sprintf(cut_2, "%d-X-P2", original_id[original_id_count - 1]);
+            // printf("bbbbbbbbbbbbbbb\n");
+        }
         else
         {
             sprintf(cut_2, "%d-X-%d", original_id[scan_result.final_id_p2 - 1], original_id[scan_result.final_id_p2]);
-            // printf("try_2\n");
+            // printf("try_22222222222222\n");
         }
 
         sprintf(line_2, "%s  %s", cut_1, cut_2); // Gộp 2 điểm đứt vào cùng 1 dòng
     }
     else
     {
-        sprintf(line_2, "  Line Normal");
+        sprintf(line_2, "   Line Normal");
     }
 
     // Hiển thị Lose List
@@ -238,11 +235,11 @@ static void page_set_baud(void)
     uint32_t current_baud = load_baud_from_nvs();
     LCD_SetCursor(0, 2);
     LCD_Print("-=SET BAUDRATE=-  ");
-    LCD_SetCursor(1, 2);
-    snprintf(buffer_1, sizeof(buffer_1), "Current: %ld bps ", current_baud);
+    LCD_SetCursor(1, 1);
+    snprintf(buffer_1, sizeof(buffer_1), "Current %ld bps", current_baud);
     LCD_Print(buffer_1);
-    LCD_SetCursor(2, 2);
-    snprintf(buffer_2, sizeof(buffer_2), "Select -> %ld  ", baud_options[baudrate_id]);
+    LCD_SetCursor(2, 1);
+    snprintf(buffer_2, sizeof(buffer_2), "Select -> %ld ", baud_options[baudrate_id]);
     LCD_Print(buffer_2);
 }
 //=====================================================================================================
