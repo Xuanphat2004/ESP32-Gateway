@@ -7,5 +7,6 @@ idf_component_register(SRCS "mqtt_to_web.c" "mqtt_to_web"
                                 json               # BẮT BUỘC để dùng được cJSON
                                 esp_event          # Để xử lý các sự kiện hệ thống
                                 esp_netif          # Để quản lý giao diện mạng (WiFi/Ethernet)
-                                nvs_flash                        
+                                nvs_flash
+                                efuse                        
                     )
