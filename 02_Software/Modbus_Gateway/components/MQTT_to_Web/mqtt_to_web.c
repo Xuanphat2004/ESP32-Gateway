@@ -11,6 +11,7 @@
 #include "esp_event.h"
 #include "esp_netif.h"
 #include "esp_eth.h"
+#include "esp_mac.h"
 
 static const char *TAG = "[MQTT]";
 
@@ -45,8 +46,16 @@ const name_mapping_t master_mapping[] = {
 const int mapping_size = sizeof(master_mapping) / sizeof(name_mapping_t);
 
 //======================================================================
-// MQTT Event Handler
+// Hàm lấy địa chỉ MAC của chip ESP32
+void get_gateway_id(char *buf, size_t buf_size)
+{
+    uint8_t mac[6] = {0};
+    esp_read_mac(mac, ESP_MAC_EFUSE_FACTORY);
+    snprintf(buf, buf_size, "%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+}
+
 //======================================================================
+// MQTT Event Handler
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
     esp_mqtt_event_handle_t event = event_data;
@@ -78,9 +87,12 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 
 //======================================================================
 // Khởi động MQTT client
-//======================================================================
 void mqtt_app_start(void)
 {
+    char gateway_id[32] = " ";
+    get_gateway_id(gateway_id, sizeof(gateway_id));
+    ESP_LOGI(TAG, "Gateway ID: %s", gateway_id);
+
     if (mqtt_client != NULL)
     {
         esp_mqtt_client_start(mqtt_client);
@@ -116,27 +128,6 @@ void mqtt_network_event_handler(void *arg, esp_event_base_t event_base, int32_t 
 }
 
 //======================================================================
-// Đóng gói TOÀN BỘ thanh ghi của 1 thiết bị thành JSON
-//
-// JSON output format:
-// {
-//   "gateway_id": "mbateway",     thông tin định danh cho mỗi id
-//   "m_id": 3,
-//   "m_name": "Meter 1 (ID 3)",
-//   "model": "Power Meter",
-//   "attr": "Consumption Meter",
-//
-//   "volt": 220.5,        ← các trường sẽ hiển thị mặc định
-//   "curr": 1.23,
-//   ...
-//
-//   "registers": [        ← TOÀN BỘ thanh ghi của thiết bị này, các trường chỉ khi nhấp vào dòng thiết bị đó mới hiện ra
-//     {"name": "Volt-L1-N", "value": 220.5, "unit": "V"},
-//     {"name": "Cur-L1",    "value": 1.23,  "unit": "A"},
-//     ...
-//   ]
-// }
-//======================================================================
 // Dùng con trỏ để trỏ vào địa chỉ bắt đầu lưu dữ liệu gói tin, vì không biết trước dung lượng của gói tin là bao nhiêu
 // char *payload = pack_data_to_json(current_id, meter_name, "Power Meter")
 char *pack_data_to_json(int id, char *name, char *model)
@@ -147,10 +138,11 @@ char *pack_data_to_json(int id, char *name, char *model)
     cJSON *root = cJSON_CreateObject(); // Tạo ra JSON object mới {}
     if (root == NULL)
         return NULL;
-
+    char gateway_id[32] = " ";
+    get_gateway_id(gateway_id, sizeof(gateway_id));
     // Phần thông tin định danh gateway và thiết bị
-    cJSON_AddStringToObject(root, "gateway_id", "MB-Gateway"); // Thêm cặp Key-Value kiểu chuỗi string
-    cJSON_AddNumberToObject(root, "m_id", id);                 // Thêm cặp Key-Value kiểu số
+    cJSON_AddStringToObject(root, "gateway_id", gateway_id); // Thêm cặp Key-Value kiểu chuỗi string
+    cJSON_AddNumberToObject(root, "m_id", id);               // Thêm cặp Key-Value kiểu số
     cJSON_AddStringToObject(root, "m_name", name);
     cJSON_AddStringToObject(root, "model", model);
     cJSON_AddStringToObject(root, "attr", "Consumption Meter");
@@ -220,8 +212,7 @@ char *pack_data_to_json(int id, char *name, char *model)
 }
 
 //======================================================================
-// TASK GỬI MQTT (10 giây/lần)
-//======================================================================
+// TASK GỬI MQTT - 10 giây/lần
 void mqtt_publish_task(void *pvParameters)
 {
     vTaskDelay(pdMS_TO_TICKS(5000)); // Đợi mạng ổn định
@@ -268,3 +259,26 @@ void mqtt_publish_task(void *pvParameters)
         vTaskDelay(pdMS_TO_TICKS(10000)); // Chu kỳ gửi 10 giây
     }
 }
+
+//======================================================================
+// Đóng gói TOÀN BỘ thanh ghi của 1 thiết bị thành JSON
+//
+// JSON output format:
+// {
+//   "gateway_id": "mbateway",     thông tin định danh cho mỗi id
+//   "m_id": 3,
+//   "m_name": "Meter 1 (ID 3)",
+//   "model": "Power Meter",
+//   "attr": "Consumption Meter",
+//
+//   "volt": 220.5,        ← các trường sẽ hiển thị mặc định
+//   "curr": 1.23,
+//   ...
+//
+//   "registers": [        ← TOÀN BỘ thanh ghi của thiết bị này, các trường chỉ khi nhấp vào dòng thiết bị đó mới hiện ra
+//     {"name": "Volt-L1-N", "value": 220.5, "unit": "V"},
+//     {"name": "Cur-L1",    "value": 1.23,  "unit": "A"},
+//     ...
+//   ]
+// }
+//======================================================================
