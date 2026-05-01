@@ -22,36 +22,36 @@ export default function Signup() {
 
     const data = await res.json();
     if (res.ok) {
-      setMessage("Đăng ký thành công! Đang chuyển về trang đăng nhập...");
+      setMessage("Success! Moving to login page...");
       setTimeout(() => navigate("/login"), 2000);
     } else {
-      setMessage(data.error || "Đăng ký thất bại");
+      setMessage(data.error || "Signup failed");
     }
   };
 
   const checkPasswordAndSignup = () => {
     if (password !== repassword) {
-      setStatuspassword("Mật khẩu không khớp");
+      setStatuspassword("Mismatch password !!!");
       setRepassword("");
       return;
     }
 
-    setStatuspassword("Mật khẩu khớp");
+    setStatuspassword("Match password");
     handleSignup();
   };
 
   return (
     <div style={styles.container}>
       <div style={styles.form}>
-        <h2 style={styles.heading}>Đăng ký</h2>
+        <h2 style={styles.heading}>Signup</h2>
 
         <div style={styles.inputGroup}>
-          <label style={styles.label}>Tên đăng nhập</label>
+          <label style={styles.label}>Username</label>
           <input
             style={styles.input}
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            placeholder="Tên đăng nhập"
+            placeholder="Username"
           />
         </div>
 
@@ -67,7 +67,7 @@ export default function Signup() {
 
         <div style={styles.inputGroup}>
           <div style={styles.labelWithIcon}>
-            <label style={styles.label}>Mật khẩu</label>
+            <label style={styles.label}>Password</label>
             <span
               style={styles.eyeIcon}
               onClick={() => setShowPassword(!showPassword)}
@@ -80,18 +80,18 @@ export default function Signup() {
             type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Mật khẩu"
+            placeholder="Password"
           />
         </div>
 
         <div style={styles.inputGroup}>
-          <label style={styles.label}>Nhập lại mật khẩu</label>
+          <label style={styles.label}>Repeat Password</label>
           <input
             style={styles.input}
             type={showPassword ? "text" : "password"}
             value={repassword}
             onChange={(e) => setRepassword(e.target.value)}
-            placeholder="Nhập lại mật khẩu"
+            placeholder="Password"
           />
         </div>
 
@@ -103,14 +103,14 @@ export default function Signup() {
           style={{ ...styles.button, backgroundColor: "#388e3c", }}
           onClick={checkPasswordAndSignup}
         >
-          Đăng ký
+          Register
         </button>
 
         <button
           style={{ ...styles.button, backgroundColor: "#757575" }}
           onClick={() => navigate("/login")}
         >
-          Quay lại
+          Return
         </button>
 
         {message && (

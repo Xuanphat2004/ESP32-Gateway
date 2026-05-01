@@ -89,6 +89,21 @@ class MeterRegisterConsumer(AsyncWebsocketConsumer):
 
         # Đẩy dữ liệu xuống frontend qua WebSocket
         await self.send(text_data=json.dumps(data))
+
+class AllMetersConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        # Tất cả người xem DeviceList đều vào chung 1 group
+        self.group_name = "all_meters"
+        await self.channel_layer.group_add(self.group_name, self.channel_name)
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(self.group_name, self.channel_name)
+
+    # Nhận data từ signals.py và gửi xuống trình duyệt
+    async def all_meters_update(self, event):
+        data = event["message"]
+        await self.send(text_data=json.dumps(data))
 #====================================================================================================================================
 
 

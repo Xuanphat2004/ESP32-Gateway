@@ -2,10 +2,7 @@ import os
 import json
 import django
 import paho.mqtt.client as mqtt
-from django.utils import timezone
 from pathlib import Path
-from django.utils.timezone import localtime
-
 
 # ==========================================
 # CẤU HÌNH MÔI TRƯỜNG DJANGO
@@ -14,54 +11,76 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'SolarMonitoring.settings')
 django.setup()
 
+from django.utils import timezone
 from data.models import Site, Meter, MeterRegister
 
 # ==========================================
 # CẤU HÌNH MQTT
-# Phải khớp với mqtt_to_web.h của ESP32
 # ==========================================
-MQTT_BROKER  = "broker.emqx.io"
-MQTT_PORT    = 1883
-MQTT_TOPIC   = "xuanphat2004/mbgateway/meter/update/data"
-MQTT_CLIENT  = "DJANGO-WORKER-001" 
+MQTT_BROKER = "broker.emqx.io"
+MQTT_PORT   = 1883
+MQTT_TOPIC  = "xuanphat2004/mbgateway/meter/update/data"
+MQTT_CLIENT = "DJANGO-WORKER-001"
+
 
 # ==========================================
-# LOGIC XỬ LÝ DỮ LIỆU
-# ==========================================
+# KẾT NỐI MQTT
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
-        print(f"Đã kết nối Broker {MQTT_BROKER} thành công!")
+        print(f"Successful to Connected to Broker {MQTT_BROKER}")
         client.subscribe(MQTT_TOPIC)
-        print(f"Đang lắng nghe topic: {MQTT_TOPIC}")
+        print(f"Listening topic: {MQTT_TOPIC}")
     else:
-        print(f"Kết nối thất bại, mã lỗi: {rc}")
+        print(f"Fail to connect, error code: {rc}")
 
 
+# ==========================================
+# XỬ LÝ KHI NHẬN ĐƯỢC TIN NHẮN TỪ THIẾT BỊ
 def on_message(client, userdata, msg):
-    data = {}
+
+    # GIẢI MÃ DỮ LIỆU TỪ THIẾT BỊ
     try:
-        payload    = msg.payload.decode('utf-8')
-        data       = json.loads(payload)
-        gateway_id = data.get('gateway_id', 'unknown')
-        m_id       = data.get('m_id')
-        m_name     = data.get('m_name', f"Meter {m_id}")
-        model      = data.get('model', 'Power Meter')
-        attr       = data.get('attr', 'Consumption_Meter')
+        payload = msg.payload.decode('utf-8') # UTF-8: quy định cách chuyển đổi chữ viết thành số nhị phân
+        data    = json.loads(payload)
+    except Exception as e:
+        print(f"Fail: Can't read data from device, detail error code: {e}")
+        return
 
-        if m_id is None:
-            print("LỖI: Thiếu m_id, bỏ qua.")
-            return
+    # LẤY THÔNG TIN CƠ BẢN TỪ DATA
+    gateway_id = data.get('gateway_id')
+    m_id       = data.get('m_id')
+    m_name     = data.get('m_name', f"Meter {m_id}")
+    model      = data.get('model', 'Power Meter')
+    attr       = data.get('attr', 'Consumption_Meter')
 
-        try:
-            target_site = Site.objects.get(site_id=1)
-        except Site.DoesNotExist:
-            print("LỖI: Không tìm thấy Site ID 1.")
-            return
+    print(f"Recive data from Gateway: {gateway_id}")
 
-        # -------------------------------------------------------
-        # NHIỆM VỤ 1: CẬP NHẬT BẢNG TỔNG QUÁT (METER)
-        # Mỗi lần ESP32 gửi lên, ghi đè giá trị mới nhất vào dòng đó
-        # -------------------------------------------------------
+    # Kiểm tra m_id có tồn tại không
+    if m_id is None:
+        print("LỖI: Thiếu m_id trong dữ liệu, bỏ qua.")
+        return
+
+    # Kiểm tra gateway_id có tồn tại không
+    if gateway_id is None:
+        print("LỖI: Thiếu gateway_id trong dữ liệu, bỏ qua.")
+        return
+
+    # TÌM SITE THEO GATEWAY_ID
+    # Tìm trong database xem gateway_id này thuộc site nào
+    # Nếu không tìm thấy → thiết bị chưa được đăng ký → bỏ qua
+    try:
+        target_site = Site.objects.get(gateway_id = gateway_id)
+        print(f"Found Site: {target_site.site_name} (ID: {target_site.site_id})")
+    except Site.DoesNotExist:
+        print(f"Fail: Gateway '{gateway_id}' hasn't registered on web !!!")
+        print(f"Please check on web or register new gateway.")
+        return
+
+    # BƯỚC 4: CẬP NHẬT BẢNG METER (DỮ LIỆU TỔNG QUÁT)
+    # update_or_create:
+    # → Nếu Meter với m_id đã có → cập nhật giá trị mới
+    # → Nếu chưa có → tạo mới
+    try:
         meter, created = Meter.objects.update_or_create(
             meter_id = m_id,
             defaults = {
@@ -79,108 +98,82 @@ def on_message(client, userdata, msg):
                 'timestamp':         timezone.now(),
             }
         )
-        status_msg = "Tạo mới" if created else "Cập nhật"
-        print(f"   {status_msg} Meter ID {m_id} ({m_name}) thành công!")
 
-        # -------------------------------------------------------
-        # NHIỆM VỤ 2: LƯU TOÀN BỘ THANH GHI — ĐÃ SỬA
-        # ĐỔI: update_or_create → bulk_create
-        # Lý do: update_or_create ghi đè → mất lịch sử
-        #        bulk_create INSERT tất cả 1 lần → lưu đầy đủ lịch sử
-        # -------------------------------------------------------
-        registers_list = data.get('registers', [])
-
-        if not registers_list:
-            print("Không có mảng 'registers' trong gói tin.")
+        if created:
+            print(f"Create new Meter: {m_name} (ID: {m_id})")
         else:
-            now = timezone.now()
+            print(f"Update Meter: {m_name} (ID: {m_id})")
 
-            # Danh sách các object cần INSERT — chưa lưu vào DB
-            to_insert = []
-            skipped   = 0
-
-            for reg in registers_list:
-                reg_addr  = reg.get('register')  # địa chỉ Modbus (số nguyên)
-                reg_name  = reg.get('name')       # tên thanh ghi (string)
-                reg_value = reg.get('value', '---')   # giá trị đo được
-                reg_unit  = reg.get('unit', '')   # đơn vị
-
-                # Bỏ qua thanh ghi nếu thiếu tên (tên là bắt buộc)
-                if reg_name is None:
-                    skipped += 1
-                    continue
-
-                # Tạo object MeterRegister nhưng CHƯA lưu vào DB (chưa gọi .save())
-                to_insert.append(MeterRegister(
-                    meter            = meter,       # FK tới Meter vừa update ở trên
-                    register_address = reg_addr,    # địa chỉ Modbus
-                    register_name    = reg_name,    # tên thanh ghi
-                    value            = reg_value,   # giá trị
-                    unit             = reg_unit,    # đơn vị
-                    received_at      = now,         # timestamp chung của cả batch
-                ))
-
-            # INSERT tất cả 1 lần vào DB — nhanh hơn nhiều so với loop từng cái
-            # bulk_create KHÔNG kích hoạt signal post_save từng dòng
-            # → signal sẽ được gọi thủ công trong bước tiếp theo (xem signals.py)
-            MeterRegister.objects.bulk_create(to_insert)
-
-            print(f"Lưu {len(to_insert)} thanh ghi thành công" + (f", bỏ qua {skipped} thanh ghi thiếu tên." if skipped else "."))
-
-            # ← THÊM: Sau khi bulk_create xong, gửi WebSocket thủ công
-            # Lý do: bulk_create không tự kích hoạt signal post_save
-            # → phải tự gửi dữ liệu mới xuống frontend
-            from asgiref.sync import async_to_sync
-            from channels.layers import get_channel_layer
-            channel_layer = get_channel_layer()
-
-            # Chuẩn bị danh sách dòng mới để gửi xuống frontend
-            new_rows = []
-            for obj in to_insert:
-                new_rows.append({
-                    "timestamp": localtime(now).strftime('%Y-%m-%d %H:%M:%S'), # Gio Viet Nam
-                    "parameter_name": obj.register_name,
-                    "register":       obj.register_address if obj.register_address is not None else "--",
-                    "value":          float(obj.value) if obj.value is not None else "--",
-                    "unit":           obj.unit if obj.unit else "--",
-                })
-
-            # Gửi tới group của đúng meter_id này
-            # Frontend đang mở bảng chi tiết của meter nào thì sẽ nhận được
-            async_to_sync(channel_layer.group_send)(
-                f"meter_register_{m_id}",   # tên group khớp với MeterRegisterConsumer
-                {
-                    "type":    "meter_register_update",  # khớp với tên hàm trong Consumer
-                    "message": new_rows,                 # danh sách dòng mới
-                }
-            )
-
-    except json.JSONDecodeError as e:
-        print(f"Lỗi JSON: {e}")
     except Exception as e:
-        print(f"Lỗi: {e}")
+        print(f"Fail: Can't save Meter, Detail: {e}")
+        return
+
+    # ------------------------------------------
+    # BƯỚC 5: LƯU THANH GHI VÀO BẢNG METERREGISTER
+    # ------------------------------------------
+    registers_list = data.get('registers', [])
+
+    if not registers_list:
+        print("Không có thanh ghi trong gói tin — bỏ qua bước lưu thanh ghi.")
+    else:
+        now        = timezone.now()
+        to_insert  = []
+        skipped    = 0
+
+        # Duyệt qua từng thanh ghi trong danh sách
+        for reg in registers_list:
+            reg_addr  = reg.get('register')
+            reg_name  = reg.get('name')
+            reg_value = reg.get('value', '---')
+            reg_unit  = reg.get('unit', '')
+
+            # Bỏ qua thanh ghi nếu thiếu tên
+            if reg_name is None:
+                skipped += 1
+                continue
+
+            # Tạo object MeterRegister — chưa lưu vào DB
+            new_register = MeterRegister(
+                meter            = meter,
+                register_address = reg_addr,
+                register_name    = reg_name,
+                value            = reg_value,
+                unit             = reg_unit,
+                received_at      = now,
+            )
+            to_insert.append(new_register)
+
+        # Lưu tất cả thanh ghi vào DB cùng 1 lúc
+        try:
+            MeterRegister.objects.bulk_create(to_insert)
+            print(f"Lưu {len(to_insert)} thanh ghi thành công.")
+            if skipped > 0:
+                print(f"Bỏ qua {skipped} thanh ghi thiếu tên.")
+        except Exception as e:
+            print(f"LỖI: Không thể lưu thanh ghi. Chi tiết: {e}")
+            return
 
 
 # ==========================================
-# KHỞI CHẠY WORKER
-# ==========================================
+# CHẠY WORKER
 def main():
     client = mqtt.Client(client_id=MQTT_CLIENT)
     client.on_connect = on_connect
     client.on_message = on_message
 
-    # Reconnect tự động khi mất kết nối
+    # Tự động kết nối lại khi mất kết nối
     client.reconnect_delay_set(min_delay=1, max_delay=30)
 
-    print(f"[WORKER] Đang kết nối tới {MQTT_BROKER}:{MQTT_PORT}...")
+    print(f"[WORKER] Connected to {MQTT_BROKER}:{MQTT_PORT}...")
+
     try:
         client.connect(MQTT_BROKER, MQTT_PORT, keepalive=60)
-        client.loop_forever()  # Blocking loop, tự reconnect khi mất mạng
+        client.loop_forever()
     except KeyboardInterrupt:
-        print("\nWorker dừng theo yêu cầu người dùng.")
+        print("\nStoppinggggggggggggggggggggggg...................")
         client.disconnect()
     except Exception as e:
-        print(f"Lỗi kết nối MQTT: {e}")
+        print(f"Fail to connect with MQTT: {e}")
 
 
 if __name__ == "__main__":

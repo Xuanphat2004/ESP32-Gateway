@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 from data.views.oldviews import SolarSystemDataViewSet ,chart_data_view, HourlyDataViewSet, average_data, inverter_ranking
-from data.views import inverter, meter, weather_station
+from data.views import inverter, meter, weather_station, site
 
 router = DefaultRouter()
 
@@ -26,4 +26,9 @@ urlpatterns = router.urls + [
 
     path('solardb/get-latest-weather-station-record/', weather_station.get_latest_record, name='get-latest-weather-station-record'),
     path('solardb/get-latest-weather-station-records/', weather_station.get_latest_records, name='get-latest-weather-station-records'),
+
+    path('solardb/get-my-sites/', site.get_my_sites, name='get-my-sites'),
+    path('solardb/add-site/', site.add_site, name='add-site'),
+    path('solardb/delete-site/<int:site_id>/', site.delete_site, name='delete-site'),
+    path('solardb/get-all-meters/', meter.get_all_meters, name='get-all-meters'),
 ]

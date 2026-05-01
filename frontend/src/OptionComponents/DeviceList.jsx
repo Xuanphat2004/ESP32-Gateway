@@ -20,7 +20,6 @@ import { PiPlugChargingBold } from "react-icons/pi";
 import { GiCharging } from "react-icons/gi";
 import LocationPinIcon from "@mui/icons-material/LocationPin";
 import Typography from "@mui/material/Typography";
-import { Link } from "react-router-dom";
 import {
   Table,
   TableHead,
@@ -31,6 +30,7 @@ import {
   Paper,
 } from "@mui/material";
 import { getData } from "../ApiComponent/api";
+import { Link, useSearchParams } from "react-router-dom";
 
 //======================================== INVERTER SITE ===================================================
 const InverterTable = ({ siteId }) => {
@@ -387,12 +387,19 @@ const MeterTable = ({ siteId }) => {
   useEffect(() => {
     const fetchMeter = async () => {
       try {
-        // Gọi API lấy danh sách tất cả meter của site này
-        const data = await getData("/solardb/get-latest-meter-records/");
-        if (!data) throw new Error("Network error");
+          let data;
+          if (siteId) {
+              // Có siteId → vào từ SiteList → lấy meter của site đó
+              data = await getData("/solardb/get-latest-meter-records/");
+          } else {
+              // Không có siteId → vào trực tiếp → lấy tất cả meter
+              data = await getData("/solardb/get-all-meters/");
+          }
 
+        if (!data) throw new Error("Network error");
         // Chuẩn hóa field, field nào thiếu thì để "--"
         const normalized = data.map(item => ({
+          site_name:         item.site_name         ?? "--",
           meter_id:          item.meter_id          ?? "--",
           name:              item.meter_name         ?? "--",
           device_model:      item.device_model       ?? "--",
@@ -418,35 +425,42 @@ const MeterTable = ({ siteId }) => {
   // ====================================================================================
   // EFFECT 2: WebSocket cập nhật real-time bảng TỔNG QUÁT
   useEffect(() => {
-    const socket = new WebSocket(`ws://localhost:8000/ws/meter/${siteId}/`);
+      let socket;
+      if (siteId) {
+          // Có siteId → lắng nghe meter của site đó
+          socket = new WebSocket(`ws://localhost:8000/ws/meter/${siteId}/`);
+      } else {
+          // Không có siteId → lắng nghe tất cả meter
+          socket = new WebSocket(`ws://localhost:8000/ws/all_meters/`);
+      }
+      socket.onopen = () => {
+          console.log(`WS connected`);
+      };
 
-    socket.onopen = () => {console.log(`WS bảng tổng quát connected, siteId: ${siteId}`); };
+      socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        // Chuẩn hóa và cập nhật bảng tổng quát
+        const normalized = data.map(item => ({
+          site_name:         item.site_name         ?? "--",
+          meter_id:          item.meter_id          ?? "--",
+          name:              item.meter_name         ?? "--",
+          device_model:      item.device_model       ?? "--",
+          attribute:         item.attribute          ?? "--",
+          status:            item.status             ?? "--",
+          voltage_l1:        item.voltage_l1         ?? "--",
+          current_l1:        item.current_l1         ?? "--",
+          current_l1_dmd:    item.current_l1_dmd     ?? "--",
+          frequency_l1:      item.frequency_l1       ?? "--",
+          apparent_power_l1: item.apparent_power_l1  ?? "--",
+          real_power:        item.real_power          ?? "--",
+          timestamp:         item.timestamp           ?? "--",
+        }));
+        setRows(normalized);
+      };
 
-    socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      // Chuẩn hóa và cập nhật bảng tổng quát
-      const normalized = data.map(item => ({
-        meter_id:          item.meter_id          ?? "--",
-        name:              item.meter_name         ?? "--",
-        device_model:      item.device_model       ?? "--",
-        attribute:         item.attribute          ?? "--",
-        status:            item.status             ?? "--",
-        voltage_l1:        item.voltage_l1         ?? "--",
-        current_l1:        item.current_l1         ?? "--",
-        current_l1_dmd:    item.current_l1_dmd     ?? "--",
-        frequency_l1:      item.frequency_l1       ?? "--",
-        apparent_power_l1: item.apparent_power_l1  ?? "--",
-        real_power:        item.real_power          ?? "--",
-        timestamp:         item.timestamp           ?? "--",
-      }));
-      setRows(normalized);
-    };
-
-    socket.onerror = (e) => console.error("WS tổng quát error:", e);
-
-    // Cleanup: đóng WS khi component unmount hoặc siteId thay đổi
-    return () => socket.close();
-  }, [siteId]);
+      socket.onerror = (e) => console.error("WS tổng quát error:", e);
+      return () => socket.close(); // Cleanup: đóng WS khi component unmount hoặc siteId thay đổi
+    }, [siteId]);
 
 
   // ==================================================================================
@@ -642,6 +656,7 @@ const MeterTable = ({ siteId }) => {
 
   // Định nghĩa cột cho bảng tổng quát
   const overviewCols = [
+    { key: "site_name",         label: "Site Name"         },
     { key: "name",              label: "Meter Name"        },
     { key: "device_model",      label: "Device Model"      },
     { key: "meter_id",          label: "Meter ID"          },
@@ -1055,6 +1070,9 @@ export default function DeviceList() {
   const buttons = ["INVERTER", "METER", "WEATHER STATION"];
   const [selected, setSelected] = useState("INVERTER");
 
+  const [searchParams] = useSearchParams();
+  const siteId = searchParams.get("siteId"); // null nếu vào trực tiếp
+
   return (
     <Box
       sx={{
@@ -1101,13 +1119,9 @@ export default function DeviceList() {
           flex: 3,
         }}
       >
-        {selected === "INVERTER" ? (
-          <InverterTable siteId={1} />
-        ) : selected === "METER" ? (
-          <MeterTable siteId={1} />
-        ) : (
-          <WeatherTable siteId={1} />
-        )}
+        {selected === "INVERTER" ? (<InverterTable siteId={siteId} />) : 
+         selected === "METER" ? (<MeterTable siteId={siteId} />) : 
+         (<WeatherTable siteId={siteId} />)}
       </Box>
     </Box>
   );

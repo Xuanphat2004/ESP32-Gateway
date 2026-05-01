@@ -150,6 +150,7 @@ def send_meter_update(sender, instance, created, **kwargs):
             result.append({
                 # thanh phan dinh danh thiet bi
                 "site_id": latest_record.site_id_id,
+                "site_name":  latest_record.site_id.site_name,
                 "meter_name": latest_record.meter_name,
                 "meter_id": latest_record.meter_id,
                 "device_model": latest_record.device_model, 
@@ -169,11 +170,20 @@ def send_meter_update(sender, instance, created, **kwargs):
 
             })
 
-    # Gửi qua channel layer
+    # Gửi đến group meter_{site_id} — cho SiteList (xem theo site)
     async_to_sync(channel_layer.group_send)(
         group_name,
         {
-            "type": "meter_update",  # map với hàm trong consumer
+            "type": "meter_update",
+            "message": result
+        }
+    )
+
+    # Gửi thêm đến group all_meters — cho DeviceList (xem toàn bộ)
+    async_to_sync(channel_layer.group_send)(
+        "all_meters",
+        {
+            "type": "all_meters_update",
             "message": result
         }
     )
