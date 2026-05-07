@@ -4,6 +4,16 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define CHECK_SLAVE_ID 245
+
+// ============================================================
+// Vùng nhớ để lưu phản hồi từ slave giả
+typedef struct
+{
+    float value_a;
+    float value_b;
+    float value_c;
+} data_check_t;
 // ============================================================
 // Lưu danh sách ID online sau khi scan từng port
 typedef struct
@@ -29,6 +39,8 @@ extern uint8_t original_id[248];     // Danh sách ID gốc từ NVS
 extern uint8_t original_id_count;    // Số lượng ID gốc
 extern scan_analysis_t scan_result;  // Kết quả sau khi scan
 extern volatile bool is_scan_device; // Cờ báo đang scan
+extern bool wire_p1_ok;
+extern bool wire_p2_ok;
 
 void scan_device(void);
 void get_active_list(void);

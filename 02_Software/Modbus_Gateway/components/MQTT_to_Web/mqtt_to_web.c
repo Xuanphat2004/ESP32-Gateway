@@ -12,6 +12,7 @@
 #include "esp_netif.h"
 #include "esp_eth.h"
 #include "esp_mac.h"
+#include "scan_device.h"
 
 static const char *TAG = "[MQTT]";
 
@@ -46,17 +47,19 @@ const name_mapping_t master_mapping[] = {
 const int mapping_size = sizeof(master_mapping) / sizeof(name_mapping_t);
 
 //======================================================================
-// Hàm lấy địa chỉ MAC của chip ESP32
+// GIỮ NGUYÊN: Lấy địa chỉ MAC làm gateway_id
 void get_gateway_id(char *buf, size_t buf_size)
 {
     uint8_t mac[6] = {0};
     esp_read_mac(mac, ESP_MAC_EFUSE_FACTORY);
-    snprintf(buf, buf_size, "%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    snprintf(buf, buf_size, "%02X:%02X:%02X:%02X:%02X:%02X",
+             mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 }
 
 //======================================================================
-// MQTT Event Handler
-static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
+// GIỮ NGUYÊN: MQTT Event Handler
+static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
+                               int32_t event_id, void *event_data)
 {
     esp_mqtt_event_handle_t event = event_data;
     switch ((esp_mqtt_event_id_t)event_id)
@@ -78,15 +81,15 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         if (event->error_handle->error_type == MQTT_ERROR_TYPE_TCP_TRANSPORT)
             ESP_LOGE(TAG, "TCP error, esp_tls_last_esp_err=%d", event->error_handle->esp_tls_last_esp_err);
         else if (event->error_handle->connect_return_code == MQTT_CONNECTION_REFUSE_NOT_AUTHORIZED)
-            ESP_LOGE(TAG, "Sai username/password hoặc chưa tạo credentials!");
-        break;
+            // ESP_LOGE(TAG, "Sai username/password hoặc chưa tạo credentials!");
+            break;
     default:
         break;
     }
 }
 
 //======================================================================
-// Khởi động MQTT client
+// GIỮ NGUYÊN: Khởi động MQTT client
 void mqtt_app_start(void)
 {
     char gateway_id[32] = " ";
@@ -108,7 +111,7 @@ void mqtt_app_start(void)
         .credentials = {.client_id = CLIENT_ID},
         .session = {.protocol_ver = MQTT_PROTOCOL_V_3_1_1},
         .task = {.stack_size = 8192},
-        .buffer = {.size = 32768}, // Tăng buffer lên 32KB dự phòng vì payload lớn hơn
+        .buffer = {.size = 32768},
     };
 
     mqtt_client = esp_mqtt_client_init(&mqtt_config);
@@ -118,9 +121,13 @@ void mqtt_app_start(void)
     esp_mqtt_client_start(mqtt_client);
 }
 
-void mqtt_network_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
+//======================================================================
+// GIỮ NGUYÊN
+void mqtt_network_event_handler(void *arg, esp_event_base_t event_base,
+                                int32_t event_id, void *event_data)
 {
-    if (event_base == IP_EVENT && (event_id == IP_EVENT_STA_GOT_IP || event_id == IP_EVENT_ETH_GOT_IP))
+    if (event_base == IP_EVENT &&
+        (event_id == IP_EVENT_STA_GOT_IP || event_id == IP_EVENT_ETH_GOT_IP))
     {
         ESP_LOGI(TAG, "Received IP address, restarting MQTT...");
         mqtt_app_start();
@@ -128,27 +135,25 @@ void mqtt_network_event_handler(void *arg, esp_event_base_t event_base, int32_t 
 }
 
 //======================================================================
-// Dùng con trỏ để trỏ vào địa chỉ bắt đầu lưu dữ liệu gói tin, vì không biết trước dung lượng của gói tin là bao nhiêu
-// char *payload = pack_data_to_json(current_id, meter_name, "Power Meter")
+// GIỮ NGUYÊN: Đóng gói dữ liệu meter thành JSON
 char *pack_data_to_json(int id, char *name, char *model)
 {
     if (tcp_virtual_storage == NULL || basic_dict == NULL)
         return NULL;
 
-    cJSON *root = cJSON_CreateObject(); // Tạo ra JSON object mới {}
+    cJSON *root = cJSON_CreateObject();
     if (root == NULL)
         return NULL;
+
     char gateway_id[32] = " ";
     get_gateway_id(gateway_id, sizeof(gateway_id));
-    // Phần thông tin định danh gateway và thiết bị
-    cJSON_AddStringToObject(root, "gateway_id", gateway_id); // Thêm cặp Key-Value kiểu chuỗi string
-    cJSON_AddNumberToObject(root, "m_id", id);               // Thêm cặp Key-Value kiểu số
+    cJSON_AddStringToObject(root, "gateway_id", gateway_id);
+    cJSON_AddNumberToObject(root, "m_id", id);
     cJSON_AddStringToObject(root, "m_name", name);
     cJSON_AddStringToObject(root, "model", model);
     cJSON_AddStringToObject(root, "attr", "Consumption Meter");
 
-    // Phần dữ liệu chính của toàn bộ thanh ghi
-    cJSON *data_array = cJSON_CreateArray(); // Tạo ra mảng JSON [] để chứa danh sách thanh ghi.
+    cJSON *data_array = cJSON_CreateArray();
     if (data_array == NULL)
     {
         cJSON_Delete(root);
@@ -157,38 +162,30 @@ char *pack_data_to_json(int id, char *name, char *model)
 
     if (xSemaphoreTake(xDataMutex, pdMS_TO_TICKS(200)) == pdTRUE)
     {
-        // đóng gói dữ liệu từng thanh ghi theo dạng {key: value, key: value, key: value, key: value}
-        // Các thành phần sẽ có trong 1 object bao gồm: thanh ghi, param, value, unit
-        for (int i = 0; i < register_count; i++) // Quét qua toàn bộ cid của dictionary
+        for (int i = 0; i < register_count; i++)
         {
-            // Chỉ lấy thanh ghi của thiết bị đang xét
-            // Đóng gói các thanh ghi có cùng id trước
-            if (basic_dict[i].mb_slave_addr != id) // nếu cid hiện tại có id khác với id đang đóng gói
+            if (basic_dict[i].mb_slave_addr != id)
                 continue;
 
-            // Thêm vào mảng registers (toàn bộ data)
-            cJSON *data_object = cJSON_CreateObject(); // dạng {thông tin thanh ghi thứ n}
+            cJSON *data_object = cJSON_CreateObject();
             if (data_object != NULL)
             {
                 cJSON_AddNumberToObject(data_object, "register", basic_dict[i].mb_reg_start);
                 cJSON_AddStringToObject(data_object, "name", basic_dict[i].param_key);
                 cJSON_AddNumberToObject(data_object, "value", tcp_virtual_storage[i]);
                 cJSON_AddStringToObject(data_object, "unit", basic_dict[i].param_units);
-
-                cJSON_AddItemToArray(data_array, data_object); // Đưa object vừa đóng gói vào mảng registers.
+                cJSON_AddItemToArray(data_array, data_object);
             }
 
-            // Mapping sang các trường cố định cho bảng tổng quát của web
             for (int j = 0; j < mapping_size; j++)
             {
                 if (strcmp(basic_dict[i].param_key, master_mapping[j].modbus_param_key) == 0)
                 {
-                    // Dùng ReplaceItemInObject để không bị trùng key nếu có 2 thanh ghi cùng map
                     cJSON *existing = cJSON_GetObjectItem(root, master_mapping[j].web_field_key);
                     if (existing == NULL)
                         cJSON_AddNumberToObject(root, master_mapping[j].web_field_key, tcp_virtual_storage[i]);
                     else
-                        cJSON_SetNumberValue(existing, tcp_virtual_storage[i]); // Cập nhật giá trị số cho một Key đã tồn tại.
+                        cJSON_SetNumberValue(existing, tcp_virtual_storage[i]);
                     break;
                 }
             }
@@ -203,23 +200,22 @@ char *pack_data_to_json(int id, char *name, char *model)
         return NULL;
     }
 
-    // Gắn mảng registers vào gói tin JSON chính
     cJSON_AddItemToObject(root, "registers", data_array);
-
-    char *json_out = cJSON_PrintUnformatted(root); // Chuyển Object JSON thành chuỗi char* để gửi đi.
+    char *json_out = cJSON_PrintUnformatted(root);
     cJSON_Delete(root);
     return json_out;
 }
 
 //======================================================================
-// TASK GỬI MQTT - 10 giây/lần
+// GIỮ NGUYÊN: TASK GỬI MQTT meter data - 10 giây/lần
 void mqtt_publish_task(void *pvParameters)
 {
-    vTaskDelay(pdMS_TO_TICKS(5000)); // Đợi mạng ổn định
+    vTaskDelay(pdMS_TO_TICKS(5000));
 
     while (1)
     {
-        if (is_mqtt_connected && mqtt_client != NULL && tcp_virtual_storage != NULL && basic_dict != NULL)
+        if (is_mqtt_connected && mqtt_client != NULL &&
+            tcp_virtual_storage != NULL && basic_dict != NULL)
         {
             int last_id = -1;
             int meter_count = 0;
@@ -227,58 +223,146 @@ void mqtt_publish_task(void *pvParameters)
             for (int i = 0; i < register_count; i++)
             {
                 int current_id = basic_dict[i].mb_slave_addr;
-
-                // Mỗi ID chỉ gửi 1 lần (gửi toàn bộ thanh ghi của ID đó trong 1 gói)
                 if (current_id == last_id)
                     continue;
 
                 meter_count++;
                 char meter_name[32];
-                snprintf(meter_name, sizeof(meter_name), "Meter %d - ID: %d", meter_count, current_id);
+                snprintf(meter_name, sizeof(meter_name),
+                         "Meter %d - ID: %d", meter_count, current_id);
 
                 char *payload = pack_data_to_json(current_id, meter_name, "Power Meter");
                 if (payload != NULL)
                 {
                     int msg_id = esp_mqtt_client_publish(mqtt_client, PUBLISH_TOPIC, payload, 0, 1, 0);
                     if (msg_id >= 0)
-                        ESP_LOGI(TAG, "Published %s successfully (msg_id=%d)", meter_name, msg_id);
+                        ESP_LOGI(TAG, "Published %s (msg_id=%d)", meter_name, msg_id);
                     else
                         ESP_LOGW(TAG, "Failed to publish %s", meter_name);
                     free(payload);
                 }
 
                 last_id = current_id;
-                vTaskDelay(pdMS_TO_TICKS(500)); // Delay giữa các thiết bị
+                vTaskDelay(pdMS_TO_TICKS(500));
             }
         }
         else
         {
             ESP_LOGW(TAG, "MQTT not connected, waiting...");
         }
-
-        vTaskDelay(pdMS_TO_TICKS(10000)); // Chu kỳ gửi 10 giây
+        vTaskDelay(pdMS_TO_TICKS(10000));
     }
 }
 
 //======================================================================
-// Đóng gói TOÀN BỘ thanh ghi của 1 thiết bị thành JSON
-//
-// JSON output format:
-// {
-//   "gateway_id": "mbateway",     thông tin định danh cho mỗi id
-//   "m_id": 3,
-//   "m_name": "Meter 1 (ID 3)",
-//   "model": "Power Meter",
-//   "attr": "Consumption Meter",
-//
-//   "volt": 220.5,        ← các trường sẽ hiển thị mặc định
-//   "curr": 1.23,
-//   ...
-//
-//   "registers": [        ← TOÀN BỘ thanh ghi của thiết bị này, các trường chỉ khi nhấp vào dòng thiết bị đó mới hiện ra
-//     {"name": "Volt-L1-N", "value": 220.5, "unit": "V"},
-//     {"name": "Cur-L1",    "value": 1.23,  "unit": "A"},
-//     ...
-//   ]
-// }
-//======================================================================
+
+void publish_scan_result(void)
+{
+    if (!is_mqtt_connected || mqtt_client == NULL)
+    {
+        ESP_LOGW(TAG, "[SCAN] MQTT chưa kết nối, bỏ qua publish");
+        return;
+    }
+
+    char gateway_id[32] = {0};
+    get_gateway_id(gateway_id, sizeof(gateway_id));
+
+    cJSON *root = cJSON_CreateObject();
+    if (root == NULL)
+    {
+        // ESP_LOGE(TAG, "[SCAN] Tạo JSON thất bại");
+        return;
+    }
+
+    // ── Thông tin định danh ────────────────────────────────────────────
+    cJSON_AddStringToObject(root, "gateway_id", gateway_id);
+    cJSON_AddStringToObject(root, "event", "scan_result");
+    cJSON_AddBoolToObject(root, "wire_p1_ok", wire_p1_ok); // wire=true thì là dây bình thường
+    cJSON_AddBoolToObject(root, "wire_p2_ok", wire_p2_ok);
+    cJSON_AddNumberToObject(root, "active_port", scan_result.active_port);
+
+    // ── Severity ───────────────────────────────────────────────────────
+    // "warning" nếu có ít nhất 1 ID không phản hồi, ngược lại "ok"
+    const char *severity = (scan_result.lose_count > 0) ? "warning" : "ok";
+    cJSON_AddStringToObject(root, "severity", severity);
+
+    // ── inactive_ids: lấy từ scan_result.lose_list ────────────────────
+    // Đây là danh sách ID có trong original_id[] nhưng không phản hồi
+    // ở cả 2 port trong lần scan này
+    cJSON *inactive_arr = cJSON_CreateArray();
+    if (inactive_arr != NULL)
+    {
+        for (int i = 0; i < scan_result.lose_count; i++)
+            cJSON_AddItemToArray(inactive_arr, cJSON_CreateNumber(scan_result.lose_list[i]));
+        cJSON_AddItemToObject(root, "inactive_ids", inactive_arr);
+    }
+
+    // ── active_ids: original_id[] trừ đi lose_list[] ──────────────────
+    // Không có sẵn biến này → tính thủ công bằng cách duyệt original_id[]
+    // và kiểm tra xem có nằm trong lose_list[] không
+    cJSON *active_arr = cJSON_CreateArray();
+    if (active_arr != NULL)
+    {
+        for (int i = 0; i < original_id_count; i++)
+        {
+            uint8_t id = original_id[i];
+            bool is_lost = false;
+
+            for (int j = 0; j < scan_result.lose_count; j++)
+            {
+                if (scan_result.lose_list[j] == id)
+                {
+                    is_lost = true;
+                    break;
+                }
+            }
+
+            if (!is_lost)
+                cJSON_AddItemToArray(active_arr, cJSON_CreateNumber(id));
+        }
+        cJSON_AddItemToObject(root, "active_ids", active_arr);
+    }
+
+    // ── Thông tin vị trí đứt dây ──────────────────────────────────────
+    // final_id_p1: index trong original_id[] của ID cuối cùng Port 1 thấy được
+    //              = -1 nếu Port 1 không thấy thiết bị nào
+    // final_id_p2: index trong original_id[] của ID cuối cùng Port 2 thấy được
+    //              = original_id_count nếu Port 2 không thấy thiết bị nào
+    // Web dùng 2 field này để xác định đứt ở đoạn nào trên dây:
+    //   final_p1=0, final_p2=1 → đứt giữa original_id[0] và original_id[1]
+    //   final_p1=-1, final_p2=0 → đứt trước thiết bị đầu tiên (đoạn A)
+    //   final_p1=count-1, final_p2=count → đứt sau thiết bị cuối (đoạn D)
+    cJSON_AddNumberToObject(root, "final_id_p1", scan_result.final_id_p1);
+    cJSON_AddNumberToObject(root, "final_id_p2", scan_result.final_id_p2);
+    bool line_ok = wire_p1_ok || wire_p2_ok;
+    cJSON_AddBoolToObject(root, "line_ok", line_ok);
+
+    // ── Serialize và publish ───────────────────────────────────────────
+    char *payload = cJSON_PrintUnformatted(root);
+    cJSON_Delete(root);
+
+    if (payload == NULL)
+    {
+        ESP_LOGE(TAG, "[SCAN] Serialize JSON thất bại");
+        return;
+    }
+
+    int msg_id = esp_mqtt_client_publish(
+        mqtt_client,
+        SCAN_TOPIC, // định nghĩa trong mqtt_to_web.h
+        payload,
+        0, // len=0 → tự tính từ null-terminated string
+        1, // QoS 1: broker xác nhận nhận được
+        1  // retain=1: client mới subscribe vẫn nhận kết quả gần nhất
+    );
+
+    if (msg_id >= 0)
+        ESP_LOGI(TAG, "[SCAN] Publish OK (msg_id=%d) severity=%s active=%d inactive=%d",
+                 msg_id, severity,
+                 (int)(original_id_count - scan_result.lose_count),
+                 scan_result.lose_count);
+    else
+        ESP_LOGW(TAG, "[SCAN] Publish THẤT BẠI");
+
+    free(payload);
+}

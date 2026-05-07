@@ -50,7 +50,7 @@ void print_ram_tables(void)
 
     for (int i = 0; i < register_count; i++)
     {
-        printf("%-3d | %-15s | %-5s | %-3d | %-5d | %-4d | %-4d | %-4d | %-4d | %-5d | %-4d | %-6.3f | %-3d | %-5d | %-5d\n",
+        printf("%-3d | %-15s | %-5s | %-3d | %-5d | %-4d | %-4d | %-4d | %-4d | %-5d | %-4d | %-6.8f | %-3d | %-5d | %-5d\n",
                basic_dict[i].cid,
                basic_dict[i].param_key,
                basic_dict[i].param_units,
@@ -169,7 +169,7 @@ esp_err_t load_modbus_dynamic_config(void)
     raw_data = calloc(1, g_total_raw_bytes);
 
     nvs_close(my_handle);
-    print_ram_tables();
+    // print_ram_tables();
 
     return ESP_OK;
 }
@@ -218,7 +218,7 @@ void modbus_rtu_port_2_dummy_init(void)
     uart_driver_install(UART_NUM_2, 256, 0, 0, NULL, 0);
 
     // RS485 half-duplex → ESP32 tự kéo DE=LOW khi không phát
-    // → MAX485 port 2 ở chế độ nhận, không tranh bus với master ở port 1
+    // MAX485 port 2 ở chế độ nhận, không tranh bus với master ở port 1
     uart_set_mode(UART_NUM_2, UART_MODE_RS485_HALF_DUPLEX);
 
     ESP_LOGI(TAG, "Port 2 dummy: MAX485 DE=LOW, bus stable (no Modbus slave stack).");
@@ -295,6 +295,116 @@ void modbus_rtu_port_2_init(void)
 
     modbus_rtu_port_1_dummy_init();
 }
+
+static float decode_raw_to_float(uint8_t *buf, mb_descr_type_t type)
+{
+    switch (type)
+    {
+    // 8-bit
+    case PARAM_TYPE_U8:
+    case PARAM_TYPE_U8_A:
+    case PARAM_TYPE_U8_B:
+        return (float)(*(uint8_t *)buf); // Chép đúng 8bit dữ liệu và ép kiểu thành float
+
+    case PARAM_TYPE_I8_A:
+    case PARAM_TYPE_I8_B:
+        return (float)(*(int8_t *)buf);
+
+    // ── 16-bit unsigned ─
+    case PARAM_TYPE_U16:
+    case PARAM_TYPE_U16_AB:
+    case PARAM_TYPE_U16_BA:
+    {
+        uint16_t v;
+        memcpy(&v, buf, sizeof(v));
+        return (float)v;
+    }
+
+    // ── 16-bit signed ──────────────────────────────────────
+    case PARAM_TYPE_I16_AB:
+    case PARAM_TYPE_I16_BA:
+    {
+        int16_t v;
+        memcpy(&v, buf, sizeof(v));
+        return (float)v;
+    }
+
+    // ── 32-bit unsigned ────────────────────────────────────
+    case PARAM_TYPE_U32:
+    case PARAM_TYPE_U32_ABCD:
+    case PARAM_TYPE_U32_CDAB:
+    case PARAM_TYPE_U32_BADC:
+    case PARAM_TYPE_U32_DCBA:
+    {
+        uint32_t v;
+        memcpy(&v, buf, sizeof(v));
+        return (float)v;
+    }
+
+    // ── 32-bit signed ──────────────────────────────────────
+    case PARAM_TYPE_I32_ABCD:
+    case PARAM_TYPE_I32_CDAB:
+    case PARAM_TYPE_I32_BADC:
+    case PARAM_TYPE_I32_DCBA:
+    {
+        int32_t v;
+        memcpy(&v, buf, sizeof(v));
+        return (float)v;
+    }
+
+    // ── 32-bit float ───────────────────────────────────────
+    case PARAM_TYPE_FLOAT:
+    case PARAM_TYPE_FLOAT_ABCD:
+    case PARAM_TYPE_FLOAT_CDAB:
+    case PARAM_TYPE_FLOAT_BADC:
+    case PARAM_TYPE_FLOAT_DCBA:
+    {
+        float v;
+        memcpy(&v, buf, sizeof(v));
+        return v;
+    }
+
+    // ── 64-bit unsigned ────────────────────────────────────
+    case PARAM_TYPE_U64_ABCDEFGH:
+    case PARAM_TYPE_U64_HGFEDCBA:
+    case PARAM_TYPE_U64_GHEFCDAB:
+    case PARAM_TYPE_U64_BADCFEHG:
+    {
+        uint64_t v;
+        memcpy(&v, buf, sizeof(v));
+        return (float)v;
+    }
+
+    // ── 64-bit signed ──────────────────────────────────────
+    case PARAM_TYPE_I64_ABCDEFGH:
+    case PARAM_TYPE_I64_HGFEDCBA:
+    case PARAM_TYPE_I64_GHEFCDAB:
+    case PARAM_TYPE_I64_BADCFEHG:
+    {
+        int64_t v;
+        memcpy(&v, buf, sizeof(v));
+        return (float)v;
+    }
+
+    // ── 64-bit double ──────────────────────────────────────
+    case PARAM_TYPE_DOUBLE_ABCDEFGH:
+    case PARAM_TYPE_DOUBLE_HGFEDCBA:
+    case PARAM_TYPE_DOUBLE_GHEFCDAB:
+    case PARAM_TYPE_DOUBLE_BADCFEHG:
+    {
+        double v;
+        memcpy(&v, buf, sizeof(v));
+        return (float)v;
+    }
+
+    default:
+    {
+        uint16_t v;
+        memcpy(&v, buf, sizeof(v));
+        return (float)v;
+    }
+    }
+}
 //======================================================================
 // RTU Task
 void modbus_test_read(void)
@@ -312,13 +422,11 @@ void modbus_test_read(void)
             vTaskDelay(pdMS_TO_TICKS(5000));
             continue;
         }
-
         if (is_change_baud == true || is_scan_device == true)
         {
             vTaskDelay(pdMS_TO_TICKS(200));
             continue;
         }
-
         vTaskDelay(pdMS_TO_TICKS(150)); // Guard time t3.5
         rtc_read_time(&now);
 
@@ -331,17 +439,16 @@ void modbus_test_read(void)
             if (is_change_baud == true || is_scan_device == true)
                 goto exit_and_wait;
 
-            uint8_t *target_address = raw_data + basic_dict[i].param_offset;
+            uint8_t *target_address = raw_data + basic_dict[i].param_offset; // ghi bytes nhận được từ modbus target_address
             err = mbc_master_get_parameter(basic_dict[i].cid, basic_dict[i].param_key, target_address, &type);
 
             if (err == ESP_OK)
             {
-                float raw_value = 0;
-                if (basic_dict[i].mb_size == 1)
-                    raw_value = (float)(*(uint16_t *)target_address);
-                else
-                    raw_value = *(float *)target_address;
+                uint8_t *target_address = raw_data + basic_dict[i].param_offset;
 
+                float raw_value = decode_raw_to_float(target_address, (mb_descr_type_t)basic_dict[i].param_type);
+
+                // printf("CID %d raw data: %f\n", basic_dict[i].cid, raw_value);
                 temp_result[i] = raw_value * factor_dict[i].scale;
                 read_ok[i] = true;
             }
@@ -375,7 +482,7 @@ void modbus_test_read(void)
                 if (read_ok[i] == true)
                 {
                     final_data[i] = temp_result[i];
-                    printf("[CID: %d] - [%02d:%02d:%02d] %s = %.2f %s\n",
+                    printf("[CID: %d] - [%02d:%02d:%02d] %s = %.4f %s\n",
                            i, now.hour, now.minute, now.second,
                            basic_dict[i].param_key, final_data[i], basic_dict[i].param_units);
                 }

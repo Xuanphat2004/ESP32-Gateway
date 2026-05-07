@@ -41,7 +41,7 @@ void internet_test_task(void)
     {
         struct sockaddr_in dest_addr;
 
-        // --- BƯỚC 1: KIỂM TRA KẾT NỐI QUA IP TRỰC TIẾP (Google DNS 8.8.8.8) ---
+        // KIỂM TRA KẾT NỐI QUA IP TRỰC TIẾP (Google DNS 8.8.8.8) ---
         // Việc này để xác định xem Routing/Firewall trên Laptop có cho gói tin đi qua không
         int sock = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
         if (sock < 0)
@@ -62,7 +62,7 @@ void internet_test_task(void)
         {
             ESP_LOGI(TAG, "===> THÀNH CÔNG: Gateway đã ra được Internet");
 
-            // --- BƯỚC 2: KIỂM TRA PHÂN GIẢI TÊN MIỀN (DNS) ---
+            // --- KIỂM TRA PHÂN GIẢI TÊN MIỀN (DNS) ---
             // Chỉ thực hiện khi bước 1 đã thông
             struct addrinfo hints = {.ai_family = AF_INET, .ai_socktype = SOCK_STREAM};
             struct addrinfo *res;

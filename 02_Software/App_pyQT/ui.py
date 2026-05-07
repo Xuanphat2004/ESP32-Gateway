@@ -27,11 +27,11 @@ class ModbusApp(QWidget):  # Cửa sổ chính, có 3 tab: Home / Setup / Histor
     def setup_ui(self):
         main_layout = QVBoxLayout(self)
         self.tabs_main = QTabWidget()
-        self.tab_home = QWidget()
+        # self.tab_home = QWidget()
         self.tab_setup = QWidget()
         self.tab_history = QWidget()
 
-        self.tabs_main.addTab(self.tab_home, "Home")
+        # self.tabs_main.addTab(self.tab_home, "Home")
         self.tabs_main.addTab(self.tab_setup, "Setup")
         self.tabs_main.addTab(self.tab_history, "History")
         main_layout.addWidget(self.tabs_main)
@@ -106,8 +106,14 @@ class RegisterEditorWidget(QGroupBox):  #  Form nhập liệu thanh ghi
                 "---",
                 "Unsigned 16 bits",
                 "Unsigned 32 bits",
-                "Integer 32 bits CDAB",
-                "Integer 32 bits ABCD",
+                "Int 16 bits AB",
+                "Int 16 bits BA",
+                "Uint 16 bits AB",
+                "Uint 16 bits BA",
+                "Int 32 bits ABCD",
+                "Int 32 bits CDAB",
+                "Uint 32 bits ABCD",
+                "Uint 32 bits CDAB",
                 "Float ABCD",
                 "Float CDAB",
                 "Long",
@@ -128,7 +134,7 @@ class RegisterEditorWidget(QGroupBox):  #  Form nhập liệu thanh ghi
 
         # Ô nhập hệ số scale
         self.cb_scale = QComboBox()
-        self.cb_scale.addItems(["---", "0.001", "0.01", "0.1", "1"])
+        self.cb_scale.addItems(["---", "0.000003125", "0.001", "0.01", "0.1", "1"])
         grid.addWidget(QLabel("Scale:"), 1, 4)
         grid.addWidget(self.cb_scale, 1, 5)
 

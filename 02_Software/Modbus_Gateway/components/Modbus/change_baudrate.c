@@ -32,10 +32,6 @@ uint32_t baudrate = 0;
 void change_baudrate_task(void *arg)
 {
     is_change_baud = true;
-
-    printf("============================================================================================================\n");
-    ESP_LOGI("[CHANGE BAUDRATE]", "Starting baudrate update process...");
-
     uint32_t new_baud = baud_options[baudrate_id];
 
     esp_err_t err = save_baud_to_nvs(new_baud);
