@@ -4,6 +4,7 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 from data.views.oldviews import SolarSystemDataViewSet ,chart_data_view, HourlyDataViewSet, average_data, inverter_ranking
 from data.views import inverter, meter, weather_station, site
+from data.views import scan
 
 router = DefaultRouter()
 
@@ -31,4 +32,14 @@ urlpatterns = router.urls + [
     path('solardb/add-site/', site.add_site, name='add-site'),
     path('solardb/delete-site/<int:site_id>/', site.delete_site, name='delete-site'),
     path('solardb/get-all-meters/', meter.get_all_meters, name='get-all-meters'),
+
+    # Lần scan gần nhất — gọi khi mở trang AlarmSnooze
+    path('solardb/get-latest-scan/', scan.get_latest_scan, name='get-latest-scan'),
+ 
+    # Lịch sử tất cả lần scan — gọi để hiển thị bảng phía dưới
+    path('solardb/get-scan-history/', scan.get_scan_history, name='get-scan-history'),
+ 
+    # Chi tiết thiết bị của 1 lần scan — gọi khi bấm vào dòng trong bảng lịch sử
+    path('solardb/get-scan-devices/<int:scan_id>/', scan.get_scan_devices, name='get-scan-devices'),
+
 ]

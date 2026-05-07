@@ -582,7 +582,7 @@ const MeterTable = ({ siteId }) => {
 
         {/* Tiêu đề bảng chi tiết */}
         <Typography sx={{ color: theme.palette.text.header_option, mb: 1 }}>
-          Register of:{" "} <strong>{selectedMeter.meter_name}</strong> {" "} (ID {selectedMeter.meter_id})
+          Register of:{" "} <strong>{selectedMeter.meter_name}</strong>
         </Typography>
 
         {/* Hiển thị loading hoặc bảng */}

@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.utils.timezone import localtime
 from datetime import timedelta
 from data.models import Meter, MeterRegister, Site
+
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -33,7 +34,7 @@ def get_latest_record(request):
     user_site_ids = get_user_site_ids(request.user)
 
     # Tìm meter theo tên — chỉ trong site của user
-    record = Meter.objects.filter(site_id__in = user_site_ids, meter_name  = meter_name).order_by('-timestamp').first()
+    record = Meter.objects.filter(site_id__in = user_site_ids, meter_name = meter_name).order_by('-timestamp').first()
 
     # Không tìm thấy → trả về lỗi
     if not record:
@@ -69,7 +70,7 @@ def get_latest_records(request):
     user_site_ids = get_user_site_ids(request.user)
 
     # Lấy tất cả meter thuộc các site đó
-    meters = Meter.objects.filter(site_id__in=user_site_ids)
+    meters = Meter.objects.filter(site_id__in = user_site_ids)
 
     # Đóng gói thành danh sách để trả về
     result = []

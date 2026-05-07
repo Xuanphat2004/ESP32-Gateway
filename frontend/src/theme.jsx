@@ -10,8 +10,8 @@ export const getTheme = (mode) =>
       },
 
       background: {
-        default: mode === "dark" ? "#121212" : "#fafafaff",
-        paper:   mode === "dark" ? "#000000ff" : "#def1f8ff",
+        default: mode === "dark" ? "#1c344b" : "#fafafaff",
+        paper:   mode === "dark" ? "rgb(5, 28, 78)" : "#def1f8ff",
         option:  mode === "dark" ? "#636155  " : "#c1d2e3",
         string:  mode === "dark" ? "#3e3a2f" : "#b6c9d6",
         head_string: mode === "dark" ? "#9c865d" : "#406280",
@@ -21,8 +21,8 @@ export const getTheme = (mode) =>
       },
       
       text: {
-        header_option: mode === "dark" ? "#ddb224ff" : "#283593",
-        option:        mode === "dark" ? "#1eb30bff" : "#314ad6",
+        header_option: mode === "dark" ? "rgb(177, 137, 7)" : "#283593",
+        option:        mode === "dark" ? "rgb(214, 211, 15)" : "#314ad6",
         header_chart:  mode === "dark" ? "#" : "#",
         body_chart:    mode === "dark" ? "#ffffff" : "#000000",
         button:        mode === "dark" ? "#f9ff99" : "#004eff",
@@ -34,8 +34,8 @@ export const getTheme = (mode) =>
       },
 
       table:{
-        background_odd :  mode === "dark" ? "#1b1b1b" : "#e3f2fd",
-        background_even : mode === "dark" ? "#2a2a2a" : "#bbdefb",
+        background_odd :  mode === "dark" ? "#222f5c" : "#e3f2fd",
+        background_even : mode === "dark" ? "#1c344b" : "#bbdefb",
         text :            mode === "dark" ? "white" : "black"
       }
     },
