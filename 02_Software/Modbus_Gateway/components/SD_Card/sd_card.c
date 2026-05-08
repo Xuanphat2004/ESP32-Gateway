@@ -10,6 +10,7 @@
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 #include "esp_log.h"
+#include <errno.h>
 
 #include "modbus_tcp.h"
 #include "modbus_rtu.h" // Chứa basic_dict
@@ -31,8 +32,14 @@ extern uint16_t register_count;
 extern SemaphoreHandle_t xDataMutex;
 
 //======================================================================
-// HÀM KHỞI TẠO HOST SDSPI VÀ PROTOCOL LAYER
+// HÀM BUILD TÊN FILE THEO NGÀY
+static void build_filename(char *buf, size_t len, rtc_time_t *t)
+{
+    snprintf(buf, len, "/sdcard/%02d%02d20%02d.csv", t->date, t->month, t->year);
+}
+
 //======================================================================
+// HÀM KHỞI TẠO HOST SDSPI VÀ PROTOCOL LAYER
 void sd_card_init(void)
 {
     esp_err_t ret;
@@ -43,7 +50,7 @@ void sd_card_init(void)
     // Cấu hình FatFS
     esp_vfs_fat_sdmmc_mount_config_t mount_config = {
         .format_if_mount_failed = true, // Tự format FAT32 nếu thẻ chưa định dạng
-        .max_files = 5,
+        .max_files = 10,
         .allocation_unit_size = 2048 // Tối ưu cho project lưu log
     };
 
@@ -83,26 +90,17 @@ void sd_card_init(void)
     // In thông tin thẻ ra terminal
     sdmmc_card_print_info(stdout, card);
 
-    // Kiểm tra và tạo dòng Header cho file CSV nếu file chưa tồn tại
-    struct stat st;
-    if (stat("/sdcard/data_log.csv", &st) != 0)
-    {
-        FILE *f = fopen("/sdcard/data_log.csv", "w");
-        if (f != NULL)
-        {
-            fprintf(f, "Timestamp,SlaveID,Parameter,Register,Value,Unit\n");
-            fclose(f);
-            ESP_LOGI(TAG, "Created new log file with headers.");
-        }
-    }
+    // Không tạo file ở đây nữa
+    // Header sẽ được tạo tự động trong task khi file chưa tồn tại
+    ESP_LOGI(TAG, "SD card ready. Log files will be created per day.");
 }
 
 //======================================================================
-// TASK GHI LOG (Chạy 3 phút 1 lần)
-//======================================================================
+// Task ghi thẻ nhớ SD 3 phút 1 lần
 void sd_card_logger_task(void *pvParameters)
 {
     rtc_time_t now;
+    char filename[32] = {0};
 
     // Ghi ngay lần đầu sau 10 giây để kiểm tra, sau đó mới 3 phút/lần
     TickType_t delay_ms = pdMS_TO_TICKS(10000);
@@ -110,7 +108,7 @@ void sd_card_logger_task(void *pvParameters)
     while (1)
     {
         vTaskDelay(delay_ms);
-        delay_ms = pdMS_TO_TICKS(180000); // Từ lần 2 trở đi mới bắt đầu 3 phút ghi 1 lần
+        delay_ms = pdMS_TO_TICKS(180000); // Từ lần 2 trở đi: 3 phút ghi 1 lần
 
         // Kiểm tra dữ liệu đầu vào hợp lệ
         if (register_count == 0 || basic_dict == NULL || final_data == NULL)
@@ -126,13 +124,11 @@ void sd_card_logger_task(void *pvParameters)
             continue;
         }
 
-        // Đọc RTC ngoài mutex để tránh giữ mutex lâu khi I2C/SPI bị block
         rtc_read_time(&now);
+        build_filename(filename, sizeof(filename), &now);
 
-        // Chép dữ liệu ra buffer tạm có mutex bảo vệ
-        if (xSemaphoreTake(xDataMutex, pdMS_TO_TICKS(500)) == pdTRUE)
+        if (xSemaphoreTake(xDataMutex, pdMS_TO_TICKS(500)) == pdTRUE) // Ưu tiên các task đang cầm mutex
         {
-            // Kiểm tra lại con trỏ bên trong mutex để tránh race condition
             if (final_data == NULL)
             {
                 ESP_LOGW(TAG, "final_data bị NULL trong mutex, bỏ qua.");
@@ -145,7 +141,7 @@ void sd_card_logger_task(void *pvParameters)
         }
         else
         {
-            ESP_LOGW(TAG, "Không lấy được xDataMutex, bỏ qua.");
+            // ESP_LOGW(TAG, "Không lấy được xDataMutex, bỏ qua.");
             free(temp_data);
             continue;
         }
@@ -153,9 +149,25 @@ void sd_card_logger_task(void *pvParameters)
         // Ghi xuống thẻ SD
         if (xSemaphoreTake(sd_mutex, pdMS_TO_TICKS(1000)) == pdTRUE)
         {
-            FILE *f = fopen("/sdcard/data_log.csv", "a");
+            struct stat st;                             // struct của C chuẩn (POSIX), dùng để lưu thông tin metadata của một file trên filesystem.
+            bool new_file = (stat(filename, &st) != 0); // Kiểm tra file đã tồn tại chưa để tạo file mới
+
+            // FILE là struct được định nghĩa trong <stdio.h> của C chuẩn, dùng để đại diện cho một file đang mở.
+            // ESP-IDF xin cấp vùng RAM — malloc một FILE struct
+            // Trả về địa chỉ của struct đó cho f
+            // FILE struct nằm trong RAM của ESP32
+            // File mới dùng "w" để tạo, file cũ dùng "a" để ghi tiếp
+            // "a" trên một số thẻ SD + FatFS thất bại khi file chưa tồn tại
+            FILE *f = fopen(filename, new_file ? "w" : "a");
             if (f != NULL)
             {
+                // File mới (chưa tồn tại trước đó) → ghi header trước
+                if (new_file)
+                {
+                    fprintf(f, "Timestamp,Slave ID,Parameter,Register,Value,Unit\n"); // chỉ khác printf là thay vì in ra terminal thì in vào file
+                    ESP_LOGI(TAG, "Create a new file: %s", filename);
+                }
+
                 for (int i = 0; i < register_count; i++)
                 {
                     // Copy chuỗi ra stack trước để tránh lỗi khi param_key/units trỏ vào PSRAM
@@ -165,26 +177,25 @@ void sd_card_logger_task(void *pvParameters)
                     strncpy(tmp_unit, basic_dict[i].param_units, sizeof(tmp_unit) - 1);
 
                     fprintf(f, "%02d/%02d/20%02d %02d:%02d:%02d,%d,%s,%d,%.2f,%s\n",
-                            now.date, now.month, now.year,
-                            now.hour, now.minute, now.second,
-                            basic_dict[i].mb_slave_addr,
-                            tmp_name,
-                            basic_dict[i].mb_reg_start,
-                            temp_data[i],
-                            tmp_unit);
+                            now.date, now.month, now.year, now.hour, now.minute, now.second,
+                            basic_dict[i].mb_slave_addr, tmp_name, basic_dict[i].mb_reg_start, temp_data[i], tmp_unit);
                 }
-                fclose(f);
-                ESP_LOGI(TAG, "Successful to Write %d lines into SD Card.", register_count);
+                fclose(f); // Lúc này mới bắt đầu ghi xuống SD Card
+                // Flush buffer → ghi thật xuống thẻ SD
+                // Giải phóng RAM của struct đó — free
+                // ESP_LOGI(TAG, "Ghi %d dòng vào %s", register_count, filename);
             }
             else
             {
-                ESP_LOGE(TAG, "Can't open file data_log.csv to write !!!");
+                ESP_LOGW(TAG, "Không mở được file %s để ghi !!!", filename);
+                ESP_LOGW(TAG, "fopen thất bại, errno = %d (%s)", errno, strerror(errno));
+                ESP_LOGW(TAG, "Không mở được file %s để ghi !!!", filename);
             }
             xSemaphoreGive(sd_mutex);
         }
         else
         {
-            ESP_LOGW(TAG, "Can't take sd_mutex, pass.");
+            // ESP_LOGW(TAG, "Không lấy được sd_mutex, bỏ qua.");
         }
 
         free(temp_data);

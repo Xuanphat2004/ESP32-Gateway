@@ -206,11 +206,11 @@ static void execute_port_scan(uint8_t uart_port, mb_parameter_descriptor_t *dict
     uint8_t online_flags[248] = {0};
     uint32_t current_baud = load_baud_from_nvs();
 
-    // Xóa cả 2 port TRƯỚC khi init — đảm bảo sạch hoàn toàn
+    // Xóa cả 2 port TRƯỚC khi init
     uart_driver_delete(UART_NUM_1);
     uart_driver_delete(UART_NUM_2);
 
-    void *master_handler = NULL;
+    void *master_handler = NULL; // Biến handle của port master
     mbc_master_init(MB_PORT_SERIAL_MASTER, &master_handler);
 
     mb_communication_info_t comm_info = {
@@ -374,8 +374,8 @@ static void scan_task(void *pvParameters)
     if (wire_p1_ok == false)
     {
         ESP_LOGI(TAG, "Wire check: Port 2 Master + Port 1 Slave ...");
-        start_fake_slave(UART_NUM_1);   // ← Port 1 sạch → cài slave OK
-        execute_wire_check(UART_NUM_2); // ← Port 2 sạch → cài master OK
+        start_fake_slave(UART_NUM_1);
+        execute_wire_check(UART_NUM_2);
         stop_slave_fake();
 
         // Xóa cả 2 sau khi xong lần 2
@@ -494,8 +494,10 @@ static void slave_fake_task(void *arg)
     }
     vTaskDelete(NULL);
 }
-
+//=============================================================================================
 // Gửi 3 request đến ID 245 — chỉ để slave giả bên kia nhận
+// Input: UART muốn gửi request để kiểm tra đường dây
+// Output: 2 biến global lưu trạng thái đường dây sau khi quét wire_p1_ok và wire_p2_ok
 static void execute_wire_check(uint8_t uart_port)
 {
     uint32_t current_baud = load_baud_from_nvs();
@@ -517,7 +519,7 @@ static void execute_wire_check(uint8_t uart_port)
         .parity = MB_PARITY_NONE,
     };
     mbc_master_setup((void *)&comm_info);
-    mbc_master_set_descriptor(check_dict, 3); // dùng check_dict
+    mbc_master_set_descriptor(check_dict, 3); // dùng đúng 3 vị trí cho 3 cid
 
     if (uart_port == UART_NUM_1)
         uart_set_pin(UART_NUM_1, UART_1_TX_PIN, UART_1_RX_PIN, UART_1_EN_PIN, UART_PIN_NO_CHANGE);
@@ -532,12 +534,19 @@ static void execute_wire_check(uint8_t uart_port)
     for (int i = 0; i < 3; i++)
     {
         mbc_master_get_parameter(check_dict[i].cid, check_dict[i].param_key, temp_buf, &type);
-        vTaskDelay(pdMS_TO_TICKS(100));
+        // vTaskDelay(pdMS_TO_TICKS(100));
 
         if (uart_port == UART_NUM_1 && wire_p1_ok == true)
+        {
+            printf("=======> wire_p1_ok = %s\n", wire_p1_ok ? "true" : "false");
             break;
+        }
+
         if (uart_port == UART_NUM_2 && wire_p2_ok == true)
+        {
+            printf("=======> wire_p2_ok = %s\n", wire_p2_ok ? "true" : "false");
             break;
+        }
     }
     vTaskDelay(pdMS_TO_TICKS(200));
 }

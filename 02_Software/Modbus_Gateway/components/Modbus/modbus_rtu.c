@@ -162,11 +162,11 @@ esp_err_t load_modbus_dynamic_config(void)
         basic_dict[i].access = PAR_PERMS_READ;
         basic_dict[i].param_offset = current_offset;
 
-        current_offset += basic_dict[i].param_size;
+        current_offset += basic_dict[i].param_size; // Ofset để lưu dữ liệu
     }
 
     g_total_raw_bytes = current_offset;
-    raw_data = calloc(1, g_total_raw_bytes);
+    raw_data = calloc(1, g_total_raw_bytes); // Cấp trong đúng 1 vùng nhớ liên tục
 
     nvs_close(my_handle);
     // print_ram_tables();
@@ -176,8 +176,6 @@ esp_err_t load_modbus_dynamic_config(void)
 
 //======================================================================
 // DUMMY INIT: Chỉ init UART + RS485 half-duplex để MAX485 giữ DE=LOW
-// KHÔNG dùng mbc_slave_init → không đụng singleton → TCP slave an toàn
-//======================================================================
 void modbus_rtu_port_1_dummy_init(void)
 {
     uint32_t current_baud = load_baud_from_nvs();
@@ -198,7 +196,7 @@ void modbus_rtu_port_1_dummy_init(void)
     // → MAX485 port 1 ở chế độ nhận, không tranh bus với master ở port 2
     uart_set_mode(UART_NUM_1, UART_MODE_RS485_HALF_DUPLEX);
 
-    ESP_LOGI(TAG, "Port 1 dummy: MAX485 DE=LOW, bus stable (no Modbus slave stack).");
+    ESP_LOGI(TAG, "Port 1 dummy: MAX485 DE=LOW.");
 }
 
 void modbus_rtu_port_2_dummy_init(void)
@@ -296,6 +294,9 @@ void modbus_rtu_port_2_init(void)
     modbus_rtu_port_1_dummy_init();
 }
 
+// buf — con trỏ trỏ đến vùng nhớ chứa bytes dữ liệu thô
+// type — kiểu dữ liệu nhập từ app
+// Kết quả cần trả về kiểu float để nhân với hệ số scale nếu có., scale: 0.1, 1, 0.001, ...
 static float decode_raw_to_float(uint8_t *buf, mb_descr_type_t type)
 {
     switch (type)
@@ -320,7 +321,7 @@ static float decode_raw_to_float(uint8_t *buf, mb_descr_type_t type)
         return (float)v;
     }
 
-    // ── 16-bit signed ──────────────────────────────────────
+    // 16-bit signed
     case PARAM_TYPE_I16_AB:
     case PARAM_TYPE_I16_BA:
     {
@@ -329,7 +330,7 @@ static float decode_raw_to_float(uint8_t *buf, mb_descr_type_t type)
         return (float)v;
     }
 
-    // ── 32-bit unsigned ────────────────────────────────────
+    // 32-bit unsigned
     case PARAM_TYPE_U32:
     case PARAM_TYPE_U32_ABCD:
     case PARAM_TYPE_U32_CDAB:
@@ -341,7 +342,7 @@ static float decode_raw_to_float(uint8_t *buf, mb_descr_type_t type)
         return (float)v;
     }
 
-    // ── 32-bit signed ──────────────────────────────────────
+    // 32-bit signed
     case PARAM_TYPE_I32_ABCD:
     case PARAM_TYPE_I32_CDAB:
     case PARAM_TYPE_I32_BADC:
@@ -352,7 +353,7 @@ static float decode_raw_to_float(uint8_t *buf, mb_descr_type_t type)
         return (float)v;
     }
 
-    // ── 32-bit float ───────────────────────────────────────
+    // 32-bit float
     case PARAM_TYPE_FLOAT:
     case PARAM_TYPE_FLOAT_ABCD:
     case PARAM_TYPE_FLOAT_CDAB:
@@ -364,7 +365,7 @@ static float decode_raw_to_float(uint8_t *buf, mb_descr_type_t type)
         return v;
     }
 
-    // ── 64-bit unsigned ────────────────────────────────────
+    // 64-bit unsigned
     case PARAM_TYPE_U64_ABCDEFGH:
     case PARAM_TYPE_U64_HGFEDCBA:
     case PARAM_TYPE_U64_GHEFCDAB:
@@ -410,7 +411,7 @@ static float decode_raw_to_float(uint8_t *buf, mb_descr_type_t type)
 void modbus_test_read(void)
 {
     esp_err_t err;
-    uint8_t type;
+    uint8_t type; // sử dụng để lưu kiểu HOLDING hay INPUT đã cấu hình trong basic, trong project biến này chỉ thêm vào cho đủ tham số
     rtc_time_t now;
     int count = 0;
 
@@ -440,16 +441,17 @@ void modbus_test_read(void)
                 goto exit_and_wait;
 
             uint8_t *target_address = raw_data + basic_dict[i].param_offset; // ghi bytes nhận được từ modbus target_address
+
             err = mbc_master_get_parameter(basic_dict[i].cid, basic_dict[i].param_key, target_address, &type);
 
             if (err == ESP_OK)
             {
-                uint8_t *target_address = raw_data + basic_dict[i].param_offset;
+                uint8_t *target_address = raw_data + basic_dict[i].param_offset; // Địa chỉ lưu dữ liệu thô ban đầu
 
-                float raw_value = decode_raw_to_float(target_address, (mb_descr_type_t)basic_dict[i].param_type);
+                float raw_value = decode_raw_to_float(target_address, (mb_descr_type_t)basic_dict[i].param_type); // decode dữ liệu dựa theeo kiểu dữ liệu
 
                 // printf("CID %d raw data: %f\n", basic_dict[i].cid, raw_value);
-                temp_result[i] = raw_value * factor_dict[i].scale;
+                temp_result[i] = raw_value * factor_dict[i].scale; // Nhân dữ liệu thô với hệ số scale
                 read_ok[i] = true;
             }
             else
@@ -460,21 +462,20 @@ void modbus_test_read(void)
             }
         }
 
-        // Xử lý Factor (cần final_data của các CID trước) — vẫn ngoài mutex
-        // vì chỉ đọc final_data, chưa ghi
+        // Xử lý Factor - cần final_data của các CID trước
         for (int i = 0; i < register_count; i++)
         {
-            if (!read_ok[i])
+            if (read_ok[i] == false)
                 continue;
             for (int j = 0; j < 2; j++)
             {
-                uint16_t r_cid = factor_dict[i].ref_cid[j];
-                if (r_cid < register_count)
-                    temp_result[i] *= final_data[r_cid];
+                uint16_t r_cid = factor_dict[i].ref_cid[j]; // Lấy ra từng factor
+                if (r_cid < register_count)                 // Đảm bảo cid không nằm ngoài range của basic_dict()
+                    temp_result[i] *= final_data[r_cid];    // nhân với kết quả của cid trước
             }
         }
 
-        // Lấy mutex chỉ để ghi — rất nhanh, không block lâu
+        // Lấy mutex chỉ để ghi vào vùng nhớ chung
         if (xSemaphoreTake(xDataMutex, pdMS_TO_TICKS(500)) == pdTRUE)
         {
             for (int i = 0; i < register_count; i++)
@@ -490,13 +491,12 @@ void modbus_test_read(void)
             xSemaphoreGive(xDataMutex);
         }
 
-    exit_and_wait:
+    exit_and_wait: // Dùng trong chức năng scan hoặc change baudrate đang chạy
         if (is_change_baud == true || is_scan_device == true)
         {
             vTaskDelay(pdMS_TO_TICKS(200));
             continue;
         }
-        // printf("Data: %d =====================================================\n", count);
         printf("\n");
         vTaskDelay(pdMS_TO_TICKS(5000));
     }

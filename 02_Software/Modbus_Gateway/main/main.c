@@ -65,11 +65,10 @@ void app_main(void)
     rtc_a_init();
     wifi_Init();
     ble_server_init();
-    sd_card_init();
     modbus_rtu_port_1_init();
     lcd_1604_init();
     init_pcnt_encoder();
-
+    sd_card_init();
     vTaskDelay(pdMS_TO_TICKS(2000)); // đợi hệ thông ổn định trước khi tạo task
     mqtt_app_start();
 

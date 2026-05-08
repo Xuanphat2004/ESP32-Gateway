@@ -212,27 +212,23 @@ static void page_scan_detail(void)
     char line_3[32] = ""; // Chứa danh sách Lose
     char line_4[32] = ""; // Chứa thông tin Master port
 
+    // Dây bình thường
     if (wire_p1_ok == true || wire_p2_ok == true)
     {
         snprintf(line_2, sizeof(line_2), "State Line Normal");
     }
 
-    // Nếu chỉ đứt 1 chỗ
-    // Điều kiện chính: final_p1 + 1 == final_p2 (2 port gặp nhau đúng kề nhau)
-    // Case 8 — đứt đoạn A (trước M1): P1 không thấy gì (final_p1=-1), P2 thấy từ M1 (final_p2=0)
-    //   Sửa: final_p2==0 thay vì ==1 (lỗi cũ nhầm index)
-    // Case 11 — đứt đoạn D (sau M3): P1 thấy hết (final_p1=count-1), P2 không thấy gì (final_p2=count)
-    //   Sửa: final_p1==count-1 thay vì ==count-2 (lỗi cũ lệch 1 index)
+    // Nếu đứt 1 chỗ
     else if (scan_result.final_id_p1 + 1 == scan_result.final_id_p2 ||
              (scan_result.final_id_p2 == original_id_count && scan_result.final_id_p1 == original_id_count - 1) ||
              (scan_result.final_id_p1 == -1 && scan_result.final_id_p2 == 0))
     {
         if (scan_result.final_id_p1 == -1) // Nếu đứt tại port 1
-            snprintf(line_2, sizeof(line_2), "State P1-X-%d", original_id[0]);
-        else if (scan_result.final_id_p2 == original_id_count)
-            snprintf(line_2, sizeof(line_2), "State %d-X-P2", original_id[original_id_count - 1]);
-        else
-            snprintf(line_2, sizeof(line_2), "State %d-X-%d", original_id[scan_result.final_id_p1], original_id[scan_result.final_id_p2]);
+            snprintf(line_2, sizeof(line_2), "State %d-X-P1", original_id[0]);
+        else if (scan_result.final_id_p2 == original_id_count) // Nếu đứt tại port 2
+            snprintf(line_2, sizeof(line_2), "State P2-X-%d", original_id[original_id_count - 1]);
+        else // Nếu đứt tại một điểm bất kì
+            snprintf(line_2, sizeof(line_2), "State %d-X-%d", original_id[scan_result.final_id_p2], original_id[scan_result.final_id_p1]);
     }
 
     // Nếu đứt 2 chỗ
@@ -242,16 +238,16 @@ static void page_scan_detail(void)
         char cut_2[10] = "";
 
         if (scan_result.final_id_p1 == -1) // Nếu đứt tại port 1
-            snprintf(cut_1, sizeof(cut_1), "P1-X-%d", original_id[0]);
+            snprintf(cut_1, sizeof(cut_1), "%d-X-P1", original_id[0]);
         else
-            snprintf(cut_1, sizeof(cut_1), "%d-X-%d", original_id[scan_result.final_id_p1], original_id[scan_result.final_id_p1 + 1]);
+            snprintf(cut_1, sizeof(cut_1), "%d-X-%d", original_id[scan_result.final_id_p1 + 1], original_id[scan_result.final_id_p1]);
 
         if (scan_result.final_id_p2 == original_id_count) // Nếu đứt tại port 2
-            snprintf(cut_2, sizeof(cut_2), "%d-X-P2", original_id[original_id_count - 1]);
+            snprintf(cut_2, sizeof(cut_2), "P2-X-%d", original_id[original_id_count - 1]);
         else
-            snprintf(cut_2, sizeof(cut_2), "%d-X-%d", original_id[scan_result.final_id_p2 - 1], original_id[scan_result.final_id_p2]);
+            snprintf(cut_2, sizeof(cut_2), "%d-X-%d", original_id[scan_result.final_id_p2], original_id[scan_result.final_id_p2 - 1]);
 
-        snprintf(line_2, sizeof(line_2), "State %s %s", cut_1, cut_2); // Gộp 2 điểm đứt vào cùng 1 dòng
+        snprintf(line_2, sizeof(line_2), "State %s %s", cut_2, cut_1); // Gộp 2 điểm đứt vào cùng 1 dòng
     }
     else
     {
@@ -263,7 +259,7 @@ static void page_scan_detail(void)
     {
         char lose_str[16] = "";
         format_id_list(scan_result.lose_list, scan_result.lose_count, lose_str); // Ghép chuỗi các id mất kết nối
-        snprintf(line_3, sizeof(line_3), "Lose %s", lose_str);
+        snprintf(line_3, sizeof(line_3), "ID Lose %s", lose_str);
     }
     else
     {
@@ -273,7 +269,7 @@ static void page_scan_detail(void)
     snprintf(line_4, sizeof(line_4), "Master Port %d ", scan_result.active_port);
 
     char buf2[21], buf3[21], buf4[21];
-    snprintf(buf2, sizeof(buf2), "%-20.20s", line_2); //"-16.16s", -: căn lề trái, 16.16: đảm bảo chỉ 16 ký tự
+    snprintf(buf2, sizeof(buf2), "%-20.20s", line_2); //"-20.20s", -: căn lề trái, 20.20: đảm bảo chỉ 20 ký tự
     snprintf(buf3, sizeof(buf3), "%-20.20s", line_3);
     snprintf(buf4, sizeof(buf4), "%-20.20s", line_4);
 
