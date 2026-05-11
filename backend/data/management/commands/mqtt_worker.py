@@ -40,10 +40,6 @@ def on_connect(client, userdata, flags, rc):
         print(f"Fail to connect, error code: {rc}")
 
 
-# ==========================================
-# PHÂN NHÁNH THEO TOPIC
-# THAY ĐỔI: thêm elif để gọi đúng handler
-# ==========================================
 def on_message(client, userdata, msg):
     if msg.topic == MQTT_TOPIC_DATA:
         handle_meter_data(msg)
@@ -51,10 +47,7 @@ def on_message(client, userdata, msg):
         handle_scan_result(msg)     # THÊM MỚI
 
 
-# ==========================================
-# HANDLER CŨ — đổi tên từ on_message thành handle_meter_data
-# Toàn bộ logic GIỮ NGUYÊN, không thay đổi 1 dòng
-# ==========================================
+
 def handle_meter_data(msg):
     try:
         payload = msg.payload.decode('utf-8')
@@ -149,8 +142,6 @@ def handle_meter_data(msg):
 
 
 # ==========================================
-# THÊM MỚI HOÀN TOÀN: handle_scan_result()
-#
 # Flow xử lý:
 #   1. Parse JSON từ MQTT payload
 #   2. Tìm Site theo gateway_id — giống handle_meter_data
@@ -164,7 +155,7 @@ def handle_scan_result(msg):
     from asgiref.sync import async_to_sync
     from channels.layers import get_channel_layer
 
-    # ── Bước 1: Parse payload ────────────────────────────────
+    # ──  Parse payload ────────────────────────────────
     try:
         data = json.loads(msg.payload.decode('utf-8'))
     except Exception as e:
@@ -190,7 +181,7 @@ def handle_scan_result(msg):
 
     print(f"[SCAN] Gateway: {gateway_id} | Active: {active_ids} | Inactive: {inactive_ids}")
 
-    # ── Bước 2: Tìm Site theo gateway_id ────────────────────
+    # ── Tìm Site theo gateway_id ────────────────────
     try:
         site = Site.objects.get(gateway_id=gateway_id)
         print(f"[SCAN] Site: {site.site_name} (ID: {site.site_id})")
@@ -198,7 +189,7 @@ def handle_scan_result(msg):
         print(f"[SCAN] Gateway '{gateway_id}' chưa đăng ký")
         return
 
-    # ── Bước 3: Lưu ScanResult ───────────────────────────────
+    # ── Lưu ScanResult ───────────────────────────────
     # Luôn CREATE MỚI — không update — vì mỗi lần scan là 1 sự kiện
     # độc lập, cần giữ toàn bộ lịch sử để user xem lại
     try:
@@ -221,7 +212,7 @@ def handle_scan_result(msg):
         print(f"[SCAN] Lỗi lưu ScanResult: {e}")
         return  # dừng hẳn — không push WS nếu DB lỗi
 
-    # ── Bước 4: Lưu ScanDevice cho từng thiết bị ─────────────
+    # ── Lưu ScanDevice cho từng thiết bị ─────────────
     # Tách active và inactive thành từng dòng riêng
     # Dùng bulk_create — 1 lần query duy nhất dù có 100 thiết bị
     devices_to_insert = []
@@ -250,7 +241,7 @@ def handle_scan_result(msg):
         print(f"[SCAN] Lỗi lưu ScanDevice: {e}")
         # Không return — ScanResult đã lưu OK, WS vẫn push
 
-    # ── Bước 5: Push WebSocket ────────────────────────────────
+    # ── Push WebSocket ────────────────────────────────
     # Chỉ push khi severity = warning — không spam khi mọi thứ OK
     # Gửi kèm scan_id để frontend có thể gọi API lấy chi tiết
     if severity != 'ok':
@@ -274,7 +265,7 @@ def handle_scan_result(msg):
             async_to_sync(get_channel_layer().group_send)(
                 group_name,
                 {
-                    "type":    "scan.fault",
+                    "type":    "scan.fault", # tên hàm sẽ được gọi trong ScanConsumer,  gọi hàm scan_fault() trong consumers.py.
                     "message": message,
                 }
             )
@@ -286,8 +277,7 @@ def handle_scan_result(msg):
 
 
 # ==========================================
-# CHẠY WORKER — GIỮ NGUYÊN
-# ==========================================
+# CHẠY WORKER 
 def main():
     client = mqtt.Client(client_id=MQTT_CLIENT)
     client.on_connect = on_connect

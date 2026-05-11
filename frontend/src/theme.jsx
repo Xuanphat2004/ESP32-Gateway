@@ -22,9 +22,9 @@ export const getTheme = (mode) =>
       
       text: {
         header_option: mode === "dark" ? "rgb(177, 137, 7)" : "#283593",
-        option:        mode === "dark" ? "rgb(214, 211, 15)" : "#314ad6",
+        option:        mode === "dark" ? "rgb(145, 142, 6)" : "#314ad6",
         header_chart:  mode === "dark" ? "#" : "#",
-        body_chart:    mode === "dark" ? "#ffffff" : "#000000",
+        body_chart:    mode === "dark" ? "#9c9595" : "#000000",
         button:        mode === "dark" ? "#f9ff99" : "#004eff",
       },
 

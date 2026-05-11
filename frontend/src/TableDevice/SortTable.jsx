@@ -1,20 +1,21 @@
 import React, { useState } from "react";
 import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TableSortLabel
+  Table, TableBody, TableCell, TableContainer,
+  TableHead, TableRow, Paper, TableSortLabel,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 
-export default function ({ columns, rows }) {
+export default function SortTable({ columns, rows, onRowClick }) {
+  const theme = useTheme();
   const [orderBy, setOrderBy] = useState("");
-  const [order, setOrder] = useState("asc");
-    let theme = useTheme();
+  const [order,   setOrder]   = useState("asc");
+
   const handleSort = (field) => {
     const isAsc = orderBy === field && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(field);
   };
 
-  // sort logic
   const sortedRows = [...rows].sort((a, b) => {
     if (!orderBy) return 0;
     const valA = a[orderBy];
@@ -28,7 +29,7 @@ export default function ({ columns, rows }) {
     <TableContainer component={Paper} sx={{ background: "transparent" }}>
       <Table>
         <TableHead>
-          <TableRow style={{backgroundColor: theme.palette.background.head_box}}>
+          <TableRow sx={{ backgroundColor: theme.palette.background.head_box }}>
             {columns.map((col) => (
               <TableCell key={col.field}>
                 <TableSortLabel
@@ -45,15 +46,25 @@ export default function ({ columns, rows }) {
         </TableHead>
 
         <TableBody>
-          {sortedRows.length ? sortedRows.map((row, idx) => (
-            <TableRow key={idx}>
-              {columns.map(col => (
-                <TableCell key={col.field}>
-                  {row[col.field]}
-                </TableCell>
-              ))}
-            </TableRow>
-          )) : (
+          {sortedRows.length ? (
+            sortedRows.map((row, idx) => (
+              <TableRow
+                key={idx}
+                hover={!!onRowClick}
+                onClick={() => onRowClick?.(row)}
+                sx={{
+                  cursor:     onRowClick ? "pointer" : "default",
+                  transition: "background-color 0.15s",
+                }}
+              >
+                {columns.map((col) => (
+                  <TableCell key={col.field}>
+                    {row[col.field]}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : (
             <TableRow>
               <TableCell colSpan={columns.length} align="center">
                 No records available for the current search criteria
