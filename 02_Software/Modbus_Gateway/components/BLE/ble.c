@@ -42,8 +42,8 @@ static esp_gatt_srvc_id_t service_id;
 
 // Buffer động để chứa chuỗi JSON (Vì chuỗi 100 thanh ghi rất dài)
 static char *receive_buffer = NULL;
-static int received_len = 0; // Dung lượng tổng các gói tin đã nhận
-#define MAX_JSON_SIZE 64172  // Giới hạn 16KB cho an toàn RAM
+static int received_len = 0;
+#define MAX_JSON_SIZE 64172
 
 static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param);
 static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param);
@@ -57,7 +57,6 @@ static esp_ble_adv_params_t adv_params = {
     .adv_filter_policy = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY,
 };
 
-// --- HÀM KHỞI TẠO HỆ THỐNG BLE ---
 void ble_server_init(void)
 {
 

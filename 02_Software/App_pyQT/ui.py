@@ -59,14 +59,8 @@ class ModbusApp(QWidget):  # Cửa sổ chính, có 3 tab: Home / Setup / Histor
 
         btn_lay = QHBoxLayout()
         self.btn_new = QPushButton("+ New Device")
-        self.btn_new.setStyleSheet(
-            "background-color: #34a853; color: white; height: 50px;"
-        )
         self.btn_new.setFixedSize(130, 40)
         self.btn_sync = QPushButton("Sync to Device")
-        self.btn_sync.setStyleSheet(
-            "background-color: #ea4335; color: white; height: 50px;"
-        )
         self.btn_sync.setFixedSize(150, 40)
         btn_lay.addWidget(self.btn_new)
         btn_lay.addWidget(self.btn_sync)
@@ -174,9 +168,6 @@ class RegisterEditorWidget(QGroupBox):  #  Form nhập liệu thanh ghi
 
         # Nút thêm thanh ghi
         self.btn_action = QPushButton("Add Register")
-        self.btn_action.setStyleSheet(
-            "background-color: #4285f4; color: white; height: 30px;"
-        )
         grid.addWidget(self.btn_action, 4, 4, 1, 2)
 
     def set_suggestions(self, column, data_list):

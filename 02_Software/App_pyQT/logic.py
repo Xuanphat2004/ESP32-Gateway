@@ -209,11 +209,28 @@ class AppController(QObject):
         editor.btn_action.clicked.connect(lambda: self.on_add_register(editor))
         layout.addWidget(editor)
 
+        # ── Nút Edit / Update chung cho toàn bảng (căn phải) ─────────────────
+        table_ctrl_lay = QHBoxLayout()
+        btn_edit = QPushButton("✏️  Edit Table")
+        btn_edit.setFixedHeight(34)
+        btn_update = QPushButton("💾  Update")
+        btn_update.setFixedHeight(34)
+        self._set_update_btn_style(btn_update, active=False)
+        btn_update.setEnabled(False)
+        table_ctrl_lay.addStretch()  # đẩy 2 nút sang phải
+        table_ctrl_lay.addWidget(btn_edit)
+        table_ctrl_lay.addWidget(btn_update)
+        layout.addLayout(table_ctrl_lay)
+
         # ── Bảng danh sách register ───────────────────────────────────────────
         table = self._build_table()
         for record in records:
             self._add_row_to_table(table, record)
         layout.addWidget(table)
+
+        # Nối signal cho 2 nút chung (truyền table vào)
+        btn_edit.clicked.connect(lambda: self._enable_table_edit(table, btn_edit, btn_update))
+        btn_update.clicked.connect(lambda: self.on_update_table(table, btn_edit, btn_update))
 
         self.ui.device_tabs.addTab(tab_widget, f"ID {slave_id}")
 
@@ -255,20 +272,9 @@ class AppController(QObject):
         layout = QHBoxLayout(container)
         layout.setContentsMargins(2, 2, 2, 2)
 
-        btn_edit = QPushButton("Edit")
-        btn_update = QPushButton("Update")
         btn_delete = QPushButton("Delete")
-        btn_update.setEnabled(False)  # Update bị tắt cho đến khi bấm Edit
-
-        # Nối signal clicked của từng nút với hàm xử lý
-        # Dùng default argument (row=row_index) để "chụp" giá trị hiện tại,
-        # tránh bị closure bug (mọi lambda đều dùng chung biến loop cuối cùng)
-        btn_edit.clicked.connect(lambda _, row=row_index: self._enable_row_edit(table, row, btn_edit, btn_update))
-        btn_update.clicked.connect(lambda _, row=row_index: self.on_update_row(table, row))
         btn_delete.clicked.connect(lambda _, rid=db_id: self.on_delete_row(rid))
-
-        for btn in [btn_edit, btn_update, btn_delete]:
-            layout.addWidget(btn)
+        layout.addWidget(btn_delete)
 
         return container
 
@@ -340,6 +346,42 @@ class AppController(QObject):
         self.refresh_table()
         self.refresh_history()
 
+    def on_update_table(self, table, btn_edit, btn_update):
+        """Hỏi xác nhận rồi lưu toàn bộ thay đổi trong bảng xuống DB."""
+        reply = QMessageBox.question(
+            self.ui,
+            "Confirm Update",
+            "Do you want to save all changes to the database?",
+            QMessageBox.StandardButton.Yes
+            | QMessageBox.StandardButton.No
+            | QMessageBox.StandardButton.Cancel,
+        )
+
+        if reply == QMessageBox.StandardButton.Cancel:
+            # Không làm gì — user tiếp tục edit
+            return
+
+        if reply == QMessageBox.StandardButton.No:
+            # Huỷ thay đổi: reload lại bảng từ DB (discard edits)
+            self._disable_table_edit(table, btn_edit, btn_update)
+            self.refresh_table()
+            return
+
+        # Yes → lưu tất cả hàng xuống DB
+        for row in range(table.rowCount()):
+            db_id = table.item(row, 0).data(Qt.ItemDataRole.UserRole)
+            if db_id is None:
+                continue
+            data = [table.item(row, col).text() for col in range(11)]
+            data[9] = data[9].strip() or "NULL"
+            data[10] = data[10].strip() or "NULL"
+            database.update_register(db_id, *data)
+
+        database.insert_log(action="Bulk Update", detail=f"Updated {table.rowCount()} registers")
+        self._disable_table_edit(table, btn_edit, btn_update)
+        self.refresh_table()
+        self.refresh_history()
+
     def on_update_row(self, table, row):
         # Lấy db_id đã lưu ẩn trong UserRole của ô đầu tiên
         db_id = table.item(row, 0).data(Qt.ItemDataRole.UserRole)
@@ -355,6 +397,50 @@ class AppController(QObject):
     def on_delete_row(self, db_id):
         database.delete_register_by_id(db_id)
         self.refresh_table()
+
+    def _set_update_btn_style(self, btn, active: bool):
+        """Toggle style của nút Update: sáng khi active, mờ khi inactive.
+        Bao gồm cả :hover và :pressed để hiệu ứng hoạt động đúng khi dùng inline style.
+        """
+        if active:
+            btn.setStyleSheet(
+                "QPushButton { background-color: #1a73e8; color: white;"
+                " border-radius: 5px; padding: 4px 16px; border: none; }"
+                "QPushButton:hover { background-color: #1765cc; }"
+                "QPushButton:pressed { background-color: #1257b0;"
+                " padding-top: 6px; padding-bottom: 2px; }"
+            )
+        else:
+            btn.setStyleSheet(
+                "QPushButton { background-color: #a8c7f5; color: #e8f0fe;"
+                " border-radius: 5px; padding: 4px 16px; border: none; }"
+                "QPushButton:hover { background-color: #a8c7f5; }"
+                "QPushButton:pressed { background-color: #a8c7f5; }"
+            )
+
+    def _enable_table_edit(self, table, btn_edit, btn_update):
+        """Mở khoá toàn bộ ô trong bảng để user có thể edit tự do."""
+        scroll_value = table.verticalScrollBar().value()
+        for row in range(table.rowCount()):
+            for col in range(11):  # cột 11 là Action (Delete), không cần mở khoá
+                item = table.item(row, col)
+                if item:
+                    item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
+        btn_edit.setEnabled(False)
+        self._set_update_btn_style(btn_update, active=True)
+        btn_update.setEnabled(True)
+
+    def _disable_table_edit(self, table, btn_edit, btn_update):
+        """Khoá lại tất cả ô sau khi update/cancel."""
+        scroll_value = table.verticalScrollBar().value()
+        for row in range(table.rowCount()):
+            for col in range(11):
+                item = table.item(row, col)
+                if item:
+                    item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable)
+        btn_edit.setEnabled(True)
+        self._set_update_btn_style(btn_update, active=False)
+        btn_update.setEnabled(False)
 
     def _enable_row_edit(self, table, row, btn_edit, btn_update):
         scroll_value = table.verticalScrollBar().value() # Lưu vị trí scroll trước khi setFlags làm Qt tự cuộn

@@ -36,6 +36,7 @@
 #include "scan_device.h"
 
 SemaphoreHandle_t xDataMutex = NULL;
+SemaphoreHandle_t scan_sem = NULL;
 EventGroupHandle_t event_group;
 TaskHandle_t tcp_handle_task = NULL;  // biến handle cho task tcp
 TaskHandle_t rtu_handle_task = NULL;  // biến handle cho task rtu
@@ -56,6 +57,7 @@ void app_main(void)
     }
 
     xDataMutex = xSemaphoreCreateMutex();
+    scan_sem = xSemaphoreCreateBinary();
     lcd_clear();
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
@@ -73,12 +75,13 @@ void app_main(void)
     mqtt_app_start();
 
     // Core 0: Các task liên quan tới mạng
-    xTaskCreatePinnedToCore(modbus_tcp_server_task, "tcp_server_task", 4096, NULL, 8, &tcp_handle_task, 0);
+    xTaskCreatePinnedToCore(modbus_tcp_server_task, "tcp_server_task", 8192, NULL, 8, &tcp_handle_task, 0);
     xTaskCreatePinnedToCore(mqtt_publish_task, "mqtt_task", 8192, NULL, 9, &mqtt_handle_task, 0);
 
     // Core 1: Các task liên quan tới giao diện người dùng và xử lý tại thiết bị
-    xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 4096, NULL, 10, &rtu_handle_task, 1);
-    xTaskCreatePinnedToCore((void *)ui_task, "ui_manager_task", 4096, NULL, 5, NULL, 1);
+    xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 16384, NULL, 10, &rtu_handle_task, 1);
+    xTaskCreatePinnedToCore(passive_scan_task, "passive_scan", 16384, NULL, 6, NULL, 0);
+    xTaskCreatePinnedToCore((void *)ui_task, "ui_manager_task", 6144, NULL, 5, NULL, 1);
     xTaskCreatePinnedToCore(sd_card_logger_task, "sd_card_logger", 8192, NULL, 4, NULL, 1);
     vTaskDelay(pdMS_TO_TICKS(1000));
 }

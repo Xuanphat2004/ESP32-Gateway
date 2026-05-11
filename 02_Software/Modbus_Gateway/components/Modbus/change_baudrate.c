@@ -10,22 +10,21 @@
 
 // Modbus library
 #include "esp_modbus_master.h"
-#include "esp_modbus_slave.h"
-#include "esp_modbus_common.h" // Bỏ esp_modbus_slave.h vì không dùng slave nữa
+#include "esp_modbus_common.h"
 #include "modbus_rtu.h"
 #include "modbus_tcp.h"
 #include "lcd_user.h"
 #include "scan_device.h"
 
 extern bool is_baudrate;
-extern bool is_tcp_running;
 extern ui_page_t current_page;
 extern uint32_t baud_options[];
 extern int baudrate_id;
 extern TaskHandle_t tcp_handle_task;
 extern TaskHandle_t rtu_handle_task;
 extern SemaphoreHandle_t xDataMutex;
-extern scan_analysis_t scan_result; // Sử dụng kết quả scan để chọn port master
+extern scan_analysis_t scan_result;
+extern volatile bool is_scan_device; // Cờ báo passive/manual scan đang chạy
 volatile bool is_change_baud = false;
 uint32_t baudrate = 0;
 
@@ -34,21 +33,37 @@ void change_baudrate_task(void *arg)
     is_change_baud = true;
     uint32_t new_baud = baud_options[baudrate_id];
 
+    // Chờ nếu passive/manual scan đang chạy
+    // Không được destroy master trong khi scan đang dùng nó
+    uint8_t wait_count = 0;
+    while (is_scan_device == true)
+    {
+        ESP_LOGW("[CHANGE BAUDRATE]", "Waiting for scan to finish... (%d)", wait_count++);
+        vTaskDelay(pdMS_TO_TICKS(500));
+        if (wait_count > 60) // timeout 30s → tiếp tục luôn
+        {
+            ESP_LOGE("[CHANGE BAUDRATE]", "Scan timeout, forcing baudrate change");
+            break;
+        }
+    }
+
     esp_err_t err = save_baud_to_nvs(new_baud);
     if (err == ESP_OK)
     {
         ESP_LOGW("[CHANGE BAUDRATE]", "=====> Saved new baudrate %ld to NVS", new_baud);
     }
 
-    if (is_tcp_running == true)
+    // Bước 1: Báo hiệu RTU task tự thoát (không giữ Modbus lock)
+    // is_change_baud đã = true ở trên → RTU task sẽ goto exit_and_wait
+    vTaskDelay(pdMS_TO_TICKS(700)); // Chờ RTU task hoàn thành lệnh đang chạy
+
+    // Bước 2: RTU task đang ngủ ở exit_and_wait → safe để delete
+    if (rtu_handle_task != NULL)
     {
-        mbc_slave_destroy(); // Giải phóng spinlock + đóng socket port 502
-        is_tcp_running = false;
-        ESP_LOGW("[CHANGE BAUDRATE]", "=====> TCP slave stack destroyed cleanly");
+        vTaskDelete(rtu_handle_task);
+        rtu_handle_task = NULL;
+        ESP_LOGW("[CHANGE BAUDRATE]", "=====> Deleted RTU task");
     }
-
-    vTaskDelay(pdMS_TO_TICKS(500));
-
     if (tcp_handle_task != NULL)
     {
         vTaskDelete(tcp_handle_task);
@@ -56,22 +71,17 @@ void change_baudrate_task(void *arg)
         ESP_LOGW("[CHANGE BAUDRATE]", "=====> Deleted TCP task");
     }
 
+    // Bước 3: Chờ scheduler dọn task list trước khi destroy
     vTaskDelay(pdMS_TO_TICKS(500));
 
-    if (rtu_handle_task != NULL)
-    {
-        vTaskDelete(rtu_handle_task);
-        rtu_handle_task = NULL;
-        ESP_LOGW("[CHANGE BAUDRATE]", "=====> Deleted RTU task");
-    }
-
-    // Destroy master và xóa UART driver
+    // Bước 4: Destroy master và xóa UART (Destroy → Delete UART)
     mbc_master_destroy();
     uart_driver_delete(UART_NUM_1);
     uart_driver_delete(UART_NUM_2);
     ESP_LOGW("[CHANGE BAUDRATE]", "=====> Master destroyed, UART drivers deleted");
 
-    vTaskDelay(pdMS_TO_TICKS(500)); // Đợi hệ thống ổn định
+    // Bước 5: Chờ Modbus internal cleanup xong trước khi init lại
+    vTaskDelay(pdMS_TO_TICKS(300));
 
     // Khởi tạo lại
     if (scan_result.active_port == 1)
@@ -81,11 +91,10 @@ void change_baudrate_task(void *arg)
 
     vTaskDelay(pdMS_TO_TICKS(200));
 
-    xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 4096, NULL, 8, &rtu_handle_task, 1);
+    xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 8172, NULL, 8, &rtu_handle_task, 1);
 
-    // TCP task sẽ tự gọi mbc_slave_init_tcp bên trong — stack đã sạch
-    is_tcp_running = false;
-    xTaskCreatePinnedToCore(modbus_tcp_server_task, "tcp_server_task", 4096, NULL, 8, &tcp_handle_task, 0);
+    // Data-copy task tự cấp phát lại tcp_virtual_storage nếu cần
+    xTaskCreatePinnedToCore(modbus_tcp_server_task, "tcp_server_task", 8172, NULL, 8, &tcp_handle_task, 0);
     vTaskDelay(pdMS_TO_TICKS(200));
 
     is_baudrate = false;

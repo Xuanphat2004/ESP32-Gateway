@@ -8,6 +8,7 @@
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 #include "driver/uart.h"
+#include <errno.h>
 
 // Modbus library
 #include "esp_modbus_master.h"
@@ -19,7 +20,6 @@
 
 static const char *TAG = "[RTU]";
 
-// Vì chưa biết dict cần dung lượng bao nhiêu nên ta chỉ tạo 1 con trỏ trước
 mb_parameter_descriptor_t *basic_dict = NULL; // Tạo vùng nhớ để tạo Dictionary động - bảng A
 factor_dict_t *factor_dict = NULL;            // Vùng nhớ để mapping factor và scale - bảng B
 uint8_t *raw_data = NULL;                     // Chứa dữ liệu thô
@@ -28,6 +28,7 @@ uint16_t register_count = 0;                  // Tổng số lượng CID đang 
 uint16_t g_total_raw_bytes = 0;               // Tổng số byte thực tế của tất cả thanh ghi
 
 extern SemaphoreHandle_t xDataMutex; // Mutex dùng cho việc ghi vào vùng nhớ chung
+extern SemaphoreHandle_t scan_sem;
 extern bool is_change_baud;
 extern volatile bool is_scan_device;
 extern scan_analysis_t scan_result;
@@ -410,10 +411,19 @@ static float decode_raw_to_float(uint8_t *buf, mb_descr_type_t type)
 // RTU Task
 void modbus_test_read(void)
 {
+
     esp_err_t err;
     uint8_t type; // sử dụng để lưu kiểu HOLDING hay INPUT đã cấu hình trong basic, trong project biến này chỉ thêm vào cho đủ tham số
     rtc_time_t now;
     int count = 0;
+    uint8_t count_off[248] = {0};
+    uint8_t total_cid[248] = {0};
+    uint8_t cid_fail[248] = {0};
+
+    for (int i = 0; i < register_count; i++) // Thống kê tổng cid của từng ID có trong hệ thống
+    {
+        total_cid[basic_dict[i].mb_slave_addr]++;
+    }
 
     while (1)
     {
@@ -443,6 +453,10 @@ void modbus_test_read(void)
             uint8_t *target_address = raw_data + basic_dict[i].param_offset; // ghi bytes nhận được từ modbus target_address
 
             err = mbc_master_get_parameter(basic_dict[i].cid, basic_dict[i].param_key, target_address, &type);
+
+            // Thoát ngay sau khi lệnh Modbus hiện tại xong — không giữ lock thêm
+            if (is_change_baud == true || is_scan_device == true)
+                goto exit_and_wait;
 
             if (err == ESP_OK)
             {
@@ -483,18 +497,48 @@ void modbus_test_read(void)
                 if (read_ok[i] == true)
                 {
                     final_data[i] = temp_result[i];
-                    printf("[CID: %d] - [%02d:%02d:%02d] %s = %.4f %s\n",
-                           i, now.hour, now.minute, now.second,
-                           basic_dict[i].param_key, final_data[i], basic_dict[i].param_units);
+                    printf("[CID: %d] - [%02d:%02d:%02d] %s = %.4f %s\n", i, now.hour, now.minute, now.second, basic_dict[i].param_key, final_data[i], basic_dict[i].param_units);
                 }
             }
             xSemaphoreGive(xDataMutex);
         }
+        memset(cid_fail, 0, sizeof(cid_fail)); // reset trước khi đếm
+        for (int i = 0; i < register_count; i++)
+        {
+            if (read_ok[i] == false)
+                cid_fail[basic_dict[i].mb_slave_addr]++;
+        }
+        for (int sid = 1; sid < 248; sid++)
+        {
+            if (total_cid[sid] == 0) // slave này không có trong dict
+                continue;
 
+            if (cid_fail[sid] == total_cid[sid]) // Toàn bộ CID của slave này fail
+            {
+                count_off[sid]++;
+                // ESP_LOGW(TAG, "Slave %d: %d/1 round fail !!!\n", sid, count_off[sid]);
+                if (count_off[sid] >= 1) // Nếu quá 3 lần không có cid nào của thiết bị đó trả lời
+                {
+                    memset(count_off, 0, sizeof(count_off));
+                    xSemaphoreGive(scan_sem);
+                    ESP_LOGW(TAG, "Passive scan triggered !!!");
+                }
+            }
+            else
+            {
+                count_off[sid] = 0; // Có ít nhất 1 CID OK là còn sống
+            }
+        }
     exit_and_wait: // Dùng trong chức năng scan hoặc change baudrate đang chạy
         if (is_change_baud == true || is_scan_device == true)
         {
             vTaskDelay(pdMS_TO_TICKS(200));
+            if (register_count > 0 && basic_dict != NULL)
+            {
+                memset(total_cid, 0, sizeof(total_cid));
+                for (int i = 0; i < register_count; i++)
+                    total_cid[basic_dict[i].mb_slave_addr]++;
+            }
             continue;
         }
         printf("\n");

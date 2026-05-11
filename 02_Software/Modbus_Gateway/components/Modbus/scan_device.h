@@ -46,5 +46,6 @@ void scan_device(void);
 void get_active_list(void);
 void get_inactive_list(void);
 void analyse_scan_result(void);
+void passive_scan_task(void *arg);
 
 #endif // SCAN_DEVICE_H

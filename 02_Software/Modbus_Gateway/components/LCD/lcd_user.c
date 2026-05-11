@@ -29,6 +29,7 @@ static int menu_cursor = 1; // Dòng đang chọn 1, 2, 3 cho Page 2
 static QueueHandle_t ui_queue = NULL;
 static uint8_t enc_scroll = 0;
 static uint32_t cached_baud = 0;
+static bool need_clear_after_scan = false; // Đánh dấu cần lcd_clear() khi thoát khỏi màn hình scanning
 
 extern id_scan_result_t list_p1;
 extern id_scan_result_t list_p2;
@@ -39,6 +40,7 @@ extern uint8_t original_id_count;
 extern scan_analysis_t scan_result;
 extern bool wire_p1_ok;
 extern bool wire_p2_ok;
+extern bool is_manual_scan; // true = manual scan, false = passive scan (không hiện LCD)
 
 //=============================================================================================
 // Hàm chuyển mảng ID thành chuỗi "1, 4, 5"
@@ -419,15 +421,11 @@ void ui_task(void)
                         }
                         else if (menu_cursor == 2) // Chọn Scan Device
                         {
+                            // scan_device() tự quản lý is_scanning và is_scan_device
+                            // KHÔNG set is_scanning ở đây: nếu scan_device() bị bỏ qua
+                            // (passive đang chạy) thì is_scanning sẽ không bị kẹt true
                             lcd_clear();
-                            is_scanning = true; // Khóa UI
-                            LCD_SetCursor(1, 2);
-                            LCD_Print("Scanning ....  ");
-                            LCD_SetCursor(2, 2);
-                            LCD_Print("Please wait ....  ");
-                            vTaskDelay(pdMS_TO_TICKS(1000));
-                            lcd_clear();
-                            scan_device(); // Gọi hàm scan đã cấu hình task
+                            scan_device();
                         }
                     }
                     else if (current_page == PAGE_SET_BAUDRATE)
@@ -512,31 +510,67 @@ void ui_task(void)
             }
         }
 
-        if (is_scanning == false)
+        // is_manual_scan=true  + is_scan_device=true  → manual scan → hiện "SCANNING..."
+        // is_manual_scan=false + is_scan_device=true  → passive scan ngầm → giữ nguyên LCD
+        // is_scan_device=false + is_scanning=false    → không scan → render trang bình thường
+        if (is_scan_device == true && is_manual_scan == true)
         {
-            // Page Home
+            // Manual scan đang chạy → hiển thị màn hình chờ
+            need_clear_after_scan = true;
+            LCD_SetCursor(0, 0);
+            LCD_Print("                    ");
+            LCD_SetCursor(1, 2);
+            LCD_Print("Scanning ....       ");
+            LCD_SetCursor(2, 2);
+            LCD_Print("Please wait....     ");
+            LCD_SetCursor(3, 0);
+            LCD_Print("                    ");
+            vTaskDelay(pdMS_TO_TICKS(500));
+        }
+        else if (is_scan_device == true && is_manual_scan == false)
+        {
+            // Passive scan chạy ngầm → render LCD bình thường, không block UI
+            // KHÔNG delay ở đây: xQueueReceive(100ms) ở đầu vòng lặp đã yield đủ
             if (current_page == PAGE_1_HOME)
                 page_1_home();
-
-            // Page settings
             else if (current_page == PAGE_2_SETTINGS)
                 page_2_settings();
-
             else if (current_page == PAGE_SCAN_RESULT)
                 page_scan_result();
-
             else if (current_page == PAGE_SCAN_DETAIL)
                 page_scan_detail();
-
             else if (current_page == PAGE_SET_BAUDRATE)
                 page_set_baud();
-
-            // Page info device
+            else if (current_page == PAGE_3_INFO_DEVICE)
+                page_3_info_device();
+        }
+        else if (is_scanning == false)
+        {
+            // Không có scan đang chạy
+            // Nếu vừa kết thúc manual scan → clear màn hình trước khi render
+            if (need_clear_after_scan == true)
+            {
+                lcd_clear();
+                need_clear_after_scan = false;
+            }
+            if (current_page == PAGE_1_HOME)
+                page_1_home();
+            else if (current_page == PAGE_2_SETTINGS)
+                page_2_settings();
+            else if (current_page == PAGE_SCAN_RESULT)
+                page_scan_result();
+            else if (current_page == PAGE_SCAN_DETAIL)
+                page_scan_detail();
+            else if (current_page == PAGE_SET_BAUDRATE)
+                page_set_baud();
             else if (current_page == PAGE_3_INFO_DEVICE)
                 page_3_info_device();
         }
         else
         {
+            // is_scanning=true, is_scan_device=false:
+            // scan_task vừa tạo chưa kịp set is_scan_device
+            // hoặc change_baudrate đang chạy → chờ ngắn
             vTaskDelay(pdMS_TO_TICKS(100));
         }
     }

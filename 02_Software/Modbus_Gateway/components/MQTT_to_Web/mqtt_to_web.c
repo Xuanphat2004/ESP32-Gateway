@@ -122,7 +122,6 @@ void mqtt_app_start(void)
 }
 
 //======================================================================
-// GIỮ NGUYÊN
 void mqtt_network_event_handler(void *arg, esp_event_base_t event_base,
                                 int32_t event_id, void *event_data)
 {
@@ -207,7 +206,7 @@ char *pack_data_to_json(int id, char *name, char *model)
 }
 
 //======================================================================
-// GIỮ NGUYÊN: TASK GỬI MQTT meter data - 10 giây/lần
+// TASK GỬI MQTT meter data - 10 giây/lần
 void mqtt_publish_task(void *pvParameters)
 {
     vTaskDelay(pdMS_TO_TICKS(5000));
@@ -255,12 +254,12 @@ void mqtt_publish_task(void *pvParameters)
 }
 
 //======================================================================
-
+// Gửi dữ liệu scan về web sau khi scan xong
 void publish_scan_result(void)
 {
     if (!is_mqtt_connected || mqtt_client == NULL)
     {
-        ESP_LOGW(TAG, "[SCAN] MQTT chưa kết nối, bỏ qua publish");
+        ESP_LOGW(TAG, "[SCAN] Disconnect MQTT Broker !!!");
         return;
     }
 
@@ -283,7 +282,7 @@ void publish_scan_result(void)
 
     // ── Severity ───────────────────────────────────────────────────────
     // "warning" nếu có ít nhất 1 ID không phản hồi, ngược lại "ok"
-    const char *severity = (scan_result.lose_count > 0) ? "warning" : "ok";
+    const char *severity = (scan_result.lose_count > 0) ? "warning" : "normal";
     cJSON_AddStringToObject(root, "severity", severity);
 
     // ── inactive_ids: lấy từ scan_result.lose_list ────────────────────

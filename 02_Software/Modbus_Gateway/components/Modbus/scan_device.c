@@ -7,7 +7,6 @@
 #include "freertos/semphr.h"
 #include "driver/uart.h"
 #include "esp_modbus_master.h"
-#include "esp_modbus_slave.h"
 #include "esp_modbus_common.h"
 #include "mbc_master.h"
 
@@ -36,14 +35,62 @@ static volatile bool slave_fake_running = false;
 static uint8_t slave_fake_port = 0;
 
 volatile bool is_scan_device = false;
+bool is_manual_scan = false; // true = scan do nút nhấn, false = scan ngầm
 extern bool is_scanning;
-extern bool is_tcp_running;
 extern ui_page_t current_page;
 extern uint16_t register_count;
 extern factor_dict_t *factor_dict;
 extern mb_parameter_descriptor_t *basic_dict;
 extern SemaphoreHandle_t xDataMutex;
-extern TaskHandle_t tcp_handle_task;
+extern SemaphoreHandle_t scan_sem;
+extern TaskHandle_t tcp_handle_task; // Handle để tạo lại data-copy task sau scan
+extern TaskHandle_t rtu_handle_task; // Handle để dừng RTU task trước khi scan
+extern bool is_change_baud;          // Cờ báo đang đổi baudrate
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Dừng RTU task AN TOÀN:
+//   1. Set is_scan_device=true → RTU task tự thoát ra exit_and_wait (không giữ lock)
+//   2. Chờ ít nhất 1 chu kỳ timeout Modbus (300ms) + buffer → RTU task đã yield
+//   3. Lúc này mới vTaskDelete (task đang ngủ trong vTaskDelay, không giữ lock)
+//   4. mbc_master_destroy() an toàn vì không còn ai giữ internal lock
+// ─────────────────────────────────────────────────────────────────────────────
+static void safe_stop_rtu_and_tcp(void)
+{
+    // Bước 1: Ra hiệu để RTU task tự thoát khỏi mbc_master_get_parameter
+    is_scan_device = true;
+
+    // Nếu change_baudrate vừa được trigger → nhường cho nó, abort scan
+    if (is_change_baud == true)
+    {
+        ESP_LOGW(TAG, "is_change_baud detected, aborting scan");
+        is_scan_device = false;
+        return;
+    }
+
+    // Bước 2: Chờ RTU task hoàn thành lệnh Modbus đang chạy và vào exit_and_wait
+    // mbc_master_get_parameter timeout tối đa 300ms → chờ 700ms để chắc chắn
+    vTaskDelay(pdMS_TO_TICKS(700));
+
+    // Bước 3: RTU task đang ngủ trong vTaskDelay(200ms) tại exit_and_wait
+    // An toàn để delete vì không còn giữ Modbus internal lock
+    if (rtu_handle_task != NULL)
+    {
+        vTaskDelete(rtu_handle_task);
+        rtu_handle_task = NULL;
+        ESP_LOGW(TAG, "RTU task deleted safely");
+    }
+    if (tcp_handle_task != NULL)
+    {
+        vTaskDelete(tcp_handle_task);
+        tcp_handle_task = NULL;
+        ESP_LOGW(TAG, "Data-copy task deleted");
+    }
+
+    // Bước 4: Chờ Core 1 scheduler dọn xong task list sau cross-core delete
+    // mbc_master_start() nội bộ gọi vTaskDelete → crash nếu list chưa sạch
+    // Cần ít nhất 2-3 tick để idle task Core 1 chạy và dọn memory
+    vTaskDelay(pdMS_TO_TICKS(500));
+}
 
 static mb_parameter_descriptor_t check_dict[3] = {
     {0, "check-1", "-", CHECK_SLAVE_ID, MB_PARAM_HOLDING, 0, 2, offsetof(data_check_t, value_a), PARAM_TYPE_FLOAT, 4, {{0, 0, 0}}, PAR_PERMS_READ},
@@ -210,6 +257,9 @@ static void execute_port_scan(uint8_t uart_port, mb_parameter_descriptor_t *dict
     uart_driver_delete(UART_NUM_1);
     uart_driver_delete(UART_NUM_2);
 
+    // Chờ task list sạch trước khi mbc_master_init tạo internal tasks mới
+    vTaskDelay(pdMS_TO_TICKS(300));
+
     void *master_handler = NULL; // Biến handle của port master
     mbc_master_init(MB_PORT_SERIAL_MASTER, &master_handler);
 
@@ -331,6 +381,7 @@ void analyse_scan_result(void)
 static void scan_task(void *pvParameters)
 {
     is_scan_device = true;
+    is_manual_scan = true; // đánh dấu đây là manual scan → LCD sẽ hiển thị
     wire_p1_ok = false;
     wire_p2_ok = false;
     memset(&list_p1, 0, sizeof(id_scan_result_t));
@@ -338,24 +389,24 @@ static void scan_task(void *pvParameters)
 
     ESP_LOGI(TAG, "Start scanning ...");
 
-    // Dừng TCP task
-    if (is_tcp_running == true)
+    // Dừng RTU + TCP task theo đúng thứ tự an toàn
+    safe_stop_rtu_and_tcp();
+
+    // Nếu safe_stop bị abort do is_change_baud → hủy manual scan
+    if (is_change_baud == true)
     {
-        mbc_slave_destroy();
-        is_tcp_running = false;
-    }
-    vTaskDelay(pdMS_TO_TICKS(500));
-    if (tcp_handle_task != NULL)
-    {
-        vTaskDelete(tcp_handle_task);
-        tcp_handle_task = NULL;
+        ESP_LOGW(TAG, "[MANUAL] Aborted: baudrate change in progress");
+        is_scan_device = false;
+        is_scanning = false;
+        vTaskDelete(NULL);
+        return;
     }
 
     // Chuẩn bị vùng nhớ cho temp_dict
     mb_parameter_descriptor_t *temp_dict = malloc(register_count * sizeof(mb_parameter_descriptor_t));
     uint16_t temp_dict_size = generate_temp_scan_dict(temp_dict, original_id, &original_id_count);
 
-    // Giải phóng tài nguyên cũ
+    // Giải phóng tài nguyên cũ (an toàn vì RTU task đã bị delete)
     mbc_master_destroy();
     uart_driver_delete(UART_NUM_1);
     uart_driver_delete(UART_NUM_2);
@@ -420,26 +471,164 @@ static void scan_task(void *pvParameters)
     else
         modbus_rtu_port_2_init();
 
-    is_scan_device = false;
-    vTaskDelay(pdMS_TO_TICKS(500));
-
-    // Khôi phục TCP task
-    is_tcp_running = false;
-    xTaskCreatePinnedToCore(modbus_tcp_server_task, "tcp_server_task", 4096, NULL, 10, &tcp_handle_task, 0);
+    // Khôi phục RTU task và data-copy task
+    xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 8192, NULL, 10, &rtu_handle_task, 1);
+    xTaskCreatePinnedToCore(modbus_tcp_server_task, "tcp_server_task", 4096, NULL, 8, &tcp_handle_task, 0);
+    vTaskDelay(pdMS_TO_TICKS(300));
 
     current_page = PAGE_SCAN_RESULT;
-
     publish_scan_result();
 
+    // Clear tất cả flag sau khi mọi thứ đã khôi phục xong
+    is_manual_scan = false;
+    is_scan_device = false;
     is_scanning = false;
     vTaskDelete(NULL);
 }
+void passive_scan_task(void *arg)
+{
+    while (1)
+    {
+        xSemaphoreTake(scan_sem, portMAX_DELAY);
+        if (is_scanning == true)
+        {
+            ESP_LOGW(TAG, "Manual scan running, skip passive scan");
+            continue;
+        }
 
+        is_scan_device = true;
+        // is_manual_scan KHÔNG set ở đây → LCD không hiển thị màn hình scanning
+        wire_p1_ok = false;
+        wire_p2_ok = false;
+        memset(&list_p1, 0, sizeof(id_scan_result_t));
+        memset(&list_p2, 0, sizeof(id_scan_result_t));
+
+        ESP_LOGI(TAG, "Start passive scanning ...");
+
+        // Dừng RTU + TCP task theo đúng thứ tự an toàn
+        safe_stop_rtu_and_tcp();
+
+        // Nếu safe_stop bị abort do is_change_baud → nhường cho change_baudrate
+        if (is_change_baud == true)
+        {
+            ESP_LOGW(TAG, "[PASSIVE] Aborted: baudrate change in progress");
+            is_scan_device = false;
+            is_scanning = false;
+            continue;
+        }
+
+        // Chuẩn bị vùng nhớ cho temp_dict
+        mb_parameter_descriptor_t *temp_dict = malloc(register_count * sizeof(mb_parameter_descriptor_t));
+        if (temp_dict == NULL)
+        {
+            ESP_LOGE(TAG, "[passive_scan] malloc temp_dict thất bại, bỏ qua lần này");
+            is_scan_device = false;
+            // Khôi phục lại các task vì chưa destroy gì
+            if (scan_result.active_port == 1)
+                modbus_rtu_port_1_init();
+            else
+                modbus_rtu_port_2_init();
+            xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 8192, NULL, 10, &rtu_handle_task, 1);
+            xTaskCreatePinnedToCore(modbus_tcp_server_task, "tcp_server_task", 4096, NULL, 8, &tcp_handle_task, 0);
+            continue;
+        }
+        uint16_t temp_dict_size = generate_temp_scan_dict(temp_dict, original_id, &original_id_count);
+
+        // Giải phóng tài nguyên cũ (an toàn vì RTU task đã bị delete)
+        mbc_master_destroy();
+        uart_driver_delete(UART_NUM_1);
+        uart_driver_delete(UART_NUM_2);
+
+        // Wire check lần 1
+        ESP_LOGI(TAG, "Wire check: Port 1 Master + Port 2 Slave ...");
+        start_fake_slave(UART_NUM_2);
+        execute_wire_check(UART_NUM_1);
+        stop_slave_fake();
+
+        // Destroy master + xóa CẢ 2 port trước khi bắt đầu lần 2
+        mbc_master_destroy();
+        uart_driver_delete(UART_NUM_1);
+        uart_driver_delete(UART_NUM_2);
+
+        if (wire_p1_ok == false)
+        {
+            ESP_LOGI(TAG, "Wire check: Port 2 Master + Port 1 Slave ...");
+            start_fake_slave(UART_NUM_1);
+            execute_wire_check(UART_NUM_2);
+            stop_slave_fake();
+
+            mbc_master_destroy();
+            uart_driver_delete(UART_NUM_1);
+            uart_driver_delete(UART_NUM_2);
+        }
+
+        // Phân nhánh scan
+        if (wire_p1_ok == true)
+        {
+            ESP_LOGI(TAG, "Wire OK → Scan Port 1 only");
+            execute_port_scan(UART_NUM_1, temp_dict, temp_dict_size, &list_p1);
+            scan_result.active_port = 1;
+        }
+        else if (wire_p2_ok == true)
+        {
+            ESP_LOGI(TAG, "Wire OK → Scan Port 2 only");
+            execute_port_scan(UART_NUM_2, temp_dict, temp_dict_size, &list_p2);
+            scan_result.active_port = 2;
+        }
+        else
+        {
+            ESP_LOGI(TAG, "Wire BROKEN → Scan both ports");
+            execute_port_scan(UART_NUM_1, temp_dict, temp_dict_size, &list_p1);
+            mbc_master_destroy();
+            execute_port_scan(UART_NUM_2, temp_dict, temp_dict_size, &list_p2);
+        }
+
+        analyse_scan_result();
+        free(temp_dict);
+
+        // Destroy + cleanup
+        mbc_master_destroy();
+        uart_driver_delete(UART_NUM_1);
+        uart_driver_delete(UART_NUM_2);
+        vTaskDelay(pdMS_TO_TICKS(200));
+
+        // Khởi động lại RTU theo active_port
+        if (scan_result.active_port == 1)
+            modbus_rtu_port_1_init();
+        else
+            modbus_rtu_port_2_init();
+
+        // Khôi phục RTU task và data-copy task
+        xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 8192, NULL, 10, &rtu_handle_task, 1);
+        xTaskCreatePinnedToCore(modbus_tcp_server_task, "tcp_server_task", 4096, NULL, 8, &tcp_handle_task, 0);
+        vTaskDelay(pdMS_TO_TICKS(300));
+
+        publish_scan_result();
+
+        // Chỉ clear is_scan_device — passive scan không đụng is_scanning
+        // vì is_scanning được quản lý hoàn toàn bởi scan_task (manual)
+        is_scan_device = false;
+    }
+}
 // ============================================================
 // Tạo task scan device
 void scan_device(void)
 {
-    xTaskCreatePinnedToCore((void *)scan_task, "scan_task", 8172, NULL, 11, NULL, 1);
+    if (is_scan_device == true)
+    {
+        // Đang có scan ngầm (passive) chạy → bỏ qua, không set is_scanning
+        // để LCD không kẹt waiting
+        ESP_LOGW(TAG, "[scan_device] Passive scan đang chạy, bỏ qua manual scan");
+        return;
+    }
+    if (is_scanning == true)
+    {
+        // scan_task đã được tạo từ lần nhấn trước nhưng chưa xong
+        ESP_LOGW(TAG, "[scan_device] scan_task đã tồn tại, bỏ qua");
+        return;
+    }
+    is_scanning = true;
+    xTaskCreatePinnedToCore((void *)scan_task, "scan_task", 8192, NULL, 11, NULL, 1);
 }
 
 // ============================================================================================
@@ -504,10 +693,14 @@ static void execute_wire_check(uint8_t uart_port)
     uint8_t temp_buf[4] = {0};
     uint8_t type;
 
-    // Chỉ destroy master stack + xóa port MASTER
+    // Destroy master + xóa port MASTER
     // KHÔNG xóa port slave giả — slave_fake_task đang dùng
     mbc_master_destroy();
     uart_driver_delete(uart_port);
+
+    // Chờ Modbus internal tasks dọn xong sau destroy
+    // mbc_master_start() gọi vTaskDelete nội bộ → cần task list sạch
+    vTaskDelay(pdMS_TO_TICKS(300));
 
     void *master_handler = NULL;
     mbc_master_init(MB_PORT_SERIAL_MASTER, &master_handler);
@@ -578,7 +771,8 @@ static void start_fake_slave(uint8_t uart_port)
     }
     slave_fake_port = uart_port;
     slave_fake_running = true;
-    xTaskCreatePinnedToCore(slave_fake_task, "slave_fake", 4096, NULL, 12, &slave_fake_task_handle, 0);
+    // Core 1, priority 5: tránh deadlock với Modbus master internal tasks trên Core 0
+    xTaskCreatePinnedToCore(slave_fake_task, "slave_fake", 4096, NULL, 5, &slave_fake_task_handle, 1);
 }
 
 static void stop_slave_fake(void)
