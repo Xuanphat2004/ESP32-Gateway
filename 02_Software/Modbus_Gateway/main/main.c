@@ -72,6 +72,9 @@ void app_main(void)
     init_pcnt_encoder();
     sd_card_init();
     vTaskDelay(pdMS_TO_TICKS(2000)); // đợi hệ thông ổn định trước khi tạo task
+    ESP_LOGW("MAIN", "Total heap: %lu | Internal DRAM: %u bytes",
+             esp_get_free_heap_size(),
+             heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT));
     mqtt_app_start();
 
     // Core 0: Các task liên quan tới mạng
@@ -79,9 +82,12 @@ void app_main(void)
     xTaskCreatePinnedToCore(mqtt_publish_task, "mqtt_task", 8192, NULL, 9, &mqtt_handle_task, 0);
 
     // Core 1: Các task liên quan tới giao diện người dùng và xử lý tại thiết bị
-    xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 16384, NULL, 10, &rtu_handle_task, 1);
-    xTaskCreatePinnedToCore(passive_scan_task, "passive_scan", 16384, NULL, 6, NULL, 0);
+    xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 8192, NULL, 10, &rtu_handle_task, 1);
+    xTaskCreatePinnedToCore(passive_scan_task, "passive_scan", 6144, NULL, 6, NULL, 0);
     xTaskCreatePinnedToCore((void *)ui_task, "ui_manager_task", 6144, NULL, 5, NULL, 1);
     xTaskCreatePinnedToCore(sd_card_logger_task, "sd_card_logger", 8192, NULL, 4, NULL, 1);
     vTaskDelay(pdMS_TO_TICKS(1000));
+    ESP_LOGW("MAIN", "After tasks — Total: %lu | Internal DRAM: %u bytes",
+             esp_get_free_heap_size(),
+             heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT));
 }

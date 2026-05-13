@@ -525,7 +525,7 @@ void ui_task(void)
             LCD_Print("Please wait....     ");
             LCD_SetCursor(3, 0);
             LCD_Print("                    ");
-            vTaskDelay(pdMS_TO_TICKS(500));
+            vTaskDelay(pdMS_TO_TICKS(200));
         }
         else if (is_scan_device == true && is_manual_scan == false)
         {

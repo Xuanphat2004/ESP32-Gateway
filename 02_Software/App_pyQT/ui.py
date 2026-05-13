@@ -13,6 +13,10 @@ from PyQt6.QtWidgets import (
     QTabWidget,
     QDialog,
     QCompleter,
+    QCheckBox,
+    QScrollArea,
+    QFrame,
+    QDialogButtonBox,
 )
 from PyQt6.QtCore import Qt
 
@@ -182,3 +186,88 @@ class RegisterEditorWidget(QGroupBox):  #  Form nhập liệu thanh ghi
         elif column == "factor":
             self.ent_f1.setCompleter(completer)
             self.ent_f2.setCompleter(completer)
+
+
+class SyncDialog(QDialog):
+    """Dialog cho phép user chọn Slave ID nào muốn sync xuống thiết bị."""
+
+    def __init__(self, slave_ids: list[str], parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Select Slave IDs to Sync")
+        self.setMinimumWidth(320)
+        self.setModal(True)
+
+        layout = QVBoxLayout(self)
+
+        # ── Header ────────────────────────────────────────────────────────────
+        lbl = QLabel("Choose which Slave IDs to send to the device:")
+        lbl.setWordWrap(True)
+        layout.addWidget(lbl)
+
+        # ── Separator ─────────────────────────────────────────────────────────
+        line = QFrame()
+        line.setFrameShape(QFrame.Shape.HLine)
+        line.setFrameShadow(QFrame.Shadow.Sunken)
+        layout.addWidget(line)
+
+        # ── Checkbox "Select All" ─────────────────────────────────────────────
+        self.chk_all = QCheckBox("Select All")
+        self.chk_all.setChecked(True)
+        self.chk_all.setStyleSheet("font-weight: bold;")
+        self.chk_all.stateChanged.connect(self._on_select_all_changed)
+        layout.addWidget(self.chk_all)
+
+        # ── Scrollable list of per-ID checkboxes ──────────────────────────────
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
+
+        container = QWidget()
+        self.id_layout = QVBoxLayout(container)
+        self.id_layout.setSpacing(4)
+        self.id_layout.setContentsMargins(8, 4, 8, 4)
+
+        self.checkboxes: dict[str, QCheckBox] = {}
+        for sid in slave_ids:
+            chk = QCheckBox(f"Slave ID  {sid}")
+            chk.setChecked(True)
+            chk.stateChanged.connect(self._on_id_checkbox_changed)
+            self.id_layout.addWidget(chk)
+            self.checkboxes[sid] = chk
+
+        scroll.setWidget(container)
+        layout.addWidget(scroll)
+
+        # ── Buttons OK / Cancel ───────────────────────────────────────────────
+        btn_box = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
+        )
+        btn_box.accepted.connect(self.accept)
+        btn_box.rejected.connect(self.reject)
+        layout.addWidget(btn_box)
+
+    # ── Internal helpers ──────────────────────────────────────────────────────
+    def _on_select_all_changed(self, state):
+        """Đồng bộ tất cả checkbox con khi bấm Select All."""
+        checked = state == Qt.CheckState.Checked.value
+        for chk in self.checkboxes.values():
+            chk.blockSignals(True)
+            chk.setChecked(checked)
+            chk.blockSignals(False)
+
+    def _on_id_checkbox_changed(self):
+        """Cập nhật trạng thái Select All dựa theo các checkbox con."""
+        all_checked = all(chk.isChecked() for chk in self.checkboxes.values())
+        none_checked = not any(chk.isChecked() for chk in self.checkboxes.values())
+        self.chk_all.blockSignals(True)
+        if all_checked:
+            self.chk_all.setCheckState(Qt.CheckState.Checked)
+        elif none_checked:
+            self.chk_all.setCheckState(Qt.CheckState.Unchecked)
+        else:
+            self.chk_all.setCheckState(Qt.CheckState.PartiallyChecked)
+        self.chk_all.blockSignals(False)
+
+    def get_selected_ids(self) -> list[str]:
+        """Trả về danh sách Slave ID được tích chọn."""
+        return [sid for sid, chk in self.checkboxes.items() if chk.isChecked()]

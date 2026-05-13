@@ -76,6 +76,13 @@ void print_ram_tables(void)
 // --- KHỞI TẠO PARTITION NVS RIÊNG CHO THANH GHI ---
 static esp_err_t init_storage_partition(void)
 {
+    // FIX MEMORY LEAK: nvs_flash_init_partition alloc ~10KB internal RAM mỗi lần gọi
+    // Được gọi sau mỗi lần scan → DRAM cạn dần theo thời gian
+    // Giải pháp: chỉ init 1 lần duy nhất trong suốt vòng đời thiết bị
+    static bool storage_initialized = false;
+    if (storage_initialized)
+        return ESP_OK;
+
     const esp_partition_t *partition = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_NVS, "storage");
 
     if (partition == NULL)
@@ -94,6 +101,7 @@ static esp_err_t init_storage_partition(void)
 
     if (err == ESP_OK)
     {
+        storage_initialized = true;
         ESP_LOGI(TAG, "Storage partition mounted OK (offset=0x%lx, size=0x%lx)", partition->address, partition->size);
     }
     return err;
@@ -497,7 +505,8 @@ void modbus_test_read(void)
                 if (read_ok[i] == true)
                 {
                     final_data[i] = temp_result[i];
-                    printf("[CID: %d] - [%02d:%02d:%02d] %s = %.4f %s\n", i, now.hour, now.minute, now.second, basic_dict[i].param_key, final_data[i], basic_dict[i].param_units);
+                    printf("[CID: %d] - [%02d:%02d:%02d] %s = %.4f %s\n", i, now.hour, now.minute, now.second,
+                           basic_dict[i].param_key, final_data[i], basic_dict[i].param_units);
                 }
             }
             xSemaphoreGive(xDataMutex);
@@ -517,7 +526,7 @@ void modbus_test_read(void)
             {
                 count_off[sid]++;
                 // ESP_LOGW(TAG, "Slave %d: %d/1 round fail !!!\n", sid, count_off[sid]);
-                if (count_off[sid] >= 1) // Nếu quá 3 lần không có cid nào của thiết bị đó trả lời
+                if (count_off[sid] >= 1)
                 {
                     memset(count_off, 0, sizeof(count_off));
                     xSemaphoreGive(scan_sem);

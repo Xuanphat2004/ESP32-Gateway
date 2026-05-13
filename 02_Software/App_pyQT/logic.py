@@ -488,13 +488,33 @@ class AppController(QObject):
 
     @asyncSlot()
     async def on_sync_clicked(self):
-        """Gửi toàn bộ dữ liệu register xuống thiết bị BLE qua GATT."""
-        rows = database.get_all_registers()
-        if not rows:
+        """Mở dialog chọn Slave ID, rồi gửi các register tương ứng xuống thiết bị BLE."""
+        all_rows = database.get_all_registers()
+        if not all_rows:
             QMessageBox.warning(self.ui, "Announce", "No data in table for sync !!!")
             return
 
-        # Lấy địa chỉ BLE từ combo (định dạng: "Tên thiết bị (XX:XX:XX:XX:XX:XX)")
+        # ── Lấy danh sách Slave ID có trong DB (đã sắp xếp) ──────────────────
+        slave_ids = sorted(
+            {str(row[1]) for row in all_rows},
+            key=lambda x: int(x) if x.isdigit() else x,
+        )
+
+        # ── Hiện dialog để user chọn ID ───────────────────────────────────────
+        from ui import SyncDialog
+        dialog = SyncDialog(slave_ids, parent=self.ui)
+        if dialog.exec() != dialog.DialogCode.Accepted:
+            return  # user bấm Cancel
+
+        selected_ids = dialog.get_selected_ids()
+        if not selected_ids:
+            QMessageBox.warning(self.ui, "Announce", "Please select at least one Slave ID !!!")
+            return
+
+        # ── Lọc chỉ lấy rows thuộc những ID được chọn ────────────────────────
+        rows = [row for row in all_rows if str(row[1]) in selected_ids]
+
+        # ── Lấy địa chỉ BLE từ combo (định dạng: "Tên thiết bị (XX:XX:XX:XX:XX:XX)") ──
         selected_text = self.ui.combo_ble_devices.currentText()
         address_match = re.search(r"\((.*?)\)", selected_text)
         if not address_match:
@@ -516,7 +536,11 @@ class AppController(QObject):
                     await client.write_gatt_char(MODBUS_CHAR_UUID, chunk, response=True)
 
             QMessageBox.information(self.ui, "Success", "Data sent successfully!")
-            database.insert_log(action="Update data to device",detail=f"Sent {len(rows)} registers to: {selected_text}",)
+            ids_str = ", ".join(selected_ids)
+            database.insert_log(
+                action="Update data to device",
+                detail=f"Sent {len(rows)} registers (IDs: {ids_str}) to: {selected_text}",
+            )
             self.refresh_history()
 
         except Exception as error:

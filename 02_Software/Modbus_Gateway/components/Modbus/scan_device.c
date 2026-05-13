@@ -46,6 +46,7 @@ extern SemaphoreHandle_t scan_sem;
 extern TaskHandle_t tcp_handle_task; // Handle để tạo lại data-copy task sau scan
 extern TaskHandle_t rtu_handle_task; // Handle để dừng RTU task trước khi scan
 extern bool is_change_baud;          // Cờ báo đang đổi baudrate
+extern float *tcp_virtual_storage;   // Vùng nhớ dữ liệu meter, cần free trước khi recreate
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Dừng RTU task AN TOÀN:
@@ -380,8 +381,8 @@ void analyse_scan_result(void)
 // Destroy -> Delete -> Nạp cấu hình mới
 static void scan_task(void *pvParameters)
 {
-    is_scan_device = true;
-    is_manual_scan = true; // đánh dấu đây là manual scan → LCD sẽ hiển thị
+    // is_scan_device, is_manual_scan, is_scanning đã set trong scan_device()
+    // trước khi tạo task → LCD hiển thị ngay, không có khoảng trắng
     wire_p1_ok = false;
     wire_p2_ok = false;
     memset(&list_p1, 0, sizeof(id_scan_result_t));
@@ -470,6 +471,13 @@ static void scan_task(void *pvParameters)
         modbus_rtu_port_1_init();
     else
         modbus_rtu_port_2_init();
+
+    // Free tcp_virtual_storage để data-copy task alloc lại với đúng size
+    if (tcp_virtual_storage != NULL)
+    {
+        free(tcp_virtual_storage);
+        tcp_virtual_storage = NULL;
+    }
 
     // Khôi phục RTU task và data-copy task
     xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 8192, NULL, 10, &rtu_handle_task, 1);
@@ -598,6 +606,13 @@ void passive_scan_task(void *arg)
         else
             modbus_rtu_port_2_init();
 
+        // Free tcp_virtual_storage để data-copy task alloc lại với đúng size
+        if (tcp_virtual_storage != NULL)
+        {
+            free(tcp_virtual_storage);
+            tcp_virtual_storage = NULL;
+        }
+
         // Khôi phục RTU task và data-copy task
         xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 8192, NULL, 10, &rtu_handle_task, 1);
         xTaskCreatePinnedToCore(modbus_tcp_server_task, "tcp_server_task", 4096, NULL, 8, &tcp_handle_task, 0);
@@ -627,8 +642,26 @@ void scan_device(void)
         ESP_LOGW(TAG, "[scan_device] scan_task đã tồn tại, bỏ qua");
         return;
     }
+    // Set flag TRƯỚC khi tạo task:
+    // LCD check is_scan_device + is_manual_scan ngay vòng lặp tiếp theo
+    // Nếu set bên trong scan_task, scheduler có thể chưa chạy task → LCD trắng
     is_scanning = true;
-    xTaskCreatePinnedToCore((void *)scan_task, "scan_task", 8192, NULL, 11, NULL, 1);
+    is_scan_device = true;
+    is_manual_scan = true;
+
+    // Task stack bắt buộc nằm trong internal DRAM
+    // esp_get_free_heap_size() bao gồm PSRAM → không dùng được cho stack
+    uint32_t dram_free = heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
+    ESP_LOGI(TAG, "[scan_device] Internal DRAM free: %lu bytes", dram_free);
+
+    BaseType_t ret = xTaskCreatePinnedToCore((void *)scan_task, "scan_task", 8192, NULL, 11, NULL, 1);
+    if (ret != pdPASS)
+    {
+        ESP_LOGE(TAG, "[scan_device] xTaskCreate FAILED! DRAM free: %lu bytes", dram_free);
+        is_scanning = false;
+        is_scan_device = false;
+        is_manual_scan = false;
+    }
 }
 
 // ============================================================================================
