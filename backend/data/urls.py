@@ -38,6 +38,8 @@ urlpatterns = router.urls + [
  
     # Lịch sử tất cả lần scan — gọi để hiển thị bảng phía dưới
     path('solardb/get-scan-history/', scan.get_scan_history, name='get-scan-history'),
+    
+    path('solardb/get-register-history/', meter.get_register_history, name='get-register-history'),
  
     # Chi tiết thiết bị của 1 lần scan — gọi khi bấm vào dòng trong bảng lịch sử
     path('solardb/get-scan-devices/<int:scan_id>/', scan.get_scan_devices, name='get-scan-devices'),

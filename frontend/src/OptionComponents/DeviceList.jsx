@@ -1,364 +1,83 @@
-import { Button, Stack } from "@mui/material";
-import MyBarChart from "../ChartComponents/BarChart";
-import MyLineChart from "../ChartComponents/LineChart2";
-import InverterRanking from "../DataComponents/InverterRanking";
-import { useState, useEffect } from "react";
-import { Bar } from "react-chartjs-2";
-// import axios from "axios";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker"; // table to choose calendar
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider"; // support datepicker to know: which lib?, format data?...
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs"; // “bộ chuyển đổi” để MUI hiểu được thư viện Day.js mà bạn đang dùng.
-import dayjs from "dayjs"; // lib datetime using
-import MyButton from "../InteractComponent/myButton";
-import MyCalendar from "../InteractComponent/myCalendar";
-import { Box, maxHeight, sizeHeight } from "@mui/system";
-import { ThemeContext } from "@emotion/react";
+import { Button } from "@mui/material";
+import { useState, useEffect, useRef } from "react";
+import { Box } from "@mui/system";
 import { useTheme } from "@mui/material/styles";
-import PowerIcon from "@mui/icons-material/Power";
-import { DiBackbone } from "react-icons/di";
-import { PiPlugChargingBold } from "react-icons/pi";
-import { GiCharging } from "react-icons/gi";
-import LocationPinIcon from "@mui/icons-material/LocationPin";
 import Typography from "@mui/material/Typography";
 import {
-  Table,
-  TableHead,
-  TableBody,
-  TableRow,
-  TableCell,
-  TableContainer,
-  Paper,
+  Table, TableHead, TableBody, TableRow, TableCell,
+  TableContainer, Paper,
 } from "@mui/material";
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid,
+  Tooltip, ResponsiveContainer, Brush,
+} from "recharts";
+import { DatePicker }           from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs }         from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs                    from "dayjs";
 import { getData } from "../ApiComponent/api";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 
-//======================================== INVERTER SITE ===================================================
+
+//======================================== INVERTER ===================================================
 const InverterTable = ({ siteId }) => {
-  // Khởi Tạo (Initialization)
   const theme = useTheme();
   const [rows, setRows] = useState([]);
 
-  //Thiết Lập Side Effect (useEffect)
-  //UseEffect này có chức năng đảm bảo rằng ngay khi người dùng mở trang DeviceList (cho một siteId nào đó), 
-  //bảng sẽ được lấp đầy dữ liệu Inverter mới nhất bằng cách gọi một API HTTP một lần duy nhất.
   useEffect(() => {
     const fetchInverter = async () => {
       try {
-        // Gọi API (HTTP Request)
-        // const response = await fetch(`http://localhost:8000/solardb/get-latest-inverter-records/?site_id=${siteId}`);
         const response = await fetch(`http://localhost:8000/solardb/get-all-inverter-records/?site_id=${siteId}`);
-
-        if (response.status === 404) {
-            throw new Error("API Endpoint not found (404). Check URL or server routes.");// Lỗi 404: Không tìm thấy tài nguyên (API endpoint có thể sai)
-        } 
-        else if (response.status === 400) {
-            const errorData = await response.json(); 
-            throw new Error(`Invalid request (400). Server message: ${errorData.error || "Unknown error"}`);
-        } 
-        else if (response.status >= 500) {
-            throw new Error(`Server error occurred (${response.status}). Please check the backend logs.`);// Lỗi 5xx: Lỗi Server nội bộ
-        } 
-        else if (!response.ok) {
-            throw new Error(`Request failed with status code ${response.status}. Access denied or client error.`);// Bắt các lỗi 4xx khác (ví dụ: 401, 403)
-        }
+        if (!response.ok) throw new Error(`Lỗi ${response.status}`);
         const data = await response.json();
-        // ánh xạ (mapping) dữ liệu thô nhận được từ backend thành một định dạng mới, thân thiện với bảng (table).
-        const normalized = data.map(item => ({
-          // toán tử Nullish Coalescing (??) để kiểm tra: 
-          // nếu trường dữ liệu từ backend (item.inverter_name) là null hoặc undefined, 
-          // nó sẽ thay thế bằng giá trị mặc định là "--".
-          name: item.inverter_name ?? "--",
-          system_diagram: item.system_diagram ?? "--",
-          state: item.state ?? "--",
-          meter_read_total_energy: item.meter_read_total_energy ?? "--",
-          active_power: item.active_power ?? "--",
-          input_power: item.input_power ?? "--",
-          efficiency: item.efficiency ?? "--",
-          production_today: item.production_today ?? "--",
-          internal_temp: item.internal_temp ?? "--",
-          down_string_count: item.down_string_count ?? "--",   // field này backend chưa trả, nên sẽ thành --
-          yield_today: item.yield_today ?? "--",   // field này backend chưa trả, nên sẽ thành --
-        }));
-        //React sẽ chạy lại toàn bộ hàm component <InverterTable /> (quá trình re-render). 
-        // Trong quá trình chạy lại này, biến rows lúc này đã mang dữ liệu mới (normalized).
-        setRows(normalized);
-
-      } catch (error) {
-        console.error("Fetch error:", error);
-      }
+        setRows(data.map(item => ({
+          name: item.inverter_name ?? "--", system_diagram: item.system_diagram ?? "--",
+          state: item.state ?? "--", meter_read_total_energy: item.meter_read_total_energy ?? "--",
+          active_power: item.active_power ?? "--", input_power: item.input_power ?? "--",
+          efficiency: item.efficiency ?? "--", production_today: item.production_today ?? "--",
+          internal_temp: item.internal_temp ?? "--", down_string_count: item.down_string_count ?? "--",
+          yield_today: item.yield_today ?? "--",
+        })));
+      } catch (error) { console.error("Fetch error:", error); }
     };
-
     fetchInverter();
   }, [siteId]);
 
-  //Khối useEffect thứ hai có vai trò là nguồn cập nhật dữ liệu liên tục và tức thời (real-time) cho bảng Inverter.
-  // lệnh useEffect này trong React có nhiệm vụ chính là thiết lập kết nối WebSocket
-  useEffect(() => { 
+  useEffect(() => {
     const socket = new WebSocket(`ws://localhost:8000/ws/inverter/${siteId}/`);
-    socket.onopen = () => {
-        console.log(`WebSocket connected for siteId: ${siteId}`);
-    };
-
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      // Chuẩn hóa field để khớp với table, field không có thì để "--"
-      const normalized = data.map(item => ({
-        name: item.inverter_name ?? "--",
-        system_diagram: item.system_diagram ?? "--",
-        state: item.state ?? "--",
-        meter_read_total_energy: item.meter_read_total_energy ?? "--",
-        active_power: item.active_power ?? "--",
-        input_power: item.input_power ?? "--",
-        efficiency: item.efficiency ?? "--",
-        production_today: item.production_today ?? "--",
-        internal_temp: item.internal_temp ?? "--",
-        down_string_count: item.down_string_count ?? "--",   // field này backend chưa trả, nên sẽ thành --
-        yield_today: item.yield_today ?? "--",   // field này backend chưa trả, nên sẽ thành --
-      }));
-      setRows(normalized);
+      setRows(data.map(item => ({
+        name: item.inverter_name ?? "--", system_diagram: item.system_diagram ?? "--",
+        state: item.state ?? "--", meter_read_total_energy: item.meter_read_total_energy ?? "--",
+        active_power: item.active_power ?? "--", input_power: item.input_power ?? "--",
+        efficiency: item.efficiency ?? "--", production_today: item.production_today ?? "--",
+        internal_temp: item.internal_temp ?? "--", down_string_count: item.down_string_count ?? "--",
+        yield_today: item.yield_today ?? "--",
+      })));
     };
-
-    socket.onerror = (error) => {
-        console.error("WebSocket error is:", error);
-    };
-
+    socket.onerror = (e) => console.error("WS inverter error:", e);
     return () => socket.close();
   }, [siteId]);
 
   return (
-    <TableContainer
-      component={Paper}
-      sx={{
-        maxHeight: 500,
-        backgroundColor: "#1b1b1b",
-        overflow: "auto",
-
-        '&::-webkit-scrollbar': {
-          width: '8px',
-        },
-        '&::-webkit-scrollbar-thumb': {
-          backgroundColor: 'transparent',
-          borderRadius: '4px',
-        },
-
-        '&:hover::-webkit-scrollbar-thumb': {
-          backgroundColor: theme.palette.background.head_box,
-        },
-        '&:hover::-webkit-scrollbar-track': {
-          backgroundColor: 'transparent',
-        },
-      }}
-    >
+    <TableContainer component={Paper} sx={{ maxHeight: 500, backgroundColor: "#1b1b1b", overflow: "auto" }}>
       <Table stickyHeader>
         <TableHead>
           <TableRow>
-            <TableCell
-              sx={{
-                position: "sticky",
-                left: 0,
-                zIndex: 2,
-                backgroundColor: theme.palette.text.header_option,
-                color: "white",
-                minWidth: 180,
-              }}
-            >
-              Inverter Name
-            </TableCell>
-            <TableCell
-              sx={{
-                position: "sticky",
-                left: 180,
-                zIndex: 2,
-                backgroundColor: theme.palette.text.header_option,
-                color: "white",
-                minWidth: 150,
-              }}
-            >
-              Syst. Diag.
-            </TableCell>
-
-            {[
-              "State",
-              "Meter-read",
-              "Active Power",
-              "Input Power",
-              "Efficiency",
-              "Production Today",
-              "Internal Temp",
-              "Down String",
-              "Yield Today",
-            ].map((col) => (
-              <TableCell
-                key={col}
-                align="right"
-                sx={{
-                  minWidth: 120,
-                  backgroundColor: theme.palette.text.header_option,
-                  color: "white",
-                  zIndex: 1,
-                }}
-              >
-                {col}
-              </TableCell>
+            {["Inverter Name","Syst.Diag.","State","Meter-read","Active Power","Input Power",
+              "Efficiency","Production Today","Internal Temp","Down String","Yield Today"].map(col => (
+              <TableCell key={col} sx={{ backgroundColor: theme.palette.text.header_option, color: "white", minWidth: 130 }}>{col}</TableCell>
             ))}
           </TableRow>
         </TableHead>
-        
         <TableBody>
           {rows.map((row, i) => (
-            <TableRow
-              key={i}
-              sx={{
-                backgroundColor: i % 2 === 0 ? "#1b1b1b" : "#2a2a2a",
-              }}
-            >
-              <TableCell
-                sx={{
-                  position: "sticky",
-                  left: 0,
-                  backgroundColor:
-                    i % 2 === 0
-                      ? theme.palette.table.background_odd
-                      : theme.palette.table.background_even,
-                  color: theme.palette.table.text,
-                  minWidth: 180,
-                  zIndex: 1,
-                }}
-              >
-                {row.name}
-              </TableCell>
-              <TableCell
-                sx={{
-                  position: "sticky",
-                  left: 180,
-                  backgroundColor:
-                    i % 2 === 0
-                      ? theme.palette.table.background_odd
-                      : theme.palette.table.background_even,
-                  color: theme.palette.table.text,
-                  minWidth: 150,
-                  zIndex: 1,
-                }}
-              >
-                {row.system_diagram}
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{
-                  color: theme.palette.table.text,
-                  backgroundColor:
-                    i % 2 === 0
-                      ? theme.palette.table.background_odd
-                      : theme.palette.table.background_even,
-                  minWidth: 120,
-                }}
-              >
-                {row.state}
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{
-                  color: theme.palette.table.text,
-                  backgroundColor:
-                    i % 2 === 0
-                      ? theme.palette.table.background_odd
-                      : theme.palette.table.background_even,
-                  minWidth: 120,
-                }}
-              >
-                {row.meter_read_total_energy}
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{
-                  color: theme.palette.table.text,
-                  backgroundColor:
-                    i % 2 === 0
-                      ? theme.palette.table.background_odd
-                      : theme.palette.table.background_even,
-                  minWidth: 120,
-                }}
-              >
-                {row.active_power}
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{
-                  color: theme.palette.table.text,
-                  backgroundColor:
-                    i % 2 === 0
-                      ? theme.palette.table.background_odd
-                      : theme.palette.table.background_even,
-                  minWidth: 120,
-                }}
-              >
-                {row.input_power}
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{
-                  color: theme.palette.table.text,
-                  backgroundColor:
-                    i % 2 === 0
-                      ? theme.palette.table.background_odd
-                      : theme.palette.table.background_even,
-                  minWidth: 120,
-                }}
-              >
-                {row.efficiency}
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{
-                  color: theme.palette.table.text,
-                  backgroundColor:
-                    i % 2 === 0
-                      ? theme.palette.table.background_odd
-                      : theme.palette.table.background_even,
-                  minWidth: 120,
-                }}
-              >
-                {row.production_today}
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{
-                  color: theme.palette.table.text,
-                  backgroundColor:
-                    i % 2 === 0
-                      ? theme.palette.table.background_odd
-                      : theme.palette.table.background_even,
-                  minWidth: 120,
-                }}
-              >
-                {row.internal_temp}
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{
-                  color: theme.palette.table.text,
-                  backgroundColor:
-                    i % 2 === 0
-                      ? theme.palette.table.background_odd
-                      : theme.palette.table.background_even,
-                  minWidth: 120,
-                }}
-              >
-                {row.down_string_count}
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{
-                  color: theme.palette.table.text,
-                  backgroundColor:
-                    i % 2 === 0
-                      ? theme.palette.table.background_odd
-                      : theme.palette.table.background_even,
-                  minWidth: 120,
-                }}
-              >
-                {row.yield_today}
-              </TableCell>
+            <TableRow key={i}>
+              {["name","system_diagram","state","meter_read_total_energy","active_power","input_power",
+                "efficiency","production_today","internal_temp","down_string_count","yield_today"].map(key => (
+                <TableCell key={key} sx={{ color: theme.palette.table.text, backgroundColor: i%2===0 ? theme.palette.table.background_odd : theme.palette.table.background_even }}>{row[key]}</TableCell>
+              ))}
             </TableRow>
           ))}
         </TableBody>
@@ -373,270 +92,459 @@ const InverterTable = ({ siteId }) => {
 //======================================================================================================================
 
 const MeterTable = ({ siteId }) => {
-
-
   const theme = useTheme();
-  const [rows, setRows] = useState([]); // khung bảng tổng quát, rỗng
-  const [selectedMeter, setSelectedMeter] = useState(null); // chưa chọn meter nào
-  const [detailRows, setDetailRows] = useState([]); // khung bảng chi tiết, rỗng
-  const [loadingDetail, setLoadingDetail] = useState(false); // chưa loading
 
-  
-  // ============================================================================================
-  // EFFECT 1: Fetch dữ liệu tổng quát lần đầu khi mở trang
+  // ── State tầng 1: Bảng tổng quát ──
+  const [rows, setRows] = useState([]);
+
+  // ── State tầng 2: Bảng chi tiết thanh ghi ──
+  const [selectedMeter,  setSelectedMeter]  = useState(null);
+  const [detailRows,     setDetailRows]     = useState([]);
+  const [loadingDetail,  setLoadingDetail]  = useState(false);
+  const detailRowsRef = useRef([]);
+  useEffect(() => { detailRowsRef.current = detailRows; }, [detailRows]);
+
+  // ── State tầng 3: Lịch sử + chart của 1 thanh ghi ──
+  const [selectedRegister, setSelectedRegister] = useState(null);
+  const [historyRows,      setHistoryRows]      = useState([]);
+  const [loadingHistory,   setLoadingHistory]   = useState(false);
+
+  // ── State filter ngày — chỉ 1 ngày, không có range ──
+  // null = hôm nay (realtime), dayjs object = ngày cụ thể
+  const [filterDate, setFilterDate] = useState(null);
+
+
+  // ── EFFECT 1: Fetch bảng tổng quát lần đầu ──
   useEffect(() => {
     const fetchMeter = async () => {
       try {
-          let data;
-          if (siteId) {
-              // Có siteId → vào từ SiteList → lấy meter của site đó
-              data = await getData("/solardb/get-latest-meter-records/");
-          } else {
-              // Không có siteId → vào trực tiếp → lấy tất cả meter
-              data = await getData("/solardb/get-all-meters/");
-          }
-
+        const data = await getData(siteId ? "/solardb/get-latest-meter-records/" : "/solardb/get-all-meters/");
         if (!data) throw new Error("Network error");
-        // Chuẩn hóa field, field nào thiếu thì để "--"
-        const normalized = data.map(item => ({
-          site_name:         item.site_name         ?? "--",
-          meter_id:          item.meter_id          ?? "--",
-          name:              item.meter_name         ?? "--",
-          device_model:      item.device_model       ?? "--",
-          attribute:         item.attribute          ?? "--",
-          status:            item.status             ?? "--",
-          voltage_l1:        item.voltage_l1         ?? "--",
-          current_l1:        item.current_l1         ?? "--",
-          current_l1_dmd:    item.current_l1_dmd     ?? "--",
-          frequency_l1:      item.frequency_l1       ?? "--",
-          apparent_power_l1: item.apparent_power_l1  ?? "--",
-          real_power:        item.real_power          ?? "--",
-          timestamp:         item.timestamp           ?? "--",
-        }));
-        setRows(normalized);
-      } catch (error) {
-        console.error("Fetch meter list error:", error);
-      }
+        setRows(data.map(item => ({
+          site_name: item.site_name ?? "--", meter_id: item.meter_id ?? "--",
+          name: item.meter_name ?? "--", device_model: item.device_model ?? "--",
+          attribute: item.attribute ?? "--", status: item.status ?? "--",
+          voltage_l1: item.voltage_l1 ?? "--", current_l1: item.current_l1 ?? "--",
+          current_l1_dmd: item.current_l1_dmd ?? "--", frequency_l1: item.frequency_l1 ?? "--",
+          apparent_power_l1: item.apparent_power_l1 ?? "--", real_power: item.real_power ?? "--",
+          timestamp: item.timestamp ?? "--",
+        })));
+      } catch (error) { console.error("Fetch meter list error:", error); }
     };
     fetchMeter();
   }, [siteId]);
 
 
-  // ====================================================================================
-  // EFFECT 2: WebSocket cập nhật real-time bảng TỔNG QUÁT
+  // ── EFFECT 2: WS bảng tổng quát realtime ──
   useEffect(() => {
-      let socket;
-      if (siteId) {
-          // Có siteId → lắng nghe meter của site đó
-          socket = new WebSocket(`ws://localhost:8000/ws/meter/${siteId}/`);
-      } else {
-          // Không có siteId → lắng nghe tất cả meter
-          socket = new WebSocket(`ws://localhost:8000/ws/all_meters/`);
-      }
-      socket.onopen = () => {
-          console.log(`WS connected`);
-      };
-
-      socket.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        // Chuẩn hóa và cập nhật bảng tổng quát
-        const normalized = data.map(item => ({
-          site_name:         item.site_name         ?? "--",
-          meter_id:          item.meter_id          ?? "--",
-          name:              item.meter_name         ?? "--",
-          device_model:      item.device_model       ?? "--",
-          attribute:         item.attribute          ?? "--",
-          status:            item.status             ?? "--",
-          voltage_l1:        item.voltage_l1         ?? "--",
-          current_l1:        item.current_l1         ?? "--",
-          current_l1_dmd:    item.current_l1_dmd     ?? "--",
-          frequency_l1:      item.frequency_l1       ?? "--",
-          apparent_power_l1: item.apparent_power_l1  ?? "--",
-          real_power:        item.real_power          ?? "--",
-          timestamp:         item.timestamp           ?? "--",
-        }));
-        setRows(normalized);
-      };
-
-      socket.onerror = (e) => console.error("WS tổng quát error:", e);
-      return () => socket.close(); // Cleanup: đóng WS khi component unmount hoặc siteId thay đổi
-    }, [siteId]);
+    const socket = new WebSocket(
+      siteId ? `ws://localhost:8000/ws/meter/${siteId}/` : `ws://localhost:8000/ws/all_meters/`
+    );
+    socket.onopen  = () => console.log("WS tổng quát connected");
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      setRows(data.map(item => ({
+        site_name: item.site_name ?? "--", meter_id: item.meter_id ?? "--",
+        name: item.meter_name ?? "--", device_model: item.device_model ?? "--",
+        attribute: item.attribute ?? "--", status: item.status ?? "--",
+        voltage_l1: item.voltage_l1 ?? "--", current_l1: item.current_l1 ?? "--",
+        current_l1_dmd: item.current_l1_dmd ?? "--", frequency_l1: item.frequency_l1 ?? "--",
+        apparent_power_l1: item.apparent_power_l1 ?? "--", real_power: item.real_power ?? "--",
+        timestamp: item.timestamp ?? "--",
+      })));
+    };
+    socket.onerror = (e) => console.error("WS tổng quát error:", e);
+    return () => socket.close();
+  }, [siteId]);
 
 
-  // ==================================================================================
-  // EFFECT 3: WS bảng chi tiết — cố định dòng, chỉ update value
+  // ── EFFECT 3: WS bảng chi tiết ──
   useEffect(() => {
     if (!selectedMeter) return;
+    const socket = new WebSocket(`ws://localhost:8000/ws/meter_register/${selectedMeter.meter_id}/`);
+    socket.onopen  = () => console.log(`WS chi tiết connected: meter_id=${selectedMeter.meter_id}`);
+    socket.onmessage = (event) => {
+      const newRows = JSON.parse(event.data);
+      const prev = detailRowsRef.current;
+      if (prev.length === 0) { setDetailRows(newRows); return; }
+      const currentMap = {};
+      prev.forEach(row => { currentMap[row.parameter_name] = row; });
+      newRows.forEach(newRow => {
+        currentMap[newRow.parameter_name] = currentMap[newRow.parameter_name]
+          ? { ...currentMap[newRow.parameter_name], value: newRow.value, timestamp: newRow.timestamp }
+          : newRow;
+      });
+      const existingNames = prev.map(r => r.parameter_name);
+      const newNames = Object.keys(currentMap).filter(n => !existingNames.includes(n));
+      setDetailRows([...prev.map(r => currentMap[r.parameter_name]), ...newNames.map(n => currentMap[n])]);
+    };
+    socket.onerror = e => console.error("WS chi tiết error:", e);
+    return () => socket.close();
+  }, [selectedMeter]);
 
+
+  // ── EFFECT 4: WS lịch sử thanh ghi ──
+  // Chỉ thêm dòng mới khi đang xem hôm nay (filterDate = null)
+  // Xem ngày cũ thì WS im lặng — tránh lẫn lộn dữ liệu
+  useEffect(() => {
+    if (!selectedRegister || !selectedMeter) return;
+
+    const encodedName = encodeURIComponent(selectedRegister.register_name);
     const socket = new WebSocket(
-        `ws://localhost:8000/ws/meter_register/${selectedMeter.meter_id}/`
+      `ws://localhost:8000/ws/register_history/${selectedMeter.meter_id}/${encodedName}/`
     );
 
-    socket.onopen = () => {
-        console.log(`WS chi tiết connected: meter_id=${selectedMeter.meter_id}`);
-    };
+    socket.onopen = () => console.log(`WS lịch sử connected: ${selectedRegister.register_name}`);
 
     socket.onmessage = (event) => {
-        const newRows = JSON.parse(event.data);
+      const newRow = JSON.parse(event.data);
 
-        setDetailRows(prev => {
-            // Nếu chưa có data (prev rỗng) → dùng thẳng newRows làm nền
-            if (prev.length === 0) return newRows;
+      // Chỉ cập nhật realtime khi đang xem hôm nay
+      const isViewingToday = !filterDate;
+      if (!isViewingToday) return;
 
-            // Tạo map từ danh sách hiện tại, key = parameter_name
-            const currentMap = {};
-            prev.forEach(row => {
-                currentMap[row.parameter_name] = row;
-            });
-
-            newRows.forEach(newRow => {
-                if (currentMap[newRow.parameter_name]) {
-
-                    // Thanh ghi đã có → CHỈ cập nhật value + timestamp
-                    // Giữ nguyên: register, unit, vị trí dòng
-                    currentMap[newRow.parameter_name] = {
-                        ...currentMap[newRow.parameter_name], // giữ các field cũ
-                        value:     newRow.value,              // ← chỉ đổi value
-                        timestamp: newRow.timestamp,          // ← và timestamp
-                    };
-                } else {
-
-                    // Thanh ghi MỚI (thiết bị gửi thêm thanh ghi chưa từng có)
-                    // Thêm vào cuối bảng
-                    currentMap[newRow.parameter_name] = newRow;
-                }
-            });
-
-            // Giữ nguyên thứ tự dòng cũ
-            const existingNames = prev.map(r => r.parameter_name);
-            // Tìm các tên thanh ghi mới chưa có trong bảng
-            const newNames = Object.keys(currentMap).filter(name => !existingNames.includes(name));
-
-            return [
-                // Dòng cũ — đã được update value mới
-                ...prev.map(row => currentMap[row.parameter_name]),
-                // Dòng mới — thanh ghi mới từ thiết bị, thêm vào cuối
-                ...newNames.map(name => currentMap[name]),
-            ];
-        });
+      setHistoryRows(prev => [...prev, newRow]); // thêm vào CUỐI (cũ → mới)
     };
 
-    socket.onerror = e => console.error("WS chi tiết error:", e);
-
-    // Cleanup: đóng WS khi quay lại hoặc đổi meter
+    socket.onerror = e => console.error("WS lịch sử error:", e);
     return () => socket.close();
+  }, [selectedRegister, selectedMeter]);
 
-}, [selectedMeter]);
+
+  // ── Hàm fetch lịch sử — dùng chung cho mọi trường hợp ──
+  // date = "YYYY-MM-DD" hoặc null (hôm nay)
+  const fetchHistory = async (register_name, meter_id, date) => {
+    setLoadingHistory(true);
+    setHistoryRows([]);
+
+    let url = `/solardb/get-register-history/?meter_id=${meter_id}&register_name=${encodeURIComponent(register_name)}`;
+    if (date) url += `&date=${date}`; // không có date → backend tự lấy hôm nay
+
+    try {
+      const data = await getData(url);
+      setHistoryRows(data || []);
+    } catch (err) {
+      console.error("Fetch lịch sử error:", err);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
 
 
-  // ===================================================================================
-  // HÀM: Xử lý khi click vào 1 dòng trong bảng tổng quát
+  // ── Hàm chuyển ngày (dùng cho nút ◄ và ►) ──
+  const goToDay = (dayjsObj) => {
+    // Không cho chuyển sang ngày tương lai
+    if (dayjsObj.isAfter(dayjs(), 'day')) return;
+
+    const isToday = dayjsObj.isSame(dayjs(), 'day');
+
+    if (isToday) {
+      // Chuyển về hôm nay → reset về realtime
+      setFilterDate(null);
+      fetchHistory(selectedRegister.register_name, selectedMeter.meter_id, null);
+    } else {
+      setFilterDate(dayjsObj);
+      fetchHistory(selectedRegister.register_name, selectedMeter.meter_id, dayjsObj.format("YYYY-MM-DD"));
+    }
+  };
+
+
+  // ── Hàm click dòng meter → mở bảng chi tiết ──
   const handleRowClick = async (meter_id, meter_name) => {
     setLoadingDetail(true);
-    setDetailRows([]); 
+    setDetailRows([]);
+    setSelectedMeter({ meter_id, meter_name });
     try {
-        // fetch lịch sử batch mới nhất từ API trước
-        const data = await getData(`/solardb/get-meter-registers/${meter_id}/`);
-        if (!data) throw new Error("Fetch chi tiết thất bại");
-
-        setDetailRows(data); // lưu data vào state
-        setSelectedMeter({ meter_id, meter_name }); // sau khi có data rồi mới set selectedMeter
-
+      const data = await getData(`/solardb/get-meter-registers/${meter_id}/`);
+      if (!data) throw new Error("Fetch chi tiết thất bại");
+      setDetailRows(data);
     } catch (err) {
-        console.error("Fetch chi tiết error:", err);
+      console.error("Fetch chi tiết error:", err);
     } finally {
-        setLoadingDetail(false);
+      setLoadingDetail(false);
     }
-};
+  };
 
-  // ─────────────────────────────────────────────────
-  // RENDER: Bảng CHI TIẾT (hiển thị khi đã chọn 1 meter)
-  // ─────────────────────────────────────────────────
-  if (selectedMeter) {
-    // 5 cột cố định cho bảng chi tiết
-    const detailColumns = [
-      { key: "timestamp",      label: "Timestamp"       },
-      { key: "parameter_name", label: "Parameter Name"  },
-      { key: "register",       label: "Register"        },
-      { key: "value",          label: "Value"           },
-      { key: "unit",           label: "Unit"            },
+
+  // ── Hàm click thanh ghi → mở bảng lịch sử ──
+  const handleRegisterClick = async (register_name, register_address) => {
+    setFilterDate(null); // reset về hôm nay mỗi lần mở thanh ghi mới
+    setSelectedRegister({ register_name, register_address });
+    await fetchHistory(register_name, selectedMeter.meter_id, null);
+  };
+
+
+  // ============================================================================================
+  // RENDER tầng 3 — Lịch sử + Chart + Filter 1 ngày
+  if (selectedRegister && selectedMeter) {
+
+    // Chart: trục X chỉ cần HH:MM vì đã biết chắc là 1 ngày
+    const chartData = historyRows.map(row => ({
+      time:  row.received_at ? row.received_at.slice(11, 16) : "--", // HH:MM
+      value: parseFloat(row.value) || 0,
+    }));
+
+    // Ngày hiện tại đang xem để hiển thị tiêu đề
+    const viewingDateLabel = filterDate
+      ? filterDate.format("DD/MM/YYYY")
+      : `${dayjs().format("DD/MM/YYYY")} (Today - Realtime)`;
+
+    // Ngày trước/sau để tính cho nút mũi tên
+    const currentDay  = filterDate ?? dayjs();
+    const isToday     = currentDay.isSame(dayjs(), 'day');
+
+    const historyColumns = [
+      { key: "received_at",      label: "Timestamp"     },
+      { key: "register_address", label: "Register Addr" },
+      { key: "register_name",    label: "Register Name" },
+      { key: "value",            label: "Value"         },
+      { key: "unit",             label: "Unit"          },
     ];
 
     return (
       <Box>
-        {/* Nút quay lại → xóa selectedMeter → EFFECT 3 cleanup → đóng WS */}
-        <Button // Component nút nhấn của MUI
-          variant="outlined" // Quyết định hình dạng nút - Nút có viền, trong suốt
-          onClick={() => { // Làm gì khi bấm
-            setSelectedMeter(null); // → WS tự đóng nhờ cleanup trong EFFECT 3
-            setDetailRows([]);      // xóa dữ liệu chi tiết
-          }}
-          sx={{ // Style của nút
-            mb: 2, // margin bottom
-            color: theme.palette.text.header_option,
-            borderColor: theme.palette.text.header_option,
-          }}
-        >
+        {/* Nút quay lại */}
+        <Button variant="outlined"
+          onClick={() => { setSelectedRegister(null); setHistoryRows([]); setFilterDate(null); }}
+          sx={{ mb: 2, color: theme.palette.text.header_option, borderColor: theme.palette.text.header_option }}>
+          ← Return Register List
+        </Button>
+
+        {/* Tiêu đề */}
+        <Typography sx={{ color: theme.palette.text.header_option, mb: 2 }}>
+          History of: <strong>{selectedRegister.register_name}</strong>
+          {" "}— Meter: <strong>{selectedMeter.meter_name}</strong>
+          {" "}<span style={{ color: "#aaa", fontSize: 13 }}>({historyRows.length} records)</span>
+        </Typography>
+
+        {/* ── FILTER BAR: chỉ 1 ngày ── */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3, flexWrap: "wrap" }}>
+
+          {/* Nút ngày trước */}
+          <Button variant="outlined" size="small"
+            onClick={() => goToDay(currentDay.subtract(1, 'day'))}
+            sx={{ color: theme.palette.text.header_option, borderColor: theme.palette.text.header_option, minWidth: 36 }}>
+            ◄
+          </Button>
+
+          {/* DatePicker — gọi API ngay khi chọn, không cần nút View */}
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              label="Select Date"
+              value={filterDate ?? dayjs()}       // mặc định hiện hôm nay trong picker
+              maxDate={dayjs()}                   // không cho chọn ngày tương lai
+              onChange={(newVal) => {
+                if (!newVal) return;
+                goToDay(newVal);                  // gọi API ngay khi chọn ngày
+              }}
+              slotProps={{
+                textField: {
+                  size: "small",
+                  sx: { width: 160, input: { color: "white" }, label: { color: "#aaa" } }
+                }
+              }}
+            />
+          </LocalizationProvider>
+
+          {/* Nút ngày sau — disable nếu đang ở hôm nay */}
+          <Button variant="outlined" size="small"
+            onClick={() => goToDay(currentDay.add(1, 'day'))}
+            disabled={isToday}                  // không cho chuyển sang tương lai
+            sx={{
+              color: isToday ? "#555" : theme.palette.text.header_option,
+              borderColor: isToday ? "#555" : theme.palette.text.header_option,
+              minWidth: 36,
+            }}>
+            ►
+          </Button>
+
+          {/* Nút Today — chỉ hiện khi không phải hôm nay */}
+          {!isToday && (
+            <Button variant="outlined" size="small"
+              onClick={() => goToDay(dayjs())}
+              sx={{ color: "#aaa", borderColor: "#aaa" }}>
+              Today
+            </Button>
+          )}
+
+          {/* Nhãn ngày đang xem */}
+          <Typography sx={{ color: "#aaa", fontSize: 13, ml: 1 }}>
+            Viewing: <strong style={{ color: theme.palette.text.header_option }}>{viewingDateLabel}</strong>
+          </Typography>
+
+        </Box>
+
+        {loadingHistory ? (
+          <Typography sx={{ color: "gray" }}>Loading history...</Typography>
+        ) : (
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+
+            {/* ── CHART ── */}
+            <Box sx={{ backgroundColor: theme.palette.table.background_odd, borderRadius: 2, p: 2 }}>
+              <Typography sx={{ color: theme.palette.text.header_option, mb: 1, fontSize: 14 }}>
+                Value over time — {viewingDateLabel}
+              </Typography>
+
+              {historyRows.length === 0 ? (
+                <Typography sx={{ color: "#aaa", textAlign: "center", py: 4 }}>
+                  No data in today
+                </Typography>
+              ) : (
+                <ResponsiveContainer width="100%" height={280}>
+                  <LineChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 40 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+
+                    <XAxis
+                      dataKey="time"
+                      tick={{ fill: "#aaa", fontSize: 11 }}
+                      interval={Math.max(0, Math.floor(chartData.length / 8))} // ~8 nhãn
+                      angle={-30}          // nghiêng 30° tránh chồng nhau
+                      textAnchor="end"
+                      height={45}
+                    />
+
+                    <YAxis tick={{ fill: "#aaa", fontSize: 11 }} />
+
+                    <Tooltip
+                      contentStyle={{ backgroundColor: "#1b1b1b", border: "1px solid #555", color: "#eee" }}
+                      labelStyle={{ color: "#aaa" }}
+                      labelFormatter={(label) => `🕐 ${viewingDateLabel.split(" ")[0]} ${label}`}
+                      formatter={(value) => [value, selectedRegister.register_name]}
+                    />
+
+                    {/* Brush — thanh kéo zoom, hữu ích khi có nhiều điểm */}
+                    {chartData.length > 20 && (
+                      <Brush
+                        dataKey="time"
+                        height={20}
+                        stroke={theme.palette.text.header_option}
+                        fill="#1b1b1b"
+                        travellerWidth={8}
+                      />
+                    )}
+
+                    <Line
+                      type="monotone"
+                      dataKey="value"
+                      stroke={theme.palette.text.header_option}
+                      strokeWidth={2}
+                      dot={chartData.length < 50}   // chỉ vẽ dot khi ít điểm, nhiều quá sẽ rối
+                      activeDot={{ r: 5 }}
+                      isAnimationActive={false}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
+            </Box>
+
+            {/* ── BẢNG LỊCH SỬ ── */}
+            <TableContainer component={Paper}
+              sx={{
+                maxHeight: 350, overflow: "auto",
+                backgroundColor: theme.palette.table.background_odd,
+                '&:hover::-webkit-scrollbar-thumb': { backgroundColor: theme.palette.background.head_box },
+              }}>
+              <Table stickyHeader>
+                <TableHead>
+                  <TableRow>
+                    {historyColumns.map(col => (
+                      <TableCell key={col.key} align="center"
+                        sx={{ backgroundColor: theme.palette.text.header_option, color: "white", minWidth: 150 }}>
+                        {col.label}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {historyRows.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={5} align="center" sx={{ color: "#aaa", py: 4 }}>
+                        Không có dữ liệu trong ngày này
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    // Hiển thị ngược (mới nhất ở trên) để dễ đọc
+                    [...historyRows].reverse().map((row, i) => (
+                      <TableRow key={i}>
+                        {historyColumns.map(col => (
+                          <TableCell key={col.key} align="center"
+                            sx={{
+                              color: theme.palette.table.text,
+                              backgroundColor: i%2===0 ? theme.palette.table.background_odd : theme.palette.table.background_even,
+                            }}>
+                            {row[col.key] ?? "--"}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+
+          </Box>
+        )}
+      </Box>
+    );
+  }
+
+
+  // ── RENDER tầng 2: Bảng chi tiết thanh ghi ──
+  if (selectedMeter) {
+    const detailColumns = [
+      { key: "timestamp",      label: "Timestamp"      },
+      { key: "parameter_name", label: "Parameter Name" },
+      { key: "register",       label: "Register"       },
+      { key: "value",          label: "Value"          },
+      { key: "unit",           label: "Unit"           },
+    ];
+
+    return (
+      <Box>
+        <Button variant="outlined"
+          onClick={() => { setSelectedMeter(null); setDetailRows([]); }}
+          sx={{ mb: 2, color: theme.palette.text.header_option, borderColor: theme.palette.text.header_option }}>
           ← Return Summary List
         </Button>
 
-        {/* Tiêu đề bảng chi tiết */}
         <Typography sx={{ color: theme.palette.text.header_option, mb: 1 }}>
-          Register of:{" "} <strong>{selectedMeter.meter_name}</strong>
+          Register of: <strong>{selectedMeter.meter_name}</strong>
+          <span style={{ color: "#aaa", fontSize: 13, marginLeft: 16 }}>
+            — Click vào 1 dòng để xem lịch sử
+          </span>
         </Typography>
 
-        {/* Hiển thị loading hoặc bảng */}
         {loadingDetail ? (
-          <Typography sx={{ color: "gray" }}>Loading data .... </Typography>
+          <Typography sx={{ color: "gray" }}>Loading data....</Typography>
         ) : (
-          <TableContainer
-            component={Paper}
+          <TableContainer component={Paper}
             sx={{
-              maxHeight: 500,
-              overflow: "auto",
+              maxHeight: 500, overflow: "auto",
               backgroundColor: theme.palette.table.background_odd,
-              '&:hover::-webkit-scrollbar-thumb': {
-                backgroundColor: theme.palette.background.head_box,
-              },
-            }}
-          >
+              '&:hover::-webkit-scrollbar-thumb': { backgroundColor: theme.palette.background.head_box },
+            }}>
             <Table stickyHeader>
               <TableHead>
                 <TableRow>
-                  {/* Render 5 cột header */}
                   {detailColumns.map(col => (
-                    <TableCell
-                      key={col.key}
-                      align="center"
-                      sx={{
-                        backgroundColor: theme.palette.text.header_option,
-                        color: "white",
-                        minWidth: 150,
-                      }}
-                    >
+                    <TableCell key={col.key} align="center"
+                      sx={{ backgroundColor: theme.palette.text.header_option, color: "white", minWidth: 150 }}>
                       {col.label}
                     </TableCell>
                   ))}
                 </TableRow>
               </TableHead>
               <TableBody>
-                {/* Render từng dòng thanh ghi */}
                 {detailRows.map((row, i) => (
-                  <TableRow key={i}>
-                    {/* Render từng cell theo đúng key của cột */}
+                  <TableRow key={i}
+                    onClick={() => handleRegisterClick(row.parameter_name, row.register)}
+                    sx={{ cursor: "pointer", "&:hover": { filter: "brightness(1.7)" } }}>
                     {detailColumns.map(col => (
-                      <TableCell
-                        key={col.key}
-                        align="center"
+                      <TableCell key={col.key} align="center"
                         sx={{
                           color: theme.palette.table.text,
-                          // Xen kẽ màu nền cho dễ đọc
-                          backgroundColor: i % 2 === 0
-                            ? theme.palette.table.background_odd
-                            : theme.palette.table.background_even,
-                        }}
-                      >
-                        {/* Nếu không có dữ liệu thì hiển thị "--" */}
+                          backgroundColor: i%2===0 ? theme.palette.table.background_odd : theme.palette.table.background_even,
+                        }}>
                         {row[col.key] ?? "--"}
                       </TableCell>
                     ))}
@@ -650,11 +558,8 @@ const MeterTable = ({ siteId }) => {
     );
   }
 
-  // ─────────────────────────────────────────────────
-  // RENDER: Bảng TỔNG QUÁT (mặc định khi chưa chọn meter nào)
-  // ─────────────────────────────────────────────────
 
-  // Định nghĩa cột cho bảng tổng quát
+  // ── RENDER tầng 1: Bảng tổng quát ──
   const overviewCols = [
     { key: "site_name",         label: "Site Name"         },
     { key: "name",              label: "Meter Name"        },
@@ -672,30 +577,14 @@ const MeterTable = ({ siteId }) => {
   ];
 
   return (
-    <TableContainer
-      component={Paper}
-      sx={{
-        maxHeight: 500,
-        overflow: "auto",
-        '&:hover::-webkit-scrollbar-thumb': {
-          backgroundColor: theme.palette.background.head_box,
-        },
-      }}
-    >
+    <TableContainer component={Paper}
+      sx={{ maxHeight: 500, overflow: "auto", '&:hover::-webkit-scrollbar-thumb': { backgroundColor: theme.palette.background.head_box } }}>
       <Table stickyHeader sx={{ minWidth: "1300px" }}>
         <TableHead>
           <TableRow>
             {overviewCols.map(col => (
-              <TableCell
-                key={col.key}
-                align="center"
-                sx={{
-                  backgroundColor: theme.palette.text.header_option,
-                  color: "white",
-                  minWidth: 120,
-                  zIndex: 1,
-                }}
-              >
+              <TableCell key={col.key} align="center"
+                sx={{ backgroundColor: theme.palette.text.header_option, color: "white", minWidth: 120, zIndex: 1 }}>
                 {col.label}
               </TableCell>
             ))}
@@ -703,28 +592,12 @@ const MeterTable = ({ siteId }) => {
         </TableHead>
         <TableBody>
           {rows.map((row, i) => (
-            <TableRow
-              key={i}
-              // Click vào dòng → gọi handleRowClick
+            <TableRow key={i}
               onClick={() => handleRowClick(row.meter_id, row.name)}
-              sx={{
-                cursor: "pointer",          // con trỏ dạng bàn tay khi hover
-                "&:hover": {
-                  filter: "brightness(1.7)", // sáng lên khi hover để người dùng biết có thể click
-                },
-              }}
-            >
+              sx={{ cursor: "pointer", "&:hover": { filter: "brightness(1.7)" } }}>
               {overviewCols.map(col => (
-                <TableCell
-                  key={col.key}
-                  align="center"
-                  sx={{
-                    color: theme.palette.table.text,
-                    backgroundColor: i % 2 === 0
-                      ? theme.palette.table.background_odd
-                      : theme.palette.table.background_even,
-                  }}
-                >
+                <TableCell key={col.key} align="center"
+                  sx={{ color: theme.palette.table.text, backgroundColor: i%2===0 ? theme.palette.table.background_odd : theme.palette.table.background_even }}>
                   {row[col.key]}
                 </TableCell>
               ))}
@@ -735,328 +608,71 @@ const MeterTable = ({ siteId }) => {
     </TableContainer>
   );
 };
-//===========================================================================================================================
 
 
+//======================================================================================================================
+//================================================ WEATHER STATION =====================================================
+//======================================================================================================================
 
 const WeatherTable = ({ siteId }) => {
   const theme = useTheme();
   const [rows, setRows] = useState([]);
+
   useEffect(() => {
     const fetchWeather = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:8000/solardb/get-latest-weather-station-records/?site_id=${siteId}`
-        );
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
+        const response = await fetch(`http://localhost:8000/solardb/get-latest-weather-station-records/?site_id=${siteId}`);
+        if (!response.ok) throw new Error("Network response was not ok");
         const data = await response.json();
-        // Chuẩn hóa field để khớp với table, field không có thì để "--"
-        const normalized = data.map(item => ({
-          name: item.weather_station_name ?? "--",
-          state: item.state ?? "--",
-          poa: item.poa ?? "--",
-          poa2: item.poa2 ?? "--",   // field này backend chưa trả, nên sẽ thành "--"
-          ghi: item.ghi ?? "--",
-          ambient_temp: item.ambient_temp ?? "--",
-          module_temp_1: item.module_temp ?? "--", // backend chỉ có module_temp -> bạn có thể map về module_temp_1
-          module_temp_2: item.module_temp_2 ?? "--",
-          module_temp_3: item.module_temp_3 ?? "--",
-          humidity: item.humidity ?? "--",
-          wind_direction: item.wind_direction ?? "--",
-          wind_speed: item.wind_speed ?? "--",
-          rainfall: item.rainfall ?? "--",
-        }));
-        setRows(normalized);
-      } catch (error) {
-        console.error("Fetch error:", error);
-      }
+        setRows(data.map(item => ({
+          name: item.weather_station_name ?? "--", state: item.state ?? "--",
+          poa: item.poa ?? "--", poa2: item.poa2 ?? "--", ghi: item.ghi ?? "--",
+          ambient_temp: item.ambient_temp ?? "--", module_temp_1: item.module_temp ?? "--",
+          module_temp_2: item.module_temp_2 ?? "--", module_temp_3: item.module_temp_3 ?? "--",
+          humidity: item.humidity ?? "--", wind_direction: item.wind_direction ?? "--",
+          wind_speed: item.wind_speed ?? "--", rainfall: item.rainfall ?? "--",
+        })));
+      } catch (error) { console.error("Fetch error:", error); }
     };
-
     fetchWeather();
   }, [siteId]);
 
   useEffect(() => {
     const socket = new WebSocket(`ws://localhost:8000/ws/weather_station/${siteId}/`);
-
-    socket.onopen = () => {
-        console.log(`WebSocket connected for siteId: ${siteId}`);
-    };
-
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      // Chuẩn hóa field để khớp với table, field không có thì để "--"
-      const normalized = data.map(item => ({
-        name: item.weather_station_name ?? "--",
-        state: item.state ?? "--",
-        poa: item.poa ?? "--",
-        poa2: item.poa2 ?? "--",
-        ghi: item.ghi ?? "--",
-        ambient_temp: item.ambient_temp ?? "--",
-        module_temp_1: item.module_temp ?? "--",
-        module_temp_2: item.module_temp_2 ?? "--",
-        module_temp_3: item.module_temp_2 ?? "--",
-        humidity: item.humidity ?? "--",
-        wind_direction: item.wind_direction ?? "--",
-        wind_speed: item.wind_speed ?? "--",
-        rainfall: item.rainfall ?? "--",
-      }));
-      setRows(normalized);
+      setRows(data.map(item => ({
+        name: item.weather_station_name ?? "--", state: item.state ?? "--",
+        poa: item.poa ?? "--", poa2: item.poa2 ?? "--", ghi: item.ghi ?? "--",
+        ambient_temp: item.ambient_temp ?? "--", module_temp_1: item.module_temp ?? "--",
+        module_temp_2: item.module_temp_2 ?? "--", module_temp_3: item.module_temp_2 ?? "--",
+        humidity: item.humidity ?? "--", wind_direction: item.wind_direction ?? "--",
+        wind_speed: item.wind_speed ?? "--", rainfall: item.rainfall ?? "--",
+      })));
     };
-
-    socket.onerror = (error) => {
-        console.error("WebSocket error:", error);
-    };
-
+    socket.onerror = (e) => console.error("WS weather error:", e);
     return () => socket.close();
   }, [siteId]);
 
-  return (
-    <TableContainer
-      component={Paper}
-      sx={{
-        maxHeight: 500,
-        overflow: "auto",
-        '&::-webkit-scrollbar': {
-          width: '8px',
-        },
-        '&::-webkit-scrollbar-thumb': {
-          backgroundColor: 'transparent',
-          borderRadius: '4px',
-        },
+  const weatherKeys   = ["name","state","poa","poa2","ghi","ambient_temp","module_temp_1","module_temp_2","module_temp_3","humidity","wind_direction","wind_speed","rainfall"];
+  const weatherLabels = ["Weather Station","State","POA(W/m²)","POA2","GHI","Ambient Temp","Module Temp.1","Module Temp.2","Module Temp.3","Humidity (%)","Wind Dir","Wind Speed","Rainfall (mm)"];
 
-        '&:hover::-webkit-scrollbar-thumb': {
-          backgroundColor: theme.palette.background.head_box,
-        },
-        '&:hover::-webkit-scrollbar-track': {
-          backgroundColor: 'transparent',
-        }
-      }}
-    >
+  return (
+    <TableContainer component={Paper} sx={{ maxHeight: 500, overflow: "auto" }}>
       <Table stickyHeader sx={{ minWidth: "1300px" }}>
         <TableHead>
           <TableRow>
-            <TableCell
-              sx={{
-                position: "sticky",
-                left: 0,
-                zIndex: 2,
-                backgroundColor: theme.palette.text.header_option,
-                color: "white",
-                minWidth: "150px",
-              }}
-            >
-              Weather Station Name
-            </TableCell>
-
-            {[
-              "State",
-              "POA(W/m",
-              "POA2",
-              "GHI",
-              "Ambient Temp",
-              "Module Temp. 1",
-              "Module Temp. 2",
-              "Module Temp. 3",
-              "Humidity (%)",
-              "Wind Direction ",
-              "Wind Speed (m/s)",
-              "Rainfall (mm)",
-            ].map((col) => (
-              <TableCell
-                key={col}
-                align="right"
-                sx={{
-                  minWidth: 120,
-                  zIndex: 1,
-                  backgroundColor: theme.palette.text.header_option,
-                  color: "white",
-                }}
-              >
-                {col}
-              </TableCell>
+            {weatherLabels.map(label => (
+              <TableCell key={label} sx={{ backgroundColor: theme.palette.text.header_option, color: "white", minWidth: 130 }}>{label}</TableCell>
             ))}
           </TableRow>
         </TableHead>
-
-        <TableBody
-          sx={{
-            overflow: "scroll",
-          }}
-        >
+        <TableBody>
           {rows.map((row, i) => (
             <TableRow key={i}>
-              <TableCell
-                sx={{
-                  position: "sticky",
-                  left: 0,
-                  color: theme.palette.table.text,
-                  backgroundColor:
-                    i % 2 === 0
-                      ? theme.palette.table.background_odd
-                      : theme.palette.table.background_even,
-                  zIndex: 1,
-                }}
-              >
-                {row.name}
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{
-                  width: "100px",
-                  color: theme.palette.table.text,
-                  backgroundColor:
-                    i % 2 === 0
-                      ? theme.palette.table.background_odd
-                      : theme.palette.table.background_even,
-                }}
-              >
-                {row.state}
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{
-                  width: "100px",
-                  color: theme.palette.table.text,
-                  backgroundColor:
-                    i % 2 === 0
-                      ? theme.palette.table.background_odd
-                      : theme.palette.table.background_even,
-                }}
-              >
-                {row.poa}
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{
-                  width: "100px",
-                  color: theme.palette.table.text,
-                  backgroundColor:
-                    i % 2 === 0
-                      ? theme.palette.table.background_odd
-                      : theme.palette.table.background_even,
-                }}
-              >
-                {row.poa2}
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{
-                  width: "100px",
-                  color: theme.palette.table.text,
-                  backgroundColor:
-                    i % 2 === 0
-                      ? theme.palette.table.background_odd
-                      : theme.palette.table.background_even,
-                }}
-              >
-                {row.ghi}
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{
-                  width: "100px",
-                  color: theme.palette.table.text,
-                  backgroundColor:
-                    i % 2 === 0
-                      ? theme.palette.table.background_odd
-                      : theme.palette.table.background_even,
-                }}
-              >
-                {row.ambient_temp}
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{
-                  width: "100px",
-                  color: theme.palette.table.text,
-                  backgroundColor:
-                    i % 2 === 0
-                      ? theme.palette.table.background_odd
-                      : theme.palette.table.background_even,
-                }}
-              >
-                {row.module_temp_1}
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{
-                  width: "100px",
-                  color: theme.palette.table.text,
-                  backgroundColor:
-                    i % 2 === 0
-                      ? theme.palette.table.background_odd
-                      : theme.palette.table.background_even,
-                }}
-              >
-                {row.module_temp_2}
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{
-                  width: "100px",
-                  color: theme.palette.table.text,
-                  backgroundColor:
-                    i % 2 === 0
-                      ? theme.palette.table.background_odd
-                      : theme.palette.table.background_even,
-                }}
-              >
-                {row.module_temp_3}
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{
-                  width: "100px",
-                  color: theme.palette.table.text,
-                  backgroundColor:
-                    i % 2 === 0
-                      ? theme.palette.table.background_odd
-                      : theme.palette.table.background_even,
-                }}
-              >
-                {row.humidity}
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{
-                  width: "100px",
-                  color: theme.palette.table.text,
-                  backgroundColor:
-                    i % 2 === 0
-                      ? theme.palette.table.background_odd
-                      : theme.palette.table.background_even,
-                }}
-              >
-                {row.wind_direction}
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{
-                  width: "100px",
-                  color: theme.palette.table.text,
-                  backgroundColor:
-                    i % 2 === 0
-                      ? theme.palette.table.background_odd
-                      : theme.palette.table.background_even,
-                }}
-              >
-                {row.wind_speed}
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{
-                  width: "100px",
-                  color: theme.palette.table.text,
-                  backgroundColor:
-                    i % 2 === 0
-                      ? theme.palette.table.background_odd
-                      : theme.palette.table.background_even,
-                }}
-              >
-                {row.rainfall}
-              </TableCell>
+              {weatherKeys.map(key => (
+                <TableCell key={key} sx={{ color: theme.palette.table.text, backgroundColor: i%2===0 ? theme.palette.table.background_odd : theme.palette.table.background_even }}>{row[key]}</TableCell>
+              ))}
             </TableRow>
           ))}
         </TableBody>
@@ -1065,66 +681,37 @@ const WeatherTable = ({ siteId }) => {
   );
 };
 
+
+//======================================================================================================================
+//==================================================== MAIN ============================================================
+//======================================================================================================================
+
 export default function DeviceList() {
   const theme = useTheme();
   const buttons = ["INVERTER", "METER", "WEATHER STATION"];
   const [selected, setSelected] = useState("INVERTER");
-
   const [searchParams] = useSearchParams();
-  const siteId = searchParams.get("siteId"); // null nếu vào trực tiếp
+  const siteId = searchParams.get("siteId");
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        padding: "20px",
-        gap: "5",
-        width: "100%",
-        height: "100%",
-      }}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          gap: 2,
-          flex: 0.2,
-          marginBottom: "10px",
-        }}
-      >
+    <Box sx={{ display: "flex", flexDirection: "column", padding: "20px", gap: "5", width: "100%", height: "100%" }}>
+      <Box sx={{ display: "flex", gap: 2, flex: 0.2, marginBottom: "10px" }}>
         {buttons.map((label) => (
-          <Button
-            key={label}
-            variant="outlined"
-            onClick={() => setSelected(label)}
+          <Button key={label} variant="outlined" onClick={() => setSelected(label)}
             sx={{
-              color: theme.palette.text.header_option,
-              borderColor: theme.palette.text.header_option,
-              backgroundColor:
-                selected === label
-                  ? theme.palette.background.option
-                  : "transparent",
-              "&:hover": {
-                backgroundColor: "#d1cfcf",
-              },
-            }}
-          >
+              color: theme.palette.text.header_option, borderColor: theme.palette.text.header_option,
+              backgroundColor: selected === label ? theme.palette.background.option : "transparent",
+              "&:hover": { backgroundColor: "#d1cfcf" },
+            }}>
             {label}
           </Button>
         ))}
       </Box>
-
-      <Box
-        sx={{
-          flex: 3,
-        }}
-      >
-        {selected === "INVERTER" ? (<InverterTable siteId={siteId} />) : 
-         selected === "METER" ? (<MeterTable siteId={siteId} />) : 
-         (<WeatherTable siteId={siteId} />)}
+      <Box sx={{ flex: 3 }}>
+        {selected === "INVERTER" ? <InverterTable siteId={siteId} /> :
+         selected === "METER"    ? <MeterTable    siteId={siteId} /> :
+                                   <WeatherTable  siteId={siteId} />}
       </Box>
     </Box>
   );
 }
-// {selected === "INVERTER" ? <InverterTable siteId={1} /> : selected === "METER" ? <MeterTable siteId={1} /> : <WeatherTable siteId={1} />}
-// khi dua cau lenh len 1 dong.

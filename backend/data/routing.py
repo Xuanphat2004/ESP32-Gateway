@@ -13,4 +13,5 @@ websocket_urlpatterns = [
     re_path(r"ws/scan/(?P<gateway_id>[^/]+)/$", consumers.ScanConsumer.as_asgi()),
 
     re_path(r"ws/weather_station/(?P<site_id>[0-9]+)/$", consumers.WeatherStationConsumer.as_asgi()),
+    re_path(r"ws/register_history/(?P<meter_id>[0-9]+)/(?P<register_name>[^/]+)/$", consumers.RegisterHistoryConsumer.as_asgi()),
 ]

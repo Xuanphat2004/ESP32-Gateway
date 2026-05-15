@@ -188,3 +188,61 @@ def get_meter_registers(request, meter_id):
         })
 
     return JsonResponse(result, safe=False)
+
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_register_history(request):
+    meter_id      = request.GET.get('meter_id')
+    register_name = request.GET.get('register_name')
+    date          = request.GET.get('date')       # chọn 1 ngày: "2026-05-14"
+    date_from     = request.GET.get('date_from')  # chọn khoảng: từ ngày
+    date_to       = request.GET.get('date_to')    # chọn khoảng: đến ngày
+
+    # Kiểm tra đủ tham số bắt buộc chưa
+    if not meter_id or not register_name:
+        return JsonResponse({"error": "Thiếu meter_id hoặc register_name"}, status=400)
+
+    # Kiểm tra meter có thuộc về user không
+    user_site_ids = get_user_site_ids(request.user)
+    meter_exists = Meter.objects.filter(
+        meter_id    = meter_id,
+        site_id__in = user_site_ids
+    ).exists()
+    if not meter_exists:
+        return JsonResponse({"error": "No permission"}, status=403)
+
+    # Bộ lọc cơ bản — luôn có
+    base_filter = {
+        'meter_id':      meter_id,
+        'register_name': register_name,
+    }
+
+    # Trường hợp 1: chọn 1 ngày cụ thể 
+    if date:
+        records = MeterRegister.objects.filter(
+            **base_filter,
+            received_at__date = date        
+        ).order_by('received_at')           
+
+    # Trường hợp 2: mặc định — lấy dữ liệu ngày hôm nay
+    else:
+        from django.utils.timezone import localdate
+        today = localdate()                      # lấy ngày hôm nay theo timezone server
+        records = MeterRegister.objects.filter(
+            **base_filter,
+            received_at__date = today
+        ).order_by('received_at')                
+
+    # Đóng gói thành list để trả về
+    result = []
+    for reg in records:
+        result.append({
+            "register_address": reg.register_address,
+            "register_name":    reg.register_name,
+            "value":            float(reg.value) if reg.value is not None else "--",
+            "unit":             reg.unit if reg.unit else "--",
+            "received_at":      localtime(reg.received_at).strftime('%Y-%m-%d %H:%M:%S'),
+        })
+
+    return JsonResponse(result, safe=False)

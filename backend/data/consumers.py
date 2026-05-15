@@ -183,3 +183,18 @@ class ScanConsumer(AsyncWebsocketConsumer):
     async def scan_fault(self, event):
         # Được gọi khi mqtt_worker gửi type: "scan.fault"
         await self.send(text_data=json.dumps(event["message"]))
+
+class RegisterHistoryConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.meter_id      = self.scope['url_route']['kwargs']['meter_id']
+        self.register_name = self.scope['url_route']['kwargs']['register_name']
+        self.group_name    = f"register_history_{self.meter_id}_{self.register_name}"
+
+        await self.channel_layer.group_add(self.group_name, self.channel_name)
+        await self.accept()
+
+    async def disconnect(self, code):
+        await self.channel_layer.group_discard(self.group_name, self.channel_name)
+
+    async def register_history_update(self, event):
+        await self.send(text_data=json.dumps(event['data']))

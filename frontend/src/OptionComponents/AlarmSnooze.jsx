@@ -29,21 +29,18 @@ const invalid = [
 ];
 
 // ── Helper: chuyển 1 record lịch sử thành row cho bảng ───────────────────
-function toRow(scan) {
+function toRow(scan) { // toRow được gọi đúng 1 chỗ duy nhất, trong useEffect khi component mount
   return {
     id:           scan.scan_id,
     device:       `${scan.active_count}/${scan.total_devices} online`,
     site:         scan.site_name,
-    alarmContent: scan.inactive_count > 0
-                    ? `${scan.inactive_count} device(s) disconnected`
-                    : "Normal",
-    reason:       scan.line_ok
-                    ? `Line OK | Set master Port ${scan.active_port}`
-                    : `Line Broken | Set master Port ${scan.active_port}`,
-    comment:      scan.severity === "warning" ? "⚠️ Warning" : "✅ OK",
+    alarmContent: scan.inactive_count > 0 ? `${scan.inactive_count} device(s) disconnected` : "Normal",
+    reason:       scan.line_ok ? `Line OK | Set master Port ${scan.active_port}`: `Line Broken | Set master Port ${scan.active_port}`,
+    comment:      scan.severity === "warning" ? "⚠️ Warning" : "✅ Normal",
     duration:     scan.scanned_at,
     creat:        scan.scanned_at,
     operations:   scan.scan_id,
+
     // raw data để ScanDetailModal dùng khi vẽ sơ đồ dây
     _raw: {
       wire_p1_ok:  scan.wire_p1_ok,
@@ -63,13 +60,12 @@ function wsToRow(data, siteName) {
     device:       `${data.active_ids.length}/${data.total} online`,
     site:         siteName || "—",
     alarmContent: `${data.inactive_ids.length} device(s) disconnected`,
-    reason:       data.line_ok
-                    ? `Line OK | Port ${data.active_port}`
-                    : `Line Broken | Port ${data.active_port}`,
+    reason:       data.line_ok ? `Line OK | set master Port ${data.active_port}` : `Line Broken | set master Port ${data.active_port}`,
     comment:      "⚠️ Warning",
     duration:     new Date(data.timestamp).toLocaleString("en-GB"),
     creat:        new Date(data.timestamp).toLocaleString("en-GB"),
     operations:   data.scan_id,
+
     _raw: {
       wire_p1_ok:  data.wire_p1_ok,
       wire_p2_ok:  data.wire_p2_ok,
@@ -103,8 +99,8 @@ export default function AlarmSnooze() {
   // ── Load dữ liệu khi mount ─────────────────────────────────────────────
   useEffect(() => {
     Promise.all([
-      getData("/solardb/get-my-sites/"),
-      getData("/solardb/get-scan-history/"),
+      getData("/solardb/get-my-sites/"), // HTTP GET
+      getData("/solardb/get-scan-history/"), // HTTP GET
     ]).then(([sites, history]) => {
 
       if (sites?.length > 0) {
@@ -126,9 +122,7 @@ export default function AlarmSnooze() {
     if (!gatewayId) return;
 
     const token = sessionStorage.getItem("token");
-    const ws    = new WebSocket(
-      `ws://localhost:8000/ws/scan/${gatewayId}/?token=${token}`
-    );
+    const ws    = new WebSocket(`ws://localhost:8000/ws/scan/${gatewayId}/?token=${token}`);
 
     ws.onopen    = () => console.log("[WS Scan] Connected");
     ws.onerror   = (e) => console.error("[WS Scan] Error:", e);
@@ -137,37 +131,37 @@ export default function AlarmSnooze() {
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        // Chỉ thêm dòng warning — bỏ qua OK để bảng không bị spam
-        if (data.severity !== "warning") return;
+        if (data.severity !== "warning") return; // Chỉ thêm dòng warning — bỏ qua OK để bảng không bị spam
         setHistoryRows((prev) => [wsToRow(data, siteName), ...prev]);
       } catch (e) {
         console.error("[WS Scan] Parse error:", e);
       }
     };
-
     return () => ws.close();
   }, [gatewayId, siteName]);
 
   // ── Click vào dòng bảng → mở modal chi tiết ───────────────────────────
   const handleRowClick = async (row) => {
-    setSelectedRow(row);
-    setDeviceDetail(null);
-    setModalOpen(true);
+    setSelectedRow(row); // Lưu lại dòng nào đang được click, để ScanDetailModal biết đang xem scan nào
+    setDeviceDetail(null); // Xóa data chi tiết cũ (từ lần click trước), tránh modal hiện nhầm data của scan trước
+    setModalOpen(true); // Mở modal ngay lập tức
     setDetailLoading(true);
     try {
       const detail = await getData(`/solardb/get-scan-devices/${row.id}/`);
-      setDeviceDetail(detail);
-    } catch (e) {
+      setDeviceDetail(detail);  // modal vẽ sơ đồ dây
+    } 
+    catch (e) { // Xử lý lỗi và kết thúc
       console.error("Failed to load scan devices:", e);
-    } finally {
+    } 
+    finally {
       setDetailLoading(false);
     }
   };
 
   const handleCloseModal = () => {
-    setModalOpen(false);
-    setSelectedRow(null);
-    setDeviceDetail(null);
+    setModalOpen(false);   // Đóng modal → modal biến mất
+    setSelectedRow(null);  // Xóa dòng đang được chọn
+    setDeviceDetail(null); // Xóa data chi tiết
   };
 
   // ── Tab handler ────────────────────────────────────────────────────────
@@ -185,16 +179,14 @@ export default function AlarmSnooze() {
         <MultiSelectDropdown options={option} value={change} onChange={setChange} />
       </Box>
 
-      <Divider sx={{ mt: 2 }} />
+      <Divider sx={{ mt: 2 }} /> {/* Đường kẻ ngang */}
 
       {/* ── Tab: Valid Rules / Invalid Rules ─────────────────── */}
-      <Box sx={{ display: "flex", flexDirection: "row", gap: "20px", mt: 2 }}>
+      <Box sx={{ display: "flex", flexDirection: "row", gap: "20px", mt: 2 }}> {/* 2 nút Tab */}
         <Button
           variant="text"
           sx={{
-            color:         selected === "valid"
-                             ? theme.palette.text.header_option
-                             : theme.palette.text.option,
+            color:         selected === "valid" ? theme.palette.text.header_option : theme.palette.text.option,       
             fontWeight:    selected === "valid" ? "bold" : "normal",
             textTransform: "none",
             transition:    "color 1s",
@@ -204,12 +196,11 @@ export default function AlarmSnooze() {
         >
           Valid Rules
         </Button>
+
         <Button
           variant="text"
           sx={{
-            color:         selected === "invalid"
-                             ? theme.palette.text.header_option
-                             : theme.palette.text.option,
+            color:         selected === "invalid" ? theme.palette.text.header_option : theme.palette.text.option,
             fontWeight:    selected === "invalid" ? "bold" : "normal",
             textTransform: "none",
             transition:    "color 1s",
@@ -219,18 +210,20 @@ export default function AlarmSnooze() {
         >
           Invalid Rules
         </Button>
+
       </Box>
 
       {/* Bảng lịch sử scan — click vào dòng để xem chi tiết sơ đồ dây */}
       <Box>
         <SortTable
-          columns={column}
-          rows={historyRows}
-          onRowClick={handleRowClick}
+          columns={column}            // danh sách cột (valid hoặc invalid)
+          rows={historyRows}          // mảng dữ liệu từ API + WebSocket
+          onRowClick={handleRowClick} // click vào dòng → mở modal
         />
       </Box>
 
       {/* Modal chi tiết sơ đồ dây — mở khi click vào dòng bảng */}
+      {/* Modal luôn tồn tại trong code nhưng chỉ hiện ra màn hình khi modalOpen = true */}
       <ScanDetailModal
         open={modalOpen}
         onClose={handleCloseModal}

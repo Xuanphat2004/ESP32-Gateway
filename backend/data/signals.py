@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.db.models import Max, Sum
 from datetime import timedelta
 from .models import Inverter, Meter, Weather_station
+from .models import MeterRegister
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 import json
@@ -185,6 +186,56 @@ def send_meter_update(sender, instance, created, **kwargs):
         {
             "type": "all_meters_update",
             "message": result
+        }
+    )
+
+@receiver(post_save, sender=MeterRegister)
+def send_meter_register_update(sender, instance, created, **kwargs):
+
+    # ── Push 1: Bảng chi tiết thanh ghi (tầng 2) ──
+    # Lấy toàn bộ batch mới nhất của meter này
+    from django.db.models import Max
+    latest_time = MeterRegister.objects.filter(
+        meter_id=instance.meter_id
+    ).aggregate(Max('received_at'))['received_at__max']
+
+    latest_registers = MeterRegister.objects.filter(
+        meter_id    = instance.meter_id,
+        received_at = latest_time
+    ).order_by('register_address')
+
+    register_data = []
+    for reg in latest_registers:
+        register_data.append({
+            "timestamp":      localtime(reg.received_at).strftime('%Y-%m-%d %H:%M:%S'),
+            "parameter_name": reg.register_name,
+            "register":       reg.register_address if reg.register_address is not None else "--",
+            "value":          float(reg.value) if reg.value is not None else "--",
+            "unit":           reg.unit if reg.unit else "--",
+        })
+
+    # Gửi đến group meter_register_{meter_id} → MeterRegisterConsumer
+    async_to_sync(channel_layer.group_send)(
+        f"meter_register_{instance.meter_id}",
+        {
+            "type":    "meter_register_update",
+            "message": register_data
+        }
+    )
+
+    # ── Push 2: Trang lịch sử thanh ghi (tầng 3) ──
+    # Chỉ push bản ghi vừa được lưu — frontend tự thêm vào cuối bảng
+    async_to_sync(channel_layer.group_send)(
+        f"register_history_{instance.meter_id}_{instance.register_name}",
+        {
+            "type": "register_history_update",
+            "data": {
+                "register_address": instance.register_address,
+                "register_name":    instance.register_name,
+                "value":            str(instance.value),
+                "unit":             instance.unit if instance.unit else "--",
+                "received_at":      localtime(instance.received_at).strftime('%Y-%m-%d %H:%M:%S'),
+            }
         }
     )
 #=============================================================================================================================
