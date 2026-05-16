@@ -1,0 +1,84 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2-1}{\ignorespaces Tổng quan về giao thức Modbus}}{3}{figure.caption.5}%
+\contentsline {figure}{\numberline {2-2}{\ignorespaces Tổng quan về giao thức Modbus RTU}}{4}{figure.caption.6}%
+\contentsline {figure}{\numberline {2-3}{\ignorespaces Sơ đồ kết nối RS485 với điện trở đầu cuối 120$\Omega $}}{5}{figure.caption.7}%
+\contentsline {figure}{\numberline {2-4}{\ignorespaces Khung truyền tổng quát của Modbus RTU}}{5}{figure.caption.8}%
+\contentsline {figure}{\numberline {2-5}{\ignorespaces Khung truyền Master gửi Request cho Slave trong Modbus RTU}}{6}{figure.caption.9}%
+\contentsline {figure}{\numberline {2-6}{\ignorespaces Khung truyền Slave gửi Response cho Master trong Modbus RTU}}{6}{figure.caption.10}%
+\contentsline {figure}{\numberline {2-7}{\ignorespaces Khung truyền Slave gửi báo lỗi cho Master trong Modbus RTU}}{6}{figure.caption.11}%
+\contentsline {figure}{\numberline {2-8}{\ignorespaces Tổng quan về mạng Ethernet}}{8}{figure.caption.13}%
+\contentsline {figure}{\numberline {2-9}{\ignorespaces Cấu trúc của gói tin Ethernet}}{9}{figure.caption.14}%
+\contentsline {figure}{\numberline {2-10}{\ignorespaces Cấu trúc tổng quát của mô hình OSI}}{10}{figure.caption.15}%
+\contentsline {figure}{\numberline {2-11}{\ignorespaces Quy trình đóng gói gói tin Ethernet}}{11}{figure.caption.16}%
+\contentsline {figure}{\numberline {2-12}{\ignorespaces Mô hình giao tiếp MQTT}}{12}{figure.caption.17}%
+\contentsline {figure}{\numberline {2-13}{\ignorespaces Giao thức Bluetooth Low Energy (BLE)}}{13}{figure.caption.18}%
+\contentsline {figure}{\numberline {2-14}{\ignorespaces Tổng quan về các thành phần của một trang web}}{14}{figure.caption.19}%
+\contentsline {figure}{\numberline {2-15}{\ignorespaces Tổng quan về RESTful API}}{15}{figure.caption.20}%
+\contentsline {figure}{\numberline {2-16}{\ignorespaces Tổng quan về Websocket API}}{17}{figure.caption.22}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3-1}{\ignorespaces Sơ đồ khối tổng quát thực hiện phần cứng}}{18}{figure.caption.23}%
+\contentsline {figure}{\numberline {3-2}{\ignorespaces Sơ đồ khối tổng quát của phần cứng}}{20}{figure.caption.24}%
+\contentsline {figure}{\numberline {3-3}{\ignorespaces Sơ đồ khối phân bố nguồn trong hệ thống}}{21}{figure.caption.25}%
+\contentsline {figure}{\numberline {3-4}{\ignorespaces khối vi điều khiển}}{22}{figure.caption.26}%
+\contentsline {figure}{\numberline {3-5}{\ignorespaces khối nạp code và Debug}}{23}{figure.caption.27}%
+\contentsline {figure}{\numberline {3-6}{\ignorespaces khối kiểm tra nguồn cho vi điều khiển}}{23}{figure.caption.28}%
+\contentsline {figure}{\numberline {3-7}{\ignorespaces khối lọc nguồn đầu vào cho vi điều khiển}}{23}{figure.caption.29}%
+\contentsline {figure}{\numberline {3-8}{\ignorespaces khối nguồn đầu vào}}{24}{figure.caption.30}%
+\contentsline {figure}{\numberline {3-9}{\ignorespaces Khối nguồn hạ áp 5V}}{24}{figure.caption.31}%
+\contentsline {figure}{\numberline {3-10}{\ignorespaces Khối nguồn hạ áp 3.3V}}{24}{figure.caption.32}%
+\contentsline {figure}{\numberline {3-11}{\ignorespaces khối nguồn cách ly 5V}}{25}{figure.caption.33}%
+\contentsline {figure}{\numberline {3-12}{\ignorespaces khối nguồn Pin rời cho mạch RTC}}{25}{figure.caption.34}%
+\contentsline {figure}{\numberline {3-13}{\ignorespaces khối vi điều khiển cho Ethernet}}{26}{figure.caption.35}%
+\contentsline {figure}{\numberline {3-14}{\ignorespaces khối cổng kết nối cho Ethernet}}{26}{figure.caption.36}%
+\contentsline {figure}{\numberline {3-15}{\ignorespaces khối lọc nguồn đầu vào cho Ethernet}}{27}{figure.caption.37}%
+\contentsline {figure}{\numberline {3-16}{\ignorespaces khối thạch anh và DIP Switch cho Ethernet}}{27}{figure.caption.38}%
+\contentsline {figure}{\numberline {3-17}{\ignorespaces khối xử ly tín hiệu RS485}}{28}{figure.caption.39}%
+\contentsline {figure}{\numberline {3-18}{\ignorespaces khối cách ly RS485}}{29}{figure.caption.40}%
+\contentsline {figure}{\numberline {3-19}{\ignorespaces khối cổng giao tiếp RS485}}{29}{figure.caption.41}%
+\contentsline {figure}{\numberline {3-20}{\ignorespaces khối lọc nguồn đầu vào và LED báo nguồn}}{29}{figure.caption.42}%
+\contentsline {figure}{\numberline {3-21}{\ignorespaces khối bộ nhớ EEPROM}}{30}{figure.caption.43}%
+\contentsline {figure}{\numberline {3-22}{\ignorespaces khối RTC}}{30}{figure.caption.44}%
+\contentsline {figure}{\numberline {3-23}{\ignorespaces khối lọc nguồn đầu vào cho EEPROM và RTC}}{31}{figure.caption.45}%
+\contentsline {figure}{\numberline {3-24}{\ignorespaces khối nút nhấn tương tác với người dùng}}{31}{figure.caption.46}%
+\contentsline {figure}{\numberline {3-25}{\ignorespaces màn hình LCD hiển thị}}{32}{figure.caption.47}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4-1}{\ignorespaces Tổng quát kiến trúc phần mềm của thiết bị}}{35}{figure.caption.48}%
+\contentsline {figure}{\numberline {4-2}{\ignorespaces Lưu đồ giải thuật thực hiện tổng quát của hệ thống}}{36}{figure.caption.49}%
+\contentsline {figure}{\numberline {4-3}{\ignorespaces Lưu đồ giải thuật cấu hình Wi-Fi}}{38}{figure.caption.50}%
+\contentsline {figure}{\numberline {4-4}{\ignorespaces Lưu đồ giải thuật cấu hình Ethernet}}{39}{figure.caption.51}%
+\contentsline {figure}{\numberline {4-5}{\ignorespaces Lưu đồ giải thuật đợi nhận data từ App qua BLE}}{40}{figure.caption.52}%
+\contentsline {figure}{\numberline {4-6}{\ignorespaces Lưu đồ giải thuật thu thập dữ liệu từ đồng hồ điện}}{41}{figure.caption.53}%
+\contentsline {figure}{\numberline {4-7}{\ignorespaces Lưu đồ giải thuật thực hiện thay đổi tốc độ baudrate}}{42}{figure.caption.54}%
+\contentsline {figure}{\numberline {4-8}{\ignorespaces Lưu đồ giải thuật chức năng scan đường dây}}{43}{figure.caption.55}%
+\contentsline {figure}{\numberline {4-9}{\ignorespaces State machine mô tả chuyển trang của LCD}}{45}{figure.caption.56}%
+\contentsline {figure}{\numberline {4-10}{\ignorespaces State machine mô tả trang Menu settings}}{45}{figure.caption.57}%
+\contentsline {figure}{\numberline {4-11}{\ignorespaces Lưu đồ giải thuật mô tả hoạt động của trang Device info}}{46}{figure.caption.58}%
+\contentsline {figure}{\numberline {4-12}{\ignorespaces Sơ đồ khối tổng quát của phần mềm App}}{47}{figure.caption.59}%
+\contentsline {figure}{\numberline {4-13}{\ignorespaces Lưu đồ giải thuật chi tiết cho giao diện App }}{48}{figure.caption.60}%
+\contentsline {figure}{\numberline {4-14}{\ignorespaces Lưu đồ giải thuật phần khởi động App}}{48}{figure.caption.61}%
+\contentsline {figure}{\numberline {4-15}{\ignorespaces Lưu đồ giải thuật phần tab Setup}}{49}{figure.caption.62}%
+\contentsline {figure}{\numberline {4-16}{\ignorespaces Lưu đồ giải thuật phần chức năng Sync}}{51}{figure.caption.63}%
+\contentsline {figure}{\numberline {4-17}{\ignorespaces Lưu đồ giải thuật phần tab History}}{52}{figure.caption.64}%
+\contentsline {figure}{\numberline {4-18}{\ignorespaces Sơ đồ tổng quát các phần của trang web}}{52}{figure.caption.65}%
+\contentsline {figure}{\numberline {4-19}{\ignorespaces Lưu đồ giải thuật phần nhận dữ liệu từ thiết bị - MQTT Worker}}{53}{figure.caption.66}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {5-1}{\ignorespaces Hình ảnh mạch 2D sau khi đã đi dây ở lớp Top và lớp Bottom}}{55}{figure.caption.67}%
+\contentsline {figure}{\numberline {5-2}{\ignorespaces phần đặt các ký hiệu trên bề mặt của lớp Top}}{55}{figure.caption.68}%
+\contentsline {figure}{\numberline {5-3}{\ignorespaces Hình ảnh mạch 3D khi chưa đặt linh kiện của lớp Top và lớp Bottom}}{56}{figure.caption.69}%
+\contentsline {figure}{\numberline {5-4}{\ignorespaces Hình ảnh mạch 3D khi đã đặt linh kiện của lớp Top và lớp Bottom}}{56}{figure.caption.70}%
+\contentsline {figure}{\numberline {5-5}{\ignorespaces Các khối chức năng trên mạch sau khi sắp xếp}}{56}{figure.caption.71}%
+\contentsline {figure}{\numberline {5-6}{\ignorespaces Mạch khi chưa hàn linh kiện}}{57}{figure.caption.72}%
+\contentsline {figure}{\numberline {5-7}{\ignorespaces Mạch sau khi đã hàn các linh kiện lên mạch}}{57}{figure.caption.73}%
+\contentsline {figure}{\numberline {5-8}{\ignorespaces Tab nhập liệu chính khi vừa khởi động App}}{58}{figure.caption.74}%
+\contentsline {figure}{\numberline {5-9}{\ignorespaces Box nhập ID cho thiết bị mới}}{58}{figure.caption.75}%
+\contentsline {figure}{\numberline {5-10}{\ignorespaces Thông báo lỗi khi ID đã tồn tại và thông báo lỗi khi chưa chọn thiết bị}}{58}{figure.caption.76}%
+\contentsline {figure}{\numberline {5-11}{\ignorespaces Thông báo có cập nhật dữ liệu mới không}}{59}{figure.caption.77}%
+\contentsline {figure}{\numberline {5-12}{\ignorespaces Tab lịch sử của App}}{59}{figure.caption.78}%
+\contentsline {figure}{\numberline {5-13}{\ignorespaces Lưu giữ liệu vào thẻ nhớ SD Card và lưu dữ liệu theo từng ngày}}{59}{figure.caption.79}%
+\contentsline {figure}{\numberline {5-14}{\ignorespaces Hiển thị các site có trong hệ thống của user}}{60}{figure.caption.80}%
+\contentsline {figure}{\numberline {5-15}{\ignorespaces Dữ liệu các đồng hồ điện hiển thị tổng quát trên trình duyệt web}}{60}{figure.caption.81}%
+\contentsline {figure}{\numberline {5-16}{\ignorespaces Dữ liệu từng thanh ghi của từng đồng hồ điện}}{60}{figure.caption.82}%
+\contentsline {figure}{\numberline {5-17}{\ignorespaces Bảng tổng quát các cảnh báo đã gửi lên từ thiết bị}}{61}{figure.caption.83}%
+\contentsline {figure}{\numberline {5-18}{\ignorespaces Hiển thị cụ thể thông tin đường truyền dựa trên Alarm gửi lên}}{61}{figure.caption.84}%
+\addvspace {10\p@ }

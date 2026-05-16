@@ -1,0 +1,113 @@
+\thispagestyle{empty}
+\newgeometry{left=2cm, right=2cm, top=2.5cm, bottom=2.5cm}
+
+% --- ÉP GIẢM SIZE CHỮ TOÀN BỘ TRANG XUỐNG 1PT ---
+\fontsize{12pt}{14.4pt}\selectfont
+
+% --- Header Quốc hiệu ---
+\noindent
+\begin{table}[!ht]
+\centering
+    \resizebox{\textwidth}{!}
+    {
+        \begin{tabular}{ccc}
+        \textbf{ĐẠI HỌC QUỐC GIA TP.HỒ CHÍ MINH} & & \textbf{CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM} \\
+        \textbf{TRƯỜNG ĐẠI HỌC BÁCH KHOA}         & & \textbf{Độc lập - Tự do - Hạnh phúc}
+        \end{tabular}
+    }
+\end{table}
+
+% --- BẢNG NHIỆM VỤ CHÍNH ---
+\begingroup
+\renewcommand{\arraystretch}{1}
+
+\newlength{\spanallbutone}
+\setlength{\spanallbutone}{\dimexpr\textwidth-0.6cm-4\tabcolsep-3\arrayrulewidth\relax}
+
+\newlength{\insttask}
+\setlength{\insttask}{\dimexpr\textwidth-0.6cm-1.4cm-5.0cm-8\tabcolsep-5\arrayrulewidth\relax}
+
+\noindent
+\begin{tabularx}{\textwidth}{| >{\centering\arraybackslash}p{0.6cm} | p{1.4cm} | p{5.0cm} | p{1.2cm} | p{1.5cm} | p{1cm} | X |}
+\hline
+
+% Hàng 1: KHOA ĐIỆN | NHIỆM VỤ
+\multicolumn{7}{|@{}c@{}|}{%
+    \begin{tabularx}{\dimexpr\textwidth-2\arrayrulewidth\relax}{ >{\centering\arraybackslash}p{5.5cm} | >{\centering\arraybackslash}X }
+        \vspace{0.05cm}\textbf{KHOA ĐIỆN -- ĐIỆN TỬ}\vspace{0.1cm} &
+        \vspace{0.05cm}\textbf{\large NHIỆM VỤ KHÓA LUẬN TỐT NGHIỆP}\vspace{0.1cm}
+    \end{tabularx}%
+} \\ \hline
+
+% Hàng 2: Chú ý
+\multicolumn{7}{|c|}{\textit{(Chú ý: sinh viên phải dán tờ này vào trang thứ nhất của bản thuyết minh)}} \\ \hline
+
+% Hàng 3: Họ và tên + MSSV + Lớp
+\multicolumn{2}{|l|}{\textbf{HỌ VÀ TÊN:}} & Nguyễn Xuân Phát & \textbf{MSSV:} & 2212529 & \textbf{LỚP:} & DD22DVT3 \\ \hline
+
+% Hàng 4: Ngành
+\multicolumn{2}{|l|}{\textbf{NGÀNH:}} & \multicolumn{5}{l|}{\textbf{Điện tử -- Viễn thông}} \\ \hline
+
+% Hàng 5: Đầu đề
+\textbf{1.} & \multicolumn{6}{l|}{\textbf{Đầu đề khóa luận:}} \\ \hline
+
+% Hàng 6: Tên tiếng Việt
+& \multicolumn{6}{c|}{Thiết kế hệ thống giám sát năng lượng điện} \\ \hline
+
+% Hàng 7: Tên tiếng Anh
+& \multicolumn{6}{c|}{\textit{(Design and Implementation of an Electrical Energy Monitoring System)}} \\ \hline
+
+% Hàng 8: Nhiệm vụ
+\textbf{2.} & \multicolumn{6}{l|}{\textbf{Nhiệm vụ (yêu cầu về nội dung và số liệu ban đầu):}} \\ \hline
+
+% Các nhiệm vụ
+- & \multicolumn{6}{p{\spanallbutone}|}{Thiết kế và thi công phần cứng cho hệ thống.} \\ \hline
+- & \multicolumn{6}{p{\spanallbutone}|}{Thiết kế và phát triển phần mềm nhúng cho hệ thống.} \\ \hline
+- & \multicolumn{6}{p{\spanallbutone}|}{Thiết kế App nhập liệu các thông số về thiết bị thu thập dữ liệu.} \\ \hline
+- & \multicolumn{6}{p{\spanallbutone}|}{Phát triển trang Web theo dõi cho hệ thống.} \\ \hline
+- & \multicolumn{6}{p{\spanallbutone}|}{} \\ \hline
+
+% Hàng: Ngày giao
+\textbf{3.} & \multicolumn{6}{l|}{\textbf{Ngày giao nhiệm vụ khóa luận:} 05 / 01 / 2026} \\ \hline
+
+% Hàng: Ngày hoàn thành
+\textbf{4.} & \multicolumn{6}{l|}{\textbf{Ngày hoàn thành nhiệm vụ:} DD / MM / YYYY} \\ \hline
+
+% Hàng: Header người hướng dẫn
+\textbf{5.} & \multicolumn{2}{l|}{\textbf{Họ và tên người hướng dẫn:}} & \multicolumn{4}{l|}{\textbf{Phần hướng dẫn:}} \\ \hline
+
+% Hàng: Tên GV + phần hướng dẫn
+- & \multicolumn{2}{l|}{ThS. Bùi Quốc Bảo} & \multicolumn{4}{p{\insttask}|}{Thiết kế phần cứng \newline Thiết kế phần mềm nhúng \newline Phát triển giao diện Web} \\ \hline
+
+% Dòng cuối
+\multicolumn{7}{|p{\dimexpr\textwidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Nội dung và yêu cầu KLTN đã được thông qua Chủ trì ngành.} \\ \hline
+
+\end{tabularx}
+\endgroup
+\vspace{-0.3cm}
+
+% --- CHỮ KÝ ---
+\noindent
+\begin{tabularx}{\textwidth}{@{} >{\centering\arraybackslash}X >{\centering\arraybackslash}X @{}}\\
+    \textit{Ngày \hspace{0.5cm} tháng \hspace{0.5cm} năm } & \\
+    \textbf{CHỦ TRÌ NGÀNH} & \textbf{GIẢNG VIÊN HƯỚNG DẪN CHÍNH} \\
+    \textit{(Ký và ghi rõ họ tên)} & \textit{(Ký và ghi rõ họ tên)}
+\end{tabularx}
+
+\vspace{2cm}
+
+% --- PHẦN DÀNH CHO KHOA ---
+\noindent
+{\small
+\begin{itemize}[leftmargin=0pt, itemsep=-4pt, topsep=0pt, parsep=0pt]
+    \item[] \textbf{PHẦN DÀNH CHO KHOA:}
+    \item[] Người duyệt (chấm sơ bộ):
+    \item[] Đơn vị:
+    \item[] Ngày bảo vệ:
+    \item[] Điểm tổng kết:
+    \item[] Nơi lưu trữ luận án:
+\end{itemize}
+}
+
+\restoregeometry
+\clearpage

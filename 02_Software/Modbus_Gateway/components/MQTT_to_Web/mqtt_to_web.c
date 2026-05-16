@@ -34,16 +34,20 @@ typedef struct
 const name_mapping_t master_mapping[] = {
     {"Voltage-L1-N", "volt"},
     {"Voltage-A-N", "volt"},
+    {"V_L1-(Phase-A-Voltage)", "volt"},
     {"Current-L1", "curr"},
     {"Current-A", "curr"},
+    {"I_L1", "curr"},
     {"Current-L1-Demand", "curr_dmd"},
     {"Current A-Demand-Present", "curr_dmd"},
     {"Frequency-ID-10", "freq"},
-    {"Frequency-ID-4", "freq"},
+    {"Frequency-L1", "freq"},
+    {"Freq_Grid", "freq"},
     {"Real-Power-A", "real_pwr"},
     {"Active-Power-L1", "real_pwr"},
     {"Apparent-Power-L1", "app_pwr"},
-    {"Apparent-Power-A", "app_pwr"}};
+    {"Apparent-Power-A", "app_pwr"},
+    {"S_L1-(Apparent-Power-A)", "app_pwr"}};
 const int mapping_size = sizeof(master_mapping) / sizeof(name_mapping_t);
 
 //======================================================================
@@ -57,7 +61,7 @@ void get_gateway_id(char *buf, size_t buf_size)
 }
 
 //======================================================================
-// GIỮ NGUYÊN: MQTT Event Handler
+// MQTT Event Handler
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
                                int32_t event_id, void *event_data)
 {
@@ -89,7 +93,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
 }
 
 //======================================================================
-// GIỮ NGUYÊN: Khởi động MQTT client
+// Khởi động MQTT client
 void mqtt_app_start(void)
 {
     char gateway_id[32] = " ";
@@ -122,8 +126,7 @@ void mqtt_app_start(void)
 }
 
 //======================================================================
-void mqtt_network_event_handler(void *arg, esp_event_base_t event_base,
-                                int32_t event_id, void *event_data)
+void mqtt_network_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
     if (event_base == IP_EVENT &&
         (event_id == IP_EVENT_STA_GOT_IP || event_id == IP_EVENT_ETH_GOT_IP))
@@ -134,7 +137,7 @@ void mqtt_network_event_handler(void *arg, esp_event_base_t event_base,
 }
 
 //======================================================================
-// GIỮ NGUYÊN: Đóng gói dữ liệu meter thành JSON
+// Đóng gói dữ liệu meter thành JSON
 char *pack_data_to_json(int id, char *name, char *model)
 {
     if (tcp_virtual_storage == NULL || basic_dict == NULL)
@@ -213,8 +216,13 @@ void mqtt_publish_task(void *pvParameters)
 
     while (1)
     {
-        if (is_mqtt_connected && mqtt_client != NULL &&
-            tcp_virtual_storage != NULL && basic_dict != NULL)
+        if (is_scan_device == true)
+        {
+            ESP_LOGW(TAG, "Scan is running, delay MQTT publish ....");
+            vTaskDelay(pdMS_TO_TICKS(5000));
+            continue;
+        }
+        if (is_mqtt_connected && mqtt_client != NULL && tcp_virtual_storage != NULL && basic_dict != NULL)
         {
             int last_id = -1;
             int meter_count = 0;
@@ -227,8 +235,7 @@ void mqtt_publish_task(void *pvParameters)
 
                 meter_count++;
                 char meter_name[32];
-                snprintf(meter_name, sizeof(meter_name),
-                         "Meter %d - ID: %d", meter_count, current_id);
+                snprintf(meter_name, sizeof(meter_name), "Meter %d - ID: %d", meter_count, current_id);
 
                 char *payload = pack_data_to_json(current_id, meter_name, "Power Meter");
                 if (payload != NULL)
@@ -249,7 +256,7 @@ void mqtt_publish_task(void *pvParameters)
         {
             ESP_LOGW(TAG, "MQTT not connected, waiting...");
         }
-        vTaskDelay(pdMS_TO_TICKS(10000));
+        vTaskDelay(pdMS_TO_TICKS(5000));
     }
 }
 
@@ -272,8 +279,6 @@ void publish_scan_result(void)
         // ESP_LOGE(TAG, "[SCAN] Tạo JSON thất bại");
         return;
     }
-
-    // ── Thông tin định danh ────────────────────────────────────────────
     cJSON_AddStringToObject(root, "gateway_id", gateway_id);
     cJSON_AddStringToObject(root, "event", "scan_result");
     cJSON_AddBoolToObject(root, "wire_p1_ok", wire_p1_ok); // wire=true thì là dây bình thường
@@ -285,9 +290,6 @@ void publish_scan_result(void)
     const char *severity = (scan_result.lose_count > 0) ? "warning" : "normal";
     cJSON_AddStringToObject(root, "severity", severity);
 
-    // ── inactive_ids: lấy từ scan_result.lose_list ────────────────────
-    // Đây là danh sách ID có trong original_id[] nhưng không phản hồi
-    // ở cả 2 port trong lần scan này
     cJSON *inactive_arr = cJSON_CreateArray();
     if (inactive_arr != NULL)
     {
@@ -295,10 +297,6 @@ void publish_scan_result(void)
             cJSON_AddItemToArray(inactive_arr, cJSON_CreateNumber(scan_result.lose_list[i]));
         cJSON_AddItemToObject(root, "inactive_ids", inactive_arr);
     }
-
-    // ── active_ids: original_id[] trừ đi lose_list[] ──────────────────
-    // Không có sẵn biến này → tính thủ công bằng cách duyệt original_id[]
-    // và kiểm tra xem có nằm trong lose_list[] không
     cJSON *active_arr = cJSON_CreateArray();
     if (active_arr != NULL)
     {
@@ -342,17 +340,17 @@ void publish_scan_result(void)
 
     if (payload == NULL)
     {
-        ESP_LOGE(TAG, "[SCAN] Serialize JSON thất bại");
+        ESP_LOGE(TAG, "[SCAN] Fail to Serialize JSON !!!");
         return;
     }
 
     int msg_id = esp_mqtt_client_publish(
         mqtt_client,
-        SCAN_TOPIC, // định nghĩa trong mqtt_to_web.h
+        SCAN_TOPIC,
         payload,
-        0, // len=0 → tự tính từ null-terminated string
-        1, // QoS 1: broker xác nhận nhận được
-        1  // retain=1: client mới subscribe vẫn nhận kết quả gần nhất
+        0,
+        1,
+        1 // retain=1: client mới subscribe vẫn nhận kết quả gần nhất
     );
 
     if (msg_id >= 0)
@@ -361,7 +359,10 @@ void publish_scan_result(void)
                  (int)(original_id_count - scan_result.lose_count),
                  scan_result.lose_count);
     else
-        ESP_LOGW(TAG, "[SCAN] Publish THẤT BẠI");
+        ESP_LOGW(TAG, "[SCAN] Publish FAILED severity=%s active=%d inactive=%d",
+                 severity,
+                 (int)(original_id_count - scan_result.lose_count),
+                 scan_result.lose_count);
 
     free(payload);
 }

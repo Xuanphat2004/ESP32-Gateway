@@ -654,7 +654,7 @@ void scan_device(void)
     uint32_t dram_free = heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
     ESP_LOGI(TAG, "[scan_device] Internal DRAM free: %lu bytes", dram_free);
 
-    BaseType_t ret = xTaskCreatePinnedToCore((void *)scan_task, "scan_task", 8192, NULL, 11, NULL, 1);
+    BaseType_t ret = xTaskCreatePinnedToCore((void *)scan_task, "scan_task", 6144, NULL, 11, NULL, 1);
     if (ret != pdPASS)
     {
         ESP_LOGE(TAG, "[scan_device] xTaskCreate FAILED! DRAM free: %lu bytes", dram_free);

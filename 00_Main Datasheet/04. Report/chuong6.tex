@@ -1,0 +1,25 @@
+\chapter{Kết luận và hướng phát triển}
+\section{Kết luận}
+Đồ án đã hoàn thành việc thiết kế và thi công một hệ thống Gateway giám sát năng lượng điện dựa trên vi điều 
+khiển ESP32-S3, đáp ứng đầy đủ các yêu cầu đề ra. Về phần cứng, thiết bị được thiết kế trên bo mạch PCB hai 
+lớp tích hợp đầy đủ các khối chức năng: khối nguồn hạ áp ổn định, khối giao tiếp RS485 cách ly quang học, 
+khối Ethernet sử dụng chip W5500, khối lưu trữ EEPROM và RTC, cùng giao diện người dùng LCD 16x04 với nút 
+nhấn và encoder. Về phần mềm nhúng, hệ thống sử dụng FreeRTOS để quản lý đa nhiệm, cho phép thu thập dữ liệu 
+định kỳ từ các đồng hồ đo điện qua giao thức Modbus RTU, lưu trữ dữ liệu vào thẻ nhớ SD Card khi mất kết nối 
+mạng, và đồng bộ dữ liệu lên Cloud thông qua giao thức MQTT khi có kết nối. Ứng dụng cấu hình trên máy tính 
+được xây dựng bằng PyQt cho phép kỹ thuật viên nhập các thông số thanh ghi và đồng bộ cấu hình xuống thiết bị 
+qua Bluetooth BLE một cách thuận tiện. Trang web Dashboard phát triển trên nền React và Django hiển thị dữ 
+liệu thời gian thực từ các đồng hồ điện, đồng thời cung cấp tính năng cảnh báo và mô phỏng trực quan trạng 
+thái đường truyền Modbus. Nhìn chung, hệ thống vận hành ổn định và đáp ứng được nhu cầu thực tế của các doanh 
+nghiệp trong việc giám sát và quản lý năng lượng điện theo thời gian thực.
+\section{Hướng phát triển}
+Trong tương lai, hệ thống có thể được cải tiến và mở rộng theo nhiều hướng để nâng cao tính ứng dụng và độ tin 
+cậy. Thứ nhất, về phần cứng, có thể tích hợp thêm tính năng cập nhật firmware từ xa (OTA – Over The Air) giúp 
+việc bảo trì và nâng cấp hệ thống trở nên thuận tiện hơn mà không cần tiếp cận trực tiếp thiết bị, đồng thời 
+có thể mở rộng số lượng cổng RS485 để hỗ trợ thu thập dữ liệu từ nhiều đường dây Modbus song song. Thứ hai, 
+về phần mềm và bảo mật, cần bổ sung cơ chế mã hóa dữ liệu truyền qua MQTT bằng giao thức TLS/SSL và xác thực 
+người dùng trên trang web nhằm đảm bảo an toàn thông tin trong môi trường công nghiệp. Thứ ba, trang web 
+Dashboard có thể được nâng cấp với các tính năng phân tích dữ liệu nâng cao như vẽ biểu đồ xu hướng tiêu thụ 
+điện năng theo thời gian, tính toán chỉ số hiệu quả năng lượng (PUE) và xuất báo cáo tự động theo định kỳ. 
+Cuối cùng, hệ thống có thể tích hợp thêm trí tuệ nhân tạo để phát hiện bất thường trong dữ liệu điện năng, 
+từ đó cảnh báo sớm các sự cố tiềm ẩn trước khi chúng ảnh hưởng đến quy trình sản xuất của doanh nghiệp.

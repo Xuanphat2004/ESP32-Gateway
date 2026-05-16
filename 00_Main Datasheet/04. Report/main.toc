@@ -1,0 +1,55 @@
+\contentsline {chapter}{\numberline {1}Giới thiệu}{1}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Tổng quan về đề tài}{1}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Tình hình nghiên cứu trong và ngoài nước}{1}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Nhiệm vụ đề tài}{2}{section.1.3}%
+\contentsline {chapter}{\numberline {2}Cơ sở lý thuyết}{3}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Tìm hiểu về lý thuyết về giao thức Modbus}{3}{section.2.1}%
+\contentsline {subsection}{\numberline {2.1.1}Khái quát về giao thức Modbus}{3}{subsection.2.1.1}%
+\contentsline {subsection}{\numberline {2.1.2}Tìm hiểu lý thuyết về giao thức Modbus RTU}{4}{subsection.2.1.2}%
+\contentsline {subsubsection}{\numberline {2.1.2.1}Tổng quan về giao thức Modbus RTU}{4}{subsubsection.2.1.2.1}%
+\contentsline {subsubsection}{\numberline {2.1.2.2}Tìm hiểu khung truyền dữ liệu Modbus RTU}{5}{subsubsection.2.1.2.2}%
+\contentsline {subsection}{\numberline {2.1.3}Tìm hiểu Function Codes trong giao thức Modbus}{7}{subsection.2.1.3}%
+\contentsline {section}{\numberline {2.2}Tìm hiểu về giao thức Ethernet}{8}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}Khái quát và các đặc của giao thức Ethernet}{8}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}Tìm hiểu về cấu trúc gói tin Ethernet}{9}{subsection.2.2.2}%
+\contentsline {subsection}{\numberline {2.2.3}Cách thức đóng gói gói tin Ethernet theo mô hình OSI}{10}{subsection.2.2.3}%
+\contentsline {subsubsection}{\numberline {2.2.3.1}Tìm hiểu về mô hình OSI}{10}{subsubsection.2.2.3.1}%
+\contentsline {subsubsection}{\numberline {2.2.3.2}Cách thức đóng gói tin Ethernet}{11}{subsubsection.2.2.3.2}%
+\contentsline {section}{\numberline {2.3}Tìm hiểu về giao thức truyền thông MQTT}{12}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Tìm hiểu về giao thức Bluetooth Low Energy (BLE)}{13}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Tìm hiểu về các kiến thức liên quan tới trang web}{14}{section.2.5}%
+\contentsline {section}{\numberline {2.6}Khái niệm về API RESTful và API Websocket}{15}{section.2.6}%
+\contentsline {subsection}{\numberline {2.6.1}Khái niệm và đặc điểm về API RESTful}{15}{subsection.2.6.1}%
+\contentsline {subsection}{\numberline {2.6.2}Khái niệm và đặc điểm về API Websocket}{16}{subsection.2.6.2}%
+\contentsline {chapter}{\numberline {3}Thiết kế và thực hiện phần cứng}{18}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Thiết kế hệ thống}{18}{section.3.1}%
+\contentsline {subsection}{\numberline {3.1.1}Tổng quan kiến trúc hệ thống}{18}{subsection.3.1.1}%
+\contentsline {subsection}{\numberline {3.1.2}Các khối chức năng chính của trong hệ thống}{20}{subsection.3.1.2}%
+\contentsline {subsection}{\numberline {3.1.3}Chi tiết thiết kế phần cứng}{22}{subsection.3.1.3}%
+\contentsline {subsubsection}{\numberline {3.1.3.1}Thiết kế khối vi điều khiển}{22}{subsubsection.3.1.3.1}%
+\contentsline {subsubsection}{\numberline {3.1.3.2}Thiết kế khối nguồn}{24}{subsubsection.3.1.3.2}%
+\contentsline {subsubsection}{\numberline {3.1.3.3}Thiết kế khối Ethernet}{26}{subsubsection.3.1.3.3}%
+\contentsline {subsubsection}{\numberline {3.1.3.4}Thiết kế khối giao tiếp RS485}{28}{subsubsection.3.1.3.4}%
+\contentsline {subsubsection}{\numberline {3.1.3.5}Thiết kế khối EEPROM và RTC}{30}{subsubsection.3.1.3.5}%
+\contentsline {subsubsection}{\numberline {3.1.3.6}Thiết kế khối giao tiếp với người dùng}{31}{subsubsection.3.1.3.6}%
+\contentsline {chapter}{\numberline {4}Thiết kế và thực hiện phần mềm}{33}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Thiết kế phần mềm cho thiết bị thu thập dữ liệu}{33}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}Yêu cầu đặt ra cho phần mềm}{33}{subsection.4.1.1}%
+\contentsline {subsection}{\numberline {4.1.2}Phương pháp thực hiện chương trình}{33}{subsection.4.1.2}%
+\contentsline {subsection}{\numberline {4.1.3}Lưu đồ giải thuật chương trình}{35}{subsection.4.1.3}%
+\contentsline {subsubsection}{\numberline {4.1.3.1}Kiến trúc tổng quát về tổ chức phần mềm}{35}{subsubsection.4.1.3.1}%
+\contentsline {subsubsection}{\numberline {4.1.3.2}Lưu đồ giải thuật tổng quát}{36}{subsubsection.4.1.3.2}%
+\contentsline {subsection}{\numberline {4.1.4}Lưu đồ giải thuật chi tiết}{38}{subsection.4.1.4}%
+\contentsline {section}{\numberline {4.2}Thiết kế phần mềm App nhập dữ liệu}{47}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Thiết kế phần mềm}{47}{subsection.4.2.1}%
+\contentsline {section}{\numberline {4.3}Phát triển giao diện Dashboard theo dõi dữ liệu}{52}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}Thiết kế phần mềm}{52}{subsection.4.3.1}%
+\contentsline {chapter}{\numberline {5}Kết quả thu được}{55}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Kết quả thực hiện phần cứng thực tế}{55}{section.5.1}%
+\contentsline {subsection}{\numberline {5.1.1}Kết quả thiết kế phần cứng trên phần mềm}{55}{subsection.5.1.1}%
+\contentsline {subsection}{\numberline {5.1.2}Thực hiện thi công mạch thực tế}{57}{subsection.5.1.2}%
+\contentsline {section}{\numberline {5.2}Kết quả phần mềm App nhập dữ liệu}{58}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Kết quả phát triển giao diện Dashboard}{60}{section.5.3}%
+\contentsline {chapter}{\numberline {6}Kết luận và hướng phát triển}{62}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Kết luận}{62}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Hướng phát triển}{62}{section.6.2}%

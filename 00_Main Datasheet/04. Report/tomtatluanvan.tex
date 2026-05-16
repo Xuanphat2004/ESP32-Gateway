@@ -1,0 +1,27 @@
+\begin{center}
+	{\fontsize{24pt}{24pt}\selectfont\textbf{\textcolor{black}{TÓM TẮT ĐỒ ÁN}}}
+\end{center}
+
+Trong bối cảnh hiện nay, các doanh nghiệp đang có xu hướng công nghiệp hóa hiện 
+đại hóa các quy trình đóng gói sản xuất, các thiết bị hiện đại có khả năng tự vận hành cũng 
+vì thế mà phát triển ngày càng nhiều theo nhu cầu của thị trường. Các loại máy móc này hoạt 
+động với tần suất liên tục suốt hàng giờ vì thế không tránh khỏi các tình trạng sai số do các linh 
+kiện tạo ra, hỏng hóc trong quá trình vận hành do các yếu tố khách quan cũng như là chủ 
+quan. Để có thể đảm bảo được quy trình sản xuất diễn ra đúng với kế hoạch của công ty thì 
+công tác vận hành và bảo trì các loại máy móc cỡ lớn này cần được thực hiện thường xuyên 
+để có thể kịp thời phát hiện ra lỗi và sửa chữa. Từ đó, các thông số về điện áp hoặc dòng điện sai 
+lệch như thế nào so với các thông số ban đầu mà nhà sản xuất máy móc đưa ra sẽ được thu thập thông 
+qua các đồng hồ đo điện năng (Power Meter) và ghi chép lại sau đó được tính toán một cách cẩn thận và 
+đưa ra hướng giải quyết phù hợp nhất. \\
+
+Đồ án này tập trung vào thiết kế một Gateway có chức năng thu thập dữ liệu từ các đồng hồ điện thông 
+qua chuẩn Modbus trong công nghiệp, gửi dữ liệu về Cloud theo dõi định kỳ theo thời gian thực, tương 
+tự với cách thức các doanh nghiệp thực hiện. Thiết bị sử dụng vi điều khiển tích hợp khả năng kết nối 
+Wifi, Bluetooth (BLE) có thể nhận cấu hình thông qua Bluetooth từ App, chức năng chính của App này là 
+nhập mới một thiết bị khi được thêm vào hệ thống, dữ liệu mới được thêm vào mà các thanh ghi lưu trữ 
+dữ liệu bên trong đồng hồ điện. Dữ liệu sau khi được thiết bị thu thập sẽ được lưu tại thiết bị thông
+qua thẻ nhớ SD Card trong trường hợp thiết bị mất kết nối Internet không thể gửi gửi dữ liệu về Cloud.
+Khi có kết nối Internet thông qua Wifi hoặc Ethernet được tích hợp trên thiết bị thì dữ liệu sẽ được gửi
+về Cloud thông qua giao thức MQTT, Cloud ở đây là một trang web được phát triển trên hệ điều hành Linux
+giúp người dùng có thể nhìn một cách trực quan hơn về dữ liệu và thiết bị thu thập được.\\
+

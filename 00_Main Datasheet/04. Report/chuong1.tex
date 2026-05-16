@@ -1,0 +1,38 @@
+\chapter{Giới thiệu}
+\section{Tổng quan về đề tài}
+Trong kỷ nguyên Công nghiệp 4.0, việc giám sát và quản lý năng lượng điện hiệu quả đã trở thành yêu cầu cấp thiết đối với 
+các doanh nghiệp nhằm tối ưu hóa chi phí vận hành và đảm bảo an ninh năng lượng. Lĩnh vực hệ thống nhúng và Internet of Things (IoT) 
+đóng vai trò then chốt trong việc kết nối các thiết bị đo lường truyền thống với hạ tầng mạng hiện đại. Tuy nhiên, một thách thức 
+lớn hiện nay là sự không đồng nhất về giao thức truyền thông giữa các thiết bị hiện trường (thường sử dụng thông qua chuẩn RS485) 
+và các hệ thống quản lý trung tâm (thường sử dụng Ethernet/WiFi). Do đó, việc nghiên cứu và phát triển các bộ chuyển đổi giao thức (Gateway) 
+có khả năng thu thập, xử lý và truyền tải dữ liệu lên các hệ thống quản lý từ xa theo thời gian thực và là một hướng nghiên cứu có tính ứng dụng cao và thực tiễn.
+
+Mục tiêu chính của đề tài này là nghiên cứu giải pháp thiết kế một Gateway dựa trên vi điều khiển ESP32 để giám sát các
+thông số điện năng từ các đồng hồ đo công suất đa năng, cụ thể là dòng thiết bị Power Meter. Quá trình nghiên cứu tập trung vào 
+việc nghiên cứu sử dụng các chuẩn giao thức phổ biến hiện nay trong công nghiệp để thu thập các thông số điện năng quan trọng như điện áp, dòng điện, công suất thực, 
+công suất biểu kiến, năng lượng tiêu thụ,..., ngoài ra còn tập trung nghiên cứu cách thức đưa dữ liệu thu thập được lên các hệ thống quản lý từ xa thông qua 
+giao thức MQTT và giao thức HTTP. Bên cạnh đó, đề tài cũng hướng đến việc tối ưu hóa giao diện người dùng cục bộ thông qua màn hình LCD và người dùng có thể tương tác
+với thiết bị thông qua các nút nhấn, giúp kỹ thuật viên có thể tương tác và cấu hình hệ thống trực tiếp mà không cần thiết bị ngoại vi phức tạp.
+\section{Tình hình nghiên cứu trong và ngoài nước}
+Trên thế giới, việc nghiên cứu các bộ chuyển đổi giao thức (Gateway) cho mạng truyền thông công nghiệp đã trải qua nhiều giai đoạn phát triển. 
+Các nghiên cứu ban đầu tập trung vào việc tối ưu hóa tính toán cho các dòng vi điều khiển 8-bit hoặc 16-bit để thực hiện các ngăn xếp giao thức phức tạp.
+ Hiện nay, xu hướng quốc tế đang tập trung vào các hệ thống nhúng hiệu năng cao có tích hợp kết nối không dây. Các tập đoàn lớn như Moxa, Advantech hay Schneider Electric
+đã cung cấp các bộ Gateway công nghiệp (ví dụ dòng MGate) với độ tin cậy cực cao, hỗ trợ đa giao thức từ Modbus RTU sang Modbus TCP/IP hoặc MQTT. 
+Tuy nhiên, các thiết bị này thường có giá thành rất cao và tính tùy biến về giao diện người dùng (HMI) cục bộ còn hạn chế.
+
+Tại Việt Nam, lĩnh vực thiết kế thiết bị IoT và Gateway công nghiệp đang phát triển mạnh mẽ, đặc biệt là trong bối cảnh các nhà máy đang thực hiện chuyển đổi số. 
+Nhiều nghiên cứu tập trung vào việc sử dụng các nền tảng vi điều khiển phổ biến như ESP32, STM32 để xây dựng các giải pháp Gateway tùy chỉnh với chi phí thấp.
+Nhiều doanh nghiệp trong nước đã bắt đầu nội địa hóa các bộ thu thập dữ liệu (Data Logger) cho hệ thống điện mặt trời và nhà máy sản xuất.
+Các nghiên cứu này thường tập trung vào việc tích hợp các giao thức truyền thông công nghiệp như Modbus RTU, Modbus TCP/IP, MQTT để thu thập dữ liệu từ các thiết 
+bị đo lường và truyền tải lên các hệ thống quản lý từ xa. Tuy nhiên, vẫn còn nhiều thách thức về độ ổn định của kết nối không dây, bảo mật dữ liệu và tối ưu hóa 
+giao diện người dùng cục bộ.\\
+\section{Nhiệm vụ đề tài}
+\textbf{Nội dung 1:} Tìm hiểu lý thuyết liên quan đến giao thức Modbus, giao thức Ethernet, vi điều khiển ESP32.
+
+\textbf{Nội dung 2:} Tìm hiểu lý thuyết về cách sử dựng một trang Web để hiển thị các thông số theo dõi sau khi thu thập từ các thiết bị.
+
+\textbf{Nội dung 3:} Thiết kế phần cứng cho Gateway sử dụng vi điều khiển ESP32.
+
+\textbf{Nội dung 4:} Phát triển phần mềm nhúng cho Gateway để thu thập dữ liệu từ các thiết bị đo lường thông qua giao thức Modbus RTU và truyền tải dữ liệu lên hệ thống quản lý từ xa thông qua giao thức MQTT.
+
+\textbf{Nội dung 5:} Phát triển trang Web để hiển thị các thông số theo dõi sau khi thu thập từ các thiết bị.

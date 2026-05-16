@@ -17,6 +17,7 @@
 #include "scan_device.h"
 
 extern bool is_baudrate;
+extern float *tcp_virtual_storage;
 extern ui_page_t current_page;
 extern uint32_t baud_options[];
 extern int baudrate_id;
@@ -53,11 +54,11 @@ void change_baudrate_task(void *arg)
         ESP_LOGW("[CHANGE BAUDRATE]", "=====> Saved new baudrate %ld to NVS", new_baud);
     }
 
-    // Bước 1: Báo hiệu RTU task tự thoát (không giữ Modbus lock)
+    // Báo hiệu RTU task tự thoát (không giữ Modbus lock)
     // is_change_baud đã = true ở trên → RTU task sẽ goto exit_and_wait
     vTaskDelay(pdMS_TO_TICKS(700)); // Chờ RTU task hoàn thành lệnh đang chạy
 
-    // Bước 2: RTU task đang ngủ ở exit_and_wait → safe để delete
+    // RTU task đang ngủ ở exit_and_wait → safe để delete
     if (rtu_handle_task != NULL)
     {
         vTaskDelete(rtu_handle_task);
@@ -71,6 +72,11 @@ void change_baudrate_task(void *arg)
         ESP_LOGW("[CHANGE BAUDRATE]", "=====> Deleted TCP task");
     }
 
+    if (tcp_virtual_storage != NULL)
+    {
+        free(tcp_virtual_storage);
+        tcp_virtual_storage = NULL;
+    }
     // Bước 3: Chờ scheduler dọn task list trước khi destroy
     vTaskDelay(pdMS_TO_TICKS(500));
 
@@ -91,10 +97,10 @@ void change_baudrate_task(void *arg)
 
     vTaskDelay(pdMS_TO_TICKS(200));
 
-    xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 8172, NULL, 8, &rtu_handle_task, 1);
+    xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 8192, NULL, 8, &rtu_handle_task, 1);
 
     // Data-copy task tự cấp phát lại tcp_virtual_storage nếu cần
-    xTaskCreatePinnedToCore(modbus_tcp_server_task, "tcp_server_task", 8172, NULL, 8, &tcp_handle_task, 0);
+    xTaskCreatePinnedToCore(modbus_tcp_server_task, "tcp_server_task", 4096, NULL, 8, &tcp_handle_task, 0);
     vTaskDelay(pdMS_TO_TICKS(200));
 
     is_baudrate = false;
