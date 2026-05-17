@@ -41,10 +41,8 @@ def get_latest_scan(request):
             "severity":       latest.severity,
             "wire_p1_ok":     latest.wire_p1_ok,
             "wire_p2_ok":     latest.wire_p2_ok,
-            # THÊM: tổng hợp trạng thái dây — True nếu dây thông (1 trong 2 wire check pass)
-            # Lý do: wire_p2_ok luôn False khi wire_p1_ok=True vì wire check lần 2 không chạy
-            # → frontend không thể dùng wire_p2_ok trực tiếp, cần field tổng hợp này
-            "line_ok":        latest.wire_p1_ok or latest.wire_p2_ok,
+            "line_ok":        latest.line_ok,
+            "dual_port_mode": latest.dual_port_mode,
             "active_port":    latest.active_port,
             "final_id_p1":    latest.final_id_p1,
             "final_id_p2":    latest.final_id_p2,
@@ -82,7 +80,8 @@ def get_scan_history(request):
             "severity":       scan.severity,
             "wire_p1_ok":     scan.wire_p1_ok,
             "wire_p2_ok":     scan.wire_p2_ok,
-            "line_ok":        scan.wire_p1_ok or scan.wire_p2_ok,
+            "line_ok":        scan.line_ok,
+            "dual_port_mode": scan.dual_port_mode,
             "active_port":    scan.active_port,
             "final_id_p1":    scan.final_id_p1,
             "final_id_p2":    scan.final_id_p2,

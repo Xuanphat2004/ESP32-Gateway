@@ -37,8 +37,6 @@ class ScanResult(models.Model):
     active_port = models.IntegerField(default=0)
 
     # ── Vị trí điểm đứt dây ──────────────────────────────────
-    # THÊM MỚI: 2 field này để xác định đứt ở đoạn nào trên dây
-    #
     # final_id_p1: index trong original_id[] của ID cuối cùng Port 1 thấy được
     #   = -1  → Port 1 không thấy thiết bị nào (đứt ngay đầu P1)
     #   = 0   → Port 1 chỉ thấy thiết bị đầu tiên
@@ -62,6 +60,17 @@ class ScanResult(models.Model):
     total_devices  = models.IntegerField(default=0)
     active_count   = models.IntegerField(default=0)
     inactive_count = models.IntegerField(default=0)
+
+    # ── THÊM MỚI: Trạng thái dual port và đường dây ──────────
+    # dual_port_mode: ESP32 đang poll cả 2 port do phát hiện đứt dây giữa chừng
+    #   True  → đang dùng dual port, mỗi port poll 1 phần thiết bị
+    #   False → bình thường, 1 port poll toàn bộ
+    #
+    # line_ok: đường truyền vật lý có thông không (wire_p1_ok OR wire_p2_ok)
+    #   True  → ít nhất 1 port wire check OK (dây thông)
+    #   False → cả 2 port đều không wire check OK (đứt hoàn toàn)
+    dual_port_mode = models.BooleanField(default=False)
+    line_ok        = models.BooleanField(default=True)
 
     class Meta:
         db_table = 'scan_result'
