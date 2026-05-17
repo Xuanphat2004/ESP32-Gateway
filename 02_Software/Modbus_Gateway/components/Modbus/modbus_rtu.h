@@ -48,6 +48,8 @@ typedef struct
 extern mb_parameter_descriptor_t mbslave_test_dict[];
 extern const uint16_t mbslave_dict_size;
 extern factor_dict_t *factor_dict;
+extern bool dual_port_mode;
+extern volatile bool dual_port_polling;
 
 esp_err_t save_baud_to_nvs(uint32_t baud);
 uint32_t load_baud_from_nvs(void);

@@ -4,8 +4,6 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
-
-// user library
 #include "modbus_rtu.h"
 #include "modbus_tcp.h"
 
@@ -17,27 +15,25 @@ extern mb_parameter_descriptor_t *basic_dict;
 extern SemaphoreHandle_t xDataMutex;
 extern uint16_t register_count;
 extern float *final_data;
-
 extern bool is_change_baud;
 extern bool is_scan_device;
+extern volatile bool dual_port_polling; // block khi RTU đang poll dual port
 
 void modbus_tcp_server_task(void *arg)
 {
-    ESP_LOGW(TAG, "Data copy task is starting...");
+    ESP_LOGW(TAG, "Data copy task starting...");
 
-    // Đợi cấu hình từ NVS - phải có để biết số lượng thanh ghi
+    // Chờ có cấu hình thanh ghi
     while (register_count == 0)
-    {
         vTaskDelay(pdMS_TO_TICKS(1000));
-    }
 
-    // Khởi tạo vùng nhớ ảo để lưu dữ liệu đọc về từ task rtu
+    // Cấp phát bộ nhớ lưu bản sao dữ liệu cho MQTT đọc
     if (tcp_virtual_storage == NULL)
     {
-        tcp_virtual_storage = (float *)calloc(register_count, sizeof(float));
+        tcp_virtual_storage = calloc(register_count, sizeof(float));
         if (tcp_virtual_storage == NULL)
         {
-            ESP_LOGE(TAG, "Không thể cấp phát tcp_virtual_storage!");
+            ESP_LOGE(TAG, "Alloc tcp_virtual_storage failed!");
             vTaskDelete(NULL);
             return;
         }
@@ -45,30 +41,24 @@ void modbus_tcp_server_task(void *arg)
 
     while (1)
     {
-        if (is_change_baud == true || is_scan_device == true)
+        // Chờ nếu hệ thống đang bận hoặc dual port chưa poll xong cả 2 port
+        if (is_change_baud || is_scan_device || dual_port_polling)
         {
             vTaskDelay(pdMS_TO_TICKS(200));
             continue;
         }
 
-        // Dùng timeout dài hơn để tránh priority inheritance timeout trên dual-core
-        // RTU task có thể giữ mutex đến vài trăm ms khi chờ thiết bị Modbus trả lời
+        // Copy final_data → tcp_virtual_storage
         if (xSemaphoreTake(xDataMutex, pdMS_TO_TICKS(2000)) == pdTRUE)
         {
-            if (is_change_baud == true || is_scan_device == true)
-            {
-                xSemaphoreGive(xDataMutex);
-                vTaskDelay(pdMS_TO_TICKS(200));
-                continue;
-            }
-            // Copy toàn bộ final_data vào tcp_virtual_storage
-            memcpy(tcp_virtual_storage, final_data, register_count * sizeof(float));
+            // Kiểm tra lại sau khi lấy mutex (tránh race condition)
+            if (!is_change_baud && !is_scan_device && !dual_port_polling)
+                memcpy(tcp_virtual_storage, final_data, register_count * sizeof(float));
             xSemaphoreGive(xDataMutex);
         }
         else
         {
-            // Timeout sau 2 giây — RTU task có vấn đề, bỏ qua lần này
-            ESP_LOGW(TAG, "xDataMutex timeout sau 2s, bỏ qua lần copy này.");
+            ESP_LOGW(TAG, "xDataMutex timeout, skip copy.");
         }
 
         vTaskDelay(pdMS_TO_TICKS(7000));

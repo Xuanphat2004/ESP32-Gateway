@@ -14,17 +14,16 @@
 #include "modbus_tcp.h"
 #include "lcd_user.h"
 #include "scan_device.h"
-// THÊM MỚI: để gọi publish_scan_result() sau khi scan xong
 #include "mqtt_to_web.h"
 
 static const char *TAG = "[SCAN DEVICE]";
 
-id_scan_result_t list_p1; // Kết quả scan Port 1
-id_scan_result_t list_p2; // Kết quả scan Port 2
+id_scan_result_t list_p1;
+id_scan_result_t list_p2;
 id_scan_result_t active_list;
 id_scan_result_t inactive_list;
-scan_analysis_t scan_result = {0}; // Kết quả phân tích
-uint8_t original_id[248];          // Danh sách toàn bộ id hiện có trong flash
+scan_analysis_t scan_result = {0};
+uint8_t original_id[248];
 uint8_t original_id_count = 0;
 
 bool wire_p1_ok = false;
@@ -35,7 +34,7 @@ static volatile bool slave_fake_running = false;
 static uint8_t slave_fake_port = 0;
 
 volatile bool is_scan_device = false;
-bool is_manual_scan = false; // true = scan do nút nhấn, false = scan ngầm
+bool is_manual_scan = false;
 extern bool is_scanning;
 extern ui_page_t current_page;
 extern uint16_t register_count;
@@ -43,24 +42,19 @@ extern factor_dict_t *factor_dict;
 extern mb_parameter_descriptor_t *basic_dict;
 extern SemaphoreHandle_t xDataMutex;
 extern SemaphoreHandle_t scan_sem;
-extern TaskHandle_t tcp_handle_task; // Handle để tạo lại data-copy task sau scan
-extern TaskHandle_t rtu_handle_task; // Handle để dừng RTU task trước khi scan
-extern bool is_change_baud;          // Cờ báo đang đổi baudrate
-extern float *tcp_virtual_storage;   // Vùng nhớ dữ liệu meter, cần free trước khi recreate
+extern TaskHandle_t tcp_handle_task;
+extern TaskHandle_t rtu_handle_task;
+extern bool is_change_baud;
+extern float *tcp_virtual_storage;
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Dừng RTU task AN TOÀN:
-//   1. Set is_scan_device=true → RTU task tự thoát ra exit_and_wait (không giữ lock)
-//   2. Chờ ít nhất 1 chu kỳ timeout Modbus (300ms) + buffer → RTU task đã yield
-//   3. Lúc này mới vTaskDelete (task đang ngủ trong vTaskDelay, không giữ lock)
-//   4. mbc_master_destroy() an toàn vì không còn ai giữ internal lock
-// ─────────────────────────────────────────────────────────────────────────────
+// THÊM: để set dual_port_mode sau scan và suspend/resume mqtt task
+extern bool dual_port_mode;
+extern TaskHandle_t mqtt_handle_task;
+
 static void safe_stop_rtu_and_tcp(void)
 {
-    // Bước 1: Ra hiệu để RTU task tự thoát khỏi mbc_master_get_parameter
     is_scan_device = true;
 
-    // Nếu change_baudrate vừa được trigger → nhường cho nó, abort scan
     if (is_change_baud == true)
     {
         ESP_LOGW(TAG, "is_change_baud detected, aborting scan");
@@ -68,12 +62,8 @@ static void safe_stop_rtu_and_tcp(void)
         return;
     }
 
-    // Bước 2: Chờ RTU task hoàn thành lệnh Modbus đang chạy và vào exit_and_wait
-    // mbc_master_get_parameter timeout tối đa 300ms → chờ 700ms để chắc chắn
     vTaskDelay(pdMS_TO_TICKS(700));
 
-    // Bước 3: RTU task đang ngủ trong vTaskDelay(200ms) tại exit_and_wait
-    // An toàn để delete vì không còn giữ Modbus internal lock
     if (rtu_handle_task != NULL)
     {
         vTaskDelete(rtu_handle_task);
@@ -87,9 +77,6 @@ static void safe_stop_rtu_and_tcp(void)
         ESP_LOGW(TAG, "Data-copy task deleted");
     }
 
-    // Bước 4: Chờ Core 1 scheduler dọn xong task list sau cross-core delete
-    // mbc_master_start() nội bộ gọi vTaskDelete → crash nếu list chưa sạch
-    // Cần ít nhất 2-3 tick để idle task Core 1 chạy và dọn memory
     vTaskDelay(pdMS_TO_TICKS(500));
 }
 
@@ -104,10 +91,6 @@ static void execute_wire_check(uint8_t uart_port);
 static void start_fake_slave(uint8_t uart_port);
 static void stop_slave_fake(void);
 
-//===========================================================================================================
-// Kiểm tra id đã tồn tại trong list hay chưa
-// uint8_t id = original_id[i];
-// bool in_p1 = is_id_in_result(id, &list_p1)
 static bool is_id_in_result(uint8_t id, id_scan_result_t *list)
 {
     for (int i = 0; i < list->count; i++)
@@ -118,49 +101,39 @@ static bool is_id_in_result(uint8_t id, id_scan_result_t *list)
     return false;
 }
 
-//===========================================================================================================
-// Lấy toàn bộ danh sách các node có phản hồi trong list_p1[] và list_p2[]
 void get_active_list(void)
 {
     active_list.count = 0;
-    bool is_exist = false; // Biến đã tồn tại trong active_list[] chưa
+    bool is_exist = false;
 
-    for (int i = 0; i < list_p1.count; i++) // Thêm toàn bộ id đang có trong list_p1[] vào active_list[]
+    for (int i = 0; i < list_p1.count; i++)
     {
         active_list.id[i] = list_p1.id[i];
         active_list.count++;
     }
 
-    if (list_p2.count != 0) // Nếu list_p2 không trống
+    if (list_p2.count != 0)
     {
-        for (int i = 0; i < list_p2.count; i++) // Kiểm tra từng id trong list_p2[]
+        for (int i = 0; i < list_p2.count; i++)
         {
             is_exist = false;
-
-            // Đối chiếu với active_list[]
             for (int j = 0; j < active_list.count; j++)
             {
                 if (list_p2.id[i] == active_list.id[j])
                 {
-                    is_exist = true; // Đã tồn tại trong active_list
-                    break;           // Chuyển qua id tiếp theo trong list_p2
+                    is_exist = true;
+                    break;
                 }
             }
-            if (is_exist == false) // Nếu chưa có thì thêm vào active_list
+            if (is_exist == false)
             {
                 active_list.id[active_list.count] = list_p2.id[i];
                 active_list.count++;
             }
         }
     }
-    // debug code ====================================================
-    // for (int i = 0; i < active_list.count; i++)
-    //     printf("active id at index %d: %d\n", i, active_list.id[i]);
-    //================================================================
 }
 
-//==================================================================================================
-// Lọc ra các id không phản hồi
 void get_inactive_list(void)
 {
     inactive_list.count = 0;
@@ -168,26 +141,21 @@ void get_inactive_list(void)
     bool found_in_p1 = false;
     bool found_in_p2 = false;
 
-    for (int i = 0; i < original_id_count; i++) // Kiểm tra từng id trong original_list[]
+    for (int i = 0; i < original_id_count; i++)
     {
         current_id = original_id[i];
 
-        // Kiểm tra với list_p1[] trước
         for (int j = 0; j < list_p1.count; j++)
         {
-            if (current_id == list_p1.id[j]) // Nếu id đã tồn tại trong list_p1
+            if (current_id == list_p1.id[j])
             {
                 found_in_p1 = true;
-                break; // nếu tồn tại thì nhảy qua id tiếp theo
+                break;
             }
         }
-
         if (found_in_p1 == true)
-        {
-            continue; // Nếu mà đã tìm thấy trong list_p1 rồi thì nhảy tới kiểm tra id tiếp theo
-        }
+            continue;
 
-        // Kiểm tra với list_p2[]
         for (int k = 0; k < list_p2.count; k++)
         {
             if (current_id == list_p2.id[k])
@@ -196,24 +164,18 @@ void get_inactive_list(void)
                 break;
             }
         }
-
         if (found_in_p2 == true)
-        {
-            continue; // Nếu mà đã tìm thấy trong list_p2 rồi thì nhảy tới kiểm tra id tiếp theo
-        }
+            continue;
 
         inactive_list.id[inactive_list.count] = current_id;
         inactive_list.count++;
     }
 }
 
-//==================================================================================================================================
-// Tạo Dictionary tạm để quét thiết bị — lấy tối đa 3 thanh ghi mỗi thiết bị
-// Trả về số lượng CID trong scan_dict
 static uint16_t generate_temp_scan_dict(mb_parameter_descriptor_t *scan_dict, uint8_t *out_original_id, uint8_t *id_count)
 {
     uint16_t scan_reg_count = 0;
-    uint8_t id_tracker[248] = {0}; // Đếm số thanh ghi đã lấy của từng ID
+    uint8_t id_tracker[248] = {0};
     *id_count = 0;
 
     for (int i = 0; i < register_count; i++)
@@ -245,23 +207,17 @@ static uint16_t generate_temp_scan_dict(mb_parameter_descriptor_t *scan_dict, ui
     return scan_reg_count;
 }
 
-//==================================================================================================================================
-// Khởi tạo Modbus Master trên uart_port chỉ định
-// Port còn lại được init dummy (DE=LOW) - làm 1 slave giả trên bus
 static void execute_port_scan(uint8_t uart_port, mb_parameter_descriptor_t *dict, uint16_t dict_size, id_scan_result_t *results)
 {
     results->count = 0;
     uint8_t online_flags[248] = {0};
     uint32_t current_baud = load_baud_from_nvs();
 
-    // Xóa cả 2 port TRƯỚC khi init
     uart_driver_delete(UART_NUM_1);
     uart_driver_delete(UART_NUM_2);
-
-    // Chờ task list sạch trước khi mbc_master_init tạo internal tasks mới
     vTaskDelay(pdMS_TO_TICKS(300));
 
-    void *master_handler = NULL; // Biến handle của port master
+    void *master_handler = NULL;
     mbc_master_init(MB_PORT_SERIAL_MASTER, &master_handler);
 
     mb_communication_info_t comm_info = {
@@ -276,14 +232,14 @@ static void execute_port_scan(uint8_t uart_port, mb_parameter_descriptor_t *dict
     {
         uart_set_pin(UART_NUM_1, UART_1_TX_PIN, UART_1_RX_PIN, UART_1_EN_PIN, UART_PIN_NO_CHANGE);
         ESP_LOGI(TAG, "Port 1 = Master, Port 2 = dummy (DE=LOW)");
-        modbus_rtu_port_2_dummy_init(); // Port 2 đã sạch — dummy_init trực tiếp
+        modbus_rtu_port_2_dummy_init();
     }
     else if (uart_port == UART_NUM_2)
     {
         vTaskDelay(pdMS_TO_TICKS(100));
         uart_set_pin(UART_NUM_2, UART_2_TX_PIN, UART_2_RX_PIN, UART_2_EN_PIN, UART_PIN_NO_CHANGE);
         ESP_LOGI(TAG, "Port 2 = Master, Port 1 = dummy (DE=LOW)");
-        modbus_rtu_port_1_dummy_init(); // Port 1 đã sạch — dummy_init trực tiếp
+        modbus_rtu_port_1_dummy_init();
     }
 
     mbc_master_start();
@@ -292,8 +248,6 @@ static void execute_port_scan(uint8_t uart_port, mb_parameter_descriptor_t *dict
     for (int i = 0; i < dict_size; i++)
     {
         uint8_t slave_id = dict[i].mb_slave_addr;
-
-        // ID nào đã phản hồi rồi thì bỏ qua
         if (online_flags[slave_id] == 1)
             continue;
 
@@ -313,13 +267,10 @@ static void execute_port_scan(uint8_t uart_port, mb_parameter_descriptor_t *dict
     vTaskDelay(pdMS_TO_TICKS(200));
 }
 
-// =================================================================================================================================
-// Kết quả lưu vào g_scan_result để ui đọc khi xuất lên LCD
 void analyse_scan_result(void)
 {
-    memset(&scan_result, 0, sizeof(scan_analysis_t)); // Reset kết quả cũ
+    memset(&scan_result, 0, sizeof(scan_analysis_t));
 
-    // Tìm id không có cả ở 2 port
     for (int i = 0; i < original_id_count; i++)
     {
         uint8_t id = original_id[i];
@@ -328,44 +279,29 @@ void analyse_scan_result(void)
 
         if (in_p1 == false && in_p2 == false)
         {
-            scan_result.lose_list[scan_result.lose_count++] = id; // Danh sách cái id không phản hồi
+            scan_result.lose_list[scan_result.lose_count++] = id;
             printf("lose id: %d\n", id);
         }
     }
-    // debug code ======================================================
-    // printf("list_p1.count: %d\n", list_p1.count);
-    // printf("list_p2.count: %d\n", list_p2.count);
-    // for (int i = 0; i < original_id_count; i++)
-    //     printf("id in original at index %d: %d\n", i, original_id[i]);
-    // for (int i = 0; i < list_p1.count; i++)
-    //     printf("id in list_p1 at index %d: %d\n", i, list_p1.id[i]);
-    // for (int i = 0; i < list_p2.count; i++)
-    //     printf("id in list_p2 at index %d: %d\n", i, list_p2.id[i]);
-    //==================================================================
 
-    // Port nào nhiều id hơn thì làm Master
     if (wire_p1_ok == true)
-        scan_result.active_port = 1; // Dây P1 thông → P1 làm master
+        scan_result.active_port = 1;
     else if (wire_p2_ok == true)
-        scan_result.active_port = 2; // Dây P2 thông → P2 làm master
+        scan_result.active_port = 2;
     else if (list_p2.count > list_p1.count)
-        scan_result.active_port = 2; // Cả 2 đứt → port nhiều ID hơn
+        scan_result.active_port = 2;
     else
         scan_result.active_port = 1;
 
-    // Tìm biên điểm đứt trên dây trên port 1
     scan_result.final_id_p1 = -1;
     for (int i = 0; i < original_id_count; i++)
     {
-        if (is_id_in_result(original_id[i], &list_p1) == true) // Nếu id của port 1 trùng với original_id[]
-        {
-            scan_result.final_id_p1 = i; // index của id cuối cùng mà port đó có thể quét được trong original_id[]
-        }
+        if (is_id_in_result(original_id[i], &list_p1) == true)
+            scan_result.final_id_p1 = i;
     }
 
-    // Tìm biên điểm đứt trên dây trên port 2
-    scan_result.final_id_p2 = original_id_count;       // Đi ngược lại với port 1
-    for (int i = (original_id_count - 1); i >= 0; i--) // (original_id_count - 1) index vị trí của id đó trong original_id
+    scan_result.final_id_p2 = original_id_count;
+    for (int i = (original_id_count - 1); i >= 0; i--)
     {
         if (is_id_in_result(original_id[i], &list_p2) == true)
         {
@@ -373,56 +309,94 @@ void analyse_scan_result(void)
         }
     }
 
-    ESP_LOGI(TAG, "Analysis done: lose = %d, active_port = %d, final_id_p1 = %d, final_id_p2 = %d\n",
-             scan_result.lose_count, scan_result.active_port, scan_result.final_id_p1, scan_result.final_id_p2);
-}
-
-//====================================================================================================================
-// Destroy -> Delete -> Nạp cấu hình mới
-static void scan_task(void *pvParameters)
-{
-    // is_scan_device, is_manual_scan, is_scanning đã set trong scan_device()
-    // trước khi tạo task → LCD hiển thị ngay, không có khoảng trắng
-    wire_p1_ok = false;
-    wire_p2_ok = false;
-    memset(&list_p1, 0, sizeof(id_scan_result_t));
-    memset(&list_p2, 0, sizeof(id_scan_result_t));
-
-    ESP_LOGI(TAG, "Start scanning ...");
-
-    // Dừng RTU + TCP task theo đúng thứ tự an toàn
-    safe_stop_rtu_and_tcp();
-
-    // Nếu safe_stop bị abort do is_change_baud → hủy manual scan
-    if (is_change_baud == true)
+    // ── THÊM MỚI: Set dual_port_mode ─────────────────────────────────────
+    // Bình thường: cả 2 port thấy đủ tất cả ID → poll 1 port như thường
+    // Có lỗi: ít nhất 1 port không thấy đủ → poll cả 2 port theo list của mỗi port
+    if (wire_p1_ok)
     {
-        ESP_LOGW(TAG, "[MANUAL] Aborted: baudrate change in progress");
-        is_scan_device = false;
-        is_scanning = false;
-        vTaskDelete(NULL);
-        return;
+        // Dây thông từ Port 1 → Port 2
+        // Chỉ cần Port 1 thấy đủ tất cả ID là bình thường
+        dual_port_mode = (list_p1.count < original_id_count);
+    }
+    else if (wire_p2_ok)
+    {
+        // Dây thông từ Port 2 → Port 1
+        // Chỉ cần Port 2 thấy đủ tất cả ID là bình thường
+        dual_port_mode = (list_p2.count < original_id_count);
+    }
+    else
+    {
+        // Cả 2 wire check đều fail → dây đứt giữa
+        // Dual port khi không port nào thấy đủ ID một mình
+        dual_port_mode = !((list_p1.count == original_id_count) ||
+                           (list_p2.count == original_id_count));
     }
 
-    // Chuẩn bị vùng nhớ cho temp_dict
-    mb_parameter_descriptor_t *temp_dict = malloc(register_count * sizeof(mb_parameter_descriptor_t));
-    uint16_t temp_dict_size = generate_temp_scan_dict(temp_dict, original_id, &original_id_count);
+    ESP_LOGW(TAG, "dual_port_mode = %s (p1:%d p2:%d total:%d wire_p1:%d wire_p2:%d)",
+             dual_port_mode ? "ON" : "OFF",
+             list_p1.count, list_p2.count, original_id_count,
+             wire_p1_ok, wire_p2_ok);
+    // ─────────────────────────────────────────────────────────────────────
 
-    // Giải phóng tài nguyên cũ (an toàn vì RTU task đã bị delete)
+    ESP_LOGI(TAG, "Analysis done: lose=%d active_port=%d p1=%d p2=%d",
+             scan_result.lose_count, scan_result.active_port,
+             scan_result.final_id_p1, scan_result.final_id_p2);
+}
+
+// ============================================================
+// Hàm dùng chung để restore sau scan
+// Tránh lặp code ở scan_task và passive_scan_task
+// ============================================================
+static void restore_after_scan(void)
+{
+    // Destroy + cleanup
     mbc_master_destroy();
     uart_driver_delete(UART_NUM_1);
     uart_driver_delete(UART_NUM_2);
+    vTaskDelay(pdMS_TO_TICKS(200));
 
-    // Wire check lần 1
+    // Khởi động lại RTU theo active_port
+    if (scan_result.active_port == 1)
+        modbus_rtu_port_1_init();
+    else
+        modbus_rtu_port_2_init();
+
+    // Free tcp_virtual_storage để data-copy task alloc lại
+    if (tcp_virtual_storage != NULL)
+    {
+        free(tcp_virtual_storage);
+        tcp_virtual_storage = NULL;
+    }
+
+    // Khôi phục RTU task và data-copy task
+    xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 8192, NULL, 10, &rtu_handle_task, 1);
+    xTaskCreatePinnedToCore(modbus_tcp_server_task, "tcp_server_task", 4096, NULL, 8, &tcp_handle_task, 0);
+    vTaskDelay(pdMS_TO_TICKS(300));
+
+    // THÊM: Resume MQTT task trước khi publish_scan_result
+    // Suspend được gọi trước scan để tránh gửi dữ liệu sai
+    if (mqtt_handle_task != NULL)
+        vTaskResume(mqtt_handle_task);
+
+    publish_scan_result();
+}
+
+// ============================================================
+// Hàm dùng chung để scan cả 2 port
+// ============================================================
+static void run_scan(mb_parameter_descriptor_t *temp_dict, uint16_t temp_dict_size)
+{
+    // Wire check lần 1: Port 1 Master + Port 2 Slave giả
     ESP_LOGI(TAG, "Wire check: Port 1 Master + Port 2 Slave ...");
     start_fake_slave(UART_NUM_2);
     execute_wire_check(UART_NUM_1);
     stop_slave_fake();
 
-    // Destroy master + xóa CẢ 2 port trước khi bắt đầu lần 2
     mbc_master_destroy();
-    uart_driver_delete(UART_NUM_1); // port master lần 1
-    uart_driver_delete(UART_NUM_2); // port slave lần 1
+    uart_driver_delete(UART_NUM_1);
+    uart_driver_delete(UART_NUM_2);
 
+    // Wire check lần 2 nếu lần 1 không OK
     if (wire_p1_ok == false)
     {
         ESP_LOGI(TAG, "Wire check: Port 2 Master + Port 1 Slave ...");
@@ -430,13 +404,12 @@ static void scan_task(void *pvParameters)
         execute_wire_check(UART_NUM_2);
         stop_slave_fake();
 
-        // Xóa cả 2 sau khi xong lần 2
         mbc_master_destroy();
         uart_driver_delete(UART_NUM_1);
         uart_driver_delete(UART_NUM_2);
     }
 
-    // Phân nhánh scan — execute_port_scan tự xóa cả 2 ở đầu hàm
+    // Phân nhánh scan theo kết quả wire check
     if (wire_p1_ok == true)
     {
         ESP_LOGI(TAG, "Wire OK → Scan Port 1 only");
@@ -453,51 +426,76 @@ static void scan_task(void *pvParameters)
     {
         ESP_LOGI(TAG, "Wire BROKEN → Scan both ports");
         execute_port_scan(UART_NUM_1, temp_dict, temp_dict_size, &list_p1);
-        mbc_master_destroy(); // destroy master giữa 2 lần
+        mbc_master_destroy();
         execute_port_scan(UART_NUM_2, temp_dict, temp_dict_size, &list_p2);
     }
 
-    analyse_scan_result();
-    free(temp_dict);
+    analyse_scan_result(); // Set dual_port_mode ở trong này
+}
 
-    // Destroy + cleanup
+//====================================================================================================================
+// Manual scan task (do người dùng nhấn nút)
+static void scan_task(void *pvParameters)
+{
+    wire_p1_ok = false;
+    wire_p2_ok = false;
+    memset(&list_p1, 0, sizeof(id_scan_result_t));
+    memset(&list_p2, 0, sizeof(id_scan_result_t));
+
+    ESP_LOGI(TAG, "Start scanning ...");
+
+    safe_stop_rtu_and_tcp();
+
+    if (is_change_baud == true)
+    {
+        ESP_LOGW(TAG, "[MANUAL] Aborted: baudrate change in progress");
+        is_scan_device = false;
+        is_scanning = false;
+        vTaskDelete(NULL);
+        return;
+    }
+
+    // THÊM: Suspend MQTT để tránh gửi dữ liệu sai trong khi scan
+    if (mqtt_handle_task != NULL)
+        vTaskSuspend(mqtt_handle_task);
+
+    mb_parameter_descriptor_t *temp_dict = malloc(register_count * sizeof(mb_parameter_descriptor_t));
+    if (temp_dict == NULL)
+    {
+        ESP_LOGE(TAG, "[MANUAL] malloc temp_dict failed");
+        if (mqtt_handle_task != NULL)
+            vTaskResume(mqtt_handle_task);
+        is_scan_device = false;
+        is_scanning = false;
+        vTaskDelete(NULL);
+        return;
+    }
+    uint16_t temp_dict_size = generate_temp_scan_dict(temp_dict, original_id, &original_id_count);
+
     mbc_master_destroy();
     uart_driver_delete(UART_NUM_1);
     uart_driver_delete(UART_NUM_2);
-    vTaskDelay(pdMS_TO_TICKS(200));
 
-    // Khởi động lại RTU theo active_port
-    if (scan_result.active_port == 1)
-        modbus_rtu_port_1_init();
-    else
-        modbus_rtu_port_2_init();
+    run_scan(temp_dict, temp_dict_size);
+    free(temp_dict);
 
-    // Free tcp_virtual_storage để data-copy task alloc lại với đúng size
-    if (tcp_virtual_storage != NULL)
-    {
-        free(tcp_virtual_storage);
-        tcp_virtual_storage = NULL;
-    }
-
-    // Khôi phục RTU task và data-copy task
-    xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 8192, NULL, 10, &rtu_handle_task, 1);
-    xTaskCreatePinnedToCore(modbus_tcp_server_task, "tcp_server_task", 4096, NULL, 8, &tcp_handle_task, 0);
-    vTaskDelay(pdMS_TO_TICKS(300));
+    restore_after_scan(); // Destroy → init → tạo task → resume mqtt → publish
 
     current_page = PAGE_SCAN_RESULT;
-    publish_scan_result();
-
-    // Clear tất cả flag sau khi mọi thứ đã khôi phục xong
     is_manual_scan = false;
     is_scan_device = false;
     is_scanning = false;
     vTaskDelete(NULL);
 }
+
+//====================================================================================================================
+// Passive scan task (tự động khi phát hiện lỗi)
 void passive_scan_task(void *arg)
 {
     while (1)
     {
         xSemaphoreTake(scan_sem, portMAX_DELAY);
+
         if (is_scanning == true)
         {
             ESP_LOGW(TAG, "Manual scan running, skip passive scan");
@@ -505,7 +503,6 @@ void passive_scan_task(void *arg)
         }
 
         is_scan_device = true;
-        // is_manual_scan KHÔNG set ở đây → LCD không hiển thị màn hình scanning
         wire_p1_ok = false;
         wire_p2_ok = false;
         memset(&list_p1, 0, sizeof(id_scan_result_t));
@@ -513,25 +510,27 @@ void passive_scan_task(void *arg)
 
         ESP_LOGI(TAG, "Start passive scanning ...");
 
-        // Dừng RTU + TCP task theo đúng thứ tự an toàn
         safe_stop_rtu_and_tcp();
 
-        // Nếu safe_stop bị abort do is_change_baud → nhường cho change_baudrate
         if (is_change_baud == true)
         {
             ESP_LOGW(TAG, "[PASSIVE] Aborted: baudrate change in progress");
             is_scan_device = false;
-            is_scanning = false;
             continue;
         }
 
-        // Chuẩn bị vùng nhớ cho temp_dict
+        // THÊM: Suspend MQTT để tránh gửi dữ liệu sai trong khi scan
+        if (mqtt_handle_task != NULL)
+            vTaskSuspend(mqtt_handle_task);
+
         mb_parameter_descriptor_t *temp_dict = malloc(register_count * sizeof(mb_parameter_descriptor_t));
         if (temp_dict == NULL)
         {
-            ESP_LOGE(TAG, "[passive_scan] malloc temp_dict thất bại, bỏ qua lần này");
+            ESP_LOGE(TAG, "[PASSIVE] malloc temp_dict failed, skip");
+            if (mqtt_handle_task != NULL)
+                vTaskResume(mqtt_handle_task);
             is_scan_device = false;
-            // Khôi phục lại các task vì chưa destroy gì
+            // Khôi phục lại các task
             if (scan_result.active_port == 1)
                 modbus_rtu_port_1_init();
             else
@@ -542,115 +541,37 @@ void passive_scan_task(void *arg)
         }
         uint16_t temp_dict_size = generate_temp_scan_dict(temp_dict, original_id, &original_id_count);
 
-        // Giải phóng tài nguyên cũ (an toàn vì RTU task đã bị delete)
         mbc_master_destroy();
         uart_driver_delete(UART_NUM_1);
         uart_driver_delete(UART_NUM_2);
 
-        // Wire check lần 1
-        ESP_LOGI(TAG, "Wire check: Port 1 Master + Port 2 Slave ...");
-        start_fake_slave(UART_NUM_2);
-        execute_wire_check(UART_NUM_1);
-        stop_slave_fake();
-
-        // Destroy master + xóa CẢ 2 port trước khi bắt đầu lần 2
-        mbc_master_destroy();
-        uart_driver_delete(UART_NUM_1);
-        uart_driver_delete(UART_NUM_2);
-
-        if (wire_p1_ok == false)
-        {
-            ESP_LOGI(TAG, "Wire check: Port 2 Master + Port 1 Slave ...");
-            start_fake_slave(UART_NUM_1);
-            execute_wire_check(UART_NUM_2);
-            stop_slave_fake();
-
-            mbc_master_destroy();
-            uart_driver_delete(UART_NUM_1);
-            uart_driver_delete(UART_NUM_2);
-        }
-
-        // Phân nhánh scan
-        if (wire_p1_ok == true)
-        {
-            ESP_LOGI(TAG, "Wire OK → Scan Port 1 only");
-            execute_port_scan(UART_NUM_1, temp_dict, temp_dict_size, &list_p1);
-            scan_result.active_port = 1;
-        }
-        else if (wire_p2_ok == true)
-        {
-            ESP_LOGI(TAG, "Wire OK → Scan Port 2 only");
-            execute_port_scan(UART_NUM_2, temp_dict, temp_dict_size, &list_p2);
-            scan_result.active_port = 2;
-        }
-        else
-        {
-            ESP_LOGI(TAG, "Wire BROKEN → Scan both ports");
-            execute_port_scan(UART_NUM_1, temp_dict, temp_dict_size, &list_p1);
-            mbc_master_destroy();
-            execute_port_scan(UART_NUM_2, temp_dict, temp_dict_size, &list_p2);
-        }
-
-        analyse_scan_result();
+        run_scan(temp_dict, temp_dict_size);
         free(temp_dict);
 
-        // Destroy + cleanup
-        mbc_master_destroy();
-        uart_driver_delete(UART_NUM_1);
-        uart_driver_delete(UART_NUM_2);
-        vTaskDelay(pdMS_TO_TICKS(200));
+        restore_after_scan(); // Destroy → init → tạo task → resume mqtt → publish
 
-        // Khởi động lại RTU theo active_port
-        if (scan_result.active_port == 1)
-            modbus_rtu_port_1_init();
-        else
-            modbus_rtu_port_2_init();
-
-        // Free tcp_virtual_storage để data-copy task alloc lại với đúng size
-        if (tcp_virtual_storage != NULL)
-        {
-            free(tcp_virtual_storage);
-            tcp_virtual_storage = NULL;
-        }
-
-        // Khôi phục RTU task và data-copy task
-        xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 8192, NULL, 10, &rtu_handle_task, 1);
-        xTaskCreatePinnedToCore(modbus_tcp_server_task, "tcp_server_task", 4096, NULL, 8, &tcp_handle_task, 0);
-        vTaskDelay(pdMS_TO_TICKS(300));
-
-        publish_scan_result();
-
-        // Chỉ clear is_scan_device — passive scan không đụng is_scanning
-        // vì is_scanning được quản lý hoàn toàn bởi scan_task (manual)
         is_scan_device = false;
     }
 }
+
 // ============================================================
-// Tạo task scan device
 void scan_device(void)
 {
     if (is_scan_device == true)
     {
-        // Đang có scan ngầm (passive) chạy → bỏ qua, không set is_scanning
-        // để LCD không kẹt waiting
-        ESP_LOGW(TAG, "[scan_device] Passive scan đang chạy, bỏ qua manual scan");
+        ESP_LOGW(TAG, "[scan_device] Passive scan dang chay, bo qua manual scan");
         return;
     }
     if (is_scanning == true)
     {
-        // scan_task đã được tạo từ lần nhấn trước nhưng chưa xong
-        ESP_LOGW(TAG, "[scan_device] scan_task đã tồn tại, bỏ qua");
+        ESP_LOGW(TAG, "[scan_device] scan_task da ton tai, bo qua");
         return;
     }
-    // Set flag TRƯỚC khi tạo task:
-    // LCD check is_scan_device + is_manual_scan ngay vòng lặp tiếp theo
-    // Nếu set bên trong scan_task, scheduler có thể chưa chạy task → LCD trắng
+
     is_scanning = true;
     is_scan_device = true;
     is_manual_scan = true;
 
-    // Task stack bắt buộc nằm trong internal DRAM
-    // esp_get_free_heap_size() bao gồm PSRAM → không dùng được cho stack
     uint32_t dram_free = heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
     ESP_LOGI(TAG, "[scan_device] Internal DRAM free: %lu bytes", dram_free);
 
@@ -665,11 +586,6 @@ void scan_device(void)
 }
 
 // ============================================================================================
-// ========================= Các hàm liên quan đến cấu hình Slave giả =========================
-// ============================================================================================
-
-//=============================================================================================
-// Task slave giả — chỉ phản hồi ID 245
 static void slave_fake_task(void *arg)
 {
     uint8_t uart_port = slave_fake_port;
@@ -680,17 +596,14 @@ static void slave_fake_task(void *arg)
         int len = uart_read_bytes(uart_port, rx_buf, sizeof(rx_buf), pdMS_TO_TICKS(100));
         if (len >= 4)
         {
-            // Chỉ phản hồi ID 245 — bỏ qua thiết bị thật
             if (rx_buf[0] != CHECK_SLAVE_ID)
                 continue;
 
-            // Đánh dấu dây thông theo port slave đang chạy
             if (uart_port == UART_NUM_2)
                 wire_p1_ok = true;
             else
                 wire_p2_ok = true;
 
-            // Tạo response error
             uint8_t response[5] = {0};
             response[0] = rx_buf[0];
             response[1] = rx_buf[1] | 0x80;
@@ -716,23 +629,15 @@ static void slave_fake_task(void *arg)
     }
     vTaskDelete(NULL);
 }
-//=============================================================================================
-// Gửi 3 request đến ID 245 — chỉ để slave giả bên kia nhận
-// Input: UART muốn gửi request để kiểm tra đường dây
-// Output: 2 biến global lưu trạng thái đường dây sau khi quét wire_p1_ok và wire_p2_ok
+
 static void execute_wire_check(uint8_t uart_port)
 {
     uint32_t current_baud = load_baud_from_nvs();
     uint8_t temp_buf[4] = {0};
     uint8_t type;
 
-    // Destroy master + xóa port MASTER
-    // KHÔNG xóa port slave giả — slave_fake_task đang dùng
     mbc_master_destroy();
     uart_driver_delete(uart_port);
-
-    // Chờ Modbus internal tasks dọn xong sau destroy
-    // mbc_master_start() gọi vTaskDelete nội bộ → cần task list sạch
     vTaskDelay(pdMS_TO_TICKS(300));
 
     void *master_handler = NULL;
@@ -745,7 +650,7 @@ static void execute_wire_check(uint8_t uart_port)
         .parity = MB_PARITY_NONE,
     };
     mbc_master_setup((void *)&comm_info);
-    mbc_master_set_descriptor(check_dict, 3); // dùng đúng 3 vị trí cho 3 cid
+    mbc_master_set_descriptor(check_dict, 3);
 
     if (uart_port == UART_NUM_1)
         uart_set_pin(UART_NUM_1, UART_1_TX_PIN, UART_1_RX_PIN, UART_1_EN_PIN, UART_PIN_NO_CHANGE);
@@ -756,21 +661,18 @@ static void execute_wire_check(uint8_t uart_port)
     uart_set_mode(uart_port, UART_MODE_RS485_HALF_DUPLEX);
     vTaskDelay(pdMS_TO_TICKS(100));
 
-    // Gửi lần lượt 3 request — dừng sớm nếu slave giả đã phản hồi
     for (int i = 0; i < 3; i++)
     {
         mbc_master_get_parameter(check_dict[i].cid, check_dict[i].param_key, temp_buf, &type);
-        // vTaskDelay(pdMS_TO_TICKS(100));
 
         if (uart_port == UART_NUM_1 && wire_p1_ok == true)
         {
-            printf("=======> wire_p1_ok = %s\n", wire_p1_ok ? "true" : "false");
+            printf("=======> wire_p1_ok = true\n");
             break;
         }
-
         if (uart_port == UART_NUM_2 && wire_p2_ok == true)
         {
-            printf("=======> wire_p2_ok = %s\n", wire_p2_ok ? "true" : "false");
+            printf("=======> wire_p2_ok = true\n");
             break;
         }
     }
@@ -804,15 +706,12 @@ static void start_fake_slave(uint8_t uart_port)
     }
     slave_fake_port = uart_port;
     slave_fake_running = true;
-    // Core 1, priority 5: tránh deadlock với Modbus master internal tasks trên Core 0
     xTaskCreatePinnedToCore(slave_fake_task, "slave_fake", 4096, NULL, 5, &slave_fake_task_handle, 1);
 }
 
 static void stop_slave_fake(void)
 {
     slave_fake_running = false;
-    vTaskDelay(pdMS_TO_TICKS(300)); // Chờ task tự kết thúc
+    vTaskDelay(pdMS_TO_TICKS(300));
     slave_fake_task_handle = NULL;
-    // KHÔNG xóa uart_driver ở đây
-    // scan_task sẽ tự xóa sau khi stop
 }

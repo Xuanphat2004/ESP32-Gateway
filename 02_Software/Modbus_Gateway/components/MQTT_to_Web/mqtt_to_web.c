@@ -22,36 +22,20 @@ extern float *tcp_virtual_storage;
 extern mb_parameter_descriptor_t *basic_dict;
 extern uint16_t register_count;
 extern SemaphoreHandle_t xDataMutex;
+extern bool dual_port_mode;
 esp_mqtt_client_handle_t mqtt_client = NULL;
 
-// Bảng mapping để web hiển thị bảng tổng quát (volt, curr, freq...)
+// Mapping tên thanh ghi → field web (volt, curr, freq...)
 typedef struct
 {
     char *modbus_param_key;
     char *web_field_key;
 } name_mapping_t;
-
 const name_mapping_t master_mapping[] = {
-    {"Voltage-L1-N", "volt"},
-    {"Voltage-A-N", "volt"},
-    {"V_L1-(Phase-A-Voltage)", "volt"},
-    {"Current-L1", "curr"},
-    {"Current-A", "curr"},
-    {"I_L1", "curr"},
-    {"Current-L1-Demand", "curr_dmd"},
-    {"Current A-Demand-Present", "curr_dmd"},
-    {"Frequency-ID-10", "freq"},
-    {"Frequency-L1", "freq"},
-    {"Freq_Grid", "freq"},
-    {"Real-Power-A", "real_pwr"},
-    {"Active-Power-L1", "real_pwr"},
-    {"Apparent-Power-L1", "app_pwr"},
-    {"Apparent-Power-A", "app_pwr"},
-    {"S_L1-(Apparent-Power-A)", "app_pwr"}};
+    {"Voltage-L1-N", "volt"}, {"Voltage-A-N", "volt"}, {"V_L1-(Phase-A-Voltage)", "volt"}, {"Current-L1", "curr"}, {"Current-A", "curr"}, {"I_L1", "curr"}, {"Current-L1-Demand", "curr_dmd"}, {"Current A-Demand-Present", "curr_dmd"}, {"Frequency-ID-10", "freq"}, {"Frequency-L1", "freq"}, {"Freq_Grid", "freq"}, {"Real-Power-A", "real_pwr"}, {"Active-Power-L1", "real_pwr"}, {"Apparent-Power-L1", "app_pwr"}, {"Apparent-Power-A", "app_pwr"}, {"S_L1-(Apparent-Power-A)", "app_pwr"}};
 const int mapping_size = sizeof(master_mapping) / sizeof(name_mapping_t);
 
 //======================================================================
-// GIỮ NGUYÊN: Lấy địa chỉ MAC làm gateway_id
 void get_gateway_id(char *buf, size_t buf_size)
 {
     uint8_t mac[6] = {0};
@@ -61,7 +45,6 @@ void get_gateway_id(char *buf, size_t buf_size)
 }
 
 //======================================================================
-// MQTT Event Handler
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
                                int32_t event_id, void *event_data)
 {
@@ -69,31 +52,22 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
     switch ((esp_mqtt_event_id_t)event_id)
     {
     case MQTT_EVENT_CONNECTED:
-        ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED - Connected to MQTT Broker");
+        ESP_LOGI(TAG, "MQTT Connected");
         is_mqtt_connected = true;
         break;
     case MQTT_EVENT_DISCONNECTED:
-        ESP_LOGW(TAG, "MQTT_EVENT_DISCONNECTED - Lose Broker connection !!!");
+        ESP_LOGW(TAG, "MQTT Disconnected");
         is_mqtt_connected = false;
         break;
     case MQTT_EVENT_ERROR:
-        ESP_LOGE(TAG, "MQTT_EVENT_ERROR");
-        ESP_LOGE(TAG, "  error_type    = %d", event->error_handle->error_type);
-        ESP_LOGE(TAG, "  connect_rc    = %d", event->error_handle->connect_return_code);
-        ESP_LOGE(TAG, "  tls_err       = %d", event->error_handle->esp_tls_last_esp_err);
-        ESP_LOGE(TAG, "  tls_stack_err = %d", event->error_handle->esp_tls_stack_err);
-        if (event->error_handle->error_type == MQTT_ERROR_TYPE_TCP_TRANSPORT)
-            ESP_LOGE(TAG, "TCP error, esp_tls_last_esp_err=%d", event->error_handle->esp_tls_last_esp_err);
-        else if (event->error_handle->connect_return_code == MQTT_CONNECTION_REFUSE_NOT_AUTHORIZED)
-            // ESP_LOGE(TAG, "Sai username/password hoặc chưa tạo credentials!");
-            break;
+        ESP_LOGE(TAG, "MQTT Error type=%d", event->error_handle->error_type);
+        break;
     default:
         break;
     }
 }
 
 //======================================================================
-// Khởi động MQTT client
 void mqtt_app_start(void)
 {
     char gateway_id[32] = " ";
@@ -107,17 +81,12 @@ void mqtt_app_start(void)
     }
 
     const esp_mqtt_client_config_t mqtt_config = {
-        .broker = {
-            .address.uri = URL_BROKER,
-            .address.port = BROKER_PORT,
-            .verification = {.crt_bundle_attach = NULL},
-        },
+        .broker = {.address.uri = URL_BROKER, .address.port = BROKER_PORT, .verification = {.crt_bundle_attach = NULL}},
         .credentials = {.client_id = CLIENT_ID},
         .session = {.protocol_ver = MQTT_PROTOCOL_V_3_1_1},
         .task = {.stack_size = 8192},
         .buffer = {.size = 32768},
     };
-
     mqtt_client = esp_mqtt_client_init(&mqtt_config);
     esp_mqtt_client_register_event(mqtt_client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
     esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &mqtt_network_event_handler, NULL);
@@ -126,18 +95,38 @@ void mqtt_app_start(void)
 }
 
 //======================================================================
-void mqtt_network_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
+void mqtt_network_event_handler(void *arg, esp_event_base_t event_base,
+                                int32_t event_id, void *event_data)
 {
     if (event_base == IP_EVENT &&
         (event_id == IP_EVENT_STA_GOT_IP || event_id == IP_EVENT_ETH_GOT_IP))
     {
-        ESP_LOGI(TAG, "Received IP address, restarting MQTT...");
+        ESP_LOGI(TAG, "Got IP, restarting MQTT...");
         mqtt_app_start();
     }
 }
 
 //======================================================================
-// Đóng gói dữ liệu meter thành JSON
+// Kiểm tra slave_id có đang online không
+// Normal mode → tất cả online
+// Dual mode   → chỉ online nếu có trong list_p1 hoặc list_p2
+static bool is_id_online(uint8_t slave_id)
+{
+    if (!dual_port_mode)
+        return true;
+    for (int i = 0; i < list_p1.count; i++)
+        if (list_p1.id[i] == slave_id)
+            return true;
+    for (int i = 0; i < list_p2.count; i++)
+        if (list_p2.id[i] == slave_id)
+            return true;
+    return false;
+}
+
+//======================================================================
+// Đóng gói dữ liệu 1 meter thành JSON để gửi lên web
+// status = "online"   → gửi đầy đủ registers
+// status = "inactive" → gửi JSON rỗng, web hiển thị offline
 char *pack_data_to_json(int id, char *name, char *model)
 {
     if (tcp_virtual_storage == NULL || basic_dict == NULL)
@@ -155,6 +144,18 @@ char *pack_data_to_json(int id, char *name, char *model)
     cJSON_AddStringToObject(root, "model", model);
     cJSON_AddStringToObject(root, "attr", "Consumption Meter");
 
+    bool online = is_id_online((uint8_t)id);
+    cJSON_AddStringToObject(root, "status", online ? "online" : "offline");
+
+    // Inactive → gửi registers rỗng, tránh gửi dữ liệu cũ gây hiểu nhầm
+    if (!online)
+    {
+        cJSON_AddItemToObject(root, "registers", cJSON_CreateArray());
+        char *out = cJSON_PrintUnformatted(root);
+        cJSON_Delete(root);
+        return out;
+    }
+
     cJSON *data_array = cJSON_CreateArray();
     if (data_array == NULL)
     {
@@ -162,23 +163,24 @@ char *pack_data_to_json(int id, char *name, char *model)
         return NULL;
     }
 
-    if (xSemaphoreTake(xDataMutex, pdMS_TO_TICKS(200)) == pdTRUE)
+    if (xSemaphoreTake(xDataMutex, pdMS_TO_TICKS(1000)) == pdTRUE)
     {
         for (int i = 0; i < register_count; i++)
         {
             if (basic_dict[i].mb_slave_addr != id)
                 continue;
 
-            cJSON *data_object = cJSON_CreateObject();
-            if (data_object != NULL)
+            cJSON *obj = cJSON_CreateObject();
+            if (obj)
             {
-                cJSON_AddNumberToObject(data_object, "register", basic_dict[i].mb_reg_start);
-                cJSON_AddStringToObject(data_object, "name", basic_dict[i].param_key);
-                cJSON_AddNumberToObject(data_object, "value", tcp_virtual_storage[i]);
-                cJSON_AddStringToObject(data_object, "unit", basic_dict[i].param_units);
-                cJSON_AddItemToArray(data_array, data_object);
+                cJSON_AddNumberToObject(obj, "register", basic_dict[i].mb_reg_start);
+                cJSON_AddStringToObject(obj, "name", basic_dict[i].param_key);
+                cJSON_AddNumberToObject(obj, "value", tcp_virtual_storage[i]);
+                cJSON_AddStringToObject(obj, "unit", basic_dict[i].param_units);
+                cJSON_AddItemToArray(data_array, obj);
             }
 
+            // Mapping sang volt, curr, freq...
             for (int j = 0; j < mapping_size; j++)
             {
                 if (strcmp(basic_dict[i].param_key, master_mapping[j].modbus_param_key) == 0)
@@ -196,77 +198,77 @@ char *pack_data_to_json(int id, char *name, char *model)
     }
     else
     {
-        ESP_LOGW(TAG, "pack_data_to_json: cannot take xDataMutex, skip.");
+        ESP_LOGW(TAG, "pack_data_to_json: mutex timeout, skip.");
         cJSON_Delete(data_array);
         cJSON_Delete(root);
         return NULL;
     }
 
     cJSON_AddItemToObject(root, "registers", data_array);
-    char *json_out = cJSON_PrintUnformatted(root);
+    char *out = cJSON_PrintUnformatted(root);
     cJSON_Delete(root);
-    return json_out;
+    return out;
 }
 
 //======================================================================
-// TASK GỬI MQTT meter data - 10 giây/lần
+// MQTT publish task - gửi dữ liệu lên web mỗi 5 giây
 void mqtt_publish_task(void *pvParameters)
 {
     vTaskDelay(pdMS_TO_TICKS(5000));
 
     while (1)
     {
-        if (is_scan_device == true)
+        // Chờ nếu đang scan
+        if (is_scan_device)
         {
-            ESP_LOGW(TAG, "Scan is running, delay MQTT publish ....");
             vTaskDelay(pdMS_TO_TICKS(5000));
             continue;
         }
-        if (is_mqtt_connected && mqtt_client != NULL && tcp_virtual_storage != NULL && basic_dict != NULL)
-        {
-            int last_id = -1;
-            int meter_count = 0;
 
+        if (is_mqtt_connected && mqtt_client != NULL &&
+            tcp_virtual_storage != NULL && basic_dict != NULL)
+        {
+            int last_id = -1, meter_count = 0;
             for (int i = 0; i < register_count; i++)
             {
-                int current_id = basic_dict[i].mb_slave_addr;
-                if (current_id == last_id)
+                int id = basic_dict[i].mb_slave_addr;
+                if (id == last_id)
                     continue;
 
                 meter_count++;
-                char meter_name[32];
-                snprintf(meter_name, sizeof(meter_name), "Meter %d - ID: %d", meter_count, current_id);
+                char name[32];
+                snprintf(name, sizeof(name), "Meter %d - ID: %d", meter_count, id);
 
-                char *payload = pack_data_to_json(current_id, meter_name, "Power Meter");
-                if (payload != NULL)
+                char *payload = pack_data_to_json(id, name, "Power Meter");
+                if (payload)
                 {
                     int msg_id = esp_mqtt_client_publish(mqtt_client, PUBLISH_TOPIC, payload, 0, 1, 0);
                     if (msg_id >= 0)
-                        ESP_LOGI(TAG, "Published %s (msg_id=%d)", meter_name, msg_id);
+                        ESP_LOGI(TAG, "Published %s [%s] msg_id=%d",
+                                 name, is_id_online(id) ? "online" : "inactive", msg_id);
                     else
-                        ESP_LOGW(TAG, "Failed to publish %s", meter_name);
+                        ESP_LOGW(TAG, "Failed to publish %s", name);
                     free(payload);
                 }
-
-                last_id = current_id;
+                last_id = id;
                 vTaskDelay(pdMS_TO_TICKS(500));
             }
         }
         else
         {
-            ESP_LOGW(TAG, "MQTT not connected, waiting...");
+            ESP_LOGW(TAG, "MQTT not ready, waiting...");
         }
         vTaskDelay(pdMS_TO_TICKS(5000));
     }
 }
 
 //======================================================================
-// Gửi dữ liệu scan về web sau khi scan xong
+// Gửi kết quả scan về web
 void publish_scan_result(void)
 {
     if (!is_mqtt_connected || mqtt_client == NULL)
     {
-        ESP_LOGW(TAG, "[SCAN] Disconnect MQTT Broker !!!");
+        ESP_LOGW(TAG, "[SCAN] MQTT not connected");
         return;
     }
 
@@ -275,94 +277,54 @@ void publish_scan_result(void)
 
     cJSON *root = cJSON_CreateObject();
     if (root == NULL)
-    {
-        // ESP_LOGE(TAG, "[SCAN] Tạo JSON thất bại");
         return;
-    }
+
     cJSON_AddStringToObject(root, "gateway_id", gateway_id);
     cJSON_AddStringToObject(root, "event", "scan_result");
-    cJSON_AddBoolToObject(root, "wire_p1_ok", wire_p1_ok); // wire=true thì là dây bình thường
+    cJSON_AddBoolToObject(root, "wire_p1_ok", wire_p1_ok);
     cJSON_AddBoolToObject(root, "wire_p2_ok", wire_p2_ok);
     cJSON_AddNumberToObject(root, "active_port", scan_result.active_port);
+    cJSON_AddBoolToObject(root, "dual_port_mode", dual_port_mode);
+    cJSON_AddBoolToObject(root, "line_ok", wire_p1_ok || wire_p2_ok);
+    cJSON_AddNumberToObject(root, "final_id_p1", scan_result.final_id_p1);
+    cJSON_AddNumberToObject(root, "final_id_p2", scan_result.final_id_p2);
 
-    // ── Severity ───────────────────────────────────────────────────────
-    // "warning" nếu có ít nhất 1 ID không phản hồi, ngược lại "ok"
     const char *severity = (scan_result.lose_count > 0) ? "warning" : "normal";
     cJSON_AddStringToObject(root, "severity", severity);
 
+    // Danh sách ID mất hoàn toàn
     cJSON *inactive_arr = cJSON_CreateArray();
-    if (inactive_arr != NULL)
-    {
-        for (int i = 0; i < scan_result.lose_count; i++)
-            cJSON_AddItemToArray(inactive_arr, cJSON_CreateNumber(scan_result.lose_list[i]));
-        cJSON_AddItemToObject(root, "inactive_ids", inactive_arr);
-    }
+    for (int i = 0; i < scan_result.lose_count; i++)
+        cJSON_AddItemToArray(inactive_arr, cJSON_CreateNumber(scan_result.lose_list[i]));
+    cJSON_AddItemToObject(root, "inactive_ids", inactive_arr);
+
+    // Danh sách ID còn hoạt động
     cJSON *active_arr = cJSON_CreateArray();
-    if (active_arr != NULL)
+    for (int i = 0; i < original_id_count; i++)
     {
-        for (int i = 0; i < original_id_count; i++)
-        {
-            uint8_t id = original_id[i];
-            bool is_lost = false;
-
-            for (int j = 0; j < scan_result.lose_count; j++)
+        bool lost = false;
+        for (int j = 0; j < scan_result.lose_count; j++)
+            if (scan_result.lose_list[j] == original_id[i])
             {
-                if (scan_result.lose_list[j] == id)
-                {
-                    is_lost = true;
-                    break;
-                }
+                lost = true;
+                break;
             }
-
-            if (!is_lost)
-                cJSON_AddItemToArray(active_arr, cJSON_CreateNumber(id));
-        }
-        cJSON_AddItemToObject(root, "active_ids", active_arr);
+        if (!lost)
+            cJSON_AddItemToArray(active_arr, cJSON_CreateNumber(original_id[i]));
     }
+    cJSON_AddItemToObject(root, "active_ids", active_arr);
 
-    // ── Thông tin vị trí đứt dây ──────────────────────────────────────
-    // final_id_p1: index trong original_id[] của ID cuối cùng Port 1 thấy được
-    //              = -1 nếu Port 1 không thấy thiết bị nào
-    // final_id_p2: index trong original_id[] của ID cuối cùng Port 2 thấy được
-    //              = original_id_count nếu Port 2 không thấy thiết bị nào
-    // Web dùng 2 field này để xác định đứt ở đoạn nào trên dây:
-    //   final_p1=0, final_p2=1 → đứt giữa original_id[0] và original_id[1]
-    //   final_p1=-1, final_p2=0 → đứt trước thiết bị đầu tiên (đoạn A)
-    //   final_p1=count-1, final_p2=count → đứt sau thiết bị cuối (đoạn D)
-    cJSON_AddNumberToObject(root, "final_id_p1", scan_result.final_id_p1);
-    cJSON_AddNumberToObject(root, "final_id_p2", scan_result.final_id_p2);
-    bool line_ok = wire_p1_ok || wire_p2_ok;
-    cJSON_AddBoolToObject(root, "line_ok", line_ok);
-
-    // ── Serialize và publish ───────────────────────────────────────────
     char *payload = cJSON_PrintUnformatted(root);
     cJSON_Delete(root);
-
     if (payload == NULL)
-    {
-        ESP_LOGE(TAG, "[SCAN] Fail to Serialize JSON !!!");
         return;
-    }
 
-    int msg_id = esp_mqtt_client_publish(
-        mqtt_client,
-        SCAN_TOPIC,
-        payload,
-        0,
-        1,
-        1 // retain=1: client mới subscribe vẫn nhận kết quả gần nhất
-    );
-
+    int msg_id = esp_mqtt_client_publish(mqtt_client, SCAN_TOPIC, payload, 0, 1, 1);
     if (msg_id >= 0)
-        ESP_LOGI(TAG, "[SCAN] Publish OK (msg_id=%d) severity=%s active=%d inactive=%d",
-                 msg_id, severity,
-                 (int)(original_id_count - scan_result.lose_count),
-                 scan_result.lose_count);
+        ESP_LOGI(TAG, "[SCAN] OK msg_id=%d severity=%s dual_port=%s",
+                 msg_id, severity, dual_port_mode ? "ON" : "OFF");
     else
-        ESP_LOGW(TAG, "[SCAN] Publish FAILED severity=%s active=%d inactive=%d",
-                 severity,
-                 (int)(original_id_count - scan_result.lose_count),
-                 scan_result.lose_count);
+        ESP_LOGW(TAG, "[SCAN] Publish failed");
 
     free(payload);
 }
