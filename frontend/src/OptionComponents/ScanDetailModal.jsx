@@ -10,26 +10,17 @@ const COLOR = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// analyzeWire — tính chính xác các điểm đứt dây từ fp1, fp2, count
+// analyzeWire — phân tích trạng thái dây và thiết bị
 //
-// Quy ước từ ESP32:
-//   fp1 = index cuối cùng trong original_id[] mà Port 1 thấy được
-//         = -1 nếu Port 1 không thấy thiết bị nào
-//   fp2 = index cuối cùng trong original_id[] mà Port 2 thấy được
-//         = count nếu Port 2 không thấy thiết bị nào
+// 3 loại trạng thái:
+//   "normal"         — dây nguyên, tất cả thiết bị online
+//   "device_offline" — dây nguyên, nhưng có thiết bị không phản hồi  ← FIX
+//   "single"         — dây đứt 1 chỗ
+//   "double"         — dây đứt 2 chỗ
 //
-// Ý nghĩa vị trí đứt:
-//   segIndex = 0        → đoạn P1 ↔ ID[0]
-//   segIndex = i        → đoạn ID[i-1] ↔ ID[i]
-//   segIndex = count    → đoạn ID[count-1] ↔ P2
-//
-// Logic tính breaks:
-//   - P1 thấy đến fp1  → dây từ P1 đến ID[fp1] còn nguyên
-//   - P2 thấy đến fp2  → dây từ P2 đến ID[fp2] còn nguyên
-//   - Nếu fp1 == -1    → P1 không thấy ai → đứt đoạn P1↔ID[0] (segIndex=0)
-//   - Nếu fp2 == count → P2 không thấy ai → đứt đoạn ID[count-1]↔P2 (segIndex=count)
-//   - Nếu fp1+1 < fp2  → có khoảng giữa P1 thấy và P2 thấy → đứt đoạn ID[fp1]↔ID[fp2] (segIndex=fp1+1..fp2-1)
-//     Nhưng thực tế chỉ 1 điểm đứt liên tục → segIndex = fp1+1 (đoạn ngay sau ID[fp1])
+// Quy ước fp1, fp2 từ ESP32:
+//   fp1 = index cuối cùng P1 thấy được (-1 nếu không thấy ai)
+//   fp2 = index cuối cùng P2 thấy được (= count nếu không thấy ai)
 // ─────────────────────────────────────────────────────────────────────────────
 function analyzeWire(scan, detail) {
   if (!detail || !scan?._raw) return null;
@@ -42,11 +33,17 @@ function analyzeWire(scan, detail) {
   const { wire_p1_ok, wire_p2_ok, final_id_p1: fp1, final_id_p2: fp2 } = scan._raw;
   const hasOffline = devices.some(d => d.status === "inactive");
 
-  // Dây bình thường: wire check OK và không có thiết bị offline
+  // ── Loại 1: Dây nguyên, tất cả thiết bị online ──
   if ((wire_p1_ok || wire_p2_ok) && !hasOffline)
     return { type: "normal", breaks: [], originalId, fp1, fp2, count };
 
-  // Tính các đoạn đứt
+  // ── Loại 2: Dây nguyên nhưng có thiết bị offline ──
+  // KHÔNG vẽ BREAK — chỉ tô đỏ box thiết bị offline
+  // Đây là lỗi thiết bị, không phải lỗi dây
+  if ((wire_p1_ok || wire_p2_ok) && hasOffline)
+    return { type: "device_offline", breaks: [], originalId, fp1, fp2, count };
+
+  // ── Loại 3: Dây đứt — mới tính breaks và vẽ đường đứt ──
   const breaks = [];
 
   // Đoạn đầu: P1 không thấy ai → đứt đoạn P1↔ID[0]
@@ -54,26 +51,13 @@ function analyzeWire(scan, detail) {
     breaks.push({ segIndex: 0, desc: `P1 ✂ ID${originalId[0]}` });
 
   // Đoạn giữa: khoảng trống giữa phần P1 thấy và phần P2 thấy
-  // fp1 là index cuối P1 thấy, fp2 là index cuối P2 thấy (tính từ P2 vào)
-  // P2 thấy từ originalId[fp2] trở đi (về phía P2)
-  // → đoạn từ ID[fp1] đến ID[fp2] là không ai thấy → đứt ở đó
-  // fp2 ở đây là index trong original_id[] của thiết bị đầu tiên P2 thấy
-  // nhưng theo quy ước ESP32: fp2 = index thiết bị CUỐI P2 thấy (tính từ index 0)
-  // → thiết bị P2 thấy là từ fp2 đến count-1
-  // → khoảng trống là từ fp1+1 đến fp2-1
   if (fp1 >= 0 && fp2 < count && fp1 + 1 <= fp2 - 1) {
-    // Có thiết bị bị cô lập ở giữa (không ai thấy)
-    // Đứt tại 2 đoạn: sau ID[fp1] và trước ID[fp2]
     breaks.push({ segIndex: fp1 + 1, desc: `ID${originalId[fp1]} ✂ ID${originalId[fp1 + 1]}` });
-    if (fp2 - 1 > fp1 + 1) // khoảng cách > 1 → đứt thêm đoạn cuối vùng tối
+    if (fp2 - 1 > fp1 + 1)
       breaks.push({ segIndex: fp2, desc: `ID${originalId[fp2 - 1]} ✂ ID${originalId[fp2]}` });
   } else if (fp1 >= 0 && fp2 < count && fp1 + 1 === fp2) {
-    // Đứt đúng 1 đoạn ở giữa
     breaks.push({ segIndex: fp1 + 1, desc: `ID${originalId[fp1]} ✂ ID${originalId[fp2]}` });
   } else if (fp1 === -1 && fp2 < count - 1 && fp2 >= 0) {
-    // P1 không thấy ai, P2 chỉ thấy từ ID[fp2] trở về P2
-    // → đứt thêm đoạn giữa ID[fp2-1] và ID[fp2] nếu có khoảng trống
-    // fp2-1 là meter ngay trước phần P2 thấy, không ai thấy nó
     if (fp2 > 0)
       breaks.push({ segIndex: fp2, desc: `ID${originalId[fp2 - 1]} ✂ ID${originalId[fp2]}` });
   }
@@ -92,12 +76,20 @@ function analyzeWire(scan, detail) {
 function getDescription(analysis) {
   if (!analysis) return { text: "Loading...", color: COLOR.muted };
   const { type, breaks } = analysis;
+
   if (type === "normal")
     return { text: "✅ Cable line is normal. All devices are reachable.", color: COLOR.ok };
+
+  // Dây nguyên nhưng thiết bị không phản hồi — lỗi thiết bị, không phải lỗi dây
+  if (type === "device_offline")
+    return { text: "⚠️ Cable is normal but some devices are not responding. Check device power or Modbus configuration.", color: "#f5c542" };
+
   if (type === "single")
     return { text: `⚠️ Single break at: ${breaks[0].desc}. Port 2 is used as fallback master.`, color: "#f5c542" };
+
   if (type === "double")
     return { text: `🔴 Two breaks — ${breaks[0].desc} | ${breaks[1].desc}. Devices between breaks are unreachable.`, color: COLOR.err };
+
   return { text: "Unknown state.", color: COLOR.muted };
 }
 
@@ -129,10 +121,11 @@ function WireDiagram({ scan, detail }) {
     <Box sx={{ overflowX: "auto" }}>
       <svg width={SVG_W} height={130} style={{ display: "block", minWidth: SVG_W }}>
 
+        {/* Vẽ các đoạn dây */}
         {Array.from({ length: count + 1 }, (_, seg) => {
           const broken = brokenSet.has(seg);
-          const x1 = seg === 0     ? p1x + PW       : mXs[seg - 1] + NW;
-          const x2 = seg === count ? p2x             : mXs[seg];
+          const x1 = seg === 0     ? p1x + PW : mXs[seg - 1] + NW;
+          const x2 = seg === count ? p2x       : mXs[seg];
           const mx = (x1 + x2) / 2;
           return (
             <g key={seg}>
@@ -152,8 +145,10 @@ function WireDiagram({ scan, detail }) {
           );
         })}
 
+        {/* Port P1 */}
         <Port x={p1x} label="P1" />
 
+        {/* Các thiết bị */}
         {originalId.map((id, i) => {
           const active = statusMap[id] === "active";
           const x = mXs[i];
@@ -170,6 +165,7 @@ function WireDiagram({ scan, detail }) {
           );
         })}
 
+        {/* Port P2 */}
         <Port x={p2x} label="P2" />
       </svg>
     </Box>
@@ -203,6 +199,7 @@ export default function ScanDetailModal({ open, onClose, scan, detail, loading }
 
       <DialogContent sx={{ pt: 2 }}>
 
+        {/* Thông báo trạng thái */}
         <Box sx={{ mb: 2, p: 1.5, borderRadius: 1, bgcolor: `${desc.color}11`, border: `1px solid ${desc.color}44` }}>
           {loading
             ? <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -213,6 +210,7 @@ export default function ScanDetailModal({ open, onClose, scan, detail, loading }
           }
         </Box>
 
+        {/* Sơ đồ dây */}
         <Typography fontSize={11} color={COLOR.muted} sx={{ mb: 1, textTransform: "uppercase", letterSpacing: 1 }}>
           Wire Diagram
         </Typography>
@@ -222,6 +220,7 @@ export default function ScanDetailModal({ open, onClose, scan, detail, loading }
           {loading ? <CircularProgress size={28} /> : <WireDiagram scan={scan} detail={detail} />}
         </Box>
 
+        {/* Chú thích màu */}
         <Box sx={{ mt: 1.5, display: "flex", gap: 2, flexWrap: "wrap" }}>
           {[
             { color: COLOR.ok,  label: "Normal wire",    type: "line" },
@@ -241,6 +240,7 @@ export default function ScanDetailModal({ open, onClose, scan, detail, loading }
 
         <Divider sx={{ my: 2, borderColor: "#2a2f42" }} />
 
+        {/* Chip thông tin */}
         <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", mb: offlineIds.length > 0 ? 1.5 : 0 }}>
           <Chip label={`Active Port: ${raw.active_port ?? "—"}`} size="small" variant="outlined"
                 sx={{ color: COLOR.port, borderColor: `${COLOR.port}44`, fontSize: 12 }} />
@@ -253,6 +253,7 @@ export default function ScanDetailModal({ open, onClose, scan, detail, loading }
                 sx={{ color: COLOR.muted, borderColor: "#2a2f42", fontSize: 12 }} />
         </Box>
 
+        {/* Danh sách thiết bị offline */}
         {!loading && offlineIds.length > 0 && (
           <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", alignItems: "center" }}>
             <Typography fontSize={12} color={COLOR.muted}>Offline devices:</Typography>

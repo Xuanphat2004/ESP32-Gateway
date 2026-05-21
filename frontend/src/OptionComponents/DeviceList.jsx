@@ -459,7 +459,7 @@ const MeterTable = ({ siteId }) => {
                   {historyRows.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={5} align="center" sx={{ color: "#aaa", py: 4 }}>
-                        Không có dữ liệu trong ngày này
+                        No data in today
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -510,7 +510,7 @@ const MeterTable = ({ siteId }) => {
         <Typography sx={{ color: theme.palette.text.header_option, mb: 1 }}>
           Register of: <strong>{selectedMeter.meter_name}</strong>
           <span style={{ color: "#aaa", fontSize: 13, marginLeft: 16 }}>
-            — Click vào 1 dòng để xem lịch sử
+            — Click a line to see history
           </span>
         </Typography>
 
