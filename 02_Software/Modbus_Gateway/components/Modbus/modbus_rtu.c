@@ -380,12 +380,10 @@ void modbus_test_read(void)
     esp_err_t err;
     uint8_t type;
     rtc_time_t now;
-    uint8_t count_off[248] = {0};
-    uint8_t total_cid[248] = {0};
-    uint8_t cid_fail[248] = {0};
-
-    for (int i = 0; i < register_count; i++) // Tổng hợp số lượng cid của mỗi ID
-        total_cid[basic_dict[i].mb_slave_addr]++;
+    // consecutive_fail: đếm số lần timeout liên tiếp của từng slave
+    // Reset về 0 khi slave phản hồi OK
+    // Trigger scan khi đạt 5 lần → không cần đợi hết toàn bộ CID
+    uint8_t consecutive_fail[248] = {0};
 
     while (1)
     {
@@ -500,52 +498,17 @@ void modbus_test_read(void)
             // Mở khóa Data-Copy task → tcp_virtual_storage được cập nhật
             dual_port_polling = false;
 
-            // Chỉ trigger scan khi slave đang được poll (có trong list_p1/list_p2)
-            // mà bất ngờ mất hoàn toàn → có thể đường truyền thay đổi
-            // Slave đã biết offline (trong lose_list, không có trong cả 2 list) → bỏ qua
-            // Tránh trigger scan liên tục cho slave đã biết là offline
-            memset(cid_fail, 0, sizeof(cid_fail));
-            for (int i = 0; i < register_count; i++)
-                if (!read_ok[i])
-                    cid_fail[basic_dict[i].mb_slave_addr]++;
-
-            for (int sid = 1; sid < 248; sid++)
-            {
-                if (total_cid[sid] == 0)
-                    continue;
-                if (cid_fail[sid] != total_cid[sid])
-                    continue;
-
-                // Kiểm tra slave này có trong list_p1 hoặc list_p2 không
-                // Nếu không có trong cả 2 list → đã biết offline → bỏ qua
-                bool in_p1 = false, in_p2 = false;
-                for (int k = 0; k < list_p1.count; k++)
-                    if (list_p1.id[k] == sid)
-                    {
-                        in_p1 = true;
-                        break;
-                    }
-                for (int k = 0; k < list_p2.count; k++)
-                    if (list_p2.id[k] == sid)
-                    {
-                        in_p2 = true;
-                        break;
-                    }
-
-                if (in_p1 || in_p2)
-                {
-                    xSemaphoreGive(scan_sem);
-                    ESP_LOGW(TAG, "[DUAL] Slave %d (dang duoc poll) mat hoan toan, trigger scan!", sid);
-                    break;
-                }
-            }
+            // consecutive_fail đã được xử lý trong poll_for_list
+            // Không cần tổng hợp thêm ở đây
 
             printf("\n");
             vTaskDelay(pdMS_TO_TICKS(5000));
             continue;
         }
 
-        // NORMAL MODE: Poll 1 port, đọc tất cả CID như cũ
+        // NORMAL MODE: Poll 1 port, đọc tất cả CID
+        // Nếu 1 slave timeout 5 lần liên tiếp → trigger scan ngay
+        // Không cần đợi hết toàn bộ CID: 100 CID × 300ms timeout = 30s quá lâu
         for (int i = 0; i < register_count; i++)
         {
             if (is_change_baud || is_scan_device)
@@ -557,16 +520,29 @@ void modbus_test_read(void)
             if (is_change_baud || is_scan_device)
                 goto exit_and_wait;
 
+            uint8_t sid = basic_dict[i].mb_slave_addr;
+
             if (err == ESP_OK)
             {
                 temp_result[i] = decode_raw_to_float(addr, (mb_descr_type_t)basic_dict[i].param_type) * factor_dict[i].scale;
                 read_ok[i] = true;
+                consecutive_fail[sid] = 0; // Slave phản hồi → reset bộ đếm
             }
             else
             {
                 temp_result[i] = 0;
                 read_ok[i] = false;
-                ESP_LOGW(TAG, "Fail [CID:%d] %s (0x%x)", i, basic_dict[i].param_key, err);
+                consecutive_fail[sid]++;
+                ESP_LOGW(TAG, "Fail [CID:%d] %s (0x%x) | slave %d: %d/5",
+                         i, basic_dict[i].param_key, err, sid, consecutive_fail[sid]);
+
+                // Đủ 5 timeout liên tiếp → trigger scan ngay, không đợi hết vòng lặp
+                if (consecutive_fail[sid] >= 5)
+                {
+                    consecutive_fail[sid] = 0;
+                    xSemaphoreGive(scan_sem);
+                    ESP_LOGW(TAG, ">>> Slave %d timeout 5 lan, trigger scan ngay!", sid);
+                }
             }
         }
 
@@ -601,35 +577,14 @@ void modbus_test_read(void)
             xSemaphoreGive(xDataMutex);
         }
 
-        // Slave nào không phản hồi bất kỳ CID nào → trigger scan tự động
-        memset(cid_fail, 0, sizeof(cid_fail));
-        for (int i = 0; i < register_count; i++)
-            if (!read_ok[i])
-                cid_fail[basic_dict[i].mb_slave_addr]++;
-        for (int sid = 1; sid < 248; sid++)
-        {
-            if (total_cid[sid] == 0)
-                continue;
-            if (cid_fail[sid] == total_cid[sid])
-            {
-                memset(count_off, 0, sizeof(count_off));
-                xSemaphoreGive(scan_sem);
-                ESP_LOGW(TAG, "Passive scan triggered!");
-            }
-            else
-            {
-                count_off[sid] = 0;
-            }
-        }
+        // Trigger scan đã xử lý trực tiếp trong vòng lặp poll ở trên
 
     exit_and_wait:
         if (is_change_baud || is_scan_device)
         {
-            dual_port_polling = false; // Đảm bảo không bao giờ bị kẹt
+            dual_port_polling = false;                             // Đảm bảo không bao giờ bị kẹt
+            memset(consecutive_fail, 0, sizeof(consecutive_fail)); // Reset khi có interrupt
             vTaskDelay(pdMS_TO_TICKS(200));
-            memset(total_cid, 0, sizeof(total_cid));
-            for (int i = 0; i < register_count; i++)
-                total_cid[basic_dict[i].mb_slave_addr]++;
             continue;
         }
         printf("\n");

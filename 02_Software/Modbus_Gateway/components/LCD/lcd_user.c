@@ -416,6 +416,7 @@ void ui_task(void)
                     {
                         if (menu_cursor == 1)
                         {
+                            cached_baud = load_baud_from_nvs();
                             lcd_clear();
                             current_page = PAGE_SET_BAUDRATE;
                         }
