@@ -19,6 +19,22 @@ import { getData } from "../ApiComponent/api";
 import { useSearchParams } from "react-router-dom";
 
 
+// ── Helper: format ISO timestamp → DD/MM/YYYY HH:MM:SS ──────────────────
+const formatTs = (ts) => {
+  if (!ts || ts === '--') return '--';
+  try {
+    // "2026-05-28T15:36:23+07:00" → "28/05/2026 15:36:23"
+    const d = new Date(ts);
+    if (isNaN(d.getTime())) {
+      // fallback: cắt chuỗi nếu không parse được
+      return ts.replace('T', ' ').slice(0, 19);
+    }
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} `
+         + `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  } catch { return ts; }
+};
+
 //======================================== INVERTER ===================================================
 const InverterTable = ({ siteId }) => {
   const theme = useTheme();
@@ -101,17 +117,28 @@ const MeterTable = ({ siteId }) => {
   const [selectedMeter,  setSelectedMeter]  = useState(null);
   const [detailRows,     setDetailRows]     = useState([]);
   const [loadingDetail,  setLoadingDetail]  = useState(false);
-  const detailRowsRef = useRef([]);
-  useEffect(() => { detailRowsRef.current = detailRows; }, [detailRows]);
 
   // ── State tầng 3: Lịch sử + chart của 1 thanh ghi ──
   const [selectedRegister, setSelectedRegister] = useState(null);
   const [historyRows,      setHistoryRows]      = useState([]);
   const [loadingHistory,   setLoadingHistory]   = useState(false);
 
-  // ── State filter ngày — chỉ 1 ngày, không có range ──
-  // null = hôm nay (realtime), dayjs object = ngày cụ thể
+  // ── State filter ngày ──
   const [filterDate, setFilterDate] = useState(null);
+
+  // ── Refs (khai báo SAU state — tránh Temporal Dead Zone) ──────────────
+  // detailRowsRef: merge detailRows trong EFFECT 3 không bị stale closure
+  const detailRowsRef = useRef([]);
+  useEffect(() => { detailRowsRef.current = detailRows; }, [detailRows]);
+
+  // selectedRegisterRef: EFFECT 3 biết user đang xem register nào (tầng 3)
+  // Không đưa selectedRegister vào deps EFFECT 3 → socket không restart khi đổi register
+  const selectedRegisterRef = useRef(null);
+  useEffect(() => { selectedRegisterRef.current = selectedRegister; }, [selectedRegister]);
+
+  // filterDateRef: EFFECT 3 biết đang xem hôm nay hay ngày cũ
+  const filterDateRef = useRef(null);
+  useEffect(() => { filterDateRef.current = filterDate; }, [filterDate]);
 
 
   // ── EFFECT 1: Fetch bảng tổng quát lần đầu ──
@@ -140,7 +167,7 @@ const MeterTable = ({ siteId }) => {
     const socket = new WebSocket(
       siteId ? `ws://localhost:8000/ws/meter/${siteId}/` : `ws://localhost:8000/ws/all_meters/`
     );
-    socket.onopen  = () => console.log("WS tổng quát connected");
+    socket.onopen  = () => console.log("[WS] Tổng quát connected");
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
       setRows(data.map(item => ({
@@ -153,72 +180,87 @@ const MeterTable = ({ siteId }) => {
         timestamp: item.timestamp ?? "--",
       })));
     };
-    socket.onerror = (e) => console.error("WS tổng quát error:", e);
+    socket.onclose = (e) => console.warn("[WS] Tổng quát closed:", e.code);
+    socket.onerror = (e) => console.error("[WS] Tổng quát error:", e);
     return () => socket.close();
   }, [siteId]);
 
 
-  // ── EFFECT 3: WS bảng chi tiết ──
+  // ── EFFECT 3: WS bảng chi tiết ─────────────────────────────────────────
+  //
+  // Làm 2 việc cùng lúc:
+  //   1. Cập nhật bảng chi tiết (tầng 2) — merge value mới vào detailRows
+  //   2. Cập nhật lịch sử + chart (tầng 3) — append vào historyRows nếu đang xem
+  //
+  // Tại sao không dùng WS riêng cho tầng 3?
+  //   - WS register_history cần 1 kết nối mới mỗi lần click register → phức tạp
+  //   - group_send × 350 register mỗi poll → tốn kém
+  //   - WS này đã nhận ĐỦ data của toàn bộ meter → lọc ra register cần xem là xong
+  //   - Dùng ref thay vì state trong closure → không cần restart socket khi chuyển register
   useEffect(() => {
     if (!selectedMeter) return;
     const socket = new WebSocket(`ws://localhost:8000/ws/meter_register/${selectedMeter.meter_id}/`);
-    socket.onopen  = () => console.log(`WS chi tiết connected: meter_id=${selectedMeter.meter_id}`);
+    socket.onopen  = () => console.log(`[WS] Chi tiết connected: meter_id=${selectedMeter.meter_id}`);
+
     socket.onmessage = (event) => {
       const newRows = JSON.parse(event.data);
+
+      // ── Phần 1: Cập nhật bảng chi tiết (tầng 2) ──────────────────────────
       const prev = detailRowsRef.current;
-      if (prev.length === 0) { setDetailRows(newRows); return; }
-      const currentMap = {};
-      prev.forEach(row => { currentMap[row.parameter_name] = row; });
-      newRows.forEach(newRow => {
-        currentMap[newRow.parameter_name] = currentMap[newRow.parameter_name]
-          ? { ...currentMap[newRow.parameter_name], value: newRow.value, timestamp: newRow.timestamp }
-          : newRow;
-      });
-      const existingNames = prev.map(r => r.parameter_name);
-      const newNames = Object.keys(currentMap).filter(n => !existingNames.includes(n));
-      setDetailRows([...prev.map(r => currentMap[r.parameter_name]), ...newNames.map(n => currentMap[n])]);
-    };
-    socket.onerror = e => console.error("WS chi tiết error:", e);
-    return () => socket.close();
-  }, [selectedMeter]);
+      if (prev.length === 0) {
+        setDetailRows(newRows);
+      } else {
+        const currentMap = {};
+        prev.forEach(row => { currentMap[row.parameter_name] = row; });
+        newRows.forEach(newRow => {
+          currentMap[newRow.parameter_name] = currentMap[newRow.parameter_name]
+            ? { ...currentMap[newRow.parameter_name], value: newRow.value, timestamp: newRow.timestamp }
+            : newRow;
+        });
+        const existingNames = prev.map(r => r.parameter_name);
+        const newNames = Object.keys(currentMap).filter(n => !existingNames.includes(n));
+        setDetailRows([...prev.map(r => currentMap[r.parameter_name]), ...newNames.map(n => currentMap[n])]);
+      }
 
+      // ── Phần 2: Cập nhật lịch sử + chart (tầng 3) ───────────────────────
+      // Chỉ chạy khi: đang xem tầng 3 (selectedRegisterRef.current != null)
+      //               VÀ đang xem hôm nay (filterDateRef.current == null)
+      const currentReg = selectedRegisterRef.current;
+      if (!currentReg || filterDateRef.current !== null) return;
 
-  // ── EFFECT 4: WS lịch sử thanh ghi ──
-  // Chỉ thêm dòng mới khi đang xem hôm nay (filterDate = null)
-  // Xem ngày cũ thì WS im lặng — tránh lẫn lộn dữ liệu
-  useEffect(() => {
-    if (!selectedRegister || !selectedMeter) return;
+      // Tìm register đang xem trong data vừa nhận
+      // So sánh theo register_address (số) — chính xác hơn parameter_name (chuỗi)
+      const matchingReg = newRows.find(r => String(r.register) === String(currentReg.register_address));
+      if (!matchingReg) return;
 
-    const encodedName = encodeURIComponent(selectedRegister.register_name);
-    const socket = new WebSocket(
-      `ws://localhost:8000/ws/register_history/${selectedMeter.meter_id}/${encodedName}/`
-    );
+      // Build history row cùng format với API trả về
+      const historyRow = {
+        received_at:      matchingReg.timestamp,   // ISO string từ worker
+        register_address: matchingReg.register,
+        register_name:    matchingReg.parameter_name,
+        value:            matchingReg.value,
+        unit:             matchingReg.unit,
+      };
 
-    socket.onopen = () => console.log(`WS lịch sử connected: ${selectedRegister.register_name}`);
-
-    socket.onmessage = (event) => {
-      const newRow = JSON.parse(event.data);
-
-      // Chỉ cập nhật realtime khi đang xem hôm nay
-      const isViewingToday = !filterDate;
-      if (!isViewingToday) return;
-
-      setHistoryRows(prev => [...prev, newRow]); // thêm vào CUỐI (cũ → mới)
+      setHistoryRows(prev => [...prev, historyRow]);
     };
 
-    socket.onerror = e => console.error("WS lịch sử error:", e);
+    socket.onclose = (e) => console.warn("[WS] Chi tiết closed:", e.code);
+    socket.onerror = e => console.error("[WS] Chi tiết error:", e);
     return () => socket.close();
-  }, [selectedRegister, selectedMeter]);
+  }, [selectedMeter]);  // ← chỉ restart khi đổi meter, KHÔNG restart khi đổi register
+
+
+  // EFFECT 4 đã được hợp nhất vào EFFECT 3 — xem comment bên trên
 
 
   // ── Hàm fetch lịch sử — dùng chung cho mọi trường hợp ──
-  // date = "YYYY-MM-DD" hoặc null (hôm nay)
   const fetchHistory = async (register_name, meter_id, date) => {
     setLoadingHistory(true);
     setHistoryRows([]);
 
     let url = `/solardb/get-register-history/?meter_id=${meter_id}&register_name=${encodeURIComponent(register_name)}`;
-    if (date) url += `&date=${date}`; // không có date → backend tự lấy hôm nay
+    if (date) url += `&date=${date}`;
 
     try {
       const data = await getData(url);
@@ -231,15 +273,13 @@ const MeterTable = ({ siteId }) => {
   };
 
 
-  // ── Hàm chuyển ngày (dùng cho nút ◄ và ►) ──
+  // ── Hàm chuyển ngày ──
   const goToDay = (dayjsObj) => {
-    // Không cho chuyển sang ngày tương lai
     if (dayjsObj.isAfter(dayjs(), 'day')) return;
 
     const isToday = dayjsObj.isSame(dayjs(), 'day');
 
     if (isToday) {
-      // Chuyển về hôm nay → reset về realtime
       setFilterDate(null);
       fetchHistory(selectedRegister.register_name, selectedMeter.meter_id, null);
     } else {
@@ -267,8 +307,9 @@ const MeterTable = ({ siteId }) => {
 
 
   // ── Hàm click thanh ghi → mở bảng lịch sử ──
+  // register_address được lấy từ field "register" trong detailRows (API trả về)
   const handleRegisterClick = async (register_name, register_address) => {
-    setFilterDate(null); // reset về hôm nay mỗi lần mở thanh ghi mới
+    setFilterDate(null);
     setSelectedRegister({ register_name, register_address });
     await fetchHistory(register_name, selectedMeter.meter_id, null);
   };
@@ -278,23 +319,33 @@ const MeterTable = ({ siteId }) => {
   // RENDER tầng 3 — Lịch sử + Chart + Filter 1 ngày
   if (selectedRegister && selectedMeter) {
 
-    // Chart: trục X chỉ cần HH:MM vì đã biết chắc là 1 ngày
+    // Dùng new Date() thay vì slice(11,16) để extract giờ phút đúng timezone local
+    // slice(11,16) chỉ cắt string thô → lấy UTC time, sai 7 tiếng so với bảng bên dưới
+    // new Date(ts).getHours() → browser tự convert sang local timezone (cùng logic formatTs)
+    const toLocalHHMM = (ts) => {
+      if (!ts || ts === '--') return '--';
+      try {
+        const d = new Date(ts);
+        if (isNaN(d.getTime())) return ts.slice(11, 16); // fallback
+        const pad = (n) => String(n).padStart(2, '0');
+        return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      } catch { return ts.slice(11, 16); }
+    };
+
     const chartData = historyRows.map(row => ({
-      time:  row.received_at ? row.received_at.slice(11, 16) : "--", // HH:MM
+      time:  toLocalHHMM(row.received_at),  // HH:MM theo local timezone — khớp với bảng
       value: parseFloat(row.value) || 0,
     }));
 
-    // Ngày hiện tại đang xem để hiển thị tiêu đề
     const viewingDateLabel = filterDate
       ? filterDate.format("DD/MM/YYYY")
       : `${dayjs().format("DD/MM/YYYY")} (Today - Realtime)`;
 
-    // Ngày trước/sau để tính cho nút mũi tên
-    const currentDay  = filterDate ?? dayjs();
-    const isToday     = currentDay.isSame(dayjs(), 'day');
+    const currentDay = filterDate ?? dayjs();
+    const isToday    = currentDay.isSame(dayjs(), 'day');
 
     const historyColumns = [
-      { key: "received_at",      label: "Timestamp"     },
+      { key: "received_at",      label: "Last Update"   },
       { key: "register_address", label: "Register Addr" },
       { key: "register_name",    label: "Register Name" },
       { key: "value",            label: "Value"         },
@@ -317,25 +368,23 @@ const MeterTable = ({ siteId }) => {
           {" "}<span style={{ color: "#aaa", fontSize: 13 }}>({historyRows.length} records)</span>
         </Typography>
 
-        {/* ── FILTER BAR: chỉ 1 ngày ── */}
+        {/* ── FILTER BAR ── */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3, flexWrap: "wrap" }}>
 
-          {/* Nút ngày trước */}
           <Button variant="outlined" size="small"
             onClick={() => goToDay(currentDay.subtract(1, 'day'))}
             sx={{ color: theme.palette.text.header_option, borderColor: theme.palette.text.header_option, minWidth: 36 }}>
             ◄
           </Button>
 
-          {/* DatePicker — gọi API ngay khi chọn, không cần nút View */}
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
               label="Select Date"
-              value={filterDate ?? dayjs()}       // mặc định hiện hôm nay trong picker
-              maxDate={dayjs()}                   // không cho chọn ngày tương lai
+              value={filterDate ?? dayjs()}
+              maxDate={dayjs()}
               onChange={(newVal) => {
                 if (!newVal) return;
-                goToDay(newVal);                  // gọi API ngay khi chọn ngày
+                goToDay(newVal);
               }}
               slotProps={{
                 textField: {
@@ -346,10 +395,9 @@ const MeterTable = ({ siteId }) => {
             />
           </LocalizationProvider>
 
-          {/* Nút ngày sau — disable nếu đang ở hôm nay */}
           <Button variant="outlined" size="small"
             onClick={() => goToDay(currentDay.add(1, 'day'))}
-            disabled={isToday}                  // không cho chuyển sang tương lai
+            disabled={isToday}
             sx={{
               color: isToday ? "#555" : theme.palette.text.header_option,
               borderColor: isToday ? "#555" : theme.palette.text.header_option,
@@ -358,7 +406,6 @@ const MeterTable = ({ siteId }) => {
             ►
           </Button>
 
-          {/* Nút Today — chỉ hiện khi không phải hôm nay */}
           {!isToday && (
             <Button variant="outlined" size="small"
               onClick={() => goToDay(dayjs())}
@@ -367,7 +414,6 @@ const MeterTable = ({ siteId }) => {
             </Button>
           )}
 
-          {/* Nhãn ngày đang xem */}
           <Typography sx={{ color: "#aaa", fontSize: 13, ml: 1 }}>
             Viewing: <strong style={{ color: theme.palette.text.header_option }}>{viewingDateLabel}</strong>
           </Typography>
@@ -387,7 +433,7 @@ const MeterTable = ({ siteId }) => {
 
               {historyRows.length === 0 ? (
                 <Typography sx={{ color: "#aaa", textAlign: "center", py: 4 }}>
-                  No data in today
+                  No data for this day
                 </Typography>
               ) : (
                 <ResponsiveContainer width="100%" height={280}>
@@ -397,8 +443,8 @@ const MeterTable = ({ siteId }) => {
                     <XAxis
                       dataKey="time"
                       tick={{ fill: "#aaa", fontSize: 11 }}
-                      interval={Math.max(0, Math.floor(chartData.length / 8))} // ~8 nhãn
-                      angle={-30}          // nghiêng 30° tránh chồng nhau
+                      interval={Math.max(0, Math.floor(chartData.length / 8))}
+                      angle={-30}
                       textAnchor="end"
                       height={45}
                     />
@@ -412,7 +458,6 @@ const MeterTable = ({ siteId }) => {
                       formatter={(value) => [value, selectedRegister.register_name]}
                     />
 
-                    {/* Brush — thanh kéo zoom, hữu ích khi có nhiều điểm */}
                     {chartData.length > 20 && (
                       <Brush
                         dataKey="time"
@@ -428,7 +473,7 @@ const MeterTable = ({ siteId }) => {
                       dataKey="value"
                       stroke={theme.palette.text.header_option}
                       strokeWidth={2}
-                      dot={chartData.length < 50}   // chỉ vẽ dot khi ít điểm, nhiều quá sẽ rối
+                      dot={chartData.length < 50}
                       activeDot={{ r: 5 }}
                       isAnimationActive={false}
                     />
@@ -437,7 +482,7 @@ const MeterTable = ({ siteId }) => {
               )}
             </Box>
 
-            {/* ── BẢNG LỊCH SỬ ── */}
+            {/* ── BẢNG LỊCH SỬ — hiển thị mới nhất ở trên ── */}
             <TableContainer component={Paper}
               sx={{
                 maxHeight: 350, overflow: "auto",
@@ -459,11 +504,10 @@ const MeterTable = ({ siteId }) => {
                   {historyRows.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={5} align="center" sx={{ color: "#aaa", py: 4 }}>
-                        No data in today
+                        No data for this day
                       </TableCell>
                     </TableRow>
                   ) : (
-                    // Hiển thị ngược (mới nhất ở trên) để dễ đọc
                     [...historyRows].reverse().map((row, i) => (
                       <TableRow key={i}>
                         {historyColumns.map(col => (
@@ -472,7 +516,9 @@ const MeterTable = ({ siteId }) => {
                               color: theme.palette.table.text,
                               backgroundColor: i%2===0 ? theme.palette.table.background_odd : theme.palette.table.background_even,
                             }}>
-                            {row[col.key] ?? "--"}
+                            {(col.key === "timestamp" || col.key === "received_at")
+                          ? formatTs(row[col.key])
+                          : (row[col.key] ?? "--")}
                           </TableCell>
                         ))}
                       </TableRow>
@@ -537,6 +583,8 @@ const MeterTable = ({ siteId }) => {
               <TableBody>
                 {detailRows.map((row, i) => (
                   <TableRow key={i}
+                    // FIX: truyền row.register (register_address) vào handleRegisterClick
+                    // Đây là số nguyên, dùng làm WS URL và group key
                     onClick={() => handleRegisterClick(row.parameter_name, row.register)}
                     sx={{ cursor: "pointer", "&:hover": { filter: "brightness(1.7)" } }}>
                     {detailColumns.map(col => (
@@ -545,7 +593,9 @@ const MeterTable = ({ siteId }) => {
                           color: theme.palette.table.text,
                           backgroundColor: i%2===0 ? theme.palette.table.background_odd : theme.palette.table.background_even,
                         }}>
-                        {row[col.key] ?? "--"}
+                        {(col.key === "timestamp" || col.key === "received_at")
+                          ? formatTs(row[col.key])
+                          : (row[col.key] ?? "--")}
                       </TableCell>
                     ))}
                   </TableRow>
@@ -573,7 +623,7 @@ const MeterTable = ({ siteId }) => {
     { key: "current_l1_dmd",    label: "Current L1 Dmd"    },
     { key: "apparent_power_l1", label: "Apparent Power L1" },
     { key: "real_power",        label: "Real Power"        },
-    { key: "timestamp",         label: "Timestamp"         },
+    { key: "timestamp",         label: "Last Update"       },
   ];
 
   return (
@@ -598,7 +648,9 @@ const MeterTable = ({ siteId }) => {
               {overviewCols.map(col => (
                 <TableCell key={col.key} align="center"
                   sx={{ color: theme.palette.table.text, backgroundColor: i%2===0 ? theme.palette.table.background_odd : theme.palette.table.background_even }}>
-                  {row[col.key]}
+                  {(col.key === "timestamp" || col.key === "received_at")
+                    ? formatTs(row[col.key])
+                    : row[col.key]}
                 </TableCell>
               ))}
             </TableRow>
