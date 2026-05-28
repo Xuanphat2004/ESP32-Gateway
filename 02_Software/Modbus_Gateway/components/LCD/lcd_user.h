@@ -37,7 +37,8 @@ typedef enum
     PAGE_3_INFO_DEVICE,
     PAGE_SCAN_RESULT,
     PAGE_SCAN_DETAIL,
-    PAGE_SET_BAUDRATE
+    PAGE_SET_BAUDRATE,
+    PAGE_SET_POLL,
 } ui_page_t;
 
 // ====== Biến trạng thái =======

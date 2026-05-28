@@ -35,8 +35,12 @@ bool dual_port_mode = false;
 // Data-Copy chỉ chạy sau khi cả 2 port xong → tcp_virtual_storage đầy đủ
 volatile bool dual_port_polling = false;
 
+// Thời gian delay giữa các chu kỳ poll — người dùng chỉnh qua LCD
+uint32_t poll_interval_ms = 10000;
+
 extern SemaphoreHandle_t xDataMutex;
 extern SemaphoreHandle_t scan_sem;
+extern SemaphoreHandle_t data_ready_sem;
 extern bool is_change_baud;
 extern volatile bool is_scan_device;
 extern scan_analysis_t scan_result;
@@ -495,14 +499,16 @@ void modbus_test_read(void)
                 xSemaphoreGive(xDataMutex);
             }
 
-            // Mở khóa Data-Copy task → tcp_virtual_storage được cập nhật
+            xSemaphoreGive(data_ready_sem);
+
+            // Mở khóa Data-Copy task
             dual_port_polling = false;
 
             // consecutive_fail đã được xử lý trong poll_for_list
             // Không cần tổng hợp thêm ở đây
 
             printf("\n");
-            vTaskDelay(pdMS_TO_TICKS(5000));
+            vTaskDelay(pdMS_TO_TICKS(poll_interval_ms));
             continue;
         }
 
@@ -577,17 +583,19 @@ void modbus_test_read(void)
             xSemaphoreGive(xDataMutex);
         }
 
+        xSemaphoreGive(data_ready_sem);
+
         // Trigger scan đã xử lý trực tiếp trong vòng lặp poll ở trên
 
     exit_and_wait:
         if (is_change_baud || is_scan_device)
         {
-            dual_port_polling = false;                             // Đảm bảo không bao giờ bị kẹt
-            memset(consecutive_fail, 0, sizeof(consecutive_fail)); // Reset khi có interrupt
+            dual_port_polling = false;
+            memset(consecutive_fail, 0, sizeof(consecutive_fail));
             vTaskDelay(pdMS_TO_TICKS(200));
             continue;
         }
         printf("\n");
-        vTaskDelay(pdMS_TO_TICKS(5000));
+        vTaskDelay(pdMS_TO_TICKS(poll_interval_ms));
     }
 }

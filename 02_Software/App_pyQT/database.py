@@ -149,3 +149,27 @@ def get_all_logs():
     rows = c.fetchall()
     conn.close()
     return rows
+
+
+def delete_device_by_slave_id(slave_id):
+    """Xóa toàn bộ thanh ghi thuộc 1 slave_id được chọn."""
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+    c.execute("DELETE FROM registers WHERE slave_id = ?", (str(slave_id),))
+    count = c.rowcount
+    conn.commit()
+    conn.close()
+    return count
+
+
+def get_all_slave_ids():
+    """Lấy danh sách tất cả slave_id đang có trong DB, sắp xếp tăng dần."""
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+    c.execute(
+        "SELECT DISTINCT slave_id FROM registers "
+        "ORDER BY CAST(slave_id AS INTEGER) ASC"
+    )
+    ids = [str(row[0]) for row in c.fetchall()]
+    conn.close()
+    return ids

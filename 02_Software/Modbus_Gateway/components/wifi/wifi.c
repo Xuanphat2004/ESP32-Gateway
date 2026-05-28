@@ -11,7 +11,6 @@
 #include "eeprom.h"
 #include "esp_http_server.h"
 #include "config_wifi_web.h"
-#include "modbus_tcp.h"
 #include "system_event.h"
 
 static const char *TAG = "[WIFI]";

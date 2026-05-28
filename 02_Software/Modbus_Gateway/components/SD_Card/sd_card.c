@@ -12,7 +12,6 @@
 #include "esp_log.h"
 #include <errno.h>
 
-#include "modbus_tcp.h"
 #include "modbus_rtu.h" // Chứa basic_dict
 #include "rtc_mb.h"     // Chứa hàm rtc_read_time
 #include "sd_card.h"
@@ -108,7 +107,7 @@ void sd_card_logger_task(void *pvParameters)
     while (1)
     {
         vTaskDelay(delay_ms);
-        delay_ms = pdMS_TO_TICKS(180000); // Từ lần 2 trở đi: 3 phút ghi 1 lần
+        delay_ms = pdMS_TO_TICKS(300000); // Từ lần 2 trở đi: 5 phút ghi 1 lần
 
         // Kiểm tra dữ liệu đầu vào hợp lệ
         if (register_count == 0 || basic_dict == NULL || final_data == NULL)

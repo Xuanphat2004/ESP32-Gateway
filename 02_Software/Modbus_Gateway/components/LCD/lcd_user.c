@@ -13,23 +13,25 @@
 #include "rtc_mb.h"
 #include "scan_device.h"
 #include "change_baudrate.h"
+#include "change_poll.h"
 #include "esp_mac.h"
 
-ui_page_t current_page = PAGE_1_HOME; // Trang mặc định ban đầu khi khởi động
+ui_page_t current_page = PAGE_1_HOME;
 uint32_t baud_options[] = {1200, 2400, 4800, 9600, 19200, 38400, 115200};
-int baudrate_id = 3; // Mặc định là 9600
+int baudrate_id = 3;
 
 bool wifi_connected = false;
 bool eth_connected = false;
 bool blu_connected = false;
-bool is_scanning = false; // Biền trạng thái để khóa UI khi thực hiện chức năng scan
-bool is_baudrate = false; // trạng thái có đang thực hiện chức năng chỉnh tốc độ baudrate
+bool is_scanning = false;
+bool is_baudrate = false;
 
-static int menu_cursor = 1; // Dòng đang chọn 1, 2, 3 cho Page 2
+static int menu_cursor = 1;
 static QueueHandle_t ui_queue = NULL;
 static uint8_t enc_scroll = 0;
 static uint32_t cached_baud = 0;
-static bool need_clear_after_scan = false; // Đánh dấu cần lcd_clear() khi thoát khỏi màn hình scanning
+static uint32_t cached_poll = 0;
+static bool need_clear_after_scan = false;
 
 extern id_scan_result_t list_p1;
 extern id_scan_result_t list_p2;
@@ -88,11 +90,11 @@ static void page_2_settings(void)
     LCD_SetCursor(0, 1);
     LCD_Print("-=MENU SETTINGS=-");
     LCD_SetCursor(1, 1);
-    LCD_Print(menu_cursor == 1 ? "-->Baudrate   " : "   Baudrate       ");
+    LCD_Print(menu_cursor == 1 ? "-->Baudrate       " : "   Baudrate       ");
     LCD_SetCursor(2, 1);
-    LCD_Print(menu_cursor == 2 ? "-->Scan Device   " : "   Scan Device    ");
+    LCD_Print(menu_cursor == 2 ? "-->Scan Device    " : "   Scan Device    ");
     LCD_SetCursor(3, 1);
-    LCD_Print(menu_cursor == 3 ? "-->Network Info   " : "   Network Info   ");
+    LCD_Print(menu_cursor == 3 ? "-->Poll Interval  " : "   Poll Interval  ");
 }
 
 //==============================================================================================
@@ -261,14 +263,14 @@ static void page_scan_detail(void)
     {
         char lose_str[16] = "";
         format_id_list(scan_result.lose_list, scan_result.lose_count, lose_str); // Ghép chuỗi các id mất kết nối
-        snprintf(line_3, sizeof(line_3), "ID Lose %s", lose_str);
+        snprintf(line_3, sizeof(line_3), "ID Offline %s", lose_str);
     }
     else
     {
         snprintf(line_3, sizeof(line_3), "No Lose   ");
     }
 
-    snprintf(line_4, sizeof(line_4), "Master Port %d ", scan_result.active_port);
+    // snprintf(line_4, sizeof(line_4), "Master Port %d ", scan_result.active_port);
 
     char buf2[21], buf3[21], buf4[21];
     snprintf(buf2, sizeof(buf2), "%-20.20s", line_2); //"-20.20s", -: căn lề trái, 20.20: đảm bảo chỉ 20 ký tự
@@ -296,7 +298,22 @@ static void page_set_baud(void)
     snprintf(buffer_1, sizeof(buffer_1), "Current %ld bps", cached_baud);
     LCD_Print(buffer_1);
     LCD_SetCursor(2, 1);
-    snprintf(buffer_2, sizeof(buffer_2), "Select -> %ld ", baud_options[baudrate_id]);
+    snprintf(buffer_2, sizeof(buffer_2), "Select -> %ld  ", baud_options[baudrate_id]);
+    LCD_Print(buffer_2);
+}
+
+// Page người dùng set poll interval
+static void page_set_poll(void)
+{
+    // uint32_t ms = load_poll_from_nvs();
+    char buffer_1[21], buffer_2[21];
+    LCD_SetCursor(0, 1);
+    LCD_Print("-=SET POLL TIME=-");
+    LCD_SetCursor(1, 1);
+    snprintf(buffer_1, sizeof(buffer_1), "Current %lu s   ", cached_poll / 1000);
+    LCD_Print(buffer_1);
+    LCD_SetCursor(2, 1);
+    snprintf(buffer_2, sizeof(buffer_2), "Select -> %lu s ", poll_options[poll_id]);
     LCD_Print(buffer_2);
 }
 //=====================================================================================================
@@ -398,7 +415,6 @@ void ui_task(void)
 
         if (xQueueReceive(ui_queue, &event, pdMS_TO_TICKS(100)) == pdTRUE)
         {
-
             if (is_scanning == false) // Tránh người dùng bấm nút khi đang scan
             {
                 switch (event)
@@ -420,24 +436,37 @@ void ui_task(void)
                             lcd_clear();
                             current_page = PAGE_SET_BAUDRATE;
                         }
-                        else if (menu_cursor == 2) // Chọn Scan Device
+                        else if (menu_cursor == 2)
                         {
-                            // scan_device() tự quản lý is_scanning và is_scan_device
-                            // KHÔNG set is_scanning ở đây: nếu scan_device() bị bỏ qua
-                            // (passive đang chạy) thì is_scanning sẽ không bị kẹt true
                             lcd_clear();
                             scan_device();
+                        }
+                        else if (menu_cursor == 3)
+                        {
+                            cached_poll = load_poll_from_nvs();
+                            lcd_clear();
+                            current_page = PAGE_SET_POLL;
                         }
                     }
                     else if (current_page == PAGE_SET_BAUDRATE)
                     {
                         lcd_clear();
-                        is_scanning = true; // Khóa UI để tránh người dùng bấm nút khác lúc đang nạp
+                        is_scanning = true;
                         LCD_SetCursor(1, 2);
                         LCD_Print("Changing ....");
                         LCD_SetCursor(2, 2);
                         LCD_Print("Please wait ....");
                         change_baudrate();
+                    }
+                    else if (current_page == PAGE_SET_POLL)
+                    {
+                        lcd_clear();
+                        is_scanning = true;
+                        LCD_SetCursor(1, 2);
+                        LCD_Print("Changing .... ");
+                        LCD_SetCursor(2, 2);
+                        LCD_Print("Please wait .... ");
+                        change_poll_interval();
                     }
                     break;
 
@@ -475,6 +504,12 @@ void ui_task(void)
                         current_page = PAGE_2_SETTINGS;
                         menu_cursor = 1;
                     }
+                    else if (current_page == PAGE_SET_POLL)
+                    {
+                        lcd_clear();
+                        current_page = PAGE_2_SETTINGS;
+                        menu_cursor = 3;
+                    }
                     break;
 
                 case EVENT_DOWN:
@@ -482,6 +517,8 @@ void ui_task(void)
                         menu_cursor++;
                     else if (current_page == PAGE_SET_BAUDRATE && baudrate_id < 6)
                         baudrate_id++;
+                    else if (current_page == PAGE_SET_POLL && poll_id < 4)
+                        poll_id++;
                     else if (current_page == PAGE_3_INFO_DEVICE && enc_scroll < 4)
                         enc_scroll++;
                     break;
@@ -491,6 +528,8 @@ void ui_task(void)
                         menu_cursor--;
                     else if (current_page == PAGE_SET_BAUDRATE && baudrate_id > 0)
                         baudrate_id--;
+                    else if (current_page == PAGE_SET_POLL && poll_id > 0)
+                        poll_id--;
                     else if (current_page == PAGE_3_INFO_DEVICE && enc_scroll > 0)
                         enc_scroll--;
                     break;
@@ -516,14 +555,13 @@ void ui_task(void)
         // is_scan_device=false + is_scanning=false    → không scan → render trang bình thường
         if (is_scan_device == true && is_manual_scan == true)
         {
-            // Manual scan đang chạy → hiển thị màn hình chờ
             need_clear_after_scan = true;
             LCD_SetCursor(0, 0);
             LCD_Print("                    ");
             LCD_SetCursor(1, 2);
             LCD_Print("Scanning ....       ");
             LCD_SetCursor(2, 2);
-            LCD_Print("Please wait....     ");
+            LCD_Print("Please wait ....    ");
             LCD_SetCursor(3, 0);
             LCD_Print("                    ");
             vTaskDelay(pdMS_TO_TICKS(200));
@@ -542,6 +580,8 @@ void ui_task(void)
                 page_scan_detail();
             else if (current_page == PAGE_SET_BAUDRATE)
                 page_set_baud();
+            else if (current_page == PAGE_SET_POLL)
+                page_set_poll();
             else if (current_page == PAGE_3_INFO_DEVICE)
                 page_3_info_device();
         }
@@ -564,14 +604,14 @@ void ui_task(void)
                 page_scan_detail();
             else if (current_page == PAGE_SET_BAUDRATE)
                 page_set_baud();
+            else if (current_page == PAGE_SET_POLL)
+                page_set_poll();
             else if (current_page == PAGE_3_INFO_DEVICE)
                 page_3_info_device();
         }
         else
         {
-            // is_scanning=true, is_scan_device=false:
-            // scan_task vừa tạo chưa kịp set is_scan_device
-            // hoặc change_baudrate đang chạy → chờ ngắn
+
             vTaskDelay(pdMS_TO_TICKS(100));
         }
     }

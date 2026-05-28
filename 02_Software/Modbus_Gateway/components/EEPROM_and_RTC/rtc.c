@@ -263,3 +263,12 @@ esp_err_t get_time(void)
 
     return ESP_OK;
 }
+void rtc_get_iso_timestamp(char *buf, size_t len)
+{
+    rtc_time_t t;
+    rtc_read_time(&t);
+    snprintf(buf, len,
+             "20%02d-%02d-%02dT%02d:%02d:%02d+07:00",
+             t.year, t.month, t.date,
+             t.hour, t.minute, t.second);
+}

@@ -22,7 +22,6 @@
 #include "wifi.h"
 #include "ethernet.h"
 #include "modbus_rtu.h"
-#include "modbus_tcp.h"
 #include "i2c_config.h"
 #include "eeprom.h"
 #include "rtc_mb.h"
@@ -34,13 +33,15 @@
 #include "mqtt_to_web.h"
 #include "sd_card.h"
 #include "scan_device.h"
+#include "offline_buffer.h"
+#include "change_poll.h"
 
 SemaphoreHandle_t xDataMutex = NULL;
 SemaphoreHandle_t scan_sem = NULL;
+SemaphoreHandle_t data_ready_sem = NULL;
 EventGroupHandle_t event_group;
-TaskHandle_t tcp_handle_task = NULL;  // biến handle cho task tcp
-TaskHandle_t rtu_handle_task = NULL;  // biến handle cho task rtu
-TaskHandle_t mqtt_handle_task = NULL; // biến handle cho task mqtt
+TaskHandle_t rtu_handle_task = NULL;
+TaskHandle_t mqtt_handle_task = NULL;
 extern scan_analysis_t scan_result;
 
 void app_main(void)
@@ -58,6 +59,7 @@ void app_main(void)
 
     xDataMutex = xSemaphoreCreateMutex();
     scan_sem = xSemaphoreCreateBinary();
+    data_ready_sem = xSemaphoreCreateBinary();
     lcd_clear();
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
@@ -71,17 +73,19 @@ void app_main(void)
     lcd_1604_init();
     init_pcnt_encoder();
     sd_card_init();
-    vTaskDelay(pdMS_TO_TICKS(2000)); // đợi hệ thông ổn định trước khi tạo task
+    offline_buf_init();
+    poll_interval_ms = load_poll_from_nvs();
+    ESP_LOGI("MAIN", "Poll interval: %lu ms", poll_interval_ms);
+    vTaskDelay(pdMS_TO_TICKS(2000));
     ESP_LOGW("MAIN", "Total heap: %lu | Internal DRAM: %u bytes",
              esp_get_free_heap_size(),
              heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT));
     mqtt_app_start();
 
     // Core 0: Các task liên quan tới mạng
-    xTaskCreatePinnedToCore(modbus_tcp_server_task, "tcp_server_task", 8192, NULL, 8, &tcp_handle_task, 0);
-    xTaskCreatePinnedToCore(mqtt_publish_task, "mqtt_task", 8192, NULL, 9, &mqtt_handle_task, 0);
+    xTaskCreatePinnedToCore(mqtt_publish_task, "mqtt_task", 10240, NULL, 9, &mqtt_handle_task, 0);
 
-    // Core 1: Các task liên quan tới giao diện người dùng và xử lý tại thiết bị
+    // Core 1: Các task liên quan tới giao diện và xử lý tại thiết bị
     xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 8192, NULL, 10, &rtu_handle_task, 1);
     xTaskCreatePinnedToCore(passive_scan_task, "passive_scan", 6144, NULL, 6, NULL, 0);
     xTaskCreatePinnedToCore((void *)ui_task, "ui_manager_task", 6144, NULL, 5, NULL, 1);

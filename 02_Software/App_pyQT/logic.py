@@ -18,6 +18,7 @@ from PyQt6.QtCore import Qt, QObject
 import json
 import re
 import database
+import pandas as pd
 from qasync import asyncSlot
 from bleak import BleakScanner, BleakClient
 from ui import RegisterEditorWidget
@@ -162,9 +163,47 @@ class AppController(QObject):
         self.ui.btn_new.clicked.connect(self.on_new_device_clicked)
         self.ui.btn_sync.clicked.connect(self.on_sync_clicked)
         self.ui.btn_scan_ble.clicked.connect(self.on_scan_ble_clicked)
+        self.ui.btn_delete_device.clicked.connect(self.on_delete_device_clicked)
 
     # =========================================================================
-    # LOAD VÀ VẼ DỮ LIỆU LÊN UI
+    # TỰ ĐỘNG TÍNH MULTIPLIER DỰA TRÊN FACTOR
+    @staticmethod
+    def _auto_multiplier(f1: str, f2: str) -> str:
+        """Suy ra multiplier từ factor_1 và factor_2.
+        
+        - Cả 2 có giá trị → Data * Scale * Factor 1 * Factor 2
+        - Chỉ factor_1     → Data * Scale * Factor 1
+        - Không có factor  → Data * Scale
+        """
+        f1 = (f1 or "").strip()
+        f2 = (f2 or "").strip()
+        f1_empty = f1 in ("", "NULL", "---", "nan")
+        f2_empty = f2 in ("", "NULL", "---", "nan")
+
+        if not f1_empty and not f2_empty:
+            return "Data * Scale * Factor 1 * Factor 2"
+        elif not f1_empty:
+            return "Data * Scale * Factor 1"
+        else:
+            return "Data * Scale"
+
+    @staticmethod
+    def _clean_factor(val) -> str:
+        """Chuẩn hóa factor từ mọi nguồn: Excel (NaN), form (rỗng), DB (NULL).
+
+        Pandas returns float nan for empty cells → str(nan) = "nan" → not caught
+        by the usual `or "NULL"` pattern because "nan" is a truthy string.
+        Hàm này xử lý đúng tất cả các trường hợp.
+        """
+        import math
+        if val is None:
+            return "NULL"
+        if isinstance(val, float) and math.isnan(val):
+            return "NULL"
+        s = str(val).strip()
+        if s in ("", "NULL", "---", "nan", "NaN", "None"):
+            return "NULL"
+        return s
     def refresh_table(self):
         # ── Lưu vị trí hiện tại trước khi xoá ───────────────────────────────
         saved_tab = self.ui.device_tabs.currentIndex()
@@ -238,8 +277,30 @@ class AppController(QObject):
         """Tạo QTableWidget đã được cấu hình sẵn header và delegate."""
         table = QTableWidget()
         table.setColumnCount(12)
-        table.setHorizontalHeaderLabels(["ID","Parameter", "Unit","Function", "Start Address","Quantity","Data Type","Scale","Multiplier","Factor 1","Factor 2","Action",])
-        table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        table.setHorizontalHeaderLabels([
+            "ID", "Parameter", "Unit", "Function", "Start Address",
+            "Quantity", "Data Type", "Scale", "Multiplier",
+            "Factor 1", "Factor 2", "Action",
+        ])
+
+        # Cho phép kéo dãn cột tự do như Excel
+        header = table.horizontalHeader()
+        header.setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
+        header.setStretchLastSection(False)
+
+        # Độ rộng mặc định hợp lý cho từng cột
+        col_widths = [40, 180, 60, 220, 100, 70, 140, 70, 240, 100, 100, 80]
+        for i, w in enumerate(col_widths):
+            table.setColumnWidth(i, w)
+
+        # Căn giữa text trong header
+        for i in range(table.columnCount()):
+            item = table.horizontalHeaderItem(i)
+            if item:
+                item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        # Cho phép cuộn ngang khi cột quá nhiều
+        table.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
 
         # Gán delegate để ô edit hiện QComboBox hoặc QLineEdit tuỳ cột
         table.setItemDelegate(SuggestDelegate(table))
@@ -253,18 +314,15 @@ class AppController(QObject):
         row_index = table.rowCount()
         table.insertRow(row_index)
 
-        # Điền dữ liệu vào 11 ô (bỏ qua cột 0 vì DB index bắt đầu từ 1)
         for col in range(1, 12):
             item = QTableWidgetItem(str(record[col]))
-            # Ô đầu tiên (col=1 → hiển thị ở cột 0): lưu ẩn db_id vào UserRole
-            # để sau này biết cần update/delete record nào trong DB
             if col == 1:
                 item.setData(Qt.ItemDataRole.UserRole, record[0])
-            # Mặc định: không cho sửa, chỉ xem — phải bấm Edit mới sửa được
             item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable)
+            # Căn giữa nội dung trong ô
+            item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             table.setItem(row_index, col - 1, item)
 
-        # Thêm widget chứa 3 nút Edit / Update / Delete vào cột cuối
         table.setCellWidget(row_index, 11, self._build_action_buttons(table, row_index, record[0]))
 
     def _build_action_buttons(self, table, row_index, db_id):
@@ -288,13 +346,15 @@ class AppController(QObject):
     def refresh_history(self):
         """Đọc lịch sử hoạt động từ DB và hiển thị vào bảng History."""
         history_table = self.ui.history_table
-        history_table.setRowCount(0)  # xoá bảng cũ
+        history_table.setRowCount(0)
 
         for log in database.get_all_logs():
             row = history_table.rowCount()
             history_table.insertRow(row)
             for col, value in enumerate(log):
-                history_table.setItem(row, col, QTableWidgetItem(str(value)))
+                item = QTableWidgetItem(str(value))
+                item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+                history_table.setItem(row, col, item)
 
     def _get_current_scroll(self):
         """Lấy vị trí scroll hiện tại của table đang được hiển thị."""
@@ -320,28 +380,259 @@ class AppController(QObject):
     # XỬ LÝ SỰ KIỆN (EVENT HANDLERS) - Các nút nhấn 
     # Quy tắc đặt tên: on_<tên_sự_kiện>
     def on_new_device_clicked(self):
-        """Xử lý khi bấm nút '+ New Device'."""
-        slave_id, confirmed = QInputDialog.getText(self.ui, "New Device", "Typing new Slave ID:")
-        if not confirmed or not slave_id:
-            return  # user bấm Cancel hoặc để trống
+        """Nhập Slave ID → hỏi nhập tay hay import Excel."""
+        # Bước 1: nhập Slave ID
+        slave_id, confirmed = QInputDialog.getText(
+            self.ui, "New Device", "Enter Slave ID (1-247):"
+        )
+        if not confirmed or not slave_id.strip():
+            return
+        slave_id = slave_id.strip()
 
-        if database.check_slave_id_exists(slave_id):
-            QMessageBox.warning(self.ui, "Fail", "ID is existing !!!")
+        if not slave_id.isdigit() or not (1 <= int(slave_id) <= 247):
+            QMessageBox.warning(self.ui, "Invalid Input", "Slave ID must be an integer between 1 and 247!")
             return
 
-        # Tạo tab mới rỗng và chuyển sang tab đó ngay
-        self._create_tab(slave_id, [])
-        self.ui.device_tabs.setCurrentIndex(self.ui.device_tabs.count() - 1)
+        if database.check_slave_id_exists(slave_id):
+            QMessageBox.warning(self.ui, "Duplicate", f"Slave ID {slave_id} already exists!")
+            return
+
+        # Bước 2: hỏi nhập tay hay import
+        from ui import ImportChoiceDialog
+        dlg = ImportChoiceDialog(parent=self.ui)
+        if dlg.exec() == 0:
+            return
+
+        if dlg.choice == "manual":
+            # Tạo tab rỗng để nhập tay như bình thường
+            self._create_tab(slave_id, [])
+            self.ui.device_tabs.setCurrentIndex(self.ui.device_tabs.count() - 1)
+
+        elif dlg.choice == "import":
+            self._import_from_excel(slave_id)
+
+    def _import_from_excel(self, slave_id):
+        """Mở file dialog → đọc Excel → validate → insert DB."""
+        from PyQt6.QtWidgets import QFileDialog
+        import pandas as pd
+
+        file_path, _ = QFileDialog.getOpenFileName(
+            self.ui,
+            "Select Excel file to import",
+            "",
+            "Excel Files (*.xlsx *.xls)",
+        )
+        if not file_path:
+            return
+
+        try:
+            # Header ở row 2, dữ liệu từ row 3
+            # usecols B:J (bỏ cột Multiplier — tự tính từ factor)
+            df = pd.read_excel(
+                file_path,
+                skiprows=1,
+                usecols="B:J",
+                dtype=str,
+                engine="openpyxl"
+            )
+            # Đổi tên cột — không có multiplier
+            df.columns = [
+                "parameter", "unit", "function_code",
+                "address", "quantity", "type",
+                "scale", "factor_1", "factor_2",
+            ]
+            df = df.dropna(subset=["parameter", "address"])
+            df = df[df["parameter"].str.strip() != ""]
+            df["slave_id"] = slave_id
+
+        except Exception as e:
+            QMessageBox.critical(
+                self.ui, "File Error",
+                f"Cannot read Excel file:\n{e}"
+            )
+            return
+
+        if df.empty:
+            QMessageBox.warning(self.ui, "No Data", "The Excel file contains no valid data!")
+            return
+
+        # Validate
+        errors = self._validate_import_df(df)
+        if errors:
+            msg = "\n".join(errors[:10])
+            if len(errors) > 10:
+                msg += f"\n... and {len(errors)-10} more errors"
+            QMessageBox.critical(self.ui, "Validation Error", f"The following errors were found:\n\n{msg}")
+            return
+
+        # Xác nhận
+        reply = QMessageBox.question(
+            self.ui, "Confirm Import",
+            f"Import {len(df)} registers for Slave ID {slave_id}. Continue?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+        )
+        if reply != QMessageBox.StandardButton.Yes:
+            return
+
+        # Insert DB — tự tính multiplier từ factor
+        for _, row in df.iterrows():
+            f1  = self._clean_factor(row.get("factor_1"))
+            f2  = self._clean_factor(row.get("factor_2"))
+            mul = self._auto_multiplier(f1, f2)
+            database.insert_register(
+                slave_id,
+                str(row["parameter"]).strip(),
+                str(row["unit"]).strip(),
+                str(row["function_code"]).strip(),
+                str(row["address"]).strip(),
+                str(row["quantity"]).strip(),
+                str(row["type"]).strip(),
+                str(row["scale"]).strip(),
+                mul,
+                f1, f2,
+            )
+
+        database.insert_log(
+            action="Import from Excel",
+            detail=f"Slave ID: {slave_id} | {len(df)} registers | {file_path.split('/')[-1]}",
+        )
+        self.refresh_table()
+        self.refresh_history()
+        QMessageBox.information(
+            self.ui, "Import Successful",
+            f"Successfully imported {len(df)} registers for Slave ID {slave_id}!"
+        )
+
+    def _validate_import_df(self, df):
+        """Kiểm tra dữ liệu từ file Excel trước khi import."""
+        errors = []
+        valid_fc  = {"Read Holding Registers (0x03)", "Read Input Registers (0x04)"}
+        valid_qty = {"1", "2"}
+        valid_types = {
+            "Unsigned 16 bits","Unsigned 32 bits",
+            "Int 16 bits AB","Int 16 bits BA",
+            "Uint 16 bits AB","Uint 16 bits BA",
+            "Int 32 bits ABCD","Int 32 bits CDAB","Int 32 bits DCBA",
+            "Uint 32 bits ABCD","Uint 32 bits CDAB",
+            "Float ABCD","Float CDAB","Long",
+        }
+        valid_scale = {"0.000003125","0.001","0.01","0.1","1"}
+
+        for i, row in df.iterrows():
+            line = i + 4
+            if not str(row.get("parameter","")).strip():
+                errors.append(f"Row {line}: Parameter is required")
+            fc = str(row.get("function_code","")).strip()
+            if fc not in valid_fc:
+                errors.append(f"Row {line}: Invalid function code '{fc}'")
+            if not str(row.get("address","")).strip().isdigit():
+                errors.append(f"Row {line}: Address must be an integer")
+            if str(row.get("quantity","")).strip() not in valid_qty:
+                errors.append(f"Row {line}: Quantity must be 1 or 2")
+            if str(row.get("type","")).strip() not in valid_types:
+                errors.append(f"Row {line}: Invalid data type '{row.get('type','')}'")
+            if str(row.get("scale","")).strip() not in valid_scale:
+                errors.append(f"Row {line}: Invalid scale value '{row.get('scale','')}'")
+            # multiplier không validate vì được tính tự động từ factor
+        return errors
+
+    def on_delete_device_clicked(self):
+        """Hiện dialog chọn Slave ID → xác nhận → xóa khỏi DB."""
+        slave_ids = database.get_all_slave_ids()
+        if not slave_ids:
+            QMessageBox.information(self.ui, "No Devices", "There are no devices to delete.")
+            return
+
+        from ui import DeleteDeviceDialog
+        dlg = DeleteDeviceDialog(slave_ids, parent=self.ui)
+        if dlg.exec() != dlg.DialogCode.Accepted:
+            return
+
+        selected = dlg.get_selected_ids()
+        if not selected:
+            QMessageBox.warning(self.ui, "No Selection", "Please select at least one Slave ID!")
+            return
+
+        # Xác nhận lần 2
+        ids_str = ", ".join(selected)
+        reply = QMessageBox.question(
+            self.ui,
+            "Confirm Delete",
+            f"Are you sure you want to delete Slave ID: {ids_str}?\n\nThis action cannot be undone!",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+        )
+        if reply != QMessageBox.StandardButton.Yes:
+            return
+
+        total = 0
+        for sid in selected:
+            count = database.delete_device_by_slave_id(sid)
+            total += count
+            database.insert_log(
+                action="Delete Device",
+                detail=f"Deleted Slave ID: {sid} ({count} registers)",
+            )
+
+        self.refresh_table()
+        self.refresh_history()
+        QMessageBox.information(
+            self.ui, "Delete Successful",
+            f"Successfully deleted {len(selected)} device(s) ({total} registers). Slave ID: {ids_str}",
+        )
 
     def on_add_register(self, editor):
         fields = list(self._read_editor_fields(editor))
 
-        # Factor 1 và Factor 2 nếu bỏ trống thì lưu "NULL" vào DB
-        fields[9] = fields[9].strip() or "NULL"
-        fields[10] = fields[10].strip() or "NULL"
+        # ── Validate bắt buộc ────────────────────────────────────────────────
+        # Mapping: (field_index, tên hiển thị, loại kiểm tra)
+        # "text" → phải có chữ
+        # "combo" → không được là "---" hoặc rỗng
+        required = [
+            (1,  "Parameter",     "text"),
+            (2,  "Unit",          "text"),
+            (3,  "Function",      "combo"),
+            (4,  "Address",       "text"),
+            (5,  "Quantity",      "combo"),
+            (6,  "Type",          "combo"),
+            (7,  "Scale",         "combo"),
+        ]
+
+        missing = []
+        for idx, label, kind in required:
+            val = str(fields[idx]).strip()
+            if kind == "text" and not val:
+                missing.append(label)
+            elif kind == "combo" and val in ("", "---"):
+                missing.append(label)
+
+        if missing:
+            fields_str = "\n".join(f"  • {m}" for m in missing)
+            QMessageBox.warning(
+                self.ui,
+                "Missing Required Fields",
+                f"Please fill in the following required fields before adding:\n\n{fields_str}",
+            )
+            return
+
+        # Address phải là số nguyên
+        if not fields[4].isdigit():
+            QMessageBox.warning(
+                self.ui,
+                "Invalid Address",
+                "Address must be a positive integer (e.g. 4002).",
+            )
+            return
+
+        # ── Lưu DB ───────────────────────────────────────────────────────────
+        fields[9]  = self._clean_factor(fields[9])
+        fields[10] = self._clean_factor(fields[10])
+        fields[8]  = self._auto_multiplier(fields[9], fields[10])
 
         database.insert_register(*fields)
-        database.insert_log(action="Add New Register", detail=f"Slave ID: {fields[0]} | Param: {fields[1]} | Addr: {fields[4]}",)
+        database.insert_log(
+            action="Add New Register",
+            detail=f"Slave ID: {fields[0]} | Param: {fields[1]} | Addr: {fields[4]}",
+        )
 
         self.refresh_table()
         self.refresh_history()
@@ -373,8 +664,9 @@ class AppController(QObject):
             if db_id is None:
                 continue
             data = [table.item(row, col).text() for col in range(11)]
-            data[9] = data[9].strip() or "NULL"
-            data[10] = data[10].strip() or "NULL"
+            data[9]  = self._clean_factor(data[9])
+            data[10] = self._clean_factor(data[10])
+            data[8]  = self._auto_multiplier(data[9], data[10])
             database.update_register(db_id, *data)
 
         database.insert_log(action="Bulk Update", detail=f"Updated {table.rowCount()} registers")
@@ -383,16 +675,13 @@ class AppController(QObject):
         self.refresh_history()
 
     def on_update_row(self, table, row):
-        # Lấy db_id đã lưu ẩn trong UserRole của ô đầu tiên
         db_id = table.item(row, 0).data(Qt.ItemDataRole.UserRole)
-
-        # Đọc text của 11 ô trong hàng đó
         data = [table.item(row, col).text() for col in range(11)]
-        data[9] = data[9].strip() or "NULL"
-        data[10] = data[10].strip() or "NULL"
-
+        data[9]  = self._clean_factor(data[9])
+        data[10] = self._clean_factor(data[10])
+        data[8]  = self._auto_multiplier(data[9], data[10])
         database.update_register(db_id, *data)
-        self.refresh_table()  # scroll sẽ được giữ nguyên nhờ _get_current_scroll
+        self.refresh_table()
 
     def on_delete_row(self, db_id):
         database.delete_register_by_id(db_id)
@@ -452,7 +741,11 @@ class AppController(QObject):
         table.verticalScrollBar().setValue(scroll_value) # Restore lại vị trí scroll cũ — user sẽ không thấy màn hình nhảy
 
     def _read_editor_fields(self, editor):
-        """Đọc giá trị từ tất cả ô nhập liệu trong RegisterEditorWidget."""
+        """Đọc giá trị từ tất cả ô nhập liệu trong RegisterEditorWidget.
+        Multiplier được tính tự động từ factor — không đọc từ UI nữa.
+        """
+        f1 = self._clean_factor(editor.ent_f1.text())
+        f2 = self._clean_factor(editor.ent_f2.text())
         return (
             editor.ent_sid.text(),
             editor.ent_name.text(),
@@ -462,9 +755,9 @@ class AppController(QObject):
             editor.cb_qty.currentText(),
             editor.cb_type.currentText(),
             editor.cb_scale.currentText(),
-            editor.cb_mul.currentText(),
-            editor.ent_f1.text(),
-            editor.ent_f2.text(),
+            self._auto_multiplier(f1, f2),  # tự động tính
+            f1,
+            f2,
         )
 
     @asyncSlot()

@@ -11,7 +11,6 @@
 #include "mbc_master.h"
 
 #include "modbus_rtu.h"
-#include "modbus_tcp.h"
 #include "lcd_user.h"
 #include "scan_device.h"
 #include "mqtt_to_web.h"
@@ -42,12 +41,10 @@ extern factor_dict_t *factor_dict;
 extern mb_parameter_descriptor_t *basic_dict;
 extern SemaphoreHandle_t xDataMutex;
 extern SemaphoreHandle_t scan_sem;
-extern TaskHandle_t tcp_handle_task;
 extern TaskHandle_t rtu_handle_task;
 extern bool is_change_baud;
-extern float *tcp_virtual_storage;
 
-// THÊM: để set dual_port_mode sau scan và suspend/resume mqtt task
+// để set dual_port_mode sau scan và suspend/resume mqtt task
 extern bool dual_port_mode;
 extern TaskHandle_t mqtt_handle_task;
 
@@ -69,12 +66,6 @@ static void safe_stop_rtu_and_tcp(void)
         vTaskDelete(rtu_handle_task);
         rtu_handle_task = NULL;
         ESP_LOGW(TAG, "RTU task deleted safely");
-    }
-    if (tcp_handle_task != NULL)
-    {
-        vTaskDelete(tcp_handle_task);
-        tcp_handle_task = NULL;
-        ESP_LOGW(TAG, "Data-copy task deleted");
     }
 
     vTaskDelay(pdMS_TO_TICKS(500));
@@ -253,7 +244,7 @@ static void execute_port_scan(uint8_t uart_port, mb_parameter_descriptor_t *dict
 
         uint8_t temp_buf[4];
         uint8_t type;
-        if (mbc_master_get_parameter(dict[i].cid, dict[i].param_key, temp_buf, &type) == ESP_OK)
+        if (mbc_master_get_parameter(dict[i].cid, (char *)dict[i].param_key, temp_buf, &type) == ESP_OK)
         {
             if (results->count < 248)
             {
@@ -361,16 +352,8 @@ static void restore_after_scan(void)
     else
         modbus_rtu_port_2_init();
 
-    // Free tcp_virtual_storage để data-copy task alloc lại
-    if (tcp_virtual_storage != NULL)
-    {
-        free(tcp_virtual_storage);
-        tcp_virtual_storage = NULL;
-    }
-
-    // Khôi phục RTU task và data-copy task
+    // Khôi phục RTU task
     xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 8192, NULL, 10, &rtu_handle_task, 1);
-    xTaskCreatePinnedToCore(modbus_tcp_server_task, "tcp_server_task", 4096, NULL, 8, &tcp_handle_task, 0);
     vTaskDelay(pdMS_TO_TICKS(300));
 
     // THÊM: Resume MQTT task trước khi publish_scan_result
@@ -536,7 +519,6 @@ void passive_scan_task(void *arg)
             else
                 modbus_rtu_port_2_init();
             xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 8192, NULL, 10, &rtu_handle_task, 1);
-            xTaskCreatePinnedToCore(modbus_tcp_server_task, "tcp_server_task", 4096, NULL, 8, &tcp_handle_task, 0);
             continue;
         }
         uint16_t temp_dict_size = generate_temp_scan_dict(temp_dict, original_id, &original_id_count);
@@ -663,7 +645,7 @@ static void execute_wire_check(uint8_t uart_port)
 
     for (int i = 0; i < 3; i++)
     {
-        mbc_master_get_parameter(check_dict[i].cid, check_dict[i].param_key, temp_buf, &type);
+        mbc_master_get_parameter(check_dict[i].cid, (char *)check_dict[i].param_key, temp_buf, &type);
 
         if (uart_port == UART_NUM_1 && wire_p1_ok == true)
         {

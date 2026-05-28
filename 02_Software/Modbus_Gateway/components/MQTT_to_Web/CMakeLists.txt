@@ -1,4 +1,4 @@
-idf_component_register(SRCS "mqtt_to_web.c" "mqtt_to_web" 
+idf_component_register(SRCS "offline_buffer.c" "mqtt_to_web.c" "mqtt_to_web" 
                     INCLUDE_DIRS "."
                     REQUIRES    
                                 Modbus

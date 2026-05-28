@@ -8,24 +8,20 @@
 #include "freertos/semphr.h"
 #include "driver/uart.h"
 
-// Modbus library
 #include "esp_modbus_master.h"
 #include "esp_modbus_common.h"
 #include "modbus_rtu.h"
-#include "modbus_tcp.h"
 #include "lcd_user.h"
 #include "scan_device.h"
 
 extern bool is_baudrate;
-extern float *tcp_virtual_storage;
 extern ui_page_t current_page;
 extern uint32_t baud_options[];
 extern int baudrate_id;
-extern TaskHandle_t tcp_handle_task;
 extern TaskHandle_t rtu_handle_task;
 extern SemaphoreHandle_t xDataMutex;
 extern scan_analysis_t scan_result;
-extern volatile bool is_scan_device; // Cờ báo passive/manual scan đang chạy
+extern volatile bool is_scan_device;
 volatile bool is_change_baud = false;
 uint32_t baudrate = 0;
 
@@ -53,9 +49,11 @@ void change_baudrate_task(void *arg)
     {
         ESP_LOGW("[CHANGE BAUDRATE]", "=====> Saved new baudrate %ld to NVS", new_baud);
     }
+    else
+    {
+        ESP_LOGE("[CHANGE BAUDRATE]", "Failed to save baudrate to NVS: %s", esp_err_to_name(err));
+    }
 
-    // Báo hiệu RTU task tự thoát (không giữ Modbus lock)
-    // is_change_baud đã = true ở trên → RTU task sẽ goto exit_and_wait
     vTaskDelay(pdMS_TO_TICKS(700)); // Chờ RTU task hoàn thành lệnh đang chạy
 
     // RTU task đang ngủ ở exit_and_wait → safe để delete
@@ -65,28 +63,21 @@ void change_baudrate_task(void *arg)
         rtu_handle_task = NULL;
         ESP_LOGW("[CHANGE BAUDRATE]", "=====> Deleted RTU task");
     }
-    if (tcp_handle_task != NULL)
+    else
     {
-        vTaskDelete(tcp_handle_task);
-        tcp_handle_task = NULL;
-        ESP_LOGW("[CHANGE BAUDRATE]", "=====> Deleted TCP task");
+        ESP_LOGW("[CHANGE BAUDRATE]", "=====> RTU task already NULL");
     }
 
-    if (tcp_virtual_storage != NULL)
-    {
-        free(tcp_virtual_storage);
-        tcp_virtual_storage = NULL;
-    }
-    // Bước 3: Chờ scheduler dọn task list trước khi destroy
+    // Chờ scheduler dọn task list trước khi destroy
     vTaskDelay(pdMS_TO_TICKS(500));
 
-    // Bước 4: Destroy master và xóa UART (Destroy → Delete UART)
+    // Destroy master và xóa UART (Destroy → Delete UART)
     mbc_master_destroy();
     uart_driver_delete(UART_NUM_1);
     uart_driver_delete(UART_NUM_2);
     ESP_LOGW("[CHANGE BAUDRATE]", "=====> Master destroyed, UART drivers deleted");
 
-    // Bước 5: Chờ Modbus internal cleanup xong trước khi init lại
+    // Chờ Modbus internal cleanup xong trước khi init lại
     vTaskDelay(pdMS_TO_TICKS(300));
 
     // Khởi tạo lại
@@ -97,20 +88,17 @@ void change_baudrate_task(void *arg)
 
     vTaskDelay(pdMS_TO_TICKS(200));
 
-    xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 8192, NULL, 8, &rtu_handle_task, 1);
-
-    // Data-copy task tự cấp phát lại tcp_virtual_storage nếu cần
-    xTaskCreatePinnedToCore(modbus_tcp_server_task, "tcp_server_task", 4096, NULL, 8, &tcp_handle_task, 0);
+    xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 8192, NULL, 10, &rtu_handle_task, 1);
     vTaskDelay(pdMS_TO_TICKS(200));
 
     is_baudrate = false;
     is_scanning = false;
+    uint32_t current_baud = load_baud_from_nvs();
     current_page = PAGE_2_SETTINGS;
     lcd_clear();
 
     is_change_baud = false; // Set cuối cùng để các task khác bắt đầu chạy lại
     ESP_LOGW("CHANGE_BAUD", "=====> Baudrate reconfigured successfully.");
-    printf("============================================================================================================\n");
     vTaskDelete(NULL);
 }
 
