@@ -190,7 +190,7 @@ const MeterTable = ({ siteId }) => {
   //
   // Làm 2 việc cùng lúc:
   //   1. Cập nhật bảng chi tiết (tầng 2) — merge value mới vào detailRows
-  //   2. Cập nhật lịch sử + chart (tầng 3) — append vào historyRows nếu đang xem
+  //   2. Cập nhật lịch sử + chart (tầng 3) — chèn vào historyRows theo timestamp
   //
   // Tại sao không dùng WS riêng cho tầng 3?
   //   - WS register_history cần 1 kết nối mới mỗi lần click register → phức tạp
@@ -233,6 +233,14 @@ const MeterTable = ({ siteId }) => {
       const matchingReg = newRows.find(r => String(r.register) === String(currentReg.register_address));
       if (!matchingReg) return;
 
+      // ── FIX thứ tự vẽ chart ─────────────────────────────────────────────
+      // Record cũ replay sau khi có mạng lại sẽ mang timestamp QUÁ KHỨ.
+      //   - Chặn record không thuộc NGÀY HÔM NAY (vd outage qua ngày khác).
+      //   - KHÔNG append cuối: chèn rồi sort theo timestamp + dedupe
+      //     → chart vẽ đúng vị trí thời gian, không vọt lên ở mép phải.
+      const tsMs = new Date(matchingReg.timestamp).getTime();
+      if (!Number.isFinite(tsMs) || !dayjs(tsMs).isSame(dayjs(), "day")) return;
+
       // Build history row cùng format với API trả về
       const historyRow = {
         received_at:      matchingReg.timestamp,   // ISO string từ worker
@@ -242,7 +250,13 @@ const MeterTable = ({ siteId }) => {
         unit:             matchingReg.unit,
       };
 
-      setHistoryRows(prev => [...prev, historyRow]);
+      setHistoryRows(prev => {
+        const map = new Map(prev.map(r => [r.received_at, r]));  // dedupe theo timestamp
+        map.set(historyRow.received_at, historyRow);
+        return [...map.values()].sort(
+          (a, b) => new Date(a.received_at) - new Date(b.received_at)
+        );
+      });
     };
 
     socket.onclose = (e) => console.warn("[WS] Chi tiết closed:", e.code);
@@ -264,7 +278,11 @@ const MeterTable = ({ siteId }) => {
 
     try {
       const data = await getData(url);
-      setHistoryRows(data || []);
+      // API trả về đã sort theo timestamp, nhưng sort thêm lần nữa cho chắc
+      const sorted = (data || [])
+        .slice()
+        .sort((a, b) => new Date(a.received_at) - new Date(b.received_at));
+      setHistoryRows(sorted);
     } catch (err) {
       console.error("Fetch lịch sử error:", err);
     } finally {
@@ -319,23 +337,21 @@ const MeterTable = ({ siteId }) => {
   // RENDER tầng 3 — Lịch sử + Chart + Filter 1 ngày
   if (selectedRegister && selectedMeter) {
 
-    // Dùng new Date() thay vì slice(11,16) để extract giờ phút đúng timezone local
-    // slice(11,16) chỉ cắt string thô → lấy UTC time, sai 7 tiếng so với bảng bên dưới
-    // new Date(ts).getHours() → browser tự convert sang local timezone (cùng logic formatTs)
-    const toLocalHHMM = (ts) => {
-      if (!ts || ts === '--') return '--';
-      try {
-        const d = new Date(ts);
-        if (isNaN(d.getTime())) return ts.slice(11, 16); // fallback
-        const pad = (n) => String(n).padStart(2, '0');
-        return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
-      } catch { return ts.slice(11, 16); }
+    // Formatter dùng chung cho XAxis + Brush: epoch ms → "HH:MM" (local timezone)
+    const hhmm = (ms) => {
+      const d = new Date(ms), p = (n) => String(n).padStart(2, "0");
+      return `${p(d.getHours())}:${p(d.getMinutes())}`;
     };
 
-    const chartData = historyRows.map(row => ({
-      time:  toLocalHHMM(row.received_at),  // HH:MM theo local timezone — khớp với bảng
-      value: parseFloat(row.value) || 0,
-    }));
+    // chartData: dùng timestamp dạng SỐ (epoch ms) cho trục X kiểu thời gian,
+    // và sort tăng dần → line nối đúng thứ tự thời gian dù record cũ replay về sau.
+    const chartData = historyRows
+      .map(row => ({
+        ts:    new Date(row.received_at).getTime(),  // epoch ms
+        value: parseFloat(row.value) || 0,
+      }))
+      .filter(d => Number.isFinite(d.ts))
+      .sort((a, b) => a.ts - b.ts);
 
     const viewingDateLabel = filterDate
       ? filterDate.format("DD/MM/YYYY")
@@ -440,10 +456,16 @@ const MeterTable = ({ siteId }) => {
                   <LineChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 40 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#333" />
 
+                    {/* Trục X kiểu thời gian (số) → điểm rơi đúng vị trí timestamp,
+                        record cũ replay nằm đúng khe quá khứ thay vì vọt ở mép phải */}
                     <XAxis
-                      dataKey="time"
+                      dataKey="ts"
+                      type="number"
+                      scale="time"
+                      domain={["dataMin", "dataMax"]}
+                      tickFormatter={hhmm}
                       tick={{ fill: "#aaa", fontSize: 11 }}
-                      interval={Math.max(0, Math.floor(chartData.length / 8))}
+                      tickCount={8}
                       angle={-30}
                       textAnchor="end"
                       height={45}
@@ -454,17 +476,22 @@ const MeterTable = ({ siteId }) => {
                     <Tooltip
                       contentStyle={{ backgroundColor: "#1b1b1b", border: "1px solid #555", color: "#eee" }}
                       labelStyle={{ color: "#aaa" }}
-                      labelFormatter={(label) => `🕐 ${viewingDateLabel.split(" ")[0]} ${label}`}
+                      labelFormatter={(ms) => {
+                        const d = new Date(ms), p = (n) => String(n).padStart(2, "0");
+                        return `🕐 ${p(d.getDate())}/${p(d.getMonth()+1)} `
+                             + `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+                      }}
                       formatter={(value) => [value, selectedRegister.register_name]}
                     />
 
                     {chartData.length > 20 && (
                       <Brush
-                        dataKey="time"
+                        dataKey="ts"
                         height={20}
                         stroke={theme.palette.text.header_option}
                         fill="#1b1b1b"
                         travellerWidth={8}
+                        tickFormatter={hhmm}
                       />
                     )}
 
@@ -583,7 +610,6 @@ const MeterTable = ({ siteId }) => {
               <TableBody>
                 {detailRows.map((row, i) => (
                   <TableRow key={i}
-                    // FIX: truyền row.register (register_address) vào handleRegisterClick
                     // Đây là số nguyên, dùng làm WS URL và group key
                     onClick={() => handleRegisterClick(row.parameter_name, row.register)}
                     sx={{ cursor: "pointer", "&:hover": { filter: "brightness(1.7)" } }}>
