@@ -10,8 +10,8 @@
 
 static const char *TAG = "[CHANGE POLL]";
 
-uint32_t poll_options[] = {3, 5, 10, 15, 30, 60}; // giây
-int poll_id = 2;                                  // mặc định
+uint32_t poll_options[] = {10, 20, 30, 40, 50, 60, 120};
+int poll_id = 2; // mặc định
 bool is_poll_change = false;
 
 // poll_interval_ms được định nghĩa trong modbus_rtu.c
@@ -51,7 +51,7 @@ uint32_t load_poll_from_nvs(void)
 //======================================================================
 static void change_poll_task(void *arg)
 {
-    vTaskDelay(pdMS_TO_TICKS(200));
+    vTaskDelay(pdMS_TO_TICKS(500));
     is_poll_change = true;
     uint32_t new_ms = poll_options[poll_id] * 1000;
 

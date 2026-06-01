@@ -402,6 +402,9 @@ void modbus_test_read(void)
             continue;
         }
 
+        // Đánh dấu thời điểm bắt đầu chu kỳ poll để tính delay chính xác
+        TickType_t cycle_start = xTaskGetTickCount();
+
         vTaskDelay(pdMS_TO_TICKS(150));
         rtc_read_time(&now);
 
@@ -499,7 +502,10 @@ void modbus_test_read(void)
                 xSemaphoreGive(xDataMutex);
             }
 
-            xSemaphoreGive(data_ready_sem);
+            // Chỉ báo hiệu có data mới khi KHÔNG đang scan và KHÔNG đổi baudrate
+            // Tránh mqtt_task đọc final_data[] khi giá trị bị reset = 0 trong lúc scan
+            if (!is_scan_device && !is_change_baud)
+                xSemaphoreGive(data_ready_sem);
 
             // Mở khóa Data-Copy task
             dual_port_polling = false;
@@ -508,7 +514,12 @@ void modbus_test_read(void)
             // Không cần tổng hợp thêm ở đây
 
             printf("\n");
-            vTaskDelay(pdMS_TO_TICKS(poll_interval_ms));
+
+            // Delay chính xác tính từ đầu chu kỳ
+            TickType_t elapsed_dp = xTaskGetTickCount() - cycle_start;
+            TickType_t target_dp = pdMS_TO_TICKS(poll_interval_ms);
+            if (elapsed_dp < target_dp)
+                vTaskDelay(target_dp - elapsed_dp);
             continue;
         }
 
@@ -583,7 +594,10 @@ void modbus_test_read(void)
             xSemaphoreGive(xDataMutex);
         }
 
-        xSemaphoreGive(data_ready_sem);
+        // Chỉ báo hiệu có data mới khi KHÔNG đang scan và KHÔNG đổi baudrate
+        // Tránh mqtt_task đọc final_data[] khi giá trị bị reset = 0 trong lúc scan
+        if (!is_scan_device && !is_change_baud)
+            xSemaphoreGive(data_ready_sem);
 
         // Trigger scan đã xử lý trực tiếp trong vòng lặp poll ở trên
 
@@ -596,6 +610,13 @@ void modbus_test_read(void)
             continue;
         }
         printf("\n");
-        vTaskDelay(pdMS_TO_TICKS(poll_interval_ms));
+
+        // Delay chính xác: poll_interval_ms tính từ ĐẦU chu kỳ, không phải sau khi đọc
+        // Đã tốn (now - cycle_start) cho việc đọc → chỉ delay phần còn lại
+        TickType_t elapsed = xTaskGetTickCount() - cycle_start;
+        TickType_t target = pdMS_TO_TICKS(poll_interval_ms);
+        if (elapsed < target)
+            vTaskDelay(target - elapsed);
+        // Nếu thời gian đọc đã vượt poll_interval_ms → poll lại ngay, không delay
     }
 }

@@ -53,12 +53,10 @@ const name_mapping_t master_mapping[] = {
     {"Grid-Frequency", "freq"}, //
     {"Real-Power-A", "real_pwr"},
     {"Active-Power-L1", "real_pwr"},
-    {"Active-Power-L1", "real_pwr"}, //
+    {"Total-Active-Power-Forward", "real_pwr"}, //
     {"Apparent-Power-L1", "app_pwr"},
     {"Apparent-Power-A", "app_pwr"},
-    {
-        "S_L1-(Apparent-Power-A)", "app_pwr" //
-    }};
+    {"Phase-A-Apparent-Power", "app_pwr"}};
 const int mapping_size = sizeof(master_mapping) / sizeof(name_mapping_t);
 
 //======================================================================
@@ -71,8 +69,7 @@ void get_gateway_id(char *buf, size_t buf_size)
 }
 
 //======================================================================
-static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
-                               int32_t event_id, void *event_data)
+static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
     esp_mqtt_event_handle_t event = event_data;
     switch ((esp_mqtt_event_id_t)event_id)
@@ -94,6 +91,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
 }
 
 //======================================================================
+// Tạo kết nối tới Broker
 void mqtt_app_start(void)
 {
     char gateway_id[32] = " ";
@@ -121,11 +119,10 @@ void mqtt_app_start(void)
 }
 
 //======================================================================
-void mqtt_network_event_handler(void *arg, esp_event_base_t event_base,
-                                int32_t event_id, void *event_data)
+// Gọi callback khi có kết nối mạng trở lại
+void mqtt_network_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
-    if (event_base == IP_EVENT &&
-        (event_id == IP_EVENT_STA_GOT_IP || event_id == IP_EVENT_ETH_GOT_IP))
+    if (event_base == IP_EVENT && (event_id == IP_EVENT_STA_GOT_IP || event_id == IP_EVENT_ETH_GOT_IP))
     {
         ESP_LOGI(TAG, "Got IP, restarting MQTT...");
         mqtt_app_start();
@@ -147,8 +144,8 @@ static bool is_id_online(uint8_t slave_id)
 }
 
 //======================================================================
-char *pack_data_to_json(int id, char *name, char *model,
-                        float *src_data, char *timestamp)
+// Đóng gói dữ liệu để gửi lên Broker
+char *pack_data_to_json(int id, char *name, char *model, float *src_data, char *timestamp)
 {
     if (src_data == NULL || basic_dict == NULL)
         return NULL;
@@ -171,7 +168,7 @@ char *pack_data_to_json(int id, char *name, char *model,
 
     if (!online)
     {
-        cJSON_AddItemToObject(root, "registers", cJSON_CreateArray());
+        cJSON_AddItemToObject(root, "registers", cJSON_CreateArray()); //  tạo JSON {"registers":[]}
         char *out = cJSON_PrintUnformatted(root);
         cJSON_Delete(root);
         return out;
@@ -220,7 +217,7 @@ char *pack_data_to_json(int id, char *name, char *model,
 }
 
 //======================================================================
-// Publish 1 record lên MQTT — dùng chung cho realtime và recovery
+// Publish lên MQTT — dùng chung cho realtime và recovery
 static bool publish_one_record(record_t *r)
 {
     if (!is_mqtt_connected || mqtt_client == NULL)
@@ -243,12 +240,16 @@ static bool publish_one_record(record_t *r)
 
         if (payload)
         {
-            int msg_id = esp_mqtt_client_publish(mqtt_client, PUBLISH_TOPIC, payload, 0, 1, 0);
+            int msg_id = esp_mqtt_client_publish(mqtt_client, PUBLISH_TOPIC, payload, 0, 0, 0);
 
             if (msg_id < 0)
             {
                 ESP_LOGW(TAG, "Publish failed: %s", name);
                 all_ok = false;
+            }
+            else
+            {
+                ESP_LOGI(TAG, "Published: %s (msg_id=%d)", name, msg_id);
             }
             free(payload);
         }
@@ -460,28 +461,51 @@ void mqtt_publish_task(void *pvParameters)
         if (timeout_ms < 1000)
             timeout_ms = 1000;
 
-        BaseType_t got_data = xSemaphoreTake(data_ready_sem,
-                                             pdMS_TO_TICKS(timeout_ms));
+        BaseType_t got_data = xSemaphoreTake(data_ready_sem, pdMS_TO_TICKS(timeout_ms));
 
+        // Khi đang scan/đổi baud = bỏ qua
+        // (tránh trường hợp rtu give sem ngay trước khi is_scan_device kịp set)
         if (is_scan_device || is_change_baud)
+        {
+            xSemaphoreTake(data_ready_sem, 0); // Không gửi khi đang change hoặc scan đang diễn ra
             continue;
+        }
         if (offline_buf == NULL || basic_dict == NULL)
             continue;
 
         if (got_data == pdTRUE)
         {
-            // ── Có dữ liệu mới vừa poll về ──────────────────────────
+            // Có dữ liệu mới vừa poll về
             char ts[32];
             rtc_get_iso_timestamp(ts, sizeof(ts));
 
+            // Kiểm tra dữ liệu có hợp lệ không — nếu toàn bộ = 0 thì bỏ qua
+            // Tránh push record rác (xảy ra ngay trước/sau scan)
+            bool has_valid = false;
             if (xSemaphoreTake(xDataMutex, pdMS_TO_TICKS(1000)) == pdTRUE)
             {
-                offline_buf_push(final_data, register_count, ts);
+                for (int i = 0; i < register_count; i++)
+                {
+                    if (final_data[i] != 0.0f)
+                    {
+                        has_valid = true;
+                        break;
+                    }
+                }
+                if (has_valid)
+                    offline_buf_push(final_data, register_count, ts);
                 xSemaphoreGive(xDataMutex);
             }
             else
             {
                 ESP_LOGW(TAG, "xDataMutex timeout");
+                continue;
+            }
+
+            // Nếu dữ liệu toàn 0 → không có gì để gửi
+            if (!has_valid)
+            {
+                ESP_LOGW(TAG, "Du lieu toan 0, bo qua khong gui");
                 continue;
             }
 
@@ -505,7 +529,7 @@ void mqtt_publish_task(void *pvParameters)
         }
         else
         {
-            // ── Timeout: không có dữ liệu mới → gửi dữ liệu cũ ─────
+            // ── Timeout: không có dữ liệu mới → gửi dữ liệu cũ
             if (!is_mqtt_connected)
                 continue;
 
