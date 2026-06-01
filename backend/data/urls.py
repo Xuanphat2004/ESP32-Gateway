@@ -37,4 +37,6 @@ urlpatterns = router.urls + [
     path('solardb/get-scan-devices/<int:scan_id>/', scan.get_scan_devices, name='get-scan-devices'),
     # THÊM: API biểu đồ năng lượng tiêu thụ (giờ/tuần/tháng/năm)
     path('solardb/energy-chart/', energy.energy_chart, name='energy-chart'),
+    # THÊM: xuất báo cáo năng lượng ra Excel
+    path('solardb/energy-export/', energy.energy_export, name='energy-export'),
 ]
