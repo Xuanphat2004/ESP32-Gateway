@@ -7,9 +7,6 @@ import "leaflet/dist/leaflet.css";
 import ThermometerGaugeSVG from "../ChartComponents/ThermometerGaugeSVG";
 import { getData } from "../ApiComponent/api";
 
-// Cong suat dinh muc cua site (W) - dung de tinh RATIO. Chinh theo he thong thuc te.
-const RATED_POWER_W = 1090;
-
 // Marker hinh giot nuoc - doi mau theo trang thai chon
 function makePinIcon(color = "#08ffff", selected = false) {
   const svg = `
@@ -125,13 +122,7 @@ export default function MyFleetView() {
   const totalEnergy = summary && summary.total_energy != null ? Number(summary.total_energy).toFixed(1) : "--";
   const irradiance  = weather && weather.irradiance != null ? Number(weather.irradiance).toFixed(1) : "--";
   const temperature = weather && weather.temp != null ? Number(weather.temp).toFixed(1) : "--";
-  const ratio       = summary && summary.total_power != null
-    ? ((Number(summary.total_power) / RATED_POWER_W) * 100).toFixed(1)
-    : "--";
-
-  const locationLabel = selectedSite
-    ? `${selectedSite.site_name} - ${selectedSite.location || ""}`
-    : "Select a site on the map";
+  const humidity    = weather && weather.humidity != null ? Number(weather.humidity).toFixed(1) : "--";
 
   return (
     <Box sx={{ width: "100%", height: "100%", display: "flex", flexDirection: { xs: "column", md: "row" } }}>
@@ -199,15 +190,19 @@ export default function MyFleetView() {
             <Box sx={{ color: "#d4bfa3" }}>
               Total Site: <b style={{ color: "#08ffff", fontSize: "25px" }}>{sites.length}</b>
             </Box>
-            <Box sx={{ color: "#d4bfa3" }}>Total Sites</Box>
-            <Link to="/sitelist" style={{ textDecoration: "none" }}>
-              <Box sx={{ color: "#d4bfa3", "&:hover": { color: "#08ffff" } }}>Site List</Box>
-            </Link>
           </Box>
 
-          {/* Location cua site DANG CHON */}
-          <Box sx={{ backgroundColor: "rgba(128, 128, 128, 0.5)", p: 2, borderRadius: 1, mt: 2, color: "#d4bfa3" }}>
-            Location: {locationLabel}
+          {/* Thông tin site đang chọn: Site Name + Address */}
+          <Box sx={{ backgroundColor: "rgba(128, 128, 128, 0.5)", p: 2, borderRadius: 1, mt: 2,
+                     color: "#d4bfa3", display: "flex", flexDirection: "column", gap: 0.5 }}>
+            <Box>
+              Site Name: <b style={{ color: "#08ffff" }}>
+                {selectedSite ? selectedSite.site_name : "—"}
+              </b>
+            </Box>
+            <Box>
+              Location: {selectedSite ? (selectedSite.location || "—") : "Select a site on the map"}
+            </Box>
           </Box>
 
           <Box sx={{ backgroundColor: "rgba(128, 128, 128, 0.5)", p: 2, borderRadius: 1, mt: 2,
@@ -219,7 +214,7 @@ export default function MyFleetView() {
 
             <Box sx={{ display: "flex", justifyContent: "space-around", mt: 4, marginTop: "120px" }}>
               <ThermometerGaugeSVG value={temperature} label="TEMPERATURE" max={50}  unit="°C" />
-              <ThermometerGaugeSVG value={ratio}       label="RATIO"       max={100} unit="%" />
+              <ThermometerGaugeSVG value={humidity}    label="HUMIDITY"     max={100} unit="%" />
             </Box>
           </Box>
         </Box>

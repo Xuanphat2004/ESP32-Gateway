@@ -35,6 +35,24 @@ const formatTs = (ts) => {
   } catch { return ts; }
 };
 
+// ── Helper: format số → luôn hiển thị đúng 4 số sau dấu phẩy ───────────
+// Nếu không parse được số (vd "--", "Online") thì giữ nguyên giá trị gốc.
+const formatVal = (v) => {
+  const n = parseFloat(v);
+  return Number.isFinite(n) ? n.toFixed(4) : (v ?? "--");
+};
+
+// ── Helper: kiểm tra dữ liệu có quá cũ không ────────────────────────────
+// Nếu timestamp cuối > STALE_SECONDS giây trước → coi thiết bị Offline
+// (gateway tắt → không gửi dữ liệu mới → timestamp không cập nhật)
+const STALE_SECONDS = 120; // 2 phút — bao gồm cả trường hợp poll 60s + buffer thêm 60s
+const isStale = (ts) => {
+  if (!ts || ts === "--") return true;
+  const d = new Date(ts);
+  if (isNaN(d.getTime())) return true;
+  return (Date.now() - d.getTime()) > STALE_SECONDS * 1000;
+};
+
 //======================================== INVERTER ===================================================
 const InverterTable = ({ siteId }) => {
   const theme = useTheme();
@@ -127,16 +145,12 @@ const MeterTable = ({ siteId }) => {
   const [filterDate, setFilterDate] = useState(null);
 
   // ── Refs (khai báo SAU state — tránh Temporal Dead Zone) ──────────────
-  // detailRowsRef: merge detailRows trong EFFECT 3 không bị stale closure
   const detailRowsRef = useRef([]);
   useEffect(() => { detailRowsRef.current = detailRows; }, [detailRows]);
 
-  // selectedRegisterRef: EFFECT 3 biết user đang xem register nào (tầng 3)
-  // Không đưa selectedRegister vào deps EFFECT 3 → socket không restart khi đổi register
   const selectedRegisterRef = useRef(null);
   useEffect(() => { selectedRegisterRef.current = selectedRegister; }, [selectedRegister]);
 
-  // filterDateRef: EFFECT 3 biết đang xem hôm nay hay ngày cũ
   const filterDateRef = useRef(null);
   useEffect(() => { filterDateRef.current = filterDate; }, [filterDate]);
 
@@ -187,16 +201,6 @@ const MeterTable = ({ siteId }) => {
 
 
   // ── EFFECT 3: WS bảng chi tiết ─────────────────────────────────────────
-  //
-  // Làm 2 việc cùng lúc:
-  //   1. Cập nhật bảng chi tiết (tầng 2) — merge value mới vào detailRows
-  //   2. Cập nhật lịch sử + chart (tầng 3) — chèn vào historyRows theo timestamp
-  //
-  // Tại sao không dùng WS riêng cho tầng 3?
-  //   - WS register_history cần 1 kết nối mới mỗi lần click register → phức tạp
-  //   - group_send × 350 register mỗi poll → tốn kém
-  //   - WS này đã nhận ĐỦ data của toàn bộ meter → lọc ra register cần xem là xong
-  //   - Dùng ref thay vì state trong closure → không cần restart socket khi chuyển register
   useEffect(() => {
     if (!selectedMeter) return;
     const socket = new WebSocket(`ws://localhost:8000/ws/meter_register/${selectedMeter.meter_id}/`);
@@ -223,27 +227,17 @@ const MeterTable = ({ siteId }) => {
       }
 
       // ── Phần 2: Cập nhật lịch sử + chart (tầng 3) ───────────────────────
-      // Chỉ chạy khi: đang xem tầng 3 (selectedRegisterRef.current != null)
-      //               VÀ đang xem hôm nay (filterDateRef.current == null)
       const currentReg = selectedRegisterRef.current;
       if (!currentReg || filterDateRef.current !== null) return;
 
-      // Tìm register đang xem trong data vừa nhận
-      // So sánh theo register_address (số) — chính xác hơn parameter_name (chuỗi)
       const matchingReg = newRows.find(r => String(r.register) === String(currentReg.register_address));
       if (!matchingReg) return;
 
-      // ── FIX thứ tự vẽ chart ─────────────────────────────────────────────
-      // Record cũ replay sau khi có mạng lại sẽ mang timestamp QUÁ KHỨ.
-      //   - Chặn record không thuộc NGÀY HÔM NAY (vd outage qua ngày khác).
-      //   - KHÔNG append cuối: chèn rồi sort theo timestamp + dedupe
-      //     → chart vẽ đúng vị trí thời gian, không vọt lên ở mép phải.
       const tsMs = new Date(matchingReg.timestamp).getTime();
       if (!Number.isFinite(tsMs) || !dayjs(tsMs).isSame(dayjs(), "day")) return;
 
-      // Build history row cùng format với API trả về
       const historyRow = {
-        received_at:      matchingReg.timestamp,   // ISO string từ worker
+        received_at:      matchingReg.timestamp,
         register_address: matchingReg.register,
         register_name:    matchingReg.parameter_name,
         value:            matchingReg.value,
@@ -251,7 +245,7 @@ const MeterTable = ({ siteId }) => {
       };
 
       setHistoryRows(prev => {
-        const map = new Map(prev.map(r => [r.received_at, r]));  // dedupe theo timestamp
+        const map = new Map(prev.map(r => [r.received_at, r]));
         map.set(historyRow.received_at, historyRow);
         return [...map.values()].sort(
           (a, b) => new Date(a.received_at) - new Date(b.received_at)
@@ -262,26 +256,18 @@ const MeterTable = ({ siteId }) => {
     socket.onclose = (e) => console.warn("[WS] Chi tiết closed:", e.code);
     socket.onerror = e => console.error("[WS] Chi tiết error:", e);
     return () => socket.close();
-  }, [selectedMeter]);  // ← chỉ restart khi đổi meter, KHÔNG restart khi đổi register
+  }, [selectedMeter]);
 
 
-  // EFFECT 4 đã được hợp nhất vào EFFECT 3 — xem comment bên trên
-
-
-  // ── Hàm fetch lịch sử — dùng chung cho mọi trường hợp ──
+  // ── Hàm fetch lịch sử ──
   const fetchHistory = async (register_name, meter_id, date) => {
     setLoadingHistory(true);
     setHistoryRows([]);
-
     let url = `/solardb/get-register-history/?meter_id=${meter_id}&register_name=${encodeURIComponent(register_name)}`;
     if (date) url += `&date=${date}`;
-
     try {
       const data = await getData(url);
-      // API trả về đã sort theo timestamp, nhưng sort thêm lần nữa cho chắc
-      const sorted = (data || [])
-        .slice()
-        .sort((a, b) => new Date(a.received_at) - new Date(b.received_at));
+      const sorted = (data || []).slice().sort((a, b) => new Date(a.received_at) - new Date(b.received_at));
       setHistoryRows(sorted);
     } catch (err) {
       console.error("Fetch lịch sử error:", err);
@@ -294,9 +280,7 @@ const MeterTable = ({ siteId }) => {
   // ── Hàm chuyển ngày ──
   const goToDay = (dayjsObj) => {
     if (dayjsObj.isAfter(dayjs(), 'day')) return;
-
     const isToday = dayjsObj.isSame(dayjs(), 'day');
-
     if (isToday) {
       setFilterDate(null);
       fetchHistory(selectedRegister.register_name, selectedMeter.meter_id, null);
@@ -307,7 +291,7 @@ const MeterTable = ({ siteId }) => {
   };
 
 
-  // ── Hàm click dòng meter → mở bảng chi tiết ──
+  // ── Hàm click dòng meter ──
   const handleRowClick = async (meter_id, meter_name) => {
     setLoadingDetail(true);
     setDetailRows([]);
@@ -324,8 +308,7 @@ const MeterTable = ({ siteId }) => {
   };
 
 
-  // ── Hàm click thanh ghi → mở bảng lịch sử ──
-  // register_address được lấy từ field "register" trong detailRows (API trả về)
+  // ── Hàm click thanh ghi ──
   const handleRegisterClick = async (register_name, register_address) => {
     setFilterDate(null);
     setSelectedRegister({ register_name, register_address });
@@ -337,17 +320,14 @@ const MeterTable = ({ siteId }) => {
   // RENDER tầng 3 — Lịch sử + Chart + Filter 1 ngày
   if (selectedRegister && selectedMeter) {
 
-    // Formatter dùng chung cho XAxis + Brush: epoch ms → "HH:MM" (local timezone)
     const hhmm = (ms) => {
       const d = new Date(ms), p = (n) => String(n).padStart(2, "0");
       return `${p(d.getHours())}:${p(d.getMinutes())}`;
     };
 
-    // chartData: dùng timestamp dạng SỐ (epoch ms) cho trục X kiểu thời gian,
-    // và sort tăng dần → line nối đúng thứ tự thời gian dù record cũ replay về sau.
     const chartData = historyRows
       .map(row => ({
-        ts:    new Date(row.received_at).getTime(),  // epoch ms
+        ts:    new Date(row.received_at).getTime(),
         value: parseFloat(row.value) || 0,
       }))
       .filter(d => Number.isFinite(d.ts))
@@ -370,23 +350,19 @@ const MeterTable = ({ siteId }) => {
 
     return (
       <Box>
-        {/* Nút quay lại */}
         <Button variant="outlined"
           onClick={() => { setSelectedRegister(null); setHistoryRows([]); setFilterDate(null); }}
           sx={{ mb: 2, color: theme.palette.text.header_option, borderColor: theme.palette.text.header_option }}>
           ← Return Register List
         </Button>
 
-        {/* Tiêu đề */}
         <Typography sx={{ color: theme.palette.text.header_option, mb: 2 }}>
           History of: <strong>{selectedRegister.register_name}</strong>
           {" "}— Meter: <strong>{selectedMeter.meter_name}</strong>
           {" "}<span style={{ color: "#aaa", fontSize: 13 }}>({historyRows.length} records)</span>
         </Typography>
 
-        {/* ── FILTER BAR ── */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3, flexWrap: "wrap" }}>
-
           <Button variant="outlined" size="small"
             onClick={() => goToDay(currentDay.subtract(1, 'day'))}
             sx={{ color: theme.palette.text.header_option, borderColor: theme.palette.text.header_option, minWidth: 36 }}>
@@ -398,33 +374,20 @@ const MeterTable = ({ siteId }) => {
               label="Select Date"
               value={filterDate ?? dayjs()}
               maxDate={dayjs()}
-              onChange={(newVal) => {
-                if (!newVal) return;
-                goToDay(newVal);
-              }}
-              slotProps={{
-                textField: {
-                  size: "small",
-                  sx: { width: 160, input: { color: "white" }, label: { color: "#aaa" } }
-                }
-              }}
+              onChange={(newVal) => { if (!newVal) return; goToDay(newVal); }}
+              slotProps={{ textField: { size: "small", sx: { width: 160, input: { color: "white" }, label: { color: "#aaa" } } } }}
             />
           </LocalizationProvider>
 
           <Button variant="outlined" size="small"
             onClick={() => goToDay(currentDay.add(1, 'day'))}
             disabled={isToday}
-            sx={{
-              color: isToday ? "#555" : theme.palette.text.header_option,
-              borderColor: isToday ? "#555" : theme.palette.text.header_option,
-              minWidth: 36,
-            }}>
+            sx={{ color: isToday ? "#555" : theme.palette.text.header_option, borderColor: isToday ? "#555" : theme.palette.text.header_option, minWidth: 36 }}>
             ►
           </Button>
 
           {!isToday && (
-            <Button variant="outlined" size="small"
-              onClick={() => goToDay(dayjs())}
+            <Button variant="outlined" size="small" onClick={() => goToDay(dayjs())}
               sx={{ color: "#aaa", borderColor: "#aaa" }}>
               Today
             </Button>
@@ -433,77 +396,42 @@ const MeterTable = ({ siteId }) => {
           <Typography sx={{ color: "#aaa", fontSize: 13, ml: 1 }}>
             Viewing: <strong style={{ color: theme.palette.text.header_option }}>{viewingDateLabel}</strong>
           </Typography>
-
         </Box>
 
         {loadingHistory ? (
           <Typography sx={{ color: "gray" }}>Loading history...</Typography>
         ) : (
           <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-
-            {/* ── CHART ── */}
             <Box sx={{ backgroundColor: theme.palette.table.background_odd, borderRadius: 2, p: 2 }}>
               <Typography sx={{ color: theme.palette.text.header_option, mb: 1, fontSize: 14 }}>
                 Value over time — {viewingDateLabel}
               </Typography>
 
               {historyRows.length === 0 ? (
-                <Typography sx={{ color: "#aaa", textAlign: "center", py: 4 }}>
-                  No data for this day
-                </Typography>
+                <Typography sx={{ color: "#aaa", textAlign: "center", py: 4 }}>No data for this day</Typography>
               ) : (
                 <ResponsiveContainer width="100%" height={280}>
                   <LineChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 40 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-
-                    {/* Trục X kiểu thời gian (số) → điểm rơi đúng vị trí timestamp,
-                        record cũ replay nằm đúng khe quá khứ thay vì vọt ở mép phải */}
-                    <XAxis
-                      dataKey="ts"
-                      type="number"
-                      scale="time"
-                      domain={["dataMin", "dataMax"]}
-                      tickFormatter={hhmm}
-                      tick={{ fill: "#aaa", fontSize: 11 }}
-                      tickCount={8}
-                      angle={-30}
-                      textAnchor="end"
-                      height={45}
-                    />
-
+                    <XAxis dataKey="ts" type="number" scale="time" domain={["dataMin", "dataMax"]}
+                      tickFormatter={hhmm} tick={{ fill: "#aaa", fontSize: 11 }} tickCount={8}
+                      angle={-30} textAnchor="end" height={45} />
                     <YAxis tick={{ fill: "#aaa", fontSize: 11 }} />
-
                     <Tooltip
                       contentStyle={{ backgroundColor: "#1b1b1b", border: "1px solid #555", color: "#eee" }}
                       labelStyle={{ color: "#aaa" }}
                       labelFormatter={(ms) => {
                         const d = new Date(ms), p = (n) => String(n).padStart(2, "0");
-                        return `🕐 ${p(d.getDate())}/${p(d.getMonth()+1)} `
-                             + `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+                        return `🕐 ${p(d.getDate())}/${p(d.getMonth()+1)} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
                       }}
                       formatter={(value) => [value, selectedRegister.register_name]}
                     />
-
                     {chartData.length > 20 && (
-                      <Brush
-                        dataKey="ts"
-                        height={20}
-                        stroke={theme.palette.text.header_option}
-                        fill="#1b1b1b"
-                        travellerWidth={8}
-                        tickFormatter={hhmm}
-                      />
+                      <Brush dataKey="ts" height={20} stroke={theme.palette.text.header_option}
+                        fill="#1b1b1b" travellerWidth={8} tickFormatter={hhmm} />
                     )}
-
-                    <Line
-                      type="monotone"
-                      dataKey="value"
-                      stroke={theme.palette.text.header_option}
-                      strokeWidth={2}
-                      dot={chartData.length < 50}
-                      activeDot={{ r: 5 }}
-                      isAnimationActive={false}
-                    />
+                    <Line type="monotone" dataKey="value" stroke={theme.palette.text.header_option}
+                      strokeWidth={2} dot={chartData.length < 50} activeDot={{ r: 5 }} isAnimationActive={false} />
                   </LineChart>
                 </ResponsiveContainer>
               )}
@@ -511,11 +439,8 @@ const MeterTable = ({ siteId }) => {
 
             {/* ── BẢNG LỊCH SỬ — hiển thị mới nhất ở trên ── */}
             <TableContainer component={Paper}
-              sx={{
-                maxHeight: 350, overflow: "auto",
-                backgroundColor: theme.palette.table.background_odd,
-                '&:hover::-webkit-scrollbar-thumb': { backgroundColor: theme.palette.background.head_box },
-              }}>
+              sx={{ maxHeight: 350, overflow: "auto", backgroundColor: theme.palette.table.background_odd,
+                    '&:hover::-webkit-scrollbar-thumb': { backgroundColor: theme.palette.background.head_box } }}>
               <Table stickyHeader>
                 <TableHead>
                   <TableRow>
@@ -530,22 +455,21 @@ const MeterTable = ({ siteId }) => {
                 <TableBody>
                   {historyRows.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} align="center" sx={{ color: "#aaa", py: 4 }}>
-                        No data for this day
-                      </TableCell>
+                      <TableCell colSpan={5} align="center" sx={{ color: "#aaa", py: 4 }}>No data for this day</TableCell>
                     </TableRow>
                   ) : (
                     [...historyRows].reverse().map((row, i) => (
                       <TableRow key={i}>
                         {historyColumns.map(col => (
                           <TableCell key={col.key} align="center"
-                            sx={{
-                              color: theme.palette.table.text,
-                              backgroundColor: i%2===0 ? theme.palette.table.background_odd : theme.palette.table.background_even,
-                            }}>
+                            sx={{ color: theme.palette.table.text,
+                                  backgroundColor: i%2===0 ? theme.palette.table.background_odd : theme.palette.table.background_even }}>
+                            {/* ── FIX: cột value hiển thị 2 số thập phân ── */}
                             {(col.key === "timestamp" || col.key === "received_at")
-                          ? formatTs(row[col.key])
-                          : (row[col.key] ?? "--")}
+                              ? formatTs(row[col.key])
+                              : col.key === "value"
+                              ? formatVal(row[col.key])
+                              : (row[col.key] ?? "--")}
                           </TableCell>
                         ))}
                       </TableRow>
@@ -554,7 +478,6 @@ const MeterTable = ({ siteId }) => {
                 </TableBody>
               </Table>
             </TableContainer>
-
           </Box>
         )}
       </Box>
@@ -582,20 +505,15 @@ const MeterTable = ({ siteId }) => {
 
         <Typography sx={{ color: theme.palette.text.header_option, mb: 1 }}>
           Register of: <strong>{selectedMeter.meter_name}</strong>
-          <span style={{ color: "#aaa", fontSize: 13, marginLeft: 16 }}>
-            — Click a line to see history
-          </span>
+          <span style={{ color: "#aaa", fontSize: 13, marginLeft: 16 }}>— Click a line to see history</span>
         </Typography>
 
         {loadingDetail ? (
           <Typography sx={{ color: "gray" }}>Loading data....</Typography>
         ) : (
           <TableContainer component={Paper}
-            sx={{
-              maxHeight: 500, overflow: "auto",
-              backgroundColor: theme.palette.table.background_odd,
-              '&:hover::-webkit-scrollbar-thumb': { backgroundColor: theme.palette.background.head_box },
-            }}>
+            sx={{ maxHeight: 500, overflow: "auto", backgroundColor: theme.palette.table.background_odd,
+                  '&:hover::-webkit-scrollbar-thumb': { backgroundColor: theme.palette.background.head_box } }}>
             <Table stickyHeader>
               <TableHead>
                 <TableRow>
@@ -610,17 +528,17 @@ const MeterTable = ({ siteId }) => {
               <TableBody>
                 {detailRows.map((row, i) => (
                   <TableRow key={i}
-                    // Đây là số nguyên, dùng làm WS URL và group key
                     onClick={() => handleRegisterClick(row.parameter_name, row.register)}
                     sx={{ cursor: "pointer", "&:hover": { filter: "brightness(1.7)" } }}>
                     {detailColumns.map(col => (
                       <TableCell key={col.key} align="center"
-                        sx={{
-                          color: theme.palette.table.text,
-                          backgroundColor: i%2===0 ? theme.palette.table.background_odd : theme.palette.table.background_even,
-                        }}>
+                        sx={{ color: theme.palette.table.text,
+                              backgroundColor: i%2===0 ? theme.palette.table.background_odd : theme.palette.table.background_even }}>
+                        {/* ── FIX: cột value hiển thị 2 số thập phân ── */}
                         {(col.key === "timestamp" || col.key === "received_at")
                           ? formatTs(row[col.key])
+                          : col.key === "value"
+                          ? formatVal(row[col.key])
                           : (row[col.key] ?? "--")}
                       </TableCell>
                     ))}
@@ -676,6 +594,8 @@ const MeterTable = ({ siteId }) => {
                   sx={{ color: theme.palette.table.text, backgroundColor: i%2===0 ? theme.palette.table.background_odd : theme.palette.table.background_even }}>
                   {(col.key === "timestamp" || col.key === "received_at")
                     ? formatTs(row[col.key])
+                    : col.key === "status"
+                    ? (isStale(row.timestamp) ? "Offline" : row[col.key])
                     : row[col.key]}
                 </TableCell>
               ))}

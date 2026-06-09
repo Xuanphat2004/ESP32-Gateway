@@ -7,15 +7,16 @@ import { useTheme } from "@mui/material/styles";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import WarningAmberIcon  from "@mui/icons-material/WarningAmber";
 import ErrorOutlineIcon  from "@mui/icons-material/ErrorOutline";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import InfoOutlinedIcon  from "@mui/icons-material/InfoOutlined";
 import VolumeUpIcon      from "@mui/icons-material/VolumeUp";
 import VolumeOffIcon     from "@mui/icons-material/VolumeOff";
 import { useNavigate } from "react-router-dom";
-import { getData } from "../ApiComponent/api";  
+import { getData } from "./ApiComponent/api";  // NotificationBell.jsx ở src/ → cùng cấp với ApiComponent
 
-// ⚙️ Cấu hình — khớp với ScanConsumer + routing.py  ─────────
-const WS_BASE     = "ws://localhost:8000/ws/scan/";   // ws/scan/{gateway_id}/?token=...
-const ALARM_ROUTE = "/alarmsnooze";                   // click thông báo → nhảy tới trang này
+// ⚙️ Cấu hình
+const WS_BASE     = "ws://localhost:8000/ws/scan/";
+const ALARM_ROUTE = "/alarmsnooze";
 const MAX_ITEMS   = 30;
 
 
@@ -23,9 +24,10 @@ const MAX_ITEMS   = 30;
 const severityMeta = (sev) => {
   switch (String(sev || "").toLowerCase()) {
     case "critical":
-    case "error":   return { Icon: ErrorOutlineIcon, color: "#ef5350" };
-    case "warning": return { Icon: WarningAmberIcon, color: "#ffa726" };
-    default:        return { Icon: InfoOutlinedIcon, color: "#42a5f5" };
+    case "error":   return { Icon: ErrorOutlineIcon,       color: "#ef5350" };
+    case "warning": return { Icon: WarningAmberIcon,       color: "#ffa726" };
+    case "normal":  return { Icon: CheckCircleOutlineIcon, color: "#66bb6a" };
+    default:        return { Icon: InfoOutlinedIcon,       color: "#42a5f5" };
   }
 };
 
@@ -38,19 +40,33 @@ const timeAgo = (date) => {
   const d = Math.floor(h / 24); return `${d} d ago`;
 };
 
-// ── Dựng thông báo từ payload scan (cùng format AlarmSnooze.wsToRow đọc) ──
-//   data: { scan_id, severity, inactive_ids[], line_ok, active_port, timestamp, ... }
+// ── Dựng thông báo từ payload scan ──────────────────────────────────────
 let _seq = 0;
 const buildNotification = (data, siteName) => {
   const offCount = Array.isArray(data.inactive_ids) ? data.inactive_ids.length : 0;
-  const detail = offCount > 0
-    ? `${offCount} device(s) disconnected`
-    : (data.line_ok === false ? "Line broken" : "Line status changed");
+
+  // Cùng logic với AlarmSnooze:
+  // Warning khi: severity="warning" HOẶC line_ok=false (dây đứt dù thiết bị vẫn online)
+  const isWarning = String(data.severity || "").toLowerCase() === "warning"
+                    || data.line_ok === false;
+
+  // Nội dung thông báo — ưu tiên kiểm tra inactive trước, rồi line_ok
+  let detail;
+  if (offCount > 0) {
+    detail = `${offCount} device(s) disconnected`;
+  } else if (data.line_ok === false) {
+    detail = "Line broken";
+  } else {
+    detail = "All devices connected — Line OK";
+  }
+
+  const title = isWarning ? "⚠ Line Scan Alarm" : "✅ Line Scan OK";
+
   const when = data.timestamp ? new Date(data.timestamp) : new Date();
   return {
     id:       `${data.scan_id ?? Date.now()}-${_seq++}`,
-    severity: data.severity || (offCount > 0 ? "warning" : "info"),
-    title:    "Line Scan Alarm",
+    severity: isWarning ? "warning" : "normal",
+    title,
     message:  siteName ? `${detail} — ${siteName}` : detail,
     time:     isNaN(when.getTime()) ? new Date() : when,
     read:     false,
@@ -86,9 +102,7 @@ export default function NotificationBell() {
     }
   }, []);
 
-  // ── Kết nối WS scan cho TỪNG gateway của user ─────────────────────────
-  //   ScanConsumer yêu cầu: gateway_id trong URL (':' → '_') + token query string.
-  //   Cùng group "scan_{gateway_id}" mà AlarmSnooze đang dùng → không sửa backend.
+  // ── Kết nối WS scan cho TỪNG gateway, tự reconnect khi đứt ──────────
   useEffect(() => {
     const token = sessionStorage.getItem("token");
     if (!token) return;
@@ -101,35 +115,45 @@ export default function NotificationBell() {
       const gid = rawGatewayId.replace(/:/g, "_");
       const url = `${WS_BASE}${gid}/?token=${token}`;
 
-      const open = () => {
+      const connect = () => {
         if (cancelled) return;
         const ws = new WebSocket(url);
         sockets.push(ws);
-        ws.onopen    = () => console.log("[WS] Bell connected:", gid);
+
+        ws.onopen = () => console.log("[Bell] Connected:", gid);
+
         ws.onmessage = (e) => {
           try {
             const data = JSON.parse(e.data);
-            if (data.severity !== "warning") return;   // chỉ báo warning
+            // Nhận TẤT CẢ kết quả scan — không lọc severity
             addNotification(buildNotification(data, siteName));
-          } catch (err) { console.error("Bell parse error:", err); }
+          } catch (err) {
+            console.error("[Bell] Parse error:", err);
+          }
         };
+
         ws.onclose = (e) => {
           // 4001 = chưa auth, 4003 = không phải chủ gateway → KHÔNG reconnect
           if (!cancelled && e.code !== 4001 && e.code !== 4003) {
-            timers.push(setTimeout(open, 3000));
+            console.warn(`[Bell] WS dropped (${gid}), reconnecting in 3s...`);
+            timers.push(setTimeout(connect, 3000));
           }
         };
+
         ws.onerror = () => ws.close();
       };
-      open();
+
+      connect();
     };
 
     getData("/solardb/get-my-sites/")
       .then((sites) => {
         if (cancelled || !Array.isArray(sites)) return;
-        sites.forEach((s) => { if (s.gateway_id) connectGateway(s.gateway_id, s.site_name); });
+        sites.forEach((s) => {
+          if (s.gateway_id) connectGateway(s.gateway_id, s.site_name);
+        });
       })
-      .catch((err) => console.error("Bell fetch sites error:", err));
+      .catch((err) => console.error("[Bell] Fetch sites error:", err));
 
     return () => {
       cancelled = true;
@@ -138,7 +162,7 @@ export default function NotificationBell() {
     };
   }, [addNotification]);
 
-  // ── Mở popover → đánh dấu đã đọc (badge về 0) ─────────────────────────
+  // ── Mở popover → đánh dấu tất cả đã đọc ──────────────────────────────
   const handleOpen  = (e) => {
     setAnchorEl(e.currentTarget);
     setItems((prev) => prev.map((n) => ({ ...n, read: true })));
@@ -194,7 +218,7 @@ export default function NotificationBell() {
         </Box>
         <Divider sx={{ borderColor: "#333" }} />
 
-        {/* List */}
+        {/* Danh sách thông báo */}
         {items.length === 0 ? (
           <Box sx={{ py: 5, textAlign: "center", color: "#777" }}>
             <NotificationsIcon sx={{ fontSize: 36, opacity: 0.4 }} />

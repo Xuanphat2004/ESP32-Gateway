@@ -12,29 +12,17 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { Button } from "@mui/material";
 import { useThemeMode } from "../themeContex";
-
 import { Outlet } from "react-router-dom";
-import { MyOption, OptionAbout} from "./option";
-
-// Nhập thêm useState để quản lý việc đóng mở
-import { useState, useRef, useEffect } from 'react'; 
-import { Divider } from "@mui/material";
-
-// // Nhập các linh kiện giao diện cần thiết
-// import { Collapse, List, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
-// import ExpandLess from "@mui/icons-material/ExpandLess"; // Mũi tên chỉ lên
-// import ExpandMore from "@mui/icons-material/ExpandMore"; // Mũi tên chỉ xuống
-// import SettingsIcon from "@mui/icons-material/Settings"; // Icon cho mục cha
-// import SubdirectoryArrowRightIcon from '@mui/icons-material/SubdirectoryArrowRight'; // Icon cho mục con
-// import { Link } from "react-router-dom"; // Để chuyển trang
+import { MyOption, OptionAbout } from "./option";
+import NotificationBell from "../NotificationBell"; // ← import từ file riêng
 
 const drawerWidth = 300;
 
+// ─── Styled components ────────────────────────────────────────────────────────
 const Main = styled("main", {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
   flexGrow: 1,
-  // padding: theme.spacing(3),
   width: "100%",
   maxWidth: "100%",
   padding: 0,
@@ -63,7 +51,6 @@ const AppBar = styled(MuiAppBar, {
   ...(open && {
     width: `calc(100% - ${drawerWidth}px)`,
     marginLeft: `${drawerWidth}px`,
-    // marginRight: `${drawerWidth}px`,
     transition: theme.transitions.create(["margin", "width"], {
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen,
@@ -75,77 +62,60 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "left",
   padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
   ...theme.mixins.toolbar,
   justifyContent: "flex-end",
 }));
 
+// ─── Layout chính ─────────────────────────────────────────────────────────────
 export default function PersistentDrawerLeft() {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
-
-  // Biến này quyết định menu đang mở (true) hay đóng (false)
-  const [openSiteMgmt, setOpenSiteMgmt] = useState(false);
-
-  // Hàm này chạy khi bạn bấm vào nút cha để đảo ngược trạng thái
-  const handleSiteMgmtClick = () => {
-    setOpenSiteMgmt(!openSiteMgmt);
-  };
-
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
-
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
-  
   const { mode, toggleMode } = useThemeMode();
+
+  const handleDrawerOpen  = () => setOpen(true);
+  const handleDrawerClose = () => setOpen(false);
+
   return (
-    
     <Box sx={{ display: "flex", height: "100vh" }}>
       <CssBaseline />
+
       <AppBar position="fixed" open={open}>
-        <Toolbar
-          sx={{
-            backgroundColor: theme.palette.background.paper,
-          }}
-        >
+        <Toolbar sx={{ backgroundColor: theme.palette.background.paper }}>
+
+          {/* Nút mở drawer */}
           <IconButton
             color="#b48a60"
             aria-label="open drawer"
             onClick={handleDrawerOpen}
             edge="start"
-            sx={[
-              {
-                mr: 2,
-              }, 
-              open && { display: "none" },
-            ]}
+            sx={[{ mr: 2 }, open && { display: "none" }]}
           >
             <MenuIcon />
           </IconButton>
 
+          {/* Tiêu đề */}
           <Typography
-            variant="h4"
-            noWrap
-            component="div"
-            sx={{
-              color:theme.palette.text.header_option,
-              fontWeight: "bold",
-              //fontFamily: "fantasy",
-              flexGrow: 1,
-            }}
+            variant="h4" noWrap component="div"
+            sx={{ color: theme.palette.text.header_option, fontWeight: "bold", flexGrow: 1 }}
           >
             CENTRAL MONITORING DASHBOARD
           </Typography>
 
-          <Button variant="outlined" onClick={toggleMode} sx={{color: theme.palette.text.header_option, borderColor:theme.palette.text.header_option}}>
+          {/* Chuông thông báo — logic nằm trong src/NotificationBell.jsx */}
+          <NotificationBell />
+
+          {/* Nút đổi theme */}
+          <Button
+            variant="outlined" onClick={toggleMode}
+            sx={{ color: theme.palette.text.header_option, borderColor: theme.palette.text.header_option }}
+          >
             {mode === "light" ? "Dark Mode" : "Light Mode"}
           </Button>
+
         </Toolbar>
       </AppBar>
 
+      {/* Drawer menu trái */}
       <Drawer
         sx={{
           width: drawerWidth,
@@ -155,19 +125,10 @@ export default function PersistentDrawerLeft() {
             boxSizing: "border-box",
             backgroundColor: theme.palette.background.default,
             overflowY: "auto",
-            '&::-webkit-scrollbar': {
-              width: '8px',
-            },
-            '&::-webkit-scrollbar-thumb': {
-              backgroundColor: 'transparent',
-              borderRadius: '4px',
-            },
-            '&:hover::-webkit-scrollbar-thumb': {
-              backgroundColor: theme.palette.background.head_box,
-            },
-            '&:hover::-webkit-scrollbar-track': {
-              backgroundColor: 'transparent',
-            },
+            "&::-webkit-scrollbar": { width: "8px" },
+            "&::-webkit-scrollbar-thumb": { backgroundColor: "transparent", borderRadius: "4px" },
+            "&:hover::-webkit-scrollbar-thumb": { backgroundColor: theme.palette.background.head_box },
+            "&:hover::-webkit-scrollbar-track": { backgroundColor: "transparent" },
           },
         }}
         variant="persistent"
@@ -175,77 +136,47 @@ export default function PersistentDrawerLeft() {
         open={open}
       >
         <DrawerHeader>
-          <IconButton
-            onClick={handleDrawerClose}
-            sx={{
-              color: theme.palette.text.primary,
-            }}
-          >
-            {theme.direction === "ltr" ? (
-              <ChevronLeftIcon />
-            ) : (
-              <ChevronRightIcon />
-            )}
+          <IconButton onClick={handleDrawerClose} sx={{ color: theme.palette.text.primary }}>
+            {theme.direction === "ltr" ? <ChevronLeftIcon /> : <ChevronRightIcon />}
           </IconButton>
         </DrawerHeader>
 
-        
-
-        <MyOption
-          title="Central Monitor"
-          items={[
-            { to: "/fleetview", label: "Fleet View" },
-            { to: "/sitelist", label: "Site List" },
-            { to: "/leaderboard", label: "Leader Board" },
-          ]}
-        />
-        <MyOption
-          title="Site Monitor"
-          items={[
-            { to: "/siteview", label: "Site View" },
-            { to: "/sitekpi", label: "Site KPI" },
-            { to: "/devicelist", label: "Device List" },
-          ]}
-        />
-        <MyOption
-          title="Alarm"
-          items={[
-            { to: "/activealarm", label: "Active Alarm" },
-            { to: "/alarmlog", label: "Alarm Log" },
-            { to: "/alarmconfig", label: "Alarm Config" },
-            { to: "/alarmsnooze", label: "Alarm Snooze" },
-            { to: "/alarmsubscription", label: "Alarm Subscription" },
-          ]}
-        />
-        <MyOption
-          title="Analyze"
-          items={[
-            { to: "/chartingtool", label: "Charting Tool" },
-            { to: "/availability", label: "Availability" },
-            { to: "/topologyanalysis", label: "Topology Analysis" },
-          ]}
-        />
-        <MyOption
-          title="General Report"
-          items={[
-            { to: "/sitereport",      label: "Site Report" },
-            { to: "/devicereport",    label: "Device Report" },
-            { to: "/productionreport",label: "Production Report" },
-            { to: "/operationreport", label: "Operation Report" },
-          ]}
-        />
-        <MyOption
-          title="Data Report"
-          items={[{ to: "/dataexport", label: "Data Export" }]}
-        />
-        <MyOption
-          title="Site Management"
-          items={[
-            { to: "/budgetproductioninput", label: "Budget Production Input" },
-            { to: "/budgetisolutioninput",  label: "Budget Isolution Input" },
-            { to: "/budgetgridinjectinput", label: "Budget Grid-Inject Input"}
-          ]}
-        />
+        <MyOption title="Central Monitor" items={[
+          { to: "/fleetview",   label: "Fleet View" },
+          { to: "/sitelist",    label: "Site List" },
+          { to: "/leaderboard", label: "Leader Board" },
+        ]} />
+        <MyOption title="Site Monitor" items={[
+          { to: "/siteview",   label: "Site View" },
+          { to: "/sitekpi",    label: "Site KPI" },
+          { to: "/devicelist", label: "Device List" },
+        ]} />
+        <MyOption title="Alarm" items={[
+          { to: "/activealarm",       label: "Active Alarm" },
+          { to: "/alarmlog",          label: "Alarm Log" },
+          { to: "/alarmconfig",       label: "Alarm Config" },
+          { to: "/alarmsnooze",       label: "Alarm Snooze" },
+          { to: "/alarmsubscription", label: "Alarm Subscription" },
+        ]} />
+        <MyOption title="Analyze" items={[
+          { to: "/chartingtool",     label: "Charting Tool" },
+          { to: "/availability",     label: "Availability" },
+          { to: "/topologyanalysis", label: "Topology Analysis" },
+        ]} />
+        <MyOption title="General Report" items={[
+          { to: "/sitereport",       label: "Site Report" },
+          { to: "/devicereport",     label: "Device Report" },
+          { to: "/productionreport", label: "Production Report" },
+          { to: "/operationreport",  label: "Operation Report" },
+        ]} />
+        <MyOption title="Data Report" items={[
+          { to: "/dataexport", label: "Data Export" },
+        ]} />
+        <MyOption title="Site Management" items={[
+          { to: "/budgetproductioninput", label: "Budget Production Input" },
+          { to: "/budgetisolutioninput",  label: "Budget Isolution Input" },
+          { to: "/budgetgridinjectinput", label: "Budget Grid-Inject Input" },
+        ]} />
         <OptionAbout />
       </Drawer>
 

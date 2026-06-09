@@ -112,6 +112,31 @@ def compute_bucket_deltas(timeline, bucket_ranges, scale):
     return deltas
 
 
+def compute_bucket_readings(timeline, bucket_ranges):
+    """
+    Tính chỉ số đầu kỳ (min), cuối kỳ (max) và tiêu thụ (max-min) cho từng bucket.
+    Bộ đếm năng lượng chỉ tăng nên min = giá trị đầu kỳ, max = giá trị cuối kỳ.
+    Trả về list of (dau_ky, cuoi_ky, tieu_thu) — None khi không có dữ liệu.
+    """
+    result = []
+    for (b_start, b_end) in bucket_ranges:
+        in_bucket = [v for (t, v) in timeline if b_start <= t < b_end]
+        if len(in_bucket) >= 2:
+            dau_ky   = round(min(in_bucket) * ENERGY_SCALE, 2)
+            cuoi_ky  = round(max(in_bucket) * ENERGY_SCALE, 2)
+            tieu_thu = round(max(0.0, cuoi_ky - dau_ky), 2)
+        elif len(in_bucket) == 1:
+            dau_ky   = round(in_bucket[0] * ENERGY_SCALE, 2)
+            cuoi_ky  = dau_ky
+            tieu_thu = 0.0
+        else:
+            dau_ky   = None   # không có dữ liệu → hiển thị "—"
+            cuoi_ky  = None
+            tieu_thu = 0.0
+        result.append((dau_ky, cuoi_ky, tieu_thu))
+    return result
+
+
 X_LABELS = {
     "hour":  [f"{h:02d}h" for h in range(24)],
     "week":  ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
@@ -205,6 +230,8 @@ def period_title(mode, base_date):
 
 
 # ── API endpoint: XUẤT EXCEL ─────────────────────────────────────────────────
+# Cột: Thời gian | Site | Meter | Chỉ số đầu kỳ (kWh) | Chỉ số cuối kỳ (kWh) | Tiêu thụ (kWh)
+# Mỗi hàng = 1 khoảng thời gian của 1 meter
 @api_view(["GET"])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
@@ -221,23 +248,37 @@ def energy_export(request):
         return JsonResponse({"error": "type không hợp lệ"}, status=400)
 
     base_date = parse_base_date(date_str)
-    labels, series = build_energy_series(request.user, mode, base_date, site_id)
 
-    # Tên site (nếu lọc theo 1 site)
-    site_name = "All Sites"
+    # ── Lấy danh sách meter (kèm thông tin site) ──────────────────────────
+    user_site_ids = Site.objects.filter(user=request.user).values_list("site_id", flat=True)
+    meters_qs = Meter.objects.filter(site_id__in=user_site_ids).select_related("site_id")
+    if site_id:
+        meters_qs = meters_qs.filter(site_id=site_id)
+    meters = list(meters_qs.order_by("meter_id"))
+
+    bucket_ranges = get_bucket_ranges(mode, base_date)
+    if not bucket_ranges:
+        return JsonResponse({"error": "Không tính được bucket"}, status=400)
+
+    range_start = bucket_ranges[0][0]
+    range_end   = bucket_ranges[-1][1]
+    labels      = X_LABELS[mode]
+
+    # Tên site cho tiêu đề
+    site_name_title = "All Sites"
     if site_id:
         try:
-            site_name = Site.objects.get(site_id=site_id, user=request.user).site_name
+            site_name_title = Site.objects.get(site_id=site_id, user=request.user).site_name
         except Site.DoesNotExist:
-            site_name = f"Site {site_id}"
+            pass
 
-    # ── Tạo workbook ──
+    # ── Tạo workbook ──────────────────────────────────────────────────────
     wb = Workbook()
     ws = wb.active
     ws.title = "Energy Report"
 
     # Style
-    title_font  = Font(bold=True, size=14, color="FFFFFF")
+    title_font  = Font(bold=True, size=13, color="FFFFFF")
     title_fill  = PatternFill("solid", fgColor="1a73e8")
     header_font = Font(bold=True, color="FFFFFF")
     header_fill = PatternFill("solid", fgColor="00838f")
@@ -247,65 +288,100 @@ def energy_export(request):
     thin        = Side(style="thin", color="b0bec5")
     border      = Border(left=thin, right=thin, top=thin, bottom=thin)
 
-    n_cols = 2 + len(series)  # cột thời gian + tổng + mỗi meter 1 cột
-
     # Dòng 1: Tiêu đề report
-    ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=n_cols)
+    ws.merge_cells("A1:F1")
     c = ws.cell(row=1, column=1, value=period_title(mode, base_date))
     c.font = title_font; c.fill = title_fill; c.alignment = center
 
     # Dòng 2: Site
-    ws.merge_cells(start_row=2, start_column=1, end_row=2, end_column=n_cols)
-    c = ws.cell(row=2, column=1, value=f"Site: {site_name}")
+    ws.merge_cells("A2:F2")
+    c = ws.cell(row=2, column=1, value=f"Site: {site_name_title}")
     c.font = Font(bold=True, size=11); c.alignment = center
 
-    # Dòng 4: Header bảng
-    header_row = 4
-    headers = [X_LABELS_HEADER(mode)] + [s["label"] for s in series] + ["Total (kWh)"]
+    # Dòng 4: Header bảng — 6 cột cố định
+    headers = [
+        "Time Period",
+        "Site",
+        "Meter",
+        "Start Reading (kWh)",
+        "End Reading (kWh)",
+        "Consumption (kWh)",
+    ]
     for ci, h in enumerate(headers, start=1):
-        c = ws.cell(row=header_row, column=ci, value=h)
+        c = ws.cell(row=4, column=ci, value=h)
         c.font = header_font; c.fill = header_fill
         c.alignment = center; c.border = border
 
-    # Dòng dữ liệu: mỗi label (mốc thời gian) là 1 hàng
-    col_totals = [0.0] * len(series)
-    for ri, label in enumerate(labels):
-        row = header_row + 1 + ri
-        ws.cell(row=row, column=1, value=label).alignment = center
-        ws.cell(row=row, column=1).border = border
+    # ── Ghi dữ liệu: mỗi meter → mỗi bucket → 1 hàng ─────────────────────
+    current_row = 5
+    for m in meters:
+        all_reg_names = (MeterRegister.objects
+                         .filter(meter_id=m.meter_id)
+                         .values_list("register_name", flat=True)
+                         .distinct())
+        energy_reg_names = [n for n in all_reg_names if is_energy_register(n)]
+        if not energy_reg_names:
+            continue
 
-        row_total = 0.0
-        for si, s in enumerate(series):
-            val = s["data"][ri] if ri < len(s["data"]) else 0
-            cc = ws.cell(row=row, column=2 + si, value=val)
-            cc.alignment = center; cc.border = border
-            row_total += (val or 0)
-            col_totals[si] += (val or 0)
+        timeline = get_meter_timeline(m.meter_id, energy_reg_names, range_start, range_end)
+        readings = compute_bucket_readings(timeline, bucket_ranges)
 
-        # Cột tổng theo hàng
-        tc = ws.cell(row=row, column=n_cols, value=round(row_total, 2))
-        tc.alignment = center; tc.border = border; tc.font = Font(bold=True)
+        site_name_m = m.site_id.site_name
+        meter_name  = f"{m.meter_name} (ID{m.meter_id})"
 
-    # Hàng tổng cuối bảng
-    total_row = header_row + 1 + len(labels)
-    c = ws.cell(row=total_row, column=1, value="TOTAL")
-    c.font = total_font; c.fill = total_fill; c.alignment = center; c.border = border
+        total_tieu_thu = 0.0
+        first_dau_ky   = None   # đầu kỳ đầu tiên trong kỳ (cho dòng tổng)
+        last_cuoi_ky   = None   # cuối kỳ cuối cùng trong kỳ (cho dòng tổng)
 
-    grand_total = 0.0
-    for si in range(len(series)):
-        cc = ws.cell(row=total_row, column=2 + si, value=round(col_totals[si], 2))
-        cc.font = total_font; cc.fill = total_fill; cc.alignment = center; cc.border = border
-        grand_total += col_totals[si]
+        for i, label in enumerate(labels):
+            dau_ky, cuoi_ky, tieu_thu = readings[i]
 
-    gc = ws.cell(row=total_row, column=n_cols, value=round(grand_total, 2))
-    gc.font = total_font; gc.fill = total_fill; gc.alignment = center; gc.border = border
+            def cell_val(v):
+                return v if v is not None else "—"
+
+            row_values = [
+                label,
+                site_name_m,
+                meter_name,
+                cell_val(dau_ky),
+                cell_val(cuoi_ky),
+                tieu_thu,
+            ]
+            for ci, val in enumerate(row_values, start=1):
+                c = ws.cell(row=current_row, column=ci, value=val)
+                c.alignment = center
+                c.border = border
+
+            total_tieu_thu += tieu_thu
+            if first_dau_ky is None and dau_ky is not None:
+                first_dau_ky = dau_ky
+            if cuoi_ky is not None:
+                last_cuoi_ky = cuoi_ky
+
+            current_row += 1
+
+        # Dòng tổng của meter này
+        total_values = [
+            "Period Total",
+            site_name_m,
+            meter_name,
+            first_dau_ky if first_dau_ky is not None else "—",
+            last_cuoi_ky if last_cuoi_ky  is not None else "—",
+            round(total_tieu_thu, 2),
+        ]
+        for ci, val in enumerate(total_values, start=1):
+            c = ws.cell(row=current_row, column=ci, value=val)
+            c.font = total_font; c.fill = total_fill
+            c.alignment = center; c.border = border
+
+        current_row += 2   # hàng trống giữa các meter
 
     # Độ rộng cột
-    ws.column_dimensions["A"].width = 14
-    for ci in range(2, n_cols + 1):
-        ws.column_dimensions[get_column_letter(ci)].width = 20
+    col_widths = [14, 22, 28, 22, 22, 16]
+    for i, w in enumerate(col_widths, start=1):
+        ws.column_dimensions[get_column_letter(i)].width = w
 
-    # ── Trả file về cho trình duyệt tải ──
+    # ── Trả file về trình duyệt ──
     filename = f"energy_report_{mode}_{base_date.strftime('%Y%m%d')}.xlsx"
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
