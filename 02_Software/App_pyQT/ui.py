@@ -142,7 +142,7 @@ class RegisterEditorWidget(QGroupBox):  # Form for entering register info
 
         # Ô nhập hệ số scale
         self.cb_scale = QComboBox()
-        self.cb_scale.addItems(["---", "0.000003125", "0.001", "0.01", "0.1", "1"])
+        self.cb_scale.addItems(["---", "0.000003125", "0.000015625", "0.0001", "0.001", "0.005", "0.01", "0.1", "1"])
         grid.addWidget(QLabel("Scale:"), 1, 4)
         grid.addWidget(self.cb_scale, 1, 5)
 

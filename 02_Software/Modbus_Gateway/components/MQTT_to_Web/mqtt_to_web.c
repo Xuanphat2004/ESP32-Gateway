@@ -34,6 +34,11 @@ extern uint32_t poll_interval_ms;
 
 esp_mqtt_client_handle_t mqtt_client = NULL;
 
+// Forward declaration — định nghĩa ở cuối file
+static bool send_one_scan_record(void);
+static int send_one_sd_record(void);
+static bool publish_one_record(record_t *r);
+
 typedef struct
 {
     char *modbus_param_key;
@@ -130,6 +135,7 @@ void mqtt_network_event_handler(void *arg, esp_event_base_t event_base, int32_t 
 }
 
 //======================================================================
+// Kiểm tra 1 slave còn online không (chỉ xét khi chạy dual port)
 static bool is_id_online(uint8_t slave_id)
 {
     if (!dual_port_mode)
@@ -144,7 +150,7 @@ static bool is_id_online(uint8_t slave_id)
 }
 
 //======================================================================
-// Đóng gói dữ liệu để gửi lên Broker
+// Đóng gói dữ liệu 1 meter thành chuỗi JSON để gửi lên Broker
 char *pack_data_to_json(int id, char *name, char *model, float *src_data, char *timestamp)
 {
     if (src_data == NULL || basic_dict == NULL)
@@ -166,36 +172,29 @@ char *pack_data_to_json(int id, char *name, char *model, float *src_data, char *
     bool online = is_id_online((uint8_t)id);
     cJSON_AddStringToObject(root, "status", online ? "online" : "offline");
 
+    // Meter offline → gửi mảng registers rỗng
     if (!online)
     {
-        cJSON_AddItemToObject(root, "registers", cJSON_CreateArray()); //  tạo JSON {"registers":[]}
+        cJSON_AddItemToObject(root, "registers", cJSON_CreateArray());
         char *out = cJSON_PrintUnformatted(root);
         cJSON_Delete(root);
         return out;
     }
 
     cJSON *data_array = cJSON_CreateArray();
-    if (data_array == NULL)
-    {
-        cJSON_Delete(root);
-        return NULL;
-    }
-
     for (int i = 0; i < register_count; i++)
     {
         if (basic_dict[i].mb_slave_addr != id)
             continue;
 
         cJSON *obj = cJSON_CreateObject();
-        if (obj)
-        {
-            cJSON_AddNumberToObject(obj, "register", basic_dict[i].mb_reg_start);
-            cJSON_AddStringToObject(obj, "name", basic_dict[i].param_key);
-            cJSON_AddNumberToObject(obj, "value", src_data[i]);
-            cJSON_AddStringToObject(obj, "unit", basic_dict[i].param_units);
-            cJSON_AddItemToArray(data_array, obj);
-        }
+        cJSON_AddNumberToObject(obj, "register", basic_dict[i].mb_reg_start);
+        cJSON_AddStringToObject(obj, "name", basic_dict[i].param_key);
+        cJSON_AddNumberToObject(obj, "value", src_data[i]);
+        cJSON_AddStringToObject(obj, "unit", basic_dict[i].param_units);
+        cJSON_AddItemToArray(data_array, obj);
 
+        // Gắn thêm giá trị vào field tổng (volt/curr/freq...) nếu khớp tên
         for (int j = 0; j < mapping_size; j++)
         {
             if (strcmp(basic_dict[i].param_key, master_mapping[j].modbus_param_key) == 0)
@@ -217,7 +216,7 @@ char *pack_data_to_json(int id, char *name, char *model, float *src_data, char *
 }
 
 //======================================================================
-// Publish lên MQTT — dùng chung cho realtime và recovery
+// Publish 1 record lên MQTT — mỗi meter 1 message
 static bool publish_one_record(record_t *r)
 {
     if (!is_mqtt_connected || mqtt_client == NULL)
@@ -230,37 +229,135 @@ static bool publish_one_record(record_t *r)
     {
         int id = basic_dict[i].mb_slave_addr;
         if (id == last_id)
-            continue;
+            continue; // mỗi slave chỉ gửi 1 lần
+        last_id = id;
 
         meter_count++;
         char name[32];
         snprintf(name, sizeof(name), "Meter %d - ID: %d", meter_count, id);
 
         char *payload = pack_data_to_json(id, name, "Power Meter", r->values, r->timestamp);
-
-        if (payload)
+        if (payload != NULL)
         {
-            int msg_id = esp_mqtt_client_publish(mqtt_client, PUBLISH_TOPIC, payload, 0, 0, 0);
-
-            if (msg_id < 0)
+            if (esp_mqtt_client_publish(mqtt_client, PUBLISH_TOPIC, payload, 0, 1, 0) < 0)
             {
                 ESP_LOGW(TAG, "Publish failed: %s", name);
                 all_ok = false;
             }
-            else
-            {
-                ESP_LOGI(TAG, "Published: %s (msg_id=%d)", name, msg_id);
-            }
             free(payload);
         }
-        last_id = id;
         vTaskDelay(pdMS_TO_TICKS(100));
     }
     return all_ok;
 }
 
 //======================================================================
-// Flush buffer xuống SD khi mất mạng và đạt ngưỡng
+// Kiểm tra cả buffer RAM đã gửi hết chưa → nếu rồi thì dọn buffer
+//======================================================================
+// Đếm tổng số record cũ CHƯA gửi trên SD (đếm số DÒNG trong các file *.jsonl,
+// bỏ qua file *_sent). Mỗi dòng = 1 record.
+static int count_unsent_sd(void)
+{
+    DIR *dir = opendir("/sdcard/offline");
+    if (dir == NULL)
+        return 0;
+
+    int total = 0;
+    struct dirent *entry;
+    while ((entry = readdir(dir)) != NULL)
+    {
+        if (strstr(entry->d_name, "_sent") != NULL)
+            continue;
+        if (strstr(entry->d_name, ".jsonl") == NULL)
+            continue;
+
+        char path[300];
+        snprintf(path, sizeof(path), "/sdcard/offline/%s", entry->d_name);
+        FILE *f = fopen(path, "r");
+        if (f != NULL)
+        {
+            int c;
+            while ((c = fgetc(f)) != EOF)
+                if (c == '\n')
+                    total++; // mỗi dòng kết thúc bằng '\n' = 1 record
+            fclose(f);
+        }
+    }
+    closedir(dir);
+    return total;
+}
+
+//======================================================================
+// Gửi HẾT record cũ: RAM → SD Card → scan cũ
+// Mỗi record kiểm tra kết nối — nếu mất mạng hoặc đang scan thì dừng ngay.
+static void send_all_backlog(void)
+{
+    if (!is_mqtt_connected)
+        return;
+
+    // Đếm tổng số record cũ cần gửi (RAM chưa gửi + file SD chưa gửi)
+    int ram_unsent = 0;
+    for (int i = 0; i < offline_buf_count; i++)
+        if (!offline_buf[i].is_sent)
+            ram_unsent++;
+
+    int total = ram_unsent + count_unsent_sd();
+    if (total == 0)
+        return; // không có gì để gửi
+
+    int sent = 0;
+    ESP_LOGI(TAG, "[BACKLOG] Found %d old record(s) to send (RAM: %d, SD: %d)",
+             total, ram_unsent, total - ram_unsent);
+
+    // Bước 1: gửi hết record cũ trong RAM
+    for (int i = 0; i < offline_buf_count; i++)
+    {
+        if (!is_mqtt_connected || is_scan_device || is_change_baud)
+        {
+            ESP_LOGW(TAG, "[BACKLOG] Interrupted: sent %d/%d, remaining %d",
+                     sent, total, total - sent);
+            return;
+        }
+        if (offline_buf[i].is_sent)
+            continue;
+        if (!publish_one_record(&offline_buf[i]))
+        {
+            ESP_LOGW(TAG, "[BACKLOG] Send failed: sent %d/%d, remaining %d",
+                     sent, total, total - sent);
+            return; // mạng lỗi → dừng, lần sau tiếp tục
+        }
+        offline_buf[i].is_sent = true;
+        sent++;
+        ESP_LOGI(TAG, "[BACKLOG] Sent %d/%d, remaining %d", sent, total, total - sent);
+    }
+    offline_buf_clear();
+
+    // Bước 2: gửi hết record cũ trên SD Card (mỗi file có thể chứa nhiều record)
+    int n;
+    while ((n = send_one_sd_record()) > 0)
+    {
+        sent += n;
+        ESP_LOGI(TAG, "[BACKLOG] Sent %d/%d, remaining %d", sent, total, total - sent);
+        if (!is_mqtt_connected || is_scan_device || is_change_baud)
+        {
+            ESP_LOGW(TAG, "[BACKLOG] Interrupted: sent %d/%d, remaining %d",
+                     sent, total, total - sent);
+            return;
+        }
+    }
+
+    ESP_LOGI(TAG, "[BACKLOG] Done. All %d old record(s) sent, system clear", total);
+
+    // Bước 3: gửi lại kết quả scan cũ
+    while (send_one_scan_record())
+    {
+        if (!is_mqtt_connected || is_scan_device || is_change_baud)
+            return;
+    }
+}
+
+//======================================================================
+// Flush toàn bộ buffer RAM xuống 1 file SD khi mất mạng và đạt ngưỡng
 static void flush_buf_to_sd(void)
 {
     if (offline_buf_count == 0)
@@ -273,8 +370,7 @@ static void flush_buf_to_sd(void)
     char filepath[128];
     snprintf(filepath, sizeof(filepath),
              "/sdcard/offline/%02d%02d%02d_%02d%02d%02d.jsonl",
-             now.year, now.month, now.date,
-             now.hour, now.minute, now.second);
+             now.year, now.month, now.date, now.hour, now.minute, now.second);
 
     if (xSemaphoreTake(sd_mutex, pdMS_TO_TICKS(3000)) != pdTRUE)
         return;
@@ -291,312 +387,258 @@ static void flush_buf_to_sd(void)
     for (int i = 0; i < count; i++)
     {
         record_t *r = &offline_buf[i];
-        fprintf(f, "{\"ts\":\"%s\",\"reg_count\":%d,\"values\":[",
-                r->timestamp, r->reg_count);
+        fprintf(f, "{\"ts\":\"%s\",\"reg_count\":%d,\"values\":[", r->timestamp, r->reg_count);
         for (int j = 0; j < r->reg_count; j++)
-        {
-            if (j > 0)
-                fprintf(f, ",");
-            fprintf(f, "%.4f", r->values[j]);
-        }
+            fprintf(f, (j > 0) ? ",%.4f" : "%.4f", r->values[j]);
         fprintf(f, "]}\n");
     }
-
     fclose(f);
     xSemaphoreGive(sd_mutex);
+
     offline_buf_clear();
     ESP_LOGI(TAG, "[FLUSH] Ghi %d records xuong %s", count, filepath);
 }
 
 //======================================================================
-// Gửi 1 record cũ từ SD Card
-// Trả về true nếu gửi thành công, false nếu thất bại hoặc không có file
-static bool send_one_sd_record(void)
+// Tìm file cũ nhất CHƯA gửi trong thư mục (bỏ qua file *_sent)
+// Trả về true + đường dẫn đầy đủ trong out_path nếu tìm thấy
+static bool find_oldest_unsent_file(const char *folder, const char *ext,
+                                    char *out_path, size_t out_size)
 {
-    DIR *dir = opendir("/sdcard/offline");
+    DIR *dir = opendir(folder);
     if (dir == NULL)
         return false;
 
-    // PATH_MAX = 272: "/sdcard/offline/" (16) + d_name tối đa (255) + null (1)
-    char filepath[272] = {0};
-    char found_name[256] = {0};
+    char name[256] = {0};
     struct dirent *entry;
     while ((entry = readdir(dir)) != NULL)
     {
         if (strstr(entry->d_name, "_sent") != NULL)
             continue;
-        if (strstr(entry->d_name, ".jsonl") == NULL)
+        if (strstr(entry->d_name, ext) == NULL)
             continue;
-        strncpy(found_name, entry->d_name, sizeof(found_name) - 1);
+        strncpy(name, entry->d_name, sizeof(name) - 1);
         break;
     }
     closedir(dir);
 
-    if (found_name[0] == 0)
+    if (name[0] == 0)
         return false;
 
-    strcpy(filepath, "/sdcard/offline/");
-    strncat(filepath, found_name, sizeof(filepath) - strlen(filepath) - 1);
+    snprintf(out_path, out_size, "%s/%s", folder, name);
+    return true;
+}
+
+//======================================================================
+// Đổi tên file thành *_sent.<ext> để không gửi lại lần sau
+static void rename_to_sent(const char *filepath, const char *ext)
+{
+    char sent_path[300];
+    snprintf(sent_path, sizeof(sent_path), "%s", filepath);
+
+    char *dot = strstr(sent_path, ext);
+    if (dot == NULL)
+        return;
+
+    char new_ext[16];
+    snprintf(new_ext, sizeof(new_ext), "_sent%s", ext);
+    strcpy(dot, new_ext);
+    rename(filepath, sent_path);
+}
+
+//======================================================================
+// Phân tích 1 dòng JSON {"ts":..,"reg_count":..,"values":[..]} thành record_t
+// Trả về true nếu hợp lệ
+static bool parse_record_line(char *line, record_t *rec)
+{
+    cJSON *root = cJSON_Parse(line);
+    if (root == NULL)
+        return false;
+
+    cJSON *ts = cJSON_GetObjectItem(root, "ts");
+    cJSON *cnt = cJSON_GetObjectItem(root, "reg_count");
+    cJSON *vals = cJSON_GetObjectItem(root, "values");
+
+    bool ok = false;
+    if (ts != NULL && cnt != NULL && vals != NULL)
+    {
+        int n = cnt->valueint;
+        if (n == cJSON_GetArraySize(vals) && n <= OFFLINE_MAX_REGISTERS)
+        {
+            memset(rec, 0, sizeof(record_t));
+            strncpy(rec->timestamp, ts->valuestring, sizeof(rec->timestamp) - 1);
+            rec->reg_count = n;
+            for (int i = 0; i < n; i++)
+            {
+                cJSON *v = cJSON_GetArrayItem(vals, i);
+                rec->values[i] = v ? (float)v->valuedouble : 0.0f;
+            }
+            ok = true;
+        }
+    }
+    cJSON_Delete(root);
+    return ok;
+}
+
+//======================================================================
+// Gửi TẤT CẢ record trong file SD cũ nhất chưa gửi (mỗi dòng = 1 record).
+// Trả về số record đã gửi (0 nếu hết file hoặc lỗi).
+// Giữ mutex SD suốt quá trình đọc-gửi file (lúc recovery không có tác vụ SD khác).
+static int send_one_sd_record(void)
+{
+    char filepath[300];
+    if (!find_oldest_unsent_file("/sdcard/offline", ".jsonl", filepath, sizeof(filepath)))
+        return 0;
+
+    char *line = malloc(4096);
+    record_t *rec = malloc(sizeof(record_t));
+    if (line == NULL || rec == NULL)
+    {
+        free(line);
+        free(rec);
+        return 0;
+    }
 
     if (xSemaphoreTake(sd_mutex, pdMS_TO_TICKS(3000)) != pdTRUE)
-        return false;
+    {
+        free(line);
+        free(rec);
+        return 0;
+    }
 
     FILE *f = fopen(filepath, "r");
     if (f == NULL)
     {
         xSemaphoreGive(sd_mutex);
-        return false;
-    }
-
-    // FIX 1: alloc line buffer trên heap thay vì stack
-    char *line = malloc(4096);
-    if (line == NULL)
-    {
-        fclose(f);
-        xSemaphoreGive(sd_mutex);
-        ESP_LOGE(TAG, "[SD] OOM: khong alloc duoc line buffer");
-        return false;
-    }
-
-    bool sent_ok = false;
-
-    if (fgets(line, 4096, f) != NULL)
-    {
-        int len = strlen(line);
-        if (len > 0 && line[len - 1] == '\n')
-            line[len - 1] = '\0';
-
-        cJSON *root = cJSON_Parse(line);
-
-        // Free line ngay sau khi parse — không cần giữ nữa
         free(line);
-        line = NULL;
+        free(rec);
+        return 0;
+    }
 
-        if (root != NULL)
+    // Đọc và gửi TỪNG DÒNG trong file
+    int sent = 0;
+    bool all_sent = true;
+    while (fgets(line, 4096, f) != NULL)
+    {
+        if (!is_mqtt_connected || is_scan_device || is_change_baud)
         {
-            cJSON *ts_item = cJSON_GetObjectItem(root, "ts");
-            cJSON *reg_item = cJSON_GetObjectItem(root, "reg_count");
-            cJSON *val_item = cJSON_GetObjectItem(root, "values");
+            all_sent = false; // chưa gửi hết → KHÔNG đánh dấu _sent
+            break;
+        }
+        if (!parse_record_line(line, rec))
+            continue; // dòng lỗi → bỏ qua, gửi dòng tiếp theo
+        if (!publish_one_record(rec))
+        {
+            all_sent = false; // gửi lỗi → dừng, giữ file để lần sau gửi lại
+            break;
+        }
+        sent++;
+    }
+    fclose(f);
 
-            if (ts_item && reg_item && val_item)
-            {
-                int reg_count_ = reg_item->valueint;
-                int val_size = cJSON_GetArraySize(val_item);
+    // Chỉ đổi tên _sent khi đã gửi HẾT các dòng trong file
+    if (all_sent)
+    {
+        rename_to_sent(filepath, ".jsonl");
+        ESP_LOGI(TAG, "[SD] Sent all %d record(s) from file", sent);
+    }
+    xSemaphoreGive(sd_mutex);
 
-                if (val_size == reg_count_ && reg_count_ <= OFFLINE_MAX_REGISTERS)
-                {
-                    // FIX 2: record_t (~1.4KB) cũng alloc trên heap
-                    record_t *tmp = malloc(sizeof(record_t));
-                    if (tmp == NULL)
-                    {
-                        cJSON_Delete(root);
-                        fclose(f);
-                        xSemaphoreGive(sd_mutex);
-                        ESP_LOGE(TAG, "[SD] OOM: khong alloc duoc record_t");
-                        return false;
-                    }
-                    memset(tmp, 0, sizeof(record_t));
+    free(line);
+    free(rec);
+    return sent;
+}
 
-                    strncpy(tmp->timestamp, ts_item->valuestring,
-                            sizeof(tmp->timestamp) - 1);
-                    tmp->reg_count = reg_count_;
-                    for (int i = 0; i < reg_count_; i++)
-                    {
-                        cJSON *v = cJSON_GetArrayItem(val_item, i);
-                        tmp->values[i] = v ? (float)v->valuedouble : 0.0f;
-                    }
+//======================================================================
+// Xử lý khi CÓ dữ liệu mới poll về: lọc rác → push buffer → gửi + xả backlog
+static void process_new_data(void)
+{
+    char ts[32];
+    rtc_get_iso_timestamp(ts, sizeof(ts));
 
-                    fclose(f);
-                    xSemaphoreGive(sd_mutex);
-
-                    sent_ok = publish_one_record(tmp);
-                    free(tmp); // free sau khi publish xong
-                    cJSON_Delete(root);
-
-                    if (sent_ok)
-                    {
-                        char sent_path[272];
-                        snprintf(sent_path, sizeof(sent_path), "%s", filepath);
-                        char *dot = strstr(sent_path, ".jsonl");
-                        if (dot)
-                            strcpy(dot, "_sent.jsonl");
-                        rename(filepath, sent_path);
-                        ESP_LOGI(TAG, "[SD] Xong: %s", sent_path);
-                    }
-                    return sent_ok;
-                }
-            }
-            cJSON_Delete(root);
+    // Kiểm tra dữ liệu: nếu TẤT CẢ thanh ghi = 0 thì là rác (lúc trước/sau scan)
+    bool has_valid = false;
+    if (xSemaphoreTake(xDataMutex, pdMS_TO_TICKS(1000)) != pdTRUE)
+    {
+        ESP_LOGW(TAG, "xDataMutex timeout");
+        return;
+    }
+    for (int i = 0; i < register_count; i++)
+    {
+        if (final_data[i] != 0.0f)
+        {
+            has_valid = true;
+            break;
         }
     }
-    else
+    if (has_valid)
+        offline_buf_push(final_data, register_count, ts);
+    xSemaphoreGive(xDataMutex);
+
+    if (!has_valid)
     {
-        // fgets trả về NULL → free trước khi thoát
-        free(line);
-        line = NULL;
+        ESP_LOGW(TAG, "Du lieu toan 0, bo qua khong gui");
+        return;
     }
 
-    fclose(f);
-    xSemaphoreGive(sd_mutex);
-    return false;
+    // Mất mạng → đầy ngưỡng thì ghi xuống SD, xong thôi
+    if (!is_mqtt_connected)
+    {
+        if (offline_buf_count >= OFFLINE_FLUSH_THRESHOLD)
+            flush_buf_to_sd();
+        return;
+    }
+
+    // 1. Ưu tiên: gửi record MỚI NHẤT ngay lập tức → web thấy trạng thái hiện tại
+    int idx = offline_buf_count - 1;
+    if (idx >= 0 && publish_one_record(&offline_buf[idx]))
+        offline_buf[idx].is_sent = true;
+
+    // 2. Dump toàn bộ record cũ còn lại (~vài phút nếu mất mạng lâu)
+    send_all_backlog();
 }
 
 //======================================================================
 // MQTT publish task — 1 task duy nhất xử lý cả realtime và recovery
-//
-// Luồng:
-//   Có tín hiệu data mới   → push vào buffer → publish record mới nhất
-//   Timeout (không có mới) → gửi 1 record cũ từ buffer RAM hoặc SD Card
-//
-// Timeout = poll_interval_ms / 5
-// → Trong 1 chu kỳ poll có thể gửi ~5 record cũ
 void mqtt_publish_task(void *pvParameters)
 {
     vTaskDelay(pdMS_TO_TICKS(3000));
 
     while (1)
     {
-        // Tính timeout = 1/5 poll interval, tối thiểu 1s
         uint32_t timeout_ms = poll_interval_ms / 5;
         if (timeout_ms < 1000)
             timeout_ms = 1000;
 
         BaseType_t got_data = xSemaphoreTake(data_ready_sem, pdMS_TO_TICKS(timeout_ms));
 
-        // Khi đang scan/đổi baud = bỏ qua
-        // (tránh trường hợp rtu give sem ngay trước khi is_scan_device kịp set)
+        // Đang scan/đổi baud → bỏ qua, xóa tín hiệu sem thừa
         if (is_scan_device || is_change_baud)
         {
-            xSemaphoreTake(data_ready_sem, 0); // Không gửi khi đang change hoặc scan đang diễn ra
+            xSemaphoreTake(data_ready_sem, 0);
             continue;
         }
         if (offline_buf == NULL || basic_dict == NULL)
             continue;
 
+        // Có data mới → gửi mới nhất trước, sau đó dump hết backlog cũ
         if (got_data == pdTRUE)
-        {
-            // Có dữ liệu mới vừa poll về
-            char ts[32];
-            rtc_get_iso_timestamp(ts, sizeof(ts));
-
-            // Kiểm tra dữ liệu có hợp lệ không — nếu toàn bộ = 0 thì bỏ qua
-            // Tránh push record rác (xảy ra ngay trước/sau scan)
-            bool has_valid = false;
-            if (xSemaphoreTake(xDataMutex, pdMS_TO_TICKS(1000)) == pdTRUE)
-            {
-                for (int i = 0; i < register_count; i++)
-                {
-                    if (final_data[i] != 0.0f)
-                    {
-                        has_valid = true;
-                        break;
-                    }
-                }
-                if (has_valid)
-                    offline_buf_push(final_data, register_count, ts);
-                xSemaphoreGive(xDataMutex);
-            }
-            else
-            {
-                ESP_LOGW(TAG, "xDataMutex timeout");
-                continue;
-            }
-
-            // Nếu dữ liệu toàn 0 → không có gì để gửi
-            if (!has_valid)
-            {
-                ESP_LOGW(TAG, "Du lieu toan 0, bo qua khong gui");
-                continue;
-            }
-
-            if (is_mqtt_connected)
-            {
-                // Publish record mới nhất (index cuối buffer)
-                int idx = offline_buf_count - 1;
-                if (idx >= 0)
-                {
-                    bool ok = publish_one_record(&offline_buf[idx]);
-                    if (ok)
-                        offline_buf[idx].is_sent = true;
-                }
-            }
-            else
-            {
-                // Mất mạng → kiểm tra ngưỡng flush SD
-                if (offline_buf_count >= OFFLINE_FLUSH_THRESHOLD)
-                    flush_buf_to_sd();
-            }
-        }
-        else
-        {
-            // ── Timeout: không có dữ liệu mới → gửi dữ liệu cũ
-            if (!is_mqtt_connected)
-                continue;
-
-            // Bước 1: tìm record cũ nhất chưa sent trong RAM buffer
-            bool found_unsent = false;
-            for (int i = 0; i < offline_buf_count; i++)
-            {
-                if (!offline_buf[i].is_sent)
-                {
-                    bool ok = publish_one_record(&offline_buf[i]);
-                    if (ok)
-                        offline_buf[i].is_sent = true;
-                    found_unsent = true;
-                    break; // Chỉ gửi 1 record mỗi lần timeout
-                }
-            }
-
-            // Kiểm tra nếu tất cả đã sent → clear buffer
-            if (offline_buf_count > 0)
-            {
-                bool all_sent = true;
-                for (int i = 0; i < offline_buf_count; i++)
-                {
-                    if (!offline_buf[i].is_sent)
-                    {
-                        all_sent = false;
-                        break;
-                    }
-                }
-                if (all_sent)
-                    offline_buf_clear();
-            }
-
-            // Bước 2: nếu RAM buffer trống → gửi từ SD Card
-            if (!found_unsent)
-            {
-                send_one_sd_record();
-            }
-        }
-
-        // WATERMARK MONITOR — xóa sau khi xác nhận stack ổn định
-        // Log mỗi ~60 lần lặp để không spam
-        static uint32_t wm_counter = 0;
-        if (++wm_counter % 60 == 0)
-        {
-            UBaseType_t wm = uxTaskGetStackHighWaterMark(NULL);
-            ESP_LOGW(TAG, "[STACK] mqtt_task watermark: %u words (%u bytes)",
-                     wm, wm * sizeof(StackType_t));
-        }
+            process_new_data();
+        else if (is_mqtt_connected)
+            send_all_backlog(); // rảnh → tranh thủ dump hết record cũ
     }
 }
 
 //======================================================================
-void publish_scan_result(void)
+// Build JSON payload cho scan result
+static char *build_scan_payload(void)
 {
-    if (!is_mqtt_connected || mqtt_client == NULL)
-    {
-        ESP_LOGW(TAG, "[SCAN] MQTT not connected");
-        return;
-    }
-
     char gateway_id[32] = {0};
     get_gateway_id(gateway_id, sizeof(gateway_id));
 
     cJSON *root = cJSON_CreateObject();
     if (root == NULL)
-        return;
+        return NULL;
 
     cJSON_AddStringToObject(root, "gateway_id", gateway_id);
     cJSON_AddStringToObject(root, "event", "scan_result");
@@ -607,15 +649,15 @@ void publish_scan_result(void)
     cJSON_AddBoolToObject(root, "line_ok", wire_p1_ok || wire_p2_ok);
     cJSON_AddNumberToObject(root, "final_id_p1", scan_result.final_id_p1);
     cJSON_AddNumberToObject(root, "final_id_p2", scan_result.final_id_p2);
+    cJSON_AddStringToObject(root, "severity", (scan_result.lose_count > 0) ? "warning" : "normal");
 
-    const char *severity = (scan_result.lose_count > 0) ? "warning" : "normal";
-    cJSON_AddStringToObject(root, "severity", severity);
-
+    // Danh sách ID mất kết nối
     cJSON *inactive_arr = cJSON_CreateArray();
     for (int i = 0; i < scan_result.lose_count; i++)
         cJSON_AddItemToArray(inactive_arr, cJSON_CreateNumber(scan_result.lose_list[i]));
     cJSON_AddItemToObject(root, "inactive_ids", inactive_arr);
 
+    // Danh sách ID còn hoạt động = original_id trừ đi các ID mất
     cJSON *active_arr = cJSON_CreateArray();
     for (int i = 0; i < original_id_count; i++)
     {
@@ -633,14 +675,95 @@ void publish_scan_result(void)
 
     char *payload = cJSON_PrintUnformatted(root);
     cJSON_Delete(root);
+    return payload;
+}
+
+//======================================================================
+// Lưu scan payload xuống SD để gửi lại khi có mạng
+static void save_scan_to_sd(const char *payload)
+{
+    mkdir("/sdcard/scan", 0777);
+
+    rtc_time_t now;
+    rtc_read_time(&now);
+    char filepath[128];
+    snprintf(filepath, sizeof(filepath),
+             "/sdcard/scan/%02d%02d%02d_%02d%02d%02d.json",
+             now.year, now.month, now.date, now.hour, now.minute, now.second);
+
+    if (xSemaphoreTake(sd_mutex, pdMS_TO_TICKS(3000)) != pdTRUE)
+        return;
+
+    FILE *f = fopen(filepath, "w");
+    if (f != NULL)
+    {
+        fprintf(f, "%s\n", payload);
+        fclose(f);
+        ESP_LOGI(TAG, "[SCAN] Mat mang - luu scan ket qua vao %s", filepath);
+    }
+    else
+    {
+        ESP_LOGW(TAG, "[SCAN] Khong mo duoc file luu scan");
+    }
+    xSemaphoreGive(sd_mutex);
+}
+
+//======================================================================
+// Gửi lại 1 scan result cũ từ SD. Trả về true nếu gửi thành công.
+static bool send_one_scan_record(void)
+{
+    char filepath[300];
+    if (!find_oldest_unsent_file("/sdcard/scan", ".json", filepath, sizeof(filepath)))
+        return false;
+
+    // Đọc dòng đầu file
+    char line[2048] = {0};
+    if (xSemaphoreTake(sd_mutex, pdMS_TO_TICKS(3000)) != pdTRUE)
+        return false;
+
+    FILE *f = fopen(filepath, "r");
+    if (f != NULL)
+    {
+        if (fgets(line, sizeof(line), f) != NULL)
+        {
+            int len = strlen(line);
+            if (len > 0 && line[len - 1] == '\n')
+                line[len - 1] = '\0';
+        }
+        fclose(f);
+    }
+    xSemaphoreGive(sd_mutex);
+
+    // Gửi sau khi nhả mutex
+    if (strlen(line) == 0 || !is_mqtt_connected || mqtt_client == NULL)
+        return false;
+
+    if (esp_mqtt_client_publish(mqtt_client, SCAN_TOPIC, line, 0, 1, 1) < 0)
+        return false;
+
+    rename_to_sent(filepath, ".json");
+    ESP_LOGI(TAG, "[SCAN] Gui lai scan cu xong: %s", filepath);
+    return true;
+}
+
+//======================================================================
+// Gửi kết quả scan: có mạng gửi ngay, mất mạng lưu SD để gửi lại sau
+void publish_scan_result(void)
+{
+    char *payload = build_scan_payload();
     if (payload == NULL)
         return;
 
-    int msg_id = esp_mqtt_client_publish(mqtt_client, SCAN_TOPIC, payload, 0, 1, 1);
-    if (msg_id >= 0)
-        ESP_LOGI(TAG, "[SCAN] OK msg_id=%d severity=%s dual_port=%s",
-                 msg_id, severity, dual_port_mode ? "ON" : "OFF");
+    // Mất mạng hoặc gửi thất bại → lưu SD
+    if (!is_mqtt_connected || mqtt_client == NULL ||
+        esp_mqtt_client_publish(mqtt_client, SCAN_TOPIC, payload, 0, 1, 1) < 0)
+    {
+        ESP_LOGW(TAG, "[SCAN] Khong gui duoc - luu de gui lai sau");
+        save_scan_to_sd(payload);
+    }
     else
-        ESP_LOGW(TAG, "[SCAN] Publish failed");
+    {
+        ESP_LOGI(TAG, "[SCAN] Gui scan ket qua OK");
+    }
     free(payload);
 }

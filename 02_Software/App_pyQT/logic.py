@@ -72,7 +72,7 @@ COMBO_COLUMNS = {  # khi user click vào để sửa, Qt hiện ra dropdown ch�
         "Float CDAB",
         "Long",
     ],
-    7: ["---", "0.000003125", "0.001", "0.01", "0.1", "1"],
+    7: ["---", "0.000003125", "0.000015625", "0.0001", "0.001", "0.005", "0.01", "0.1", "1"],
     8: [
         "---",
         "Data * Scale",
@@ -283,15 +283,28 @@ class AppController(QObject):
             "Factor 1", "Factor 2", "Action",
         ])
 
-        # Cho phép kéo dãn cột tự do như Excel
+        # ── Resize mode: cột nhỏ/tiện ích giữ cố định, cột nội dung tự giãn ──
+        # Khi phóng to/thu nhỏ cửa sổ, các cột Stretch tự chia đều khoảng trống.
         header = table.horizontalHeader()
-        header.setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
-        header.setStretchLastSection(False)
 
-        # Độ rộng mặc định hợp lý cho từng cột
-        col_widths = [40, 180, 60, 220, 100, 70, 140, 70, 240, 100, 100, 80]
-        for i, w in enumerate(col_widths):
-            table.setColumnWidth(i, w)
+        # Cột Fixed (nhỏ, không cần nhiều chỗ): giữ pixel cứng
+        fixed_cols = {
+            0:  45,   # ID
+            2:  65,   # Unit
+            5:  72,   # Quantity
+            7:  82,   # Scale
+            11: 88,   # Action
+        }
+        for col, width in fixed_cols.items():
+            header.setSectionResizeMode(col, QHeaderView.ResizeMode.Fixed)
+            table.setColumnWidth(col, width)
+
+        # Cột Stretch (nội dung dài): tự giãn theo chiều rộng còn lại
+        stretch_cols = [1, 3, 4, 6, 8, 9, 10]  # Parameter, Function, Address, Type, Multiplier, F1, F2
+        for col in stretch_cols:
+            header.setSectionResizeMode(col, QHeaderView.ResizeMode.Stretch)
+
+        header.setStretchLastSection(False)  # Action col đã Fixed, không cần stretch cuối
 
         # Căn giữa text trong header
         for i in range(table.columnCount()):
@@ -516,7 +529,7 @@ class AppController(QObject):
             "Uint 32 bits ABCD","Uint 32 bits CDAB",
             "Float ABCD","Float CDAB","Long",
         }
-        valid_scale = {"0.000003125","0.001","0.01","0.1","1"}
+        valid_scale = {"0.000003125","0.000015625","0.0001","0.001","0.005","0.01","0.1","1"}
 
         for i, row in df.iterrows():
             line = i + 4
