@@ -30,18 +30,13 @@ void wifi_Init(void)
         ESP_ERROR_CHECK(nvs_flash_erase());
         ret = nvs_flash_init();
     }
-
-    // ESP_ERROR_CHECK() - Nếu lỗi sẽ thông báo ra console, nếu không có lỗi sẽ đi tiếp mà không thông báo gì
     ESP_ERROR_CHECK(ret);
-    esp_netif_create_default_wifi_ap(); // Thêm dòng này để tạo Access Point
-    // Tạo Interface mạng chuẩn cho Wi-Fi Station - netif cho wifi sta
-    esp_netif_create_default_wifi_sta();
+    esp_netif_create_default_wifi_ap();  // tạo Access Point
+    esp_netif_create_default_wifi_sta(); // Tạo Interface mạng chuẩn cho Wi-Fi Station - netif cho wifi sta
 
-    // Khởi tạo các thông số cấu hình như bộ đệm RAM cấu hình bao nhiêu, dùng thuật toán mã hóa nào, chạy core nào, ...
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
 
-    // Bắt đầu khởi tạo WiFi
-    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+    ESP_ERROR_CHECK(esp_wifi_init(&cfg)); // Bắt đầu khởi tạo WiFi
 
     // esp_event_handler_instance_t = void* - Đăng ký Hàm xử lý sự kiện
     esp_event_handler_instance_t instance_any_id;
@@ -60,17 +55,17 @@ void wifi_Init(void)
                                                         &wifi_event_handler, NULL,
                                                         &instance_got_ip));
 
-    // --- LUỒNG LOGIC ĐỌC EEPROM ---
+    // --- Đọc EEPROM để lấy wifi ---
     wifi_config_t wifi_config = {0};
 
-    // Đọc SSID (32 bytes) và Password (64 bytes) từ địa chỉ đã định nghĩa
+    // Đọc SSID (32 bytes) và Password (64 bytes) từ địa chỉ trong EEPROM
     eeprom_read(0x0100, (uint8_t *)wifi_config.sta.ssid, 32);
     eeprom_read(0x0120, (uint8_t *)wifi_config.sta.password, 64);
     vTaskDelay(pdMS_TO_TICKS(1000)); // Delay để đảm bảo đọc EEPROM ổn định
     // Kiểm tra nếu EEPROM trống (thường byte đầu là 0xFF hoặc 0)
     if (wifi_config.sta.ssid[0] == 0xFF || wifi_config.sta.ssid[0] == 0)
     {
-        ESP_LOGW(TAG, "EEPROM trống hoặc dữ liệu lỗi, bật AP Mode để cấu hình...");
+        ESP_LOGW(TAG, "EEPROM empty or error data, turn on AP Mode for config wifi ...");
 
         // Cấu hình chế độ phát WiFi (AP) để User kết nối vào
         wifi_config_t ap_config = {
@@ -89,7 +84,7 @@ void wifi_Init(void)
     }
     else
     {
-        ESP_LOGI(TAG, "Tìm thấy cấu hình trong EEPROM, đang thử kết nối Station...");
+        ESP_LOGI(TAG, "Find config wifi data in EEPROM, Trying to connect Station...");
         ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
         ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
     }

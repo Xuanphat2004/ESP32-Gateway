@@ -288,7 +288,7 @@ static int count_unsent_sd(void)
 }
 
 //======================================================================
-// Gửi HẾT record cũ: RAM → SD Card → scan cũ
+// Gửi record cũ: RAM tới SD Card tới scan cũ
 // Mỗi record kiểm tra kết nối — nếu mất mạng hoặc đang scan thì dừng ngay.
 static void send_all_backlog(void)
 {
@@ -309,22 +309,20 @@ static void send_all_backlog(void)
     ESP_LOGI(TAG, "[BACKLOG] Found %d old record(s) to send (RAM: %d, SD: %d)",
              total, ram_unsent, total - ram_unsent);
 
-    // Bước 1: gửi hết record cũ trong RAM
+    // gửi hết record cũ trong RAM
     for (int i = 0; i < offline_buf_count; i++)
     {
         if (!is_mqtt_connected || is_scan_device || is_change_baud)
         {
-            ESP_LOGW(TAG, "[BACKLOG] Interrupted: sent %d/%d, remaining %d",
-                     sent, total, total - sent);
+            ESP_LOGW(TAG, "[BACKLOG] Interrupted: sent %d/%d, remaining %d", sent, total, total - sent);
             return;
         }
         if (offline_buf[i].is_sent)
             continue;
         if (!publish_one_record(&offline_buf[i]))
         {
-            ESP_LOGW(TAG, "[BACKLOG] Send failed: sent %d/%d, remaining %d",
-                     sent, total, total - sent);
-            return; // mạng lỗi → dừng, lần sau tiếp tục
+            ESP_LOGW(TAG, "[BACKLOG] Send failed: sent %d/%d, remaining %d", sent, total, total - sent);
+            return; // mạng lỗi thì dừng, lần sau tiếp tục
         }
         offline_buf[i].is_sent = true;
         sent++;
@@ -332,7 +330,7 @@ static void send_all_backlog(void)
     }
     offline_buf_clear();
 
-    // Bước 2: gửi hết record cũ trên SD Card (mỗi file có thể chứa nhiều record)
+    // Gửi hết record cũ trên SD Card (mỗi file có thể chứa nhiều record)
     int n;
     while ((n = send_one_sd_record()) > 0)
     {
@@ -340,15 +338,14 @@ static void send_all_backlog(void)
         ESP_LOGI(TAG, "[BACKLOG] Sent %d/%d, remaining %d", sent, total, total - sent);
         if (!is_mqtt_connected || is_scan_device || is_change_baud)
         {
-            ESP_LOGW(TAG, "[BACKLOG] Interrupted: sent %d/%d, remaining %d",
-                     sent, total, total - sent);
+            ESP_LOGW(TAG, "[BACKLOG] Interrupted: sent %d/%d, remaining %d", sent, total, total - sent);
             return;
         }
     }
 
     ESP_LOGI(TAG, "[BACKLOG] Done. All %d old record(s) sent, system clear", total);
 
-    // Bước 3: gửi lại kết quả scan cũ
+    // Gửi lại kết quả scan cũ
     while (send_one_scan_record())
     {
         if (!is_mqtt_connected || is_scan_device || is_change_baud)
@@ -402,8 +399,7 @@ static void flush_buf_to_sd(void)
 //======================================================================
 // Tìm file cũ nhất CHƯA gửi trong thư mục (bỏ qua file *_sent)
 // Trả về true + đường dẫn đầy đủ trong out_path nếu tìm thấy
-static bool find_oldest_unsent_file(const char *folder, const char *ext,
-                                    char *out_path, size_t out_size)
+static bool find_oldest_unsent_file(const char *folder, const char *ext, char *out_path, size_t out_size)
 {
     DIR *dir = opendir(folder);
     if (dir == NULL)

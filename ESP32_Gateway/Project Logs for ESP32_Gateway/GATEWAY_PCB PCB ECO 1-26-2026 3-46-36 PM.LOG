@@ -1,0 +1,5 @@
+Removed Pin From Net: NetName=XI Pin=R30-1
+Removed Member From Class: ClassName=Ethernet Member=R30
+Added Pin To Net: NetName=XI Pin=C29-2
+Add Pin To Net: Unknown Pin: Pin USB1-B7
+Added Pin To Net: NetName=XI Pin=X1-3

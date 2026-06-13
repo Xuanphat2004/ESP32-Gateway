@@ -1,0 +1,10 @@
+Change Component Footprint: Designator=SW5 Old Footprint=SMD - 12x12mm - Height 9.5mm New Footprint=SW-SMD-6x6mm
+Change Component Footprint: Designator=SW6 Old Footprint=SMD - 12x12mm - Height 9.5mm New Footprint=SW-SMD-6x6mm
+Change Component Footprint: Designator=SW7 Old Footprint=SMD - 12x12mm - Height 9.5mm New Footprint=SW-SMD-6x6mm
+Change Component Comment : Designator=SW5 Old Comment=Button 2 Pins New Comment=Button 4 Pins
+Change Component Comment : Designator=SW6 Old Comment=Button 2 Pins New Comment=Button 4 Pins
+Change Component Comment : Designator=SW7 Old Comment=Button 2 Pins New Comment=Button 4 Pins
+Change component parameters: Designator = "SW5" ("SW5"); Footprint = "SMD - 12x12mm - Height 9.5mm"; UniqueID = "\OSGQOPBF" ("\OSGQOPBF")
+Change component parameters: Designator = "SW6" ("SW6"); Footprint = "SMD - 12x12mm - Height 9.5mm"; UniqueID = "\BHPKMIID" ("\BHPKMIID")
+Change component parameters: Designator = "SW7" ("SW7"); Footprint = "SMD - 12x12mm - Height 9.5mm"; UniqueID = "\KRYUYSMR" ("\KRYUYSMR")
+Added Member To Class: ClassName=Power_Supply Member=Component C1 10uF/50V

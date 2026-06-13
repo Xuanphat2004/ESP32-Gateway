@@ -1,0 +1,5 @@
+Removed Pin From Net: NetName=GND Pin=KF3-1
+Removed Pin From Net: NetName=VIN Pin=KF3-2
+Removed Member From Class: ClassName=Power_Supply Member=KF3
+Change Component Designator: OldDesignator=EN1 NewDesignator=TP13
+Change Component Designator: OldDesignator=EN2 NewDesignator=TP12

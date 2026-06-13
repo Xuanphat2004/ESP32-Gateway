@@ -558,7 +558,7 @@ void modbus_test_read(void)
                 {
                     consecutive_fail[sid] = 0;
                     xSemaphoreGive(scan_sem);
-                    ESP_LOGW(TAG, ">>> Slave %d timeout 5 lan, trigger scan ngay!", sid);
+                    ESP_LOGW(TAG, "========> Slave %d timeout 5 lan, trigger scan ngay!", sid);
                 }
             }
         }

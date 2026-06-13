@@ -1,0 +1,4 @@
+Remove Pin=U15-3 From Net=DEBUG_EN
+Remove Pin=U15-27 From Net=DEBUG_FLASH
+Remove Pin=U15-36 From Net=DEBUG_TXD0
+Remove Pin=U15-37 From Net=DEBUG_RXD0

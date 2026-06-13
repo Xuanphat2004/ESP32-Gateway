@@ -1,0 +1,29 @@
+Added Component: Designator=L1(L_SMD_12x12mm)
+Added Component: Designator=L2(L_SMD_12x12mm)
+Added Component: Designator=LCD1(LCD - 2004)
+Added Pin To Net: NetName=NetC5_2 Pin=L1-1
+Added Pin To Net: NetName=+5V Pin=L1-2
+Added Pin To Net: NetName=NetD1_2 Pin=L2-1
+Added Pin To Net: NetName=+3.3V Pin=L2-2
+Added Pin To Net: NetName=NetLCD1_4 Pin=LCD1-4
+Added Pin To Net: NetName=GND Pin=LCD1-5
+Added Pin To Net: NetName=NetLCD1_6 Pin=LCD1-6
+Added Pin To Net: NetName=NetLCD1_11 Pin=LCD1-11
+Added Pin To Net: NetName=NetLCD1_12 Pin=LCD1-12
+Added Pin To Net: NetName=NetLCD1_13 Pin=LCD1-13
+Added Pin To Net: NetName=NetLCD1_14 Pin=LCD1-14
+Add Pin To Net: Unknown Pin: Pin U2-9
+Add Pin To Net: Unknown Pin: Pin USB1-A9
+Add Pin To Net: Unknown Pin: Pin USB1-A12
+Add Pin To Net: Unknown Pin: Pin USB1-B9
+Add Pin To Net: Unknown Pin: Pin USB1-B12
+Change Net Name : Old Net Name=+5V New Net Name=VDD
+Change Net Name : Old Net Name=GND New Net Name=VSS
+Added Pin To Net: NetName=Vo Pin=LCD1-3
+Added Pin To Net: NetName=Vo Pin=VR1-2
+Added Net: Name=Vo
+Added Member To Class: ClassName=Power_Supply Member=Component L1 15uH/7.1A
+Added Member To Class: ClassName=Power_Supply Member=Component L2 22uH/6.3A
+Added Member To Class: ClassName=User_Interface Member=Component LCD1 LCD 20x04
+Added Rule: Name=Schematic Supply Nets_10
+Added Rule: Name=Schematic Supply Nets_11

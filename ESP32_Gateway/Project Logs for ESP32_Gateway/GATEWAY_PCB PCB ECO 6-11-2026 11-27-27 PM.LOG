@@ -1,0 +1,7 @@
+Removed Pin From Net: NetName=GND_RS485 Pin=LED10-2
+Removed Pin From Net: NetName=+5V_RS485 Pin=R55-1
+Removed Member From Class: ClassName=RS485_Port Member=LED10
+Removed Member From Class: ClassName=RS485_Port Member=R55
+Change Component Comment : Designator=C32 Old Comment=0.1uF/50V New Comment=10uF/50V
+Change Component Comment : Designator=C34 Old Comment=0.1uF/50V New Comment=10uF/50V
+Added Member To Class: ClassName=RS485_Port Member=Component TP10 GND_RS485
