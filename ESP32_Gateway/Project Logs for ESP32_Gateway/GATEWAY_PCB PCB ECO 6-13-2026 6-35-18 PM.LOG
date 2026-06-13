@@ -1,0 +1,19 @@
+Change Footprint: Cannot match pads with new footprint in component :LCD1 Footprint:LCD-20x4A-4-Holes
+Added Component: Designator=SW5(SMD - 12x12mm - Height 9.5mm)
+Add component (AddParameter): Name = "Supplier 1"; Value = "Newark"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Supplier Part Number 1"; Value = "35AH5160"; VariantName = "[No Variations]"
+Added Component: Designator=SW6(SMD - 12x12mm - Height 9.5mm)
+Add component (AddParameter): Name = "Supplier 1"; Value = "Newark"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Supplier Part Number 1"; Value = "35AH5160"; VariantName = "[No Variations]"
+Added Component: Designator=SW7(SMD - 12x12mm - Height 9.5mm)
+Add component (AddParameter): Name = "Supplier 1"; Value = "Newark"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Supplier Part Number 1"; Value = "35AH5160"; VariantName = "[No Variations]"
+Added Pin To Net: NetName=GND Pin=SW5-1
+Added Pin To Net: NetName=NetC44_2 Pin=SW5-2
+Added Pin To Net: NetName=GND Pin=SW6-1
+Added Pin To Net: NetName=NetC45_2 Pin=SW6-2
+Added Pin To Net: NetName=GND Pin=SW7-1
+Added Pin To Net: NetName=NetC49_2 Pin=SW7-2
+Added Member To Class: ClassName=User_Interface Member=Component SW5 Button 2 Pins
+Added Member To Class: ClassName=User_Interface Member=Component SW6 Button 2 Pins
+Added Member To Class: ClassName=User_Interface Member=Component SW7 Button 2 Pins

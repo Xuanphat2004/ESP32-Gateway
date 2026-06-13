@@ -1,0 +1,18 @@
+Change Footprint: Cannot match pads with new footprint in component :LCD1 Footprint:LCD-20x4A-4-Holes
+Change Footprint: Cannot match pads with new footprint in component :SW5 Footprint:SMD - 12x12mm - Height 9.5mm
+Change Footprint: Cannot match pads with new footprint in component :SW6 Footprint:SMD - 12x12mm - Height 9.5mm
+Change Footprint: Cannot match pads with new footprint in component :SW7 Footprint:SMD - 12x12mm - Height 9.5mm
+Change Component Comment : Designator=SW5 Old Comment=Button 4 Pins New Comment=Button 2 Pins
+Change Component Comment : Designator=SW6 Old Comment=Button 4 Pins New Comment=Button 2 Pins
+Change Component Comment : Designator=SW7 Old Comment=Button 4 Pins New Comment=Button 2 Pins
+Change Component Comment : Designator=X1 Old Comment=CRYSTAL 8MHz New Comment=CRYSTAL 25MHz
+Change Component Comment : Designator=LCD1 Old Comment=LCD 16x4A New Comment=LCD 20x4A
+Change component parameters: Designator = "SW5" ("SW5"); Footprint = "SW-SMD-6X6MM"; UniqueID = "\HQFAFRPW" ("\HQFAFRPW")
+Change component parameters (AddParameter): Name = "Supplier 1"; Value = "Newark"; VariantName = "[No Variations]"
+Change component parameters (AddParameter): Name = "Supplier Part Number 1"; Value = "35AH5160"; VariantName = "[No Variations]"
+Change component parameters: Designator = "SW6" ("SW6"); Footprint = "SW-SMD-6X6MM"; UniqueID = "\OTYBACOF" ("\OTYBACOF")
+Change component parameters (AddParameter): Name = "Supplier 1"; Value = "Newark"; VariantName = "[No Variations]"
+Change component parameters (AddParameter): Name = "Supplier Part Number 1"; Value = "35AH5160"; VariantName = "[No Variations]"
+Change component parameters: Designator = "SW7" ("SW7"); Footprint = "SW-SMD-6X6MM"; UniqueID = "\BRKHZCUT" ("\BRKHZCUT")
+Change component parameters (AddParameter): Name = "Supplier 1"; Value = "Newark"; VariantName = "[No Variations]"
+Change component parameters (AddParameter): Name = "Supplier Part Number 1"; Value = "35AH5160"; VariantName = "[No Variations]"

@@ -10,7 +10,7 @@
 #include "driver/gpio.h"
 #include "esp_err.h"
 
-// Định nghĩa chân SPI2 cho SD Card (Thay đổi theo mạch thực tế của bạn)
+// Định nghĩa chân SPI2 cho SD Card
 #define MISO_SD_PIN GPIO_NUM_48
 #define MOSI_SD_PIN GPIO_NUM_19
 #define CLK_SD_PIN GPIO_NUM_8

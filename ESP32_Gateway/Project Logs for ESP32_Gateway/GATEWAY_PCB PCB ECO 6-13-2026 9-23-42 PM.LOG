@@ -1,0 +1,6 @@
+Added Component: Designator=SW8(SW-DIP-6x6mm)
+Add component (AddParameter): Name = "Supplier 1"; Value = "Newark"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Supplier Part Number 1"; Value = "35AH5160"; VariantName = "[No Variations]"
+Added Pin To Net: NetName=GND Pin=SW8-1
+Added Pin To Net: NetName=DEBUG_EN Pin=SW8-2
+Added Member To Class: ClassName=MCU Member=Component SW8 Button 2 Pins
