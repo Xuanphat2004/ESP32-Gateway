@@ -5,6 +5,7 @@ from data.views.oldviews import SolarSystemDataViewSet ,chart_data_view, HourlyD
 from data.views import inverter, meter, weather_station, site
 from data.views import scan
 from data.views import energy   # THÊM: import view energy mới
+from data.views.meter_card_config import get_card_config, save_card_config
 router = DefaultRouter()
 router.register('solardb/latest',SolarSystemDataViewSet,basename='solardb_latest')
 router.register('solardb/hourly',HourlyDataViewSet, basename='hourlydata')
@@ -39,4 +40,7 @@ urlpatterns = router.urls + [
     path('solardb/energy-chart/', energy.energy_chart, name='energy-chart'),
     # THÊM: xuất báo cáo năng lượng ra Excel
     path('solardb/energy-export/', energy.energy_export, name='energy-export'),
+    # Cấu hình tham số hiển thị trên MeterCard (per user × per meter)
+    path('solardb/card-config/<int:meter_id>/', get_card_config,  name='get-card-config'),
+    path('solardb/card-config/<int:meter_id>/save/', save_card_config, name='save-card-config'),
 ]

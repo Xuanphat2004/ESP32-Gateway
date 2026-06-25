@@ -140,7 +140,7 @@ def get_site_summary(request, site_id):
     for m in meters:
         energy_names = (MeterRegister.objects
                         .filter(meter=m)
-                        .filter(Q(unit__icontains='kWh') | Q(register_name__icontains='energy'))
+                        .filter(Q(unit__icontains='kWh') | Q(register_name__icontains='Energy'))
                         .values_list('register_name', flat=True)
                         .distinct())
         for name in energy_names:

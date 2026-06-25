@@ -342,8 +342,8 @@ const MeterTable = ({ siteId }) => {
 
     const historyColumns = [
       { key: "received_at",      label: "Last Update"   },
-      { key: "register_address", label: "Register Addr" },
-      { key: "register_name",    label: "Register Name" },
+      { key: "register_address", label: "Register" },
+      { key: "register_name",    label: "Parameter" },
       { key: "value",            label: "Value"         },
       { key: "unit",             label: "Unit"          },
     ];
