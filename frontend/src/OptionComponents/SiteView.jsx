@@ -823,22 +823,21 @@ function MeterCard({ meter, registers, cardParams, onDetail, onChart, onSettings
         </Box>
       </Box>
 
-      {/* Rows — cố định theo DISPLAY_CONFIG */}
-      <Box sx={{ flex: 1 }}>
+      {/* Rows — giãn đều theo chiều cao card */}
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
         {rows.map((row, i) => (
           <Box key={row.label} sx={{
-            display: "flex", alignItems: "center", px: 1.5, py: 0.4,
+            flex: 1,
+            display: "flex", alignItems: "center", px: 1.5,
             backgroundColor: i % 2 === 0 ? rowOdd : rowEven,
             borderBottom: `1px solid ${divClr}`,
           }}>
-            {/* Tên tham số */}
             <Typography sx={{
               color: textClr, fontSize: 11, flex: 1, minWidth: 0,
               overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
             }}>
               {row.label}
             </Typography>
-            {/* Giá trị — màu xanh lá */}
             <Typography sx={{
               color: row.value === "--" ? "#37474f" : GREEN,
               fontWeight: 700, fontSize: 12,
@@ -846,7 +845,6 @@ function MeterCard({ meter, registers, cardParams, onDetail, onChart, onSettings
             }}>
               {row.value}
             </Typography>
-            {/* Đơn vị */}
             <Typography sx={{
               color: "#546e7a", fontSize: 10,
               minWidth: 36, textAlign: "right", ml: 0.5,
