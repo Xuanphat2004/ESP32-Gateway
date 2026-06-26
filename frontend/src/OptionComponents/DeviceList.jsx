@@ -17,6 +17,7 @@ import { AdapterDayjs }         from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs                    from "dayjs";
 import { getData } from "../ApiComponent/api";
 import { useSearchParams } from "react-router-dom";
+import { API_BASE, WS_BASE } from "../config";
 
 
 // ── Helper: format ISO timestamp → DD/MM/YYYY HH:MM:SS ──────────────────
@@ -61,7 +62,7 @@ const InverterTable = ({ siteId }) => {
   useEffect(() => {
     const fetchInverter = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/solardb/get-all-inverter-records/?site_id=${siteId}`);
+        const response = await fetch(`${API_BASE}/solardb/get-all-inverter-records/?site_id=${siteId}`);
         if (!response.ok) throw new Error(`Lỗi ${response.status}`);
         const data = await response.json();
         setRows(data.map(item => ({
@@ -78,7 +79,7 @@ const InverterTable = ({ siteId }) => {
   }, [siteId]);
 
   useEffect(() => {
-    const socket = new WebSocket(`ws://localhost:8000/ws/inverter/${siteId}/`);
+    const socket = new WebSocket(`${WS_BASE}/ws/inverter/${siteId}/`);
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
       setRows(data.map(item => ({
@@ -179,7 +180,7 @@ const MeterTable = ({ siteId }) => {
   // ── EFFECT 2: WS bảng tổng quát realtime ──
   useEffect(() => {
     const socket = new WebSocket(
-      siteId ? `ws://localhost:8000/ws/meter/${siteId}/` : `ws://localhost:8000/ws/all_meters/`
+      siteId ? `${WS_BASE}/ws/meter/${siteId}/` : `${WS_BASE}/ws/all_meters/`
     );
     socket.onopen  = () => console.log("[WS] Tổng quát connected");
     socket.onmessage = (event) => {
@@ -203,7 +204,7 @@ const MeterTable = ({ siteId }) => {
   // ── EFFECT 3: WS bảng chi tiết ─────────────────────────────────────────
   useEffect(() => {
     if (!selectedMeter) return;
-    const socket = new WebSocket(`ws://localhost:8000/ws/meter_register/${selectedMeter.meter_id}/`);
+    const socket = new WebSocket(`${WS_BASE}/ws/meter_register/${selectedMeter.meter_id}/`);
     socket.onopen  = () => console.log(`[WS] Chi tiết connected: meter_id=${selectedMeter.meter_id}`);
 
     socket.onmessage = (event) => {
@@ -619,7 +620,7 @@ const WeatherTable = ({ siteId }) => {
   useEffect(() => {
     const fetchWeather = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/solardb/get-latest-weather-station-records/?site_id=${siteId}`);
+        const response = await fetch(`${API_BASE}/solardb/get-latest-weather-station-records/?site_id=${siteId}`);
         if (!response.ok) throw new Error("Network response was not ok");
         const data = await response.json();
         setRows(data.map(item => ({
@@ -636,7 +637,7 @@ const WeatherTable = ({ siteId }) => {
   }, [siteId]);
 
   useEffect(() => {
-    const socket = new WebSocket(`ws://localhost:8000/ws/weather_station/${siteId}/`);
+    const socket = new WebSocket(`${WS_BASE}/ws/weather_station/${siteId}/`);
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
       setRows(data.map(item => ({

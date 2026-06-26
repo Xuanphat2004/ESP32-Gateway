@@ -5,6 +5,7 @@ import SortTable                      from "../TableDevice/SortTable";
 import { useTheme }                   from "@mui/material/styles";
 import { getData }                    from "../ApiComponent/api";
 import ScanDetailModal                from "./ScanDetailModal";
+import { WS_BASE }                   from "../config";
 
 // ── Columns khai báo NGOÀI component ──────────────────────────────────────
 const valid = [
@@ -140,7 +141,7 @@ export default function AlarmSnooze() {
   useEffect(() => {
     if (!gatewayId) return;
     const token = sessionStorage.getItem("token");
-    const ws    = new WebSocket(`ws://localhost:8000/ws/scan/${gatewayId}/?token=${token}`);
+    const ws    = new WebSocket(`${WS_BASE}/ws/scan/${gatewayId}/?token=${token}`);
     ws.onopen    = () => console.log("[WS Scan] Connected");
     ws.onerror   = (e) => console.error("[WS Scan] Error:", e);
     ws.onclose   = ()  => console.warn("[WS Scan] Disconnected");

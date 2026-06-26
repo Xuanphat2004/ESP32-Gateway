@@ -19,6 +19,7 @@ import SettingsIcon      from "@mui/icons-material/Settings";
 import SearchIcon        from "@mui/icons-material/Search";
 import DeleteIcon        from "@mui/icons-material/Delete";
 import WarningAmberIcon  from "@mui/icons-material/WarningAmber";
+import { WS_BASE } from "../config";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 const STALE_SECONDS  = 120;
@@ -1350,7 +1351,7 @@ function SiteDetailScreen({ siteId, onBack }) {
   useEffect(() => {
     if (wsOverRef.current) wsOverRef.current.close();
     const token = sessionStorage.getItem("token");
-    const ws = new WebSocket(`ws://localhost:8000/ws/meter/${siteId}/?token=${token}`);
+    const ws = new WebSocket(`${WS_BASE}/ws/meter/${siteId}/?token=${token}`);
     wsOverRef.current = ws;
     ws.onmessage = (e) => {
       const data = JSON.parse(e.data);
@@ -1402,7 +1403,7 @@ function SiteDetailScreen({ siteId, onBack }) {
     wsRegRefs.current.forEach((ws) => ws.close());
     wsRegRefs.current = [];
     meterList.forEach((meter) => {
-      const ws = new WebSocket(`ws://localhost:8000/ws/meter_register/${meter.meter_id}/?token=${token}`);
+      const ws = new WebSocket(`${WS_BASE}/ws/meter_register/${meter.meter_id}/?token=${token}`);
       ws.onmessage = (e) => {
         const rows = JSON.parse(e.data);
         const paramMap = {};

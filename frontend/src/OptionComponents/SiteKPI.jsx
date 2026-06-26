@@ -1,6 +1,7 @@
 import MyLineChart from "../ChartComponents/LineChart2";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { API_BASE } from "../config";
 import dayjs from "dayjs"; // lib datetime using
 import { alignItems, display, flex, flexDirection, justifyContent, sizeHeight } from "@mui/system";
 import { Box, Checkbox, IconButton, Menu, MenuItem, Typography } from "@mui/material";
@@ -51,8 +52,8 @@ function SiteKPI() {
 
   const theme = useTheme();
 
-  const path_bar = `http://localhost:8000/solardb/avr-data/`;
-  const path_line = `http://localhost:8000/solardb/`;
+  const path_bar = `${API_BASE}/solardb/avr-data/`;
+  const path_line = `${API_BASE}/solardb/`;
 
   useEffect(() => {
     const fetchData = async () => {

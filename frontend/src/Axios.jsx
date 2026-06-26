@@ -1,5 +1,6 @@
 import axios from 'axios'
-const myURL = 'http://localhost:8000/'; // Địa chỉ backend — lưu vào biến để dùng lại, không phải gõ lại nhiều lần.
+import { API_BASE } from './config';
+const myURL = `${API_BASE}/`;
 const AxiosInstance = axios.create({
     baseURL: myURL, // Địa chỉ gốc — mọi request tự động thêm vào đầu
     timeout: 15000, // Tăng từ 5000 lên 15000ms — tránh timeout với query nặng như get-site-summary

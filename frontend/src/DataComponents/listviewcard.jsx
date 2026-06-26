@@ -4,6 +4,7 @@ import { Box, colors } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { styled, useTheme } from "@mui/material/styles";
+import { API_BASE } from "../config";
 
 const SiteCard = ({
   name,
@@ -27,8 +28,8 @@ const SiteCard = ({
     const fetchAllData = async () => {
       try {
         if (cardname) { // Chỉ gọi API nếu cardname tồn tại
-          const path_daily = `http://localhost:8000/solardb/${cardname}/`;
-          const path_hourly = `http://localhost:8000/solardb/hourly/`;
+          const path_daily = `${API_BASE}/solardb/${cardname}/`;
+          const path_hourly = `${API_BASE}/solardb/hourly/`;
           const [resDaily, resHourly] = await Promise.all([
             axios.get(path_daily),
             axios.get(path_hourly),

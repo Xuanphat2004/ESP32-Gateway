@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import { API_BASE } from "../config";
 
 export default function Signup() {
   const [username, setUsername] = useState("");
@@ -14,7 +15,7 @@ export default function Signup() {
   const navigate = useNavigate();
 
   const handleSignup = async () => {
-    const res = await fetch("http://localhost:8000/api/signup/", {
+    const res = await fetch(`${API_BASE}/api/signup/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password, email }),

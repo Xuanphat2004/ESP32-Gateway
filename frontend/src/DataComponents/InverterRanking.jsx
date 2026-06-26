@@ -2,6 +2,7 @@ import React from "react";
 import { useEffect, useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import axios from "axios";
+import { API_BASE } from "../config";
 
 function InverterRanking() {
   const theme = useTheme();
@@ -10,7 +11,7 @@ function InverterRanking() {
   const [sortOrder, setSortOrder] = useState("asc");
   const [inverterData, setInverterData] = useState([]);
 
-  const path = `http://localhost:8000/solardb/avt-ranking/`;
+  const path = `${API_BASE}/solardb/avt-ranking/`;
 
   useEffect(() => {
     const fetchData = async () => {

@@ -27,7 +27,7 @@ const TIME_MODES = [
   { key: "year",  label: "Year" },
 ];
 
-const API_BASE = "http://localhost:8000";
+import { API_BASE, WS_BASE } from "../config";
 
 // ── Gọi API biểu đồ ──────────────────────────────────────────────────────────
 async function fetchData(mode, dateParam, siteId) {
@@ -113,7 +113,7 @@ export default function EnergyConsumptionChart() {
     if (meterIds.length === 0) return;
 
     const sockets = meterIds.map((id) => {
-      const ws = new WebSocket(`ws://localhost:8000/ws/meter_register/${id}/`);
+      const ws = new WebSocket(`${WS_BASE}/ws/meter_register/${id}/`);
       ws.onmessage = () => {
         clearTimeout(refetchTimer.current);
         refetchTimer.current = setTimeout(() => {

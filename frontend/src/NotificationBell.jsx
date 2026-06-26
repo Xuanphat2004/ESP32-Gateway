@@ -14,8 +14,9 @@ import VolumeOffIcon     from "@mui/icons-material/VolumeOff";
 import { useNavigate } from "react-router-dom";
 import { getData } from "./ApiComponent/api";  // NotificationBell.jsx ở src/ → cùng cấp với ApiComponent
 
+import { WS_BASE as _WS_BASE } from "./config";
 // ⚙️ Cấu hình
-const WS_BASE     = "ws://localhost:8000/ws/scan/";
+const WS_BASE     = `${_WS_BASE}/ws/scan/`;
 const ALARM_ROUTE = "/alarmsnooze";
 const MAX_ITEMS   = 30;
 

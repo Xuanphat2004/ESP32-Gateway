@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE } from "../config";
 
 export default function Login() {
     const [username, setUsername] = useState("");
@@ -10,7 +11,7 @@ export default function Login() {
     const handleLogin = async () => {
         try { 
             // Login dùng fetch thẳng vì chưa có token để gắn — mục đích của login chính là để nhận token về 
-            const res = await fetch("http://localhost:8000/api/login/", {
+            const res = await fetch(`${API_BASE}/api/login/`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username, password }),
