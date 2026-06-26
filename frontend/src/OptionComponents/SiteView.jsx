@@ -172,113 +172,273 @@ const findReg = (paramMap, patterns) => {
 // MÀN HÌNH 1 — DANH SÁCH SITE
 // ════════════════════════════════════════════════════════════════════════════
 
-function SiteCard({ site, summary, loading, onSelect }) {
-  const theme   = useTheme();
-  const accent  = theme.palette.text.header_option || "#08ffff";
-  const cardBg  = theme.palette.background.box     || "#0d1b2a";
-  const headBg  = theme.palette.background.head_box || "#0a1628";
-  const divClr  = theme.palette.divider             || "#1f2d3a";
+// X positions (center) for each meter icon in the SVG, keyed by meter count
+const METER_SLOTS = {
+  0: [],
+  1: [160],
+  2: [105, 215],
+  3: [72, 160, 248],
+  4: [52, 122, 198, 268],
+  5: [38, 98, 160, 222, 282],
+};
 
-  const power  = summary?.total_power  != null ? Number(summary.total_power).toFixed(1)  : "--";
-  const energy = summary?.total_energy != null ? Number(summary.total_energy).toFixed(2) : "--";
+// gatewayOnline: gateway có gửi scan gần đây không (< 5 phút)
+// scanDevices:   [{modbus_id, status}] từ lần scan mới nhất
+// meterCount:    fallback nếu chưa có scan
+function SiteTopologyDiagram({ gatewayOnline, scanDevices, meterCount, gatewayId }) {
+  const LIVE  = "#4caf50";
+  const DEAD  = "#f44336";
+  const GRAY  = "#546e7a";
+  const gwId  = gatewayId ? String(gatewayId).slice(0, 15) : "—";
+
+  // Ưu tiên dùng scan devices; fallback về meter_count (hiển thị dưới dạng unknown)
+  const hasScan   = scanDevices && scanDevices.length > 0;
+  const rawCount  = hasScan ? scanDevices.length : (meterCount || 0);
+  const showN     = Math.min(rawCount, 5);
+  const mXs       = METER_SLOTS[showN] ?? [];
+  const extra     = Math.max(rawCount - 5, 0);
+
+  // Per-meter: nếu có scan → green/red theo status; nếu không có scan → gray (unknown)
+  const deviceColor = (i) => {
+    if (!hasScan) return GRAY;
+    return scanDevices[i]?.status === "active" ? LIVE : DEAD;
+  };
+  const deviceActive = (i) => hasScan && scanDevices[i]?.status === "active";
+
+  // Gateway icon màu: online=green, offline=red
+  const gwColor = gatewayOnline ? LIVE : DEAD;
+  const gwDim   = gatewayOnline ? "#1b5e20" : "#7f0000";
 
   return (
-    <Box
-      onClick={onSelect}
-      sx={{
-        backgroundColor: cardBg,
-        border: `1px solid ${divClr}`,
-        borderRadius: 2,
-        overflow: "hidden",
-        cursor: "pointer",
-        transition: "border-color 0.2s, transform 0.15s",
-        "&:hover": {
-          borderColor: accent,
-          transform: "translateY(-2px)",
-          boxShadow: `0 4px 20px rgba(0,0,0,0.4)`,
-        },
-      }}
-    >
-      {/* Header */}
+    <svg width="100%" viewBox="0 0 320 172" xmlns="http://www.w3.org/2000/svg">
+
+      {/* ═══ INTERNET GLOBE (top center) ═══ */}
+      {/* Outer circle */}
+      <circle cx="160" cy="21" r="17" fill="#06060f" stroke={gwColor} strokeWidth="1.5"/>
+      {/* Central longitude oval */}
+      <ellipse cx="160" cy="21" rx="7.5" ry="17" fill="none" stroke={gwColor} strokeWidth="1" opacity="0.55"/>
+      {/* Equator */}
+      <line x1="143" y1="21" x2="177" y2="21" stroke={gwColor} strokeWidth="1" opacity="0.55"/>
+      {/* Upper latitude arc */}
+      <path d="M 146,13 Q 160,10 174,13" fill="none" stroke={gwColor} strokeWidth="0.9" opacity="0.45"/>
+      {/* Lower latitude arc */}
+      <path d="M 146,29 Q 160,32 174,29" fill="none" stroke={gwColor} strokeWidth="0.9" opacity="0.45"/>
+      {/* Glow khi gateway online */}
+      {gatewayOnline && (
+        <circle cx="160" cy="21" r="17" fill={LIVE} opacity="0.04">
+          <animate attributeName="opacity" values="0.03;0.09;0.03" dur="2.5s" repeatCount="indefinite"/>
+        </circle>
+      )}
+
+      {/* ═══ GW ↔ WEB vertical line ═══ */}
+      <line x1="160" y1="40" x2="160" y2="78"
+            stroke={gwDim} strokeWidth="1.5" opacity="0.35"
+            strokeDasharray={gatewayOnline ? undefined : "4,3"}/>
+      {!gatewayOnline && (
+        <>
+          <line x1="153" y1="52" x2="167" y2="66" stroke={DEAD} strokeWidth="2" strokeLinecap="round"/>
+          <line x1="167" y1="52" x2="153" y2="66" stroke={DEAD} strokeWidth="2" strokeLinecap="round"/>
+        </>
+      )}
+      {gatewayOnline && [0, 0.5, 1.0].map((delay, i) => (
+        <circle key={i} cx="160" r="3" fill="#69f0ae">
+          <animate attributeName="cy" from="76" to="42"
+                   dur="1.5s" begin={`${delay}s`} repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0;1;1;0"
+                   dur="1.5s" begin={`${delay}s`} repeatCount="indefinite"/>
+        </circle>
+      ))}
+
+      {/* ═══ GATEWAY (middle) ═══ */}
+      <line x1="150" y1="80" x2="150" y2="70" stroke={gwColor} strokeWidth="1.5" strokeLinecap="round"/>
+      <line x1="160" y1="80" x2="160" y2="64" stroke={gwColor} strokeWidth="1.5" strokeLinecap="round"/>
+      <line x1="170" y1="80" x2="170" y2="70" stroke={gwColor} strokeWidth="1.5" strokeLinecap="round"/>
+      {gatewayOnline ? (
+        <>
+          <path d="M 155,67 Q 160,61 165,67" fill="none" stroke={gwColor} strokeWidth="1.3" strokeLinecap="round">
+            <animate attributeName="opacity" values="0.4;1;0.4" dur="1.8s" repeatCount="indefinite"/>
+          </path>
+          <path d="M 151,70 Q 160,58 169,70" fill="none" stroke={gwColor} strokeWidth="1" strokeLinecap="round">
+            <animate attributeName="opacity" values="0.1;0.6;0.1" dur="1.8s" begin="0.4s" repeatCount="indefinite"/>
+          </path>
+        </>
+      ) : (
+        <path d="M 151,70 Q 160,58 169,70" fill="none" stroke={gwColor} strokeWidth="1" strokeLinecap="round" opacity="0.2"/>
+      )}
+      <rect x="140" y="80" width="40" height="28" rx="3"
+            fill="#060808" stroke={gwColor} strokeWidth="1.5"/>
+      <circle cx="172" cy="94" r="2.5" fill={gwColor}>
+        {gatewayOnline && <animate attributeName="opacity" values="1;0.2;1" dur="1.8s" repeatCount="indefinite"/>}
+      </circle>
+      <text x="160" y="120" textAnchor="middle" fill={gwColor}
+            fontSize="8" fontFamily="monospace" fontWeight="bold">GATEWAY</text>
+      <text x="160" y="129" textAnchor="middle" fill={GRAY}
+            fontSize="6.5" fontFamily="monospace">{gwId}</text>
+
+      {/* ═══ METER lines + icons ═══ */}
+      {mXs.map((mx, i) => {
+        const active  = deviceActive(i);
+        const mColor  = deviceColor(i);
+        const lineClr = active ? gwDim : (hasScan ? "#7f0000" : "#37474f");
+        return (
+          <g key={i}>
+            {/* Diagonal line: animated if active, dashed-red if inactive, gray if unknown */}
+            <line x1={mx} y1="140" x2="160" y2="108"
+                  stroke={lineClr} strokeWidth="1.2"
+                  strokeDasharray={active ? undefined : "3,3"}/>
+            {/* Animated dots chỉ khi meter active VÀ gateway online */}
+            {active && gatewayOnline && [0, 0.65].map((delay, di) => (
+              <circle key={di} r="2.5" fill="#a5d6a7">
+                <animate attributeName="cx" from={String(mx)} to="160"
+                         dur="1.5s" begin={`${delay + i * 0.18}s`} repeatCount="indefinite"/>
+                <animate attributeName="cy" from="140" to="108"
+                         dur="1.5s" begin={`${delay + i * 0.18}s`} repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0;1;1;0"
+                         dur="1.5s" begin={`${delay + i * 0.18}s`} repeatCount="indefinite"/>
+              </circle>
+            ))}
+            {/* Meter box */}
+            <rect x={mx - 15} y="140" width="30" height="20" rx="2"
+                  fill="#060808" stroke={mColor} strokeWidth="1.2"/>
+            <text x={mx} y="154" textAnchor="middle" fill={mColor}
+                  fontSize="7.5" fontFamily="monospace" fontWeight="bold">
+              {hasScan ? `#${scanDevices[i].modbus_id}` : `M${i + 1}`}
+            </text>
+          </g>
+        );
+      })}
+
+      {extra > 0 && (
+        <text x="306" y="154" textAnchor="middle" fill={GRAY}
+              fontSize="8.5" fontFamily="monospace">+{extra}</text>
+      )}
+      {showN === 0 && (
+        <text x="160" y="152" textAnchor="middle" fill="#37474f"
+              fontSize="8.5" fontFamily="monospace">No devices registered</text>
+      )}
+
+      {/* ═══ Status label ═══ */}
+      <text x="160" y="168" textAnchor="middle"
+            fill={gatewayOnline ? "#69f0ae" : "#ef9a9a"}
+            fontSize="8" fontFamily="monospace" fontWeight="600">
+        {gatewayOnline ? "● GATEWAY CONNECTED" : "● GATEWAY OFFLINE"}
+      </text>
+    </svg>
+  );
+}
+
+
+function SiteCard({ site, summary, loading, onSelect }) {
+  const theme        = useTheme();
+  const accent       = theme.palette.text.header_option  || "#08ffff";
+  const cardBg       = theme.palette.background.box      || "#0d1b2a";
+  const headBg       = theme.palette.background.head_box || "#0a1628";
+  const divClr       = theme.palette.divider             || "#1f2d3a";
+
+  const meterCount    = summary?.meter_count    ?? 0;
+  const gatewayOnline = summary?.gateway_online ?? false;
+  const scanDevices   = summary?.scan_devices   ?? [];
+  const scanActive    = summary?.scan_active    ?? 0;
+  const scanTotal     = summary?.scan_total     ?? 0;
+  // Hiển thị N/Total dùng scan nếu có, fallback về meter DB
+  const displayOnline = scanTotal > 0 ? scanActive  : (summary?.meters_online ?? 0);
+  const displayTotal  = scanTotal > 0 ? scanTotal   : meterCount;
+  const power         = summary?.total_power  != null ? Number(summary.total_power).toFixed(1)  : "--";
+  const energy        = summary?.total_energy != null ? Number(summary.total_energy).toFixed(2) : "--";
+
+  return (
+    <Box onClick={onSelect} sx={{
+      backgroundColor: cardBg,
+      border: `1px solid ${divClr}`,
+      borderRadius: 2,
+      overflow: "hidden",
+      cursor: "pointer",
+      transition: "border-color 0.2s, transform 0.15s",
+      "&:hover": {
+        borderColor: accent,
+        transform: "translateY(-2px)",
+        boxShadow: `0 6px 24px rgba(0,0,0,0.5)`,
+      },
+    }}>
+
+      {/* ── Header ── */}
       <Box sx={{
         backgroundColor: headBg,
-        px: 2, py: 1.5,
+        px: 2, py: 1.2,
         display: "flex", justifyContent: "space-between", alignItems: "center",
         borderBottom: `1px solid ${divClr}`,
       }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <ElectricMeterIcon sx={{ color: accent, fontSize: 18 }} />
+          <ElectricMeterIcon sx={{ color: accent, fontSize: 17 }} />
           <Typography sx={{ color: accent, fontWeight: 700, fontSize: 14, letterSpacing: 0.5 }}>
             {site.site_name}
           </Typography>
         </Box>
-        <Box sx={{
-          width: 8, height: 8, borderRadius: "50%",
-          backgroundColor: summary ? "#4caf50" : "#f44336",
-          boxShadow: summary ? "0 0 6px #4caf50" : "none",
-        }} />
-      </Box>
-
-      {/* Body */}
-      <Box sx={{ px: 2, py: 1.5 }}>
-        {/* Location */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 1.5 }}>
-          <LocationOnIcon sx={{ color: "#546e7a", fontSize: 13 }} />
-          <Typography sx={{ color: "#607d8b", fontSize: 11 }}>
-            {site.location || "—"}
-          </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          {!loading && summary && (
+            <Typography sx={{ color: "#546e7a", fontSize: 10 }}>
+              {displayOnline}/{displayTotal} active
+            </Typography>
+          )}
+          <Box sx={{
+            width: 8, height: 8, borderRadius: "50%",
+            backgroundColor: gatewayOnline ? "#4caf50" : (summary ? "#f44336" : "#546e7a"),
+            boxShadow: gatewayOnline ? "0 0 6px #4caf50" : "none",
+          }} />
         </Box>
-
-        {/* Metrics */}
-        {loading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", py: 1 }}>
-            <CircularProgress size={18} sx={{ color: accent }} />
-          </Box>
-        ) : (
-          <Box sx={{ display: "flex", gap: 1 }}>
-            <Box sx={{
-              flex: 1, backgroundColor: headBg, borderRadius: 1, p: 1,
-              textAlign: "center", border: `1px solid ${divClr}`,
-            }}>
-              <Typography sx={{ color: "#546e7a", fontSize: 9, letterSpacing: 0.5 }}>
-                ACTIVE POWER
-              </Typography>
-              <Typography sx={{
-                color: "#00e5ff", fontWeight: 700, fontSize: 18,
-                fontFamily: "monospace", mt: 0.3,
-              }}>
-                {power}
-              </Typography>
-              <Typography sx={{ color: "#546e7a", fontSize: 10 }}>W</Typography>
-            </Box>
-            <Box sx={{
-              flex: 1, backgroundColor: headBg, borderRadius: 1, p: 1,
-              textAlign: "center", border: `1px solid ${divClr}`,
-            }}>
-              <Typography sx={{ color: "#546e7a", fontSize: 9, letterSpacing: 0.5 }}>
-                TOTAL ENERGY
-              </Typography>
-              <Typography sx={{
-                color: "#69f0ae", fontWeight: 700, fontSize: 18,
-                fontFamily: "monospace", mt: 0.3,
-              }}>
-                {energy}
-              </Typography>
-              <Typography sx={{ color: "#546e7a", fontSize: 10 }}>kWh</Typography>
-            </Box>
-          </Box>
-        )}
       </Box>
 
-      {/* Footer */}
+      {/* ── Topology diagram ── */}
+      {loading ? (
+        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", py: 8 }}>
+          <CircularProgress size={22} sx={{ color: accent }} />
+        </Box>
+      ) : (
+        <Box sx={{ px: 1, pt: 1, pb: 0.5 }}>
+          <SiteTopologyDiagram
+            gatewayOnline={gatewayOnline}
+            scanDevices={scanDevices}
+            meterCount={meterCount}
+            gatewayId={site.gateway_id}
+          />
+        </Box>
+      )}
+
+      {/* ── Metrics row ── */}
+      {!loading && (
+        <Box sx={{ display: "flex", gap: 1, px: 1.5, pb: 1.2 }}>
+          <Box sx={{
+            flex: 1, backgroundColor: headBg, borderRadius: 1, py: 0.7, px: 1,
+            textAlign: "center", border: `1px solid ${divClr}`,
+          }}>
+            <Typography sx={{ color: "#546e7a", fontSize: 9, letterSpacing: 0.5 }}>ACTIVE POWER</Typography>
+            <Typography sx={{ color: "#00e5ff", fontWeight: 700, fontSize: 16, fontFamily: "monospace", mt: 0.2 }}>
+              {power}
+            </Typography>
+            <Typography sx={{ color: "#546e7a", fontSize: 9 }}>W</Typography>
+          </Box>
+          <Box sx={{
+            flex: 1, backgroundColor: headBg, borderRadius: 1, py: 0.7, px: 1,
+            textAlign: "center", border: `1px solid ${divClr}`,
+          }}>
+            <Typography sx={{ color: "#546e7a", fontSize: 9, letterSpacing: 0.5 }}>TOTAL ENERGY</Typography>
+            <Typography sx={{ color: "#69f0ae", fontWeight: 700, fontSize: 16, fontFamily: "monospace", mt: 0.2 }}>
+              {energy}
+            </Typography>
+            <Typography sx={{ color: "#546e7a", fontSize: 9 }}>kWh</Typography>
+          </Box>
+        </Box>
+      )}
+
+      {/* ── Footer ── */}
       <Box sx={{
         px: 2, py: 1, borderTop: `1px solid ${divClr}`,
         display: "flex", justifyContent: "space-between", alignItems: "center",
       }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-          <RouterIcon sx={{ color: "#546e7a", fontSize: 13 }} />
+          <LocationOnIcon sx={{ color: "#546e7a", fontSize: 13 }} />
           <Typography sx={{ color: "#546e7a", fontSize: 10 }}>
-            {site.gateway_id ?? "—"}
+            {site.location || "—"}
           </Typography>
         </Box>
         <Typography sx={{ color: accent, fontSize: 11, fontWeight: 600 }}>
@@ -354,7 +514,7 @@ function SiteListScreen({ onSelectSite }) {
       ) : (
         <Box sx={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))",
           gap: 2,
         }}>
           {sites.map((site) => (
@@ -882,6 +1042,105 @@ function MeterCard({ meter, registers, cardParams, onDetail, onChart, onSettings
 }
 
 
+// ════════════════════════════════════════════════════════════════════════════
+// GATEWAY ↔ WEB STATUS WIDGET — SVG animated
+// ════════════════════════════════════════════════════════════════════════════
+function GatewayStatusWidget({ online, gatewayId }) {
+  const accent   = online ? "#4caf50" : "#f44336";
+  const dimLine  = online ? "#2e7d32" : "#7f0000";
+  const bgColor  = online ? "rgba(8,22,8,0.85)" : "rgba(22,8,8,0.85)";
+  const gwLabel  = gatewayId ? String(gatewayId).slice(0, 11) : "—";
+
+  return (
+    <Box sx={{
+      mx: 1.5, my: 0.5,
+      backgroundColor: bgColor,
+      border: `1px solid ${dimLine}`,
+      borderRadius: 1.5,
+      overflow: "hidden",
+    }}>
+      <svg width="100%" viewBox="0 0 200 82" xmlns="http://www.w3.org/2000/svg">
+
+        {/* ── GATEWAY (left) ── */}
+        <rect x="10" y="28" width="36" height="24" rx="3"
+              fill="#060f06" stroke={accent} strokeWidth="1.5"/>
+        {/* LED dot */}
+        <circle cx="40" cy="40" r="2.5" fill={accent}>
+          {online && (
+            <animate attributeName="opacity" values="1;0.2;1" dur="1.8s" repeatCount="indefinite"/>
+          )}
+        </circle>
+        {/* Antennas */}
+        <line x1="20" y1="28" x2="20" y2="19" stroke={accent} strokeWidth="1.5" strokeLinecap="round"/>
+        <line x1="28" y1="28" x2="28" y2="13" stroke={accent} strokeWidth="1.5" strokeLinecap="round"/>
+        <line x1="36" y1="28" x2="36" y2="19" stroke={accent} strokeWidth="1.5" strokeLinecap="round"/>
+        {/* Signal arcs */}
+        {online ? (
+          <>
+            <path d="M 23,16 Q 28,10 33,16" fill="none" stroke={accent} strokeWidth="1.3" strokeLinecap="round">
+              <animate attributeName="opacity" values="0.4;1;0.4" dur="1.8s" repeatCount="indefinite"/>
+            </path>
+            <path d="M 19,19 Q 28,6 37,19" fill="none" stroke={accent} strokeWidth="1" strokeLinecap="round">
+              <animate attributeName="opacity" values="0.1;0.55;0.1" dur="1.8s" begin="0.4s" repeatCount="indefinite"/>
+            </path>
+          </>
+        ) : (
+          <path d="M 19,19 Q 28,6 37,19" fill="none" stroke={accent} strokeWidth="1" strokeLinecap="round" opacity="0.25"/>
+        )}
+        <text x="28" y="64" textAnchor="middle" fill={accent}
+              fontSize="8" fontFamily="monospace" fontWeight="bold">GW</text>
+        <text x="28" y="73" textAnchor="middle" fill="#546e7a"
+              fontSize="6.2" fontFamily="monospace">{gwLabel}</text>
+
+        {/* ── CONNECTION (center) ── */}
+        {online ? (
+          <>
+            <line x1="48" y1="40" x2="152" y2="40"
+                  stroke={dimLine} strokeWidth="1.5" opacity="0.35"/>
+            {[0, 0.6, 1.2].map((delay, i) => (
+              <circle key={i} cy="40" r="3.5" fill="#69f0ae">
+                <animate attributeName="cx" from="48" to="152"
+                         dur="1.8s" begin={`${delay}s`} repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0;1;1;0"
+                         dur="1.8s" begin={`${delay}s`} repeatCount="indefinite"/>
+              </circle>
+            ))}
+          </>
+        ) : (
+          <>
+            <line x1="48" y1="40" x2="152" y2="40"
+                  stroke={dimLine} strokeWidth="1.5" strokeDasharray="5,4"/>
+            <line x1="96" y1="35" x2="104" y2="45"
+                  stroke="#f44336" strokeWidth="2.5" strokeLinecap="round"/>
+            <line x1="104" y1="35" x2="96" y2="45"
+                  stroke="#f44336" strokeWidth="2.5" strokeLinecap="round"/>
+          </>
+        )}
+
+        {/* ── INTERNET GLOBE (right) ── */}
+        <circle cx="173" cy="38" r="17" fill="#06060f" stroke={accent} strokeWidth="1.5"/>
+        <ellipse cx="173" cy="38" rx="7.5" ry="17" fill="none" stroke={accent} strokeWidth="1" opacity="0.55"/>
+        <line x1="156" y1="38" x2="190" y2="38" stroke={accent} strokeWidth="1" opacity="0.55"/>
+        <path d="M 159,30 Q 173,27 187,30" fill="none" stroke={accent} strokeWidth="0.9" opacity="0.45"/>
+        <path d="M 159,46 Q 173,49 187,46" fill="none" stroke={accent} strokeWidth="0.9" opacity="0.45"/>
+        {online && (
+          <circle cx="173" cy="38" r="17" fill={accent} opacity="0.04">
+            <animate attributeName="opacity" values="0.03;0.09;0.03" dur="2.5s" repeatCount="indefinite"/>
+          </circle>
+        )}
+
+        {/* ── Status label ── */}
+        <text x="100" y="80" textAnchor="middle"
+              fill={online ? "#69f0ae" : "#ef9a9a"}
+              fontSize="8.5" fontFamily="monospace" fontWeight="600">
+          {online ? "● DATA FLOWING" : "● NO SIGNAL"}
+        </text>
+      </svg>
+    </Box>
+  );
+}
+
+
 function SiteDetailScreen({ siteId, onBack }) {
   const theme    = useTheme();
   const navigate = useNavigate();
@@ -1092,25 +1351,12 @@ function SiteDetailScreen({ siteId, onBack }) {
           "&::-webkit-scrollbar": { width: 5 },
           "&:hover::-webkit-scrollbar-thumb": { backgroundColor: headBg },
         }}>
-          {/* Connect status */}
-          <Box sx={{ px: 1.5, pt: 1.5, pb: 1 }}>
-            <Typography sx={{ color: "#546e7a", fontSize: 9, fontWeight: 600, letterSpacing: 1, mb: 0.8 }}>
-              CONNECT STATUS
+          {/* Gateway ↔ Web status widget */}
+          <Box sx={{ pt: 1.5, pb: 0.5 }}>
+            <Typography sx={{ color: "#546e7a", fontSize: 9, fontWeight: 600, letterSpacing: 1, mb: 0.5, px: 1.5 }}>
+              CONNECTION STATUS
             </Typography>
-            <Box sx={{
-              display: "flex", alignItems: "center", gap: 1,
-              backgroundColor: headBg, borderRadius: 1, px: 1.2, py: 0.8,
-              border: `1px solid ${metersOnline > 0 ? "#2e7d32" : "#c62828"}`,
-            }}>
-              <Box sx={{
-                width: 8, height: 8, borderRadius: "50%", flexShrink: 0,
-                backgroundColor: metersOnline > 0 ? "#4caf50" : "#f44336",
-                boxShadow: metersOnline > 0 ? "0 0 6px #4caf50" : "none",
-              }} />
-              <Typography sx={{ color: metersOnline > 0 ? "#69f0ae" : "#ef9a9a", fontSize: 12 }}>
-                {metersOnline > 0 ? "Connected" : "Disconnected"}
-              </Typography>
-            </Box>
+            <GatewayStatusWidget online={metersOnline > 0} gatewayId={siteInfo?.gateway_id} />
           </Box>
 
           <Divider sx={{ borderColor: divClr, mx: 1.5 }} />

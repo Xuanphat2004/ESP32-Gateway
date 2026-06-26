@@ -114,7 +114,10 @@ def update_site(request, site_id):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def get_site_summary(request, site_id):
-    from data.models import Meter, MeterRegister
+    from data.models import Meter, MeterRegister, ScanResult, ScanDevice
+    from django.utils import timezone
+
+    GATEWAY_STALE_SECS = 300  # 5 phút — nếu scan cũ hơn thì coi gateway offline
 
     try:
         site = Site.objects.get(site_id=site_id, user=request.user)
@@ -122,6 +125,26 @@ def get_site_summary(request, site_id):
         return JsonResponse({'error': 'Not found this Site !'}, status=404)
 
     meters = Meter.objects.filter(site_id=site)
+    meter_count   = meters.count()
+    meters_online = meters.filter(status__in=['Online', 'Active']).count()
+
+    # ── Trạng thái thực từ ScanResult (chính xác hơn Meter.status) ──
+    latest_scan   = ScanResult.objects.filter(site=site).order_by('-scanned_at').first()
+    gateway_online = False
+    scan_devices   = []
+    scan_active    = 0
+    scan_total     = 0
+
+    if latest_scan:
+        age_secs = (timezone.now() - latest_scan.scanned_at).total_seconds()
+        gateway_online = age_secs < GATEWAY_STALE_SECS
+        scan_devices   = list(
+            ScanDevice.objects.filter(scan_result=latest_scan)
+            .order_by('modbus_id')
+            .values('modbus_id', 'status')
+        )
+        scan_active = latest_scan.active_count
+        scan_total  = latest_scan.total_devices
 
     # ── Tổng công suất tức thời (W) — từ field real_power của meter đang chạy ──
     total_power = 0.0
@@ -155,10 +178,17 @@ def get_site_summary(request, site_id):
                     pass
 
     return JsonResponse({
-        'site_id':      site.site_id,
-        'site_name':    site.site_name,
-        'total_energy': round(total_energy, 2),   # kWh
-        'total_power':  round(total_power, 2),     # W
+        'site_id':        site.site_id,
+        'site_name':      site.site_name,
+        'total_energy':   round(total_energy, 2),
+        'total_power':    round(total_power, 2),
+        'meter_count':    meter_count,
+        'meters_online':  meters_online,
+        # Scan-based fields (chính xác hơn)
+        'gateway_online': gateway_online,
+        'scan_devices':   scan_devices,   # [{modbus_id, status}, ...]
+        'scan_active':    scan_active,
+        'scan_total':     scan_total,
     }, status=200)
 
 
