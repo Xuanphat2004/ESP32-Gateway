@@ -6,44 +6,47 @@ export const getTheme = (mode) =>
     palette: {
       mode,
       primary: {
-        main: mode === "dark" ? "#cc0707ff" : "#a70808ff",  
+        main: mode === "dark" ? "#e53935" : "#c62828",
       },
 
       background: {
-        default: mode === "dark" ? "#1c344b" : "#fafafaff",
-        paper:   mode === "dark" ? "rgb(5, 28, 78)" : "#def1f8ff",
-        option:  mode === "dark" ? "#636155  " : "#c1d2e3",
-        string:  mode === "dark" ? "#3e3a2f" : "#b6c9d6",
-        head_string: mode === "dark" ? "#9c865d" : "#406280",
-        button:      mode === "dark" ? "#121212" :"#cbe7ff",
-        box:         mode === "dark" ? "rgba(55, 54, 46, 0.5)": "#F5F6F5",
-        head_box:    mode === "dark" ? "rgba(78, 78, 65, 0.5)": "rgba(135, 195, 232, 0.5)",
+        default:     mode === "dark" ? "#0e1c2e"                    : "#eaf3fb",
+        paper:       mode === "dark" ? "rgba(8, 22, 60, 0.88)"      : "rgba(205, 232, 248, 0.90)",
+        option:      mode === "dark" ? "rgba(55, 50, 40, 0.80)"     : "#c0d8e8",
+        string:      mode === "dark" ? "rgba(42, 38, 28, 0.75)"     : "#adc5d5",
+        head_string: mode === "dark" ? "#9c865d"                    : "#3d5f7a",
+        button:      mode === "dark" ? "rgba(15, 15, 15, 0.82)"     : "rgba(200, 228, 255, 0.90)",
+        box:         mode === "dark" ? "rgba(22, 38, 72, 0.52)"     : "rgba(242, 248, 255, 0.88)",
+        head_box:    mode === "dark" ? "rgba(45, 55, 90, 0.62)"     : "rgba(130, 192, 230, 0.52)",
       },
-      
+
       text: {
-        header_option: mode === "dark" ? "rgb(177, 137, 7)" : "#283593",
-        option:        mode === "dark" ? "rgb(145, 142, 6)" : "#314ad6",
-        header_chart:  mode === "dark" ? "#" : "#",
-        body_chart:    mode === "dark" ? "#9c9595" : "#000000",
-        button:        mode === "dark" ? "#f9ff99" : "#004eff",
+        header_option: mode === "dark" ? "rgb(210, 165, 15)"  : "#1a237e",
+        option:        mode === "dark" ? "rgb(175, 168, 12)"  : "#283593",
+        header_chart:  mode === "dark" ? "#b8a878"            : "#2a4060",
+        body_chart:    mode === "dark" ? "#9c9595"            : "#1a1a1a",
+        button:        mode === "dark" ? "#f0ff80"            : "#003ee0",
       },
 
       border: {
-        box:    mode === "dark" ? "1px solid #f10909ff	" : "1px solidrgb(217, 212, 204)",
-        shadow: mode === "dark" ? "0px 2px 6px rgba(0,0,0,0.3)" : "0px 2px 6px rgba(255,255,255,0.1)",
+        box:    mode === "dark" ? "1px solid rgba(220, 20, 20, 0.30)"  : "1px solid rgba(170, 185, 200, 0.65)",
+        shadow: mode === "dark" ? "0px 4px 16px rgba(0,0,0,0.45)"     : "0px 4px 16px rgba(0,80,180,0.14)",
       },
 
-      table:{
-        background_odd :  mode === "dark" ? "#222f5c" : "#e3f2fd",
-        background_even : mode === "dark" ? "#1c344b" : "#bbdefb",
-        text :            mode === "dark" ? "white" : "black"
-      }
+      table: {
+        background_odd:  mode === "dark" ? "rgba(28, 48, 98, 0.72)"  : "#e3f2fd",
+        background_even: mode === "dark" ? "rgba(18, 35, 75, 0.65)"  : "#bbdefb",
+        text:            mode === "dark" ? "#d8d8d8"                  : "#1a1a1a",
+      },
     },
 
     shadows: Array(25)
       .fill("none")
       .map((_, i) =>
         i === 1
-          ? mode === "dark" ? "0px 2px 6px rgba(0,0,0,0.3)" : "0px 2px 6px rgba(255,255,255,0.1)": "none"
+          ? mode === "dark"
+            ? "0px 4px 16px rgba(0,0,0,0.45)"
+            : "0px 4px 16px rgba(0,80,180,0.14)"
+          : "none"
       ),
   });

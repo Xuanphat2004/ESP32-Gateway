@@ -79,8 +79,18 @@ export default function PersistentDrawerLeft() {
     <Box sx={{ display: "flex", height: "100vh" }}>
       <CssBaseline />
 
-      <AppBar position="fixed" open={open}>
-        <Toolbar sx={{ backgroundColor: theme.palette.background.paper }}>
+      <AppBar position="fixed" open={open} elevation={0}>
+        <Toolbar sx={{
+          backgroundColor: theme.palette.background.paper,
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+          borderBottom: mode === "dark"
+            ? "1px solid rgba(255,255,255,0.07)"
+            : "1px solid rgba(0,0,0,0.07)",
+          boxShadow: mode === "dark"
+            ? "0 2px 20px rgba(0,0,0,0.45)"
+            : "0 2px 20px rgba(0,80,180,0.12)",
+        }}>
 
           {/* Nút mở drawer */}
           <IconButton
@@ -124,6 +134,14 @@ export default function PersistentDrawerLeft() {
             width: drawerWidth,
             boxSizing: "border-box",
             backgroundColor: theme.palette.background.default,
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            borderRight: mode === "dark"
+              ? "1px solid rgba(255,255,255,0.07)"
+              : "1px solid rgba(0,0,0,0.07)",
+            boxShadow: mode === "dark"
+              ? "4px 0 24px rgba(0,0,0,0.4)"
+              : "4px 0 24px rgba(0,80,180,0.10)",
             overflowY: "auto",
             "&::-webkit-scrollbar": { width: "8px" },
             "&::-webkit-scrollbar-thumb": { backgroundColor: "transparent", borderRadius: "4px" },

@@ -11,4 +11,5 @@ class MeterCardConfig(models.Model):
 
     class Meta:
         db_table        = 'meter_card_config'
-        unique_together = ('user', 'meter_id')
+        unique_together = ('user', 'meter_id') # 
+ 

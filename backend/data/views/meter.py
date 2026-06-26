@@ -170,7 +170,27 @@ def get_meter_registers(request, meter_id):
 
 
 # =======================================================================================================
-# API 5: Lịch sử thanh ghi theo ngày
+# API 5: Xóa 1 meter (cascade xóa MeterRegister + MeterCardConfig)
+@api_view(['DELETE'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def delete_meter(request, meter_id):
+    user_site_ids = get_user_site_ids(request.user)
+    try:
+        meter = Meter.objects.get(meter_id=meter_id, site_id__in=user_site_ids)
+    except Meter.DoesNotExist:
+        return JsonResponse({"error": "Meter not found or no permission"}, status=404)
+
+    from data.models.meter_card import MeterCardConfig
+    MeterCardConfig.objects.filter(meter_id=meter_id).delete()
+
+    meter.delete()  # cascade: xóa toàn bộ MeterRegister liên quan
+
+    return JsonResponse({"success": True, "meter_id": meter_id})
+
+
+# =======================================================================================================
+# API 6: Lịch sử thanh ghi theo ngày
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])

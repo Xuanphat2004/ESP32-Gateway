@@ -70,6 +70,13 @@ button:focus-visible {
 html, body, #root {
   height: 100%;
   margin: 0;
-  padding: 0;  
+  padding: 0;
+}
+
+/* Smooth transition when switching light/dark mode */
+body *, body *::before, body *::after {
+  transition-property: background-color, color, border-color, box-shadow, background;
+  transition-duration: 0.25s;
+  transition-timing-function: ease;
 }
 

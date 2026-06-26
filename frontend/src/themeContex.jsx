@@ -8,10 +8,14 @@ const ThemeContext = createContext();
 export const useThemeMode = () => useContext(ThemeContext);
 
 export const ThemeModeProvider = ({ children }) => {
-  const [mode, setMode] = useState('dark');
+  const [mode, setMode] = useState(() => localStorage.getItem('themeMode') || 'dark');
 
   const toggleMode = () => {
-    setMode((prev) => (prev === 'light' ? 'dark' : 'light'));
+    setMode((prev) => {
+      const next = prev === 'light' ? 'dark' : 'light';
+      localStorage.setItem('themeMode', next);
+      return next;
+    });
   };
 
   const theme = useMemo(() => getTheme(mode), [mode]);
