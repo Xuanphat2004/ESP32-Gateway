@@ -16,8 +16,8 @@ export const getTheme = (mode) =>
         string:      mode === "dark" ? "rgba(42, 38, 28, 0.75)"     : "#adc5d5",
         head_string: mode === "dark" ? "#9c865d"                    : "#3d5f7a",
         button:      mode === "dark" ? "rgba(15, 15, 15, 0.82)"     : "rgba(200, 228, 255, 0.90)",
-        box:         mode === "dark" ? "rgba(22, 38, 72, 0.52)"     : "rgba(242, 248, 255, 0.88)",
-        head_box:    mode === "dark" ? "rgba(45, 55, 90, 0.62)"     : "rgba(130, 192, 230, 0.52)",
+        box:         mode === "dark" ? "rgba(22, 38, 72, 0.92)"     : "rgba(242, 248, 255, 0.97)",
+        head_box:    mode === "dark" ? "rgba(45, 55, 90, 0.95)"     : "rgba(130, 192, 230, 0.92)",
       },
 
       text: {
