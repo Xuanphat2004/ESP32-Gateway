@@ -157,11 +157,11 @@ export default function MyFleetView() {
                     <div style={{ fontSize: 12, color: "#555" }}>{p.location}</div>
                     <div style={{ fontSize: 12, color: "#555", marginBottom: 6 }}>Gateway: {p.gateway_id != null ? p.gateway_id : "--"}</div>
                     <button
-                      onClick={() => navigate(`/devicelist?siteId=${p.site_id}`)}
+                      onClick={() => navigate(`/siteview?siteId=${p.site_id}`)}
                       style={{ cursor: "pointer", border: "none", borderRadius: 4, padding: "4px 10px",
                                background: "#08a0a0", color: "#fff", fontSize: 12 }}
                     >
-                      View devices
+                      View site
                     </button>
                   </div>
                 </Popup>

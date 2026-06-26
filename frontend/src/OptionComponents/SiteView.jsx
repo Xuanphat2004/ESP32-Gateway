@@ -24,6 +24,28 @@ import WarningAmberIcon  from "@mui/icons-material/WarningAmber";
 const STALE_SECONDS  = 120;
 const MAX_PARAMS     = 12;
 
+const WX_CODE = {
+  0:  { label: "Clear sky",      icon: "☀️"  },
+  1:  { label: "Mainly clear",   icon: "🌤️"  },
+  2:  { label: "Partly cloudy",  icon: "⛅"  },
+  3:  { label: "Overcast",       icon: "☁️"  },
+  45: { label: "Fog",            icon: "🌫️" },
+  48: { label: "Icy fog",        icon: "🌫️" },
+  51: { label: "Light drizzle",  icon: "🌦️" },
+  53: { label: "Drizzle",        icon: "🌦️" },
+  55: { label: "Heavy drizzle",  icon: "🌦️" },
+  61: { label: "Light rain",     icon: "🌧️" },
+  63: { label: "Rain",           icon: "🌧️" },
+  65: { label: "Heavy rain",     icon: "🌧️" },
+  80: { label: "Showers",        icon: "🌦️" },
+  81: { label: "Showers",        icon: "🌦️" },
+  82: { label: "Heavy showers",  icon: "🌧️" },
+  95: { label: "Thunderstorm",   icon: "⛈️" },
+  96: { label: "Thunderstorm",   icon: "⛈️" },
+  99: { label: "Thunderstorm",   icon: "⛈️" },
+};
+const wxInfo = (code) => WX_CODE[code] ?? { label: "—", icon: "🌡️" };
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 const isStale = (ts) => {
   if (!ts || ts === "--") return true;
@@ -1141,6 +1163,68 @@ function GatewayStatusWidget({ online, gatewayId }) {
 }
 
 
+// ── WeatherWidget ─────────────────────────────────────────────────────────────
+function WeatherWidget({ weather, loading, error, headBg, divClr }) {
+  const theme = useTheme();
+  const labelColor = "#546e7a";
+
+  if (loading) return (
+    <Box sx={{ display: "flex", justifyContent: "center", py: 1.5 }}>
+      <CircularProgress size={16} sx={{ color: labelColor }} />
+    </Box>
+  );
+  if (error || !weather) return (
+    <Box sx={{ px: 1.5, py: 1, textAlign: "center" }}>
+      <Typography sx={{ color: labelColor, fontSize: 10 }}>Weather unavailable</Typography>
+    </Box>
+  );
+
+  const { label, icon } = wxInfo(weather.weather_code);
+
+  return (
+    <Box sx={{ px: 1.5, py: 1 }}>
+      <Box sx={{ backgroundColor: headBg, borderRadius: 1, p: 1.2, border: `1px solid ${divClr}` }}>
+        {/* Top row: icon + temperature */}
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 0.8 }}>
+          <Typography sx={{ fontSize: 32, lineHeight: 1 }}>{icon}</Typography>
+          <Box sx={{ textAlign: "right" }}>
+            <Typography sx={{ color: "#fff", fontWeight: 700, fontSize: 24, fontFamily: "monospace", lineHeight: 1 }}>
+              {weather.temperature_2m?.toFixed(1)}°C
+            </Typography>
+            <Typography sx={{ color: labelColor, fontSize: 9 }}>
+              Feels like {weather.apparent_temperature?.toFixed(1)}°C
+            </Typography>
+          </Box>
+        </Box>
+        {/* Condition label */}
+        <Typography sx={{ color: "#90a4ae", fontSize: 10, mb: 1 }}>{label}</Typography>
+        {/* Stats row */}
+        <Box sx={{ display: "flex", gap: 0.5 }}>
+          <Box sx={{ flex: 1, textAlign: "center", backgroundColor: "rgba(0,0,0,0.2)", borderRadius: 1, py: 0.6 }}>
+            <Typography sx={{ color: "#4fc3f7", fontSize: 12, fontWeight: 700 }}>
+              {weather.relative_humidity_2m}%
+            </Typography>
+            <Typography sx={{ color: labelColor, fontSize: 8 }}>Humidity</Typography>
+          </Box>
+          <Box sx={{ flex: 1, textAlign: "center", backgroundColor: "rgba(0,0,0,0.2)", borderRadius: 1, py: 0.6 }}>
+            <Typography sx={{ color: "#80cbc4", fontSize: 12, fontWeight: 700 }}>
+              {weather.wind_speed_10m?.toFixed(1)} m/s
+            </Typography>
+            <Typography sx={{ color: labelColor, fontSize: 8 }}>Wind</Typography>
+          </Box>
+          <Box sx={{ flex: 1, textAlign: "center", backgroundColor: "rgba(0,0,0,0.2)", borderRadius: 1, py: 0.6 }}>
+            <Typography sx={{ color: "#b39ddb", fontSize: 12, fontWeight: 700 }}>
+              {weather.precipitation?.toFixed(1)} mm
+            </Typography>
+            <Typography sx={{ color: labelColor, fontSize: 8 }}>Rain</Typography>
+          </Box>
+        </Box>
+      </Box>
+    </Box>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 function SiteDetailScreen({ siteId, onBack }) {
   const theme    = useTheme();
   const navigate = useNavigate();
@@ -1157,8 +1241,11 @@ function SiteDetailScreen({ siteId, onBack }) {
   const [detailMeter,   setDetailMeter]   = useState(null);
   const [cardConfigs,   setCardConfigs]   = useState({});   // { [meter_id]: string[] }
   const [configMeter,   setConfigMeter]   = useState(null); // meter đang mở dialog settings
-  const [deletingMeter, setDeletingMeter] = useState(null); // meter đang chờ xác nhận xóa
+  const [deletingMeter, setDeletingMeter] = useState(null);
   const [deleteInProgress, setDeleteInProgress] = useState(false);
+  const [weather,       setWeather]       = useState(null);
+  const [weatherLoading, setWeatherLoading] = useState(false);
+  const [weatherError,  setWeatherError]  = useState(false);
   const wsRegRefs = useRef([]);
   const wsOverRef = useRef(null);
 
@@ -1181,6 +1268,33 @@ function SiteDetailScreen({ siteId, onBack }) {
     const t = setInterval(fetch, 30_000);
     return () => clearInterval(t);
   }, [siteId]);
+
+  // Weather từ Open-Meteo — refresh mỗi 5 phút
+  useEffect(() => {
+    if (!siteInfo?.latitude || !siteInfo?.longitude) return;
+    const lat = siteInfo.latitude;
+    const lng = siteInfo.longitude;
+    const fetchWeather = async () => {
+      setWeatherLoading(true);
+      try {
+        const res = await fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}` +
+          `&current=temperature_2m,apparent_temperature,relative_humidity_2m,` +
+          `wind_speed_10m,weather_code,precipitation&wind_speed_unit=ms&timezone=Asia%2FHo_Chi_Minh`
+        );
+        const json = await res.json();
+        setWeather(json.current ?? null);
+        setWeatherError(false);
+      } catch {
+        setWeatherError(true);
+      } finally {
+        setWeatherLoading(false);
+      }
+    };
+    fetchWeather();
+    const t = setInterval(fetchWeather, 5 * 60 * 1000);
+    return () => clearInterval(t);
+  }, [siteInfo?.latitude, siteInfo?.longitude]);
 
   // Fetch meter list (1 lần) — lọc theo siteId nếu response có site_id
   useEffect(() => {
@@ -1438,6 +1552,27 @@ function SiteDetailScreen({ siteId, onBack }) {
                 }} />
               </Box>
             ))}
+          </Box>
+
+          <Divider sx={{ borderColor: divClr, mx: 1.5 }} />
+
+          {/* Weather */}
+          <Box sx={{ px: 0, pb: 1.5 }}>
+            <Typography sx={{ color: "#546e7a", fontSize: 9, fontWeight: 600, letterSpacing: 1, mb: 0.5, px: 1.5, pt: 1 }}>
+              WEATHER
+            </Typography>
+            <WeatherWidget
+              weather={weather}
+              loading={weatherLoading}
+              error={weatherError}
+              headBg={headBg}
+              divClr={divClr}
+            />
+            {weather && (
+              <Typography sx={{ color: "#37474f", fontSize: 8, textAlign: "right", px: 1.5, mt: 0.3 }}>
+                via Open-Meteo · updates every 5 min
+              </Typography>
+            )}
           </Box>
         </Box>
 
