@@ -7,7 +7,7 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { getData, postData } from "../ApiComponent/api";
+import { getData, postData, deleteData } from "../ApiComponent/api";
 import BoltIcon          from "@mui/icons-material/Bolt";
 import ElectricMeterIcon from "@mui/icons-material/ElectricMeter";
 import ArrowBackIcon     from "@mui/icons-material/ArrowBack";
@@ -17,6 +17,8 @@ import CloseIcon         from "@mui/icons-material/Close";
 import ShowChartIcon     from "@mui/icons-material/ShowChart";
 import SettingsIcon      from "@mui/icons-material/Settings";
 import SearchIcon        from "@mui/icons-material/Search";
+import DeleteIcon        from "@mui/icons-material/Delete";
+import WarningAmberIcon  from "@mui/icons-material/WarningAmber";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 const STALE_SECONDS  = 120;
@@ -754,7 +756,7 @@ function CardConfigDialog({ open, onClose, meter, registers, savedParams, onSave
 }
 
 
-function MeterCard({ meter, registers, cardParams, onDetail, onChart, onSettings }) {
+function MeterCard({ meter, registers, cardParams, onDetail, onChart, onSettings, onDelete }) {
   const theme    = useTheme();
   const online   = meter.status === "Online";
   const accent   = theme.palette.text.header_option      || "#08ffff";
@@ -819,6 +821,10 @@ function MeterCard({ meter, registers, cardParams, onDetail, onChart, onSettings
           <IconButton size="small" onClick={onSettings}
             sx={{ color: "#546e7a", p: 0.3, "&:hover": { color: accent } }}>
             <SettingsIcon sx={{ fontSize: 14 }} />
+          </IconButton>
+          <IconButton size="small" onClick={onDelete}
+            sx={{ color: "#546e7a", p: 0.3, "&:hover": { color: "#f44336" } }}>
+            <DeleteIcon sx={{ fontSize: 14 }} />
           </IconButton>
         </Box>
       </Box>
@@ -892,6 +898,8 @@ function SiteDetailScreen({ siteId, onBack }) {
   const [detailMeter,   setDetailMeter]   = useState(null);
   const [cardConfigs,   setCardConfigs]   = useState({});   // { [meter_id]: string[] }
   const [configMeter,   setConfigMeter]   = useState(null); // meter đang mở dialog settings
+  const [deletingMeter, setDeletingMeter] = useState(null); // meter đang chờ xác nhận xóa
+  const [deleteInProgress, setDeleteInProgress] = useState(false);
   const wsRegRefs = useRef([]);
   const wsOverRef = useRef(null);
 
@@ -948,6 +956,22 @@ function SiteDetailScreen({ siteId, onBack }) {
   const handleSaveConfig = useCallback((meterId, params) => {
     setCardConfigs((prev) => ({ ...prev, [meterId]: params }));
   }, []);
+
+  // Xác nhận xóa meter
+  const handleConfirmDelete = useCallback(async () => {
+    if (!deletingMeter) return;
+    setDeleteInProgress(true);
+    const res = await deleteData(`/solardb/delete-meter/${deletingMeter.meter_id}/`);
+    setDeleteInProgress(false);
+    if (res && res.success) {
+      const id = deletingMeter.meter_id;
+      setMeterList((prev) => prev.filter((m) => m.meter_id !== id));
+      setMeterRegs((prev)  => { const n = { ...prev };  delete n[id]; return n; });
+      setMeterOverview((prev) => { const n = { ...prev }; delete n[id]; return n; });
+      setCardConfigs((prev) => { const n = { ...prev };  delete n[id]; return n; });
+    }
+    setDeletingMeter(null);
+  }, [deletingMeter]);
 
   // WS overview (status + real_power)
   useEffect(() => {
@@ -1195,6 +1219,7 @@ function SiteDetailScreen({ siteId, onBack }) {
                 onDetail={() => setDetailMeter(meter)}
                 onChart={() => navigate(`/devicelist?siteId=${siteId}`)}
                 onSettings={() => setConfigMeter(meter)}
+                onDelete={() => setDeletingMeter(meter)}
               />
             ))
           )}
@@ -1218,6 +1243,74 @@ function SiteDetailScreen({ siteId, onBack }) {
         savedParams={configMeter ? (cardConfigs[configMeter.meter_id] ?? []) : []}
         onSave={handleSaveConfig}
       />
+
+      {/* ── Delete Confirmation Dialog ── */}
+      <Dialog
+        open={!!deletingMeter}
+        onClose={() => !deleteInProgress && setDeletingMeter(null)}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            backgroundColor: theme.palette.background.box || "#0d1b2a",
+            border: `1px solid #c62828`,
+            borderRadius: 2,
+            backgroundImage: "none",
+          },
+        }}
+      >
+        <DialogTitle sx={{ p: 0 }}>
+          <Box sx={{
+            backgroundColor: "#1a0a0a",
+            px: 2.5, py: 1.5,
+            display: "flex", alignItems: "center", gap: 1.2,
+            borderBottom: "1px solid #c62828",
+          }}>
+            <WarningAmberIcon sx={{ color: "#f44336", fontSize: 22 }} />
+            <Typography sx={{ color: "#f44336", fontWeight: 700, fontSize: 15 }}>
+              Confirm Delete Meter
+            </Typography>
+          </Box>
+        </DialogTitle>
+
+        <DialogContent sx={{ px: 2.5, pt: 2.5, pb: 1 }}>
+          <Typography sx={{ color: "#cfd8dc", fontSize: 14, lineHeight: 1.7 }}>
+            Are you sure you want to delete{" "}
+            <Typography component="span" sx={{ color: "#f44336", fontWeight: 700 }}>
+              {deletingMeter?.meter_name ?? `Meter ${deletingMeter?.meter_id}`}
+            </Typography>
+            ?
+          </Typography>
+          <Typography sx={{ color: "#78909c", fontSize: 12, mt: 1.2, lineHeight: 1.6 }}>
+            All measurement data (register history) for this meter will be permanently deleted.
+            If the gateway continues to send data for this meter, new data will still be received and displayed normally.
+          </Typography>
+        </DialogContent>
+
+        <DialogActions sx={{ px: 2.5, py: 1.5, borderTop: "1px solid #37474f", gap: 1 }}>
+          <Button
+            size="small" variant="outlined"
+            onClick={() => setDeletingMeter(null)}
+            disabled={deleteInProgress}
+            sx={{ color: "#78909c", borderColor: "#546e7a", minWidth: 80 }}
+          >
+            Cancel
+          </Button>
+          <Button
+            size="small" variant="contained"
+            onClick={handleConfirmDelete}
+            disabled={deleteInProgress}
+            startIcon={deleteInProgress ? <CircularProgress size={14} color="inherit" /> : <DeleteIcon />}
+            sx={{
+              backgroundColor: "#c62828", color: "#fff", fontWeight: 700, minWidth: 100,
+              "&:hover": { backgroundColor: "#b71c1c" },
+              "&.Mui-disabled": { backgroundColor: "#7f0000", color: "#ef9a9a" },
+            }}
+          >
+            {deleteInProgress ? "Deleting..." : "Delete"}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

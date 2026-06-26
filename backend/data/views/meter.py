@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.utils.timezone import localtime
 from datetime import timedelta
-from data.models import Meter, MeterRegister, Site
+from data.models import Meter, MeterRegister, Site, MeterCardConfig
 
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.authentication import TokenAuthentication
@@ -181,7 +181,6 @@ def delete_meter(request, meter_id):
     except Meter.DoesNotExist:
         return JsonResponse({"error": "Meter not found or no permission"}, status=404)
 
-    from data.models.meter_card import MeterCardConfig
     MeterCardConfig.objects.filter(meter_id=meter_id).delete()
 
     meter.delete()  # cascade: xóa toàn bộ MeterRegister liên quan

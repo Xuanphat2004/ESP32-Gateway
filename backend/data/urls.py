@@ -29,6 +29,7 @@ urlpatterns = router.urls + [
     path('solardb/get-site-summary/<int:site_id>/', site.get_site_summary, name='get-site-summary'),   # THÊM: tổng energy/power cho FleetView
     path('solardb/delete-site/<int:site_id>/', site.delete_site, name='delete-site'),
     path('solardb/get-all-meters/', meter.get_all_meters, name='get-all-meters'),
+    path('solardb/delete-meter/<int:meter_id>/', meter.delete_meter, name='delete-meter'),
     # Lần scan gần nhất — gọi khi mở trang AlarmSnooze
     path('solardb/get-latest-scan/', scan.get_latest_scan, name='get-latest-scan'),
     # Lịch sử tất cả lần scan — gọi để hiển thị bảng phía dưới
