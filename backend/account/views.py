@@ -3,6 +3,9 @@ from django.contrib.auth import authenticate
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 import json
 
 @csrf_exempt
@@ -48,3 +51,11 @@ def signup_view(request):
         }, status=201)
 
     return JsonResponse({'error': 'POST only'}, status=405)
+
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def logout_view(request):
+    request.user.auth_token.delete()
+    return JsonResponse({'message': 'Logged out successfully'})

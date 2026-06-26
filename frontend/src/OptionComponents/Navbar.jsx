@@ -10,11 +10,13 @@ import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import { Button } from "@mui/material";
+import LogoutIcon from "@mui/icons-material/Logout";
+import { Button, Tooltip } from "@mui/material";
 import { useThemeMode } from "../themeContex";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { MyOption, OptionAbout } from "./option";
-import NotificationBell from "../NotificationBell"; // ← import từ file riêng
+import NotificationBell from "../NotificationBell";
+import AxiosInstance from "../Axios";
 
 const drawerWidth = 300;
 
@@ -71,9 +73,20 @@ export default function PersistentDrawerLeft() {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const { mode, toggleMode } = useThemeMode();
+  const navigate = useNavigate();
 
   const handleDrawerOpen  = () => setOpen(true);
   const handleDrawerClose = () => setOpen(false);
+
+  const handleLogout = async () => {
+    try {
+      await AxiosInstance.post("api/logout/");
+    } catch (_) {
+      // token đã hết hạn hoặc lỗi mạng — vẫn xóa local và redirect
+    }
+    sessionStorage.removeItem("token");
+    navigate("/login");
+  };
 
   return (
     <Box sx={{ display: "flex", height: "100vh" }}>
@@ -117,10 +130,30 @@ export default function PersistentDrawerLeft() {
           {/* Nút đổi theme */}
           <Button
             variant="outlined" onClick={toggleMode}
-            sx={{ color: theme.palette.text.header_option, borderColor: theme.palette.text.header_option }}
+            sx={{ color: theme.palette.text.header_option, borderColor: theme.palette.text.header_option, mr: 1 }}
           >
             {mode === "light" ? "Dark Mode" : "Light Mode"}
           </Button>
+
+          {/* Nút Logout */}
+          <Tooltip title="Logout">
+            <IconButton
+              onClick={handleLogout}
+              sx={{
+                color: theme.palette.text.header_option,
+                border: `1px solid ${theme.palette.text.header_option}`,
+                borderRadius: "6px",
+                padding: "5px 8px",
+                "&:hover": {
+                  backgroundColor: "rgba(211,47,47,0.12)",
+                  borderColor: "#ef5350",
+                  color: "#ef5350",
+                },
+              }}
+            >
+              <LogoutIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
 
         </Toolbar>
       </AppBar>
