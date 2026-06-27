@@ -126,7 +126,7 @@ const InverterTable = ({ siteId }) => {
 //==================================================== METER ===========================================================
 //======================================================================================================================
 
-const MeterTable = ({ siteId }) => {
+const MeterTable = ({ siteId, autoMeterId }) => {
   const theme = useTheme();
 
   // ── State tầng 1: Bảng tổng quát ──
@@ -175,6 +175,17 @@ const MeterTable = ({ siteId }) => {
     };
     fetchMeter();
   }, [siteId]);
+
+  // ── EFFECT: auto-open meter detail khi navigate từ trang khác ──
+  const autoOpenedRef = useRef(false);
+  useEffect(() => {
+    if (!autoMeterId || rows.length === 0 || autoOpenedRef.current) return;
+    const target = rows.find(r => String(r.meter_id) === String(autoMeterId));
+    if (target) {
+      autoOpenedRef.current = true;
+      handleRowClick(target.meter_id, target.name);
+    }
+  }, [rows]);   // chỉ chạy khi rows thay đổi
 
 
   // ── EFFECT 2: WS bảng tổng quát realtime ──
@@ -688,9 +699,13 @@ const WeatherTable = ({ siteId }) => {
 export default function DeviceList() {
   const theme = useTheme();
   const buttons = ["INVERTER", "METER", "WEATHER STATION"];
-  const [selected, setSelected] = useState("INVERTER");
   const [searchParams] = useSearchParams();
-  const siteId = searchParams.get("siteId");
+  const siteId  = searchParams.get("siteId");
+  const tabParam = searchParams.get("tab");
+  const meterId = searchParams.get("meterId");
+  const [selected, setSelected] = useState(
+    buttons.includes(tabParam) ? tabParam : "INVERTER"
+  );
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", padding: "20px", gap: "5", width: "100%", height: "100%" }}>
@@ -708,7 +723,7 @@ export default function DeviceList() {
       </Box>
       <Box sx={{ flex: 3 }}>
         {selected === "INVERTER" ? <InverterTable siteId={siteId} /> :
-         selected === "METER"    ? <MeterTable    siteId={siteId} /> :
+         selected === "METER"    ? <MeterTable    siteId={siteId} autoMeterId={meterId} /> :
                                    <WeatherTable  siteId={siteId} />}
       </Box>
     </Box>

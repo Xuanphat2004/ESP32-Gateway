@@ -1,5 +1,6 @@
 import { Box, Chip, Typography, Divider, IconButton } from "@mui/material";
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import { getData } from "../ApiComponent/api";
 import { WS_BASE } from "../config";
@@ -79,6 +80,7 @@ function getDescription(analysis) {
 
 // ── Large Wire Diagram with Gateway ──────────────────────────────────────────
 function LargeWireDiagram({ raw, devices, gatewayId, gatewayLive }) {
+  const navigate = useNavigate();
   const analysis = analyzeWire(raw, devices);
 
   if (!analysis) {
@@ -230,7 +232,9 @@ function LargeWireDiagram({ raw, devices, gatewayId, gatewayLive }) {
           const lbl = active ? "online" : (isGap ? "no link" : "offline");
 
           return (
-            <g key={id}>
+            <g key={id}
+               onClick={() => navigate(`/devicelist/?meterId=${id}&tab=METER`)}
+               style={{ cursor: "pointer" }}>
               {/* Tap dot on bus */}
               <circle cx={tapX} cy={Y_BUS} r={3.5} fill={C.ok} />
 
@@ -240,7 +244,7 @@ function LargeWireDiagram({ raw, devices, gatewayId, gatewayLive }) {
                     strokeDasharray={isGap ? "4 3" : "none"}
                     opacity={active ? 0.55 : 0.8} />
 
-              {/* Device box */}
+              {/* Device box — brightens on hover via CSS filter */}
               <rect x={devLeft} y={devTop} width={NW} height={NH} rx={6}
                     fill={active ? "rgba(61,214,140,0.1)" : "rgba(255,92,92,0.1)"}
                     stroke={c} strokeWidth={1.8}
@@ -368,7 +372,8 @@ function SiteListScreen({ onSelect }) {
 // SCREEN 2 — Line diagram for a selected site
 // ══════════════════════════════════════════════════════════════════════════════
 function LineMonitorScreen({ site, onBack }) {
-  const theme = useTheme();
+  const theme    = useTheme();
+  const navigate = useNavigate();
 
   const gatewayId  = site.gateway_id?.replace(/:/g, "_") ?? null;
 
@@ -569,11 +574,15 @@ function LineMonitorScreen({ site, onBack }) {
             {devices.filter(d => d.status === "active")
               .sort((a, b) => a.modbus_id - b.modbus_id)
               .map(d => (
-                <Box key={d.modbus_id} sx={{
-                  display: "flex", flexDirection: "column", alignItems: "center",
-                  padding: "7px 14px", borderRadius: 1,
-                  border: `1.5px solid ${C.ok}`, bgcolor: `${C.ok}11`, minWidth: 52,
-                }}>
+                <Box key={d.modbus_id}
+                  onClick={() => navigate(`/devicelist/?meterId=${d.modbus_id}&tab=METER`)}
+                  sx={{
+                    display: "flex", flexDirection: "column", alignItems: "center",
+                    padding: "7px 14px", borderRadius: 1, cursor: "pointer",
+                    border: `1.5px solid ${C.ok}`, bgcolor: `${C.ok}11`, minWidth: 52,
+                    transition: "filter 0.15s",
+                    "&:hover": { filter: "brightness(1.3)" },
+                  }}>
                   <Typography fontSize={18} fontWeight="bold" color={C.ok}>{d.modbus_id}</Typography>
                 </Box>
               ))}
@@ -601,12 +610,16 @@ function LineMonitorScreen({ site, onBack }) {
                 const isGap = gapSet.has(d.modbus_id);
                 const lbl   = isGap ? "no link" : "offline";
                 return (
-                  <Box key={d.modbus_id} sx={{
-                    display: "flex", flexDirection: "column", alignItems: "center",
-                    padding: "7px 14px", borderRadius: 1,
-                    border: `1.5px ${isGap ? "dashed" : "solid"} ${C.err}`,
-                    bgcolor: `${C.err}11`, minWidth: 52,
-                  }}>
+                  <Box key={d.modbus_id}
+                    onClick={() => navigate(`/devicelist/?meterId=${d.modbus_id}&tab=METER`)}
+                    sx={{
+                      display: "flex", flexDirection: "column", alignItems: "center",
+                      padding: "7px 14px", borderRadius: 1, cursor: "pointer",
+                      border: `1.5px ${isGap ? "dashed" : "solid"} ${C.err}`,
+                      bgcolor: `${C.err}11`, minWidth: 52,
+                      transition: "filter 0.15s",
+                      "&:hover": { filter: "brightness(1.3)" },
+                    }}>
                     <Typography fontSize={18} fontWeight="bold" color={C.err}>{d.modbus_id}</Typography>
                     <Typography fontSize={11} color={C.err}>{lbl}</Typography>
                   </Box>
