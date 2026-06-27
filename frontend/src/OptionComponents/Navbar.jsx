@@ -199,7 +199,7 @@ export default function PersistentDrawerLeft() {
         ]} />
         <MyOption title="Site Monitor" items={[
           { to: "/siteview",   label: "Site View" },
-          { to: "/sitekpi",    label: "Site KPI" },
+          { to: "/sitekpi",    label: "Site Status" },
           { to: "/devicelist", label: "Device List" },
         ]} />
         <MyOption title="Alarm" items={[

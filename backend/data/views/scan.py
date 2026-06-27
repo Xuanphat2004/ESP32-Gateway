@@ -20,9 +20,11 @@ def get_latest_scan(request):
     user_sites    = get_user_sites(request.user)
     user_site_ids = user_sites.values_list('site_id', flat=True)
 
-    latest = ScanResult.objects.filter(
-        site_id__in=user_site_ids
-    ).select_related('site').first()
+    qs = ScanResult.objects.filter(site_id__in=user_site_ids).select_related('site')
+    site_id_param = request.GET.get('site_id')
+    if site_id_param:
+        qs = qs.filter(site_id=site_id_param)
+    latest = qs.first()
 
     if not latest:
         return JsonResponse({"data": None}, status=200)

@@ -363,6 +363,8 @@ def handle_scan_result(msg):
             "message":        f"Detected {len(inactive_ids)} device(s) disconnected!",
             "dual_port_mode": dual_port_mode,
             "line_ok":        line_ok,
+            "final_id_p1":    final_id_p1,
+            "final_id_p2":    final_id_p2,
         }
         try:
             async_to_sync(get_channel_layer().group_send)(
