@@ -2,10 +2,10 @@
 FileName = GATEWAY_PCB.GBR
 AutoAperture = True
 *************************************************************
-Generating : Top Layer
+Generating : SIGNAL_TOP
       File : GATEWAY_PCB_Copper_Signal_Top.gbr
 
-    Adding Layer      : Top Layer
+    Adding Layer      : SIGNAL_TOP
 
     Adding Layer      : Multi-Layer
 
@@ -91,31 +91,113 @@ Used DCodes :
     D87
     D88
     D89
+    D90
+    D91
+    D92
+    D93
 *************************************************************
 
 *************************************************************
-Generating : Bottom Layer
-      File : GATEWAY_PCB_Copper_Signal_Bot.gbr
+Generating : GND
+      File : GATEWAY_PCB_Copper_Signal_1.gbr
 
-    Adding Layer      : Bottom Layer
+    Adding Layer      : GND
 
     Adding Layer      : Multi-Layer
 
 
 Used DCodes :
-    D13
-    D21
-    D47
-    D48
-    D49
+    D67
+    D68
+    D69
+    D70
+    D71
+    D73
+    D74
+    D75
+    D76
+    D77
+    D79
+    D81
+    D82
+    D83
+    D84
+    D85
+    D87
+    D88
+    D89
+    D90
+    D91
+    D92
+    D93
+    D94
+*************************************************************
+
+*************************************************************
+Generating : POWER
+      File : GATEWAY_PCB_Copper_Signal_2.gbr
+
+    Adding Layer      : POWER
+
+    Adding Layer      : Multi-Layer
+
+
+Used DCodes :
+    D52
+    D53
+    D55
+    D56
+    D59
+    D60
+    D67
+    D68
+    D69
+    D70
+    D71
+    D73
+    D74
+    D75
+    D76
+    D77
+    D79
+    D81
+    D82
+    D83
+    D84
+    D85
+    D87
+    D88
+    D89
+    D90
+    D91
+    D92
+    D93
+    D94
+*************************************************************
+
+*************************************************************
+Generating : SIGNAL_BOTTOM
+      File : GATEWAY_PCB_Copper_Signal_Bot.gbr
+
+    Adding Layer      : SIGNAL_BOTTOM
+
+    Adding Layer      : Multi-Layer
+
+
+Used DCodes :
+    D14
+    D17
+    D37
+    D51
     D52
     D53
     D54
-    D58
-    D62
-    D64
+    D55
+    D56
+    D59
+    D60
+    D63
     D65
-    D66
     D67
     D68
     D69
@@ -141,23 +223,29 @@ Used DCodes :
     D89
     D90
     D91
+    D92
+    D93
+    D95
+    D96
+    D97
+    D98
+    D99
+    D100
 *************************************************************
 
 *************************************************************
 Generating : Bottom Pad Master
       File : GATEWAY_PCB_Pads_Bot.gbr
 
-    Adding Layer      : Bottom Layer
+    Adding Layer      : SIGNAL_BOTTOM
 
     Adding Layer      : Multi-Layer
 
 
 Used DCodes :
-    D13
-    D21
-    D64
-    D65
-    D66
+    D14
+    D17
+    D37
     D67
     D68
     D69
@@ -179,15 +267,24 @@ Used DCodes :
     D85
     D86
     D87
+    D88
+    D89
     D90
     D91
+    D92
+    D95
+    D96
+    D97
+    D98
+    D99
+    D100
 *************************************************************
 
 *************************************************************
 Generating : Top Pad Master
       File : GATEWAY_PCB_Pads_Top.gbr
 
-    Adding Layer      : Top Layer
+    Adding Layer      : SIGNAL_TOP
 
     Adding Layer      : Multi-Layer
 
@@ -230,9 +327,10 @@ Used DCodes :
     D44
     D45
     D46
-    D64
-    D65
-    D66
+    D47
+    D48
+    D49
+    D50
     D67
     D68
     D69
@@ -254,6 +352,11 @@ Used DCodes :
     D85
     D86
     D87
+    D88
+    D89
+    D90
+    D91
+    D92
 *************************************************************
 
 *************************************************************
@@ -264,21 +367,19 @@ Generating : Top Overlay
 
 
 Used DCodes :
-    D92
-    D93
-    D94
-    D95
-    D96
-    D97
-    D98
-    D99
-    D100
     D101
     D102
     D103
     D104
     D105
     D106
+    D107
+    D108
+    D109
+    D110
+    D111
+    D112
+    D113
 *************************************************************
 
 *************************************************************
@@ -289,14 +390,16 @@ Generating : Bottom Overlay
 
 
 Used DCodes :
-    D92
-    D94
-    D96
-    D98
     D101
+    D102
     D104
+    D105
     D107
-    D108
+    D109
+    D111
+    D114
+    D115
+    D116
 *************************************************************
 
 *************************************************************
@@ -305,20 +408,12 @@ Generating : Top Solder
 
     Adding Layer      : Top Solder
 
-    Adding Layer      : Top Layer
+    Adding Layer      : SIGNAL_TOP
 
     Adding Layer      : Multi-Layer
 
 
 Used DCodes :
-    D109
-    D110
-    D111
-    D112
-    D113
-    D114
-    D115
-    D116
     D117
     D118
     D119
@@ -372,6 +467,22 @@ Used DCodes :
     D167
     D168
     D169
+    D170
+    D171
+    D172
+    D173
+    D174
+    D175
+    D176
+    D177
+    D178
+    D179
+    D180
+    D181
+    D182
+    D183
+    D184
+    D185
 *************************************************************
 
 *************************************************************
@@ -380,28 +491,16 @@ Generating : Bottom Solder
 
     Adding Layer      : Bottom Solder
 
-    Adding Layer      : Bottom Layer
+    Adding Layer      : SIGNAL_BOTTOM
 
     Adding Layer      : Multi-Layer
 
 
 Used DCodes :
-    D112
-    D120
-    D146
-    D147
-    D148
-    D149
-    D150
-    D151
-    D152
-    D153
-    D154
-    D155
-    D156
-    D157
-    D158
-    D159
+    D121
+    D124
+    D144
+    D145
     D160
     D161
     D162
@@ -414,6 +513,26 @@ Used DCodes :
     D169
     D170
     D171
+    D172
+    D173
+    D174
+    D175
+    D176
+    D177
+    D178
+    D179
+    D180
+    D181
+    D182
+    D183
+    D184
+    D185
+    D186
+    D187
+    D188
+    D189
+    D190
+    D191
 *************************************************************
 
 *************************************************************
@@ -422,7 +541,7 @@ Generating : Top Paste
 
     Adding Layer      : Top Paste
 
-    Adding Layer      : Top Layer
+    Adding Layer      : SIGNAL_TOP
 
     Adding Layer      : Multi-Layer
 
@@ -465,6 +584,10 @@ Used DCodes :
     D44
     D45
     D46
+    D47
+    D48
+    D49
+    D50
 *************************************************************
 
 *************************************************************
@@ -473,16 +596,21 @@ Generating : Bottom Paste
 
     Adding Layer      : Bottom Paste
 
-    Adding Layer      : Bottom Layer
+    Adding Layer      : SIGNAL_BOTTOM
 
     Adding Layer      : Multi-Layer
 
 
 Used DCodes :
-    D13
-    D21
-    D90
-    D91
+    D14
+    D17
+    D37
+    D95
+    D96
+    D97
+    D98
+    D99
+    D100
 *************************************************************
 
 *************************************************************
@@ -493,7 +621,7 @@ Generating : Keep-Out Layer
 
 
 Used DCodes :
-    D98
+    D111
 *************************************************************
 
 *************************************************************
@@ -514,9 +642,18 @@ Generating : Top Courtyard
 
 
 Used DCodes :
-    D94
-    D101
-    D172
+    D104
+    D192
+*************************************************************
+
+*************************************************************
+Generating : Top 3D Body
+      File : GATEWAY_PCB_Top_3D_Body.gbr
+
+    Adding Layer      : Top 3D Body
+
+
+Used DCodes :
 *************************************************************
 
 *************************************************************
@@ -527,7 +664,16 @@ Generating : Top Assembly
 
 
 Used DCodes :
-    D173
+*************************************************************
+
+*************************************************************
+Generating : Mechanical 12
+      File : GATEWAY_PCB_Mechanical_12.gbr
+
+    Adding Layer      : Mechanical 12
+
+
+Used DCodes :
 *************************************************************
 
 *************************************************************
@@ -538,15 +684,25 @@ Generating : Mechanical 13
 
 
 Used DCodes :
-    D92
-    D93
-    D94
-    D95
-    D96
-    D98
     D101
-    D172
-    D173
+    D102
+    D104
+    D105
+    D106
+    D107
+    D109
+    D192
+    D193
+*************************************************************
+
+*************************************************************
+Generating : Bottom 3D Body
+      File : GATEWAY_PCB_Bottom_3D_Body.gbr
+
+    Adding Layer      : Bottom 3D Body
+
+
+Used DCodes :
 *************************************************************
 
 *************************************************************
@@ -557,9 +713,9 @@ Generating : Mechanical 15
 
 
 Used DCodes :
-    D101
-    D172
-    D173
+    D109
+    D192
+    D193
 *************************************************************
 
 *************************************************************
@@ -570,7 +726,7 @@ Generating : Top Component Center
 
 
 Used DCodes :
-    D173
+    D193
 *************************************************************
 
 *************************************************************
@@ -581,7 +737,7 @@ Generating : Bottom Assembly
 
 
 Used DCodes :
-    D173
+    D193
 *************************************************************
 
 *************************************************************
@@ -592,7 +748,7 @@ Generating : Bottom Courtyard
 
 
 Used DCodes :
-    D172
+    D109
 *************************************************************
 
 *************************************************************
@@ -603,7 +759,6 @@ Generating : Bottom Component Center
 
 
 Used DCodes :
-    D173
 *************************************************************
 
 *************************************************************
@@ -612,7 +767,7 @@ Generating : Profile
 
 
 Used DCodes :
-    D174
+    D194
 *************************************************************
 
 *************************************************************
@@ -621,7 +776,8 @@ Generating : Non-plated through-hole drill file
 
 
 Used DCodes :
-    D175
+    D195
+    D196
 *************************************************************
 
 *************************************************************
@@ -630,52 +786,53 @@ Generating : Plated through-hole drill file
 
 
 Used DCodes :
-    D176
-    D177
-    D178
-    D179
-    D180
-    D181
-    D182
-    D183
-    D184
-    D185
-    D186
-    D187
-    D188
-    D189
-    D190
-    D191
-    D192
-    D193
-    D194
+    D195
+    D197
+    D198
+    D199
+    D200
+    D201
+    D202
+    D203
+    D204
+    D205
+    D206
+    D207
+    D208
+    D209
+    D210
+    D211
+    D212
+    D213
+    D214
+    D215
 *************************************************************
 
 *************************************************************
 Generating : Drill Drawing
       File : GATEWAY_PCB_Drawing_1.gbr
 
-    Adding Drill Pair : Top Layer-Bottom Layer
+    Adding Drill Pair : SIGNAL_TOP-SIGNAL_BOTTOM
 
     Adding Layer      : Drill Drawing
 
 
 Used DCodes :
-    D101
-    D195
-    D197
+    D109
+    D216
+    D218
 *************************************************************
 
 *************************************************************
 Generating : Drill Guide
       File : GATEWAY_PCB_Drillmap_1.gbr
 
-    Adding Drill Pair : Top Layer-Bottom Layer
+    Adding Drill Pair : SIGNAL_TOP-SIGNAL_BOTTOM
 
     Adding Layer      : Drill Guide
 
 
 Used DCodes :
-    D101
+    D109
 *************************************************************
 

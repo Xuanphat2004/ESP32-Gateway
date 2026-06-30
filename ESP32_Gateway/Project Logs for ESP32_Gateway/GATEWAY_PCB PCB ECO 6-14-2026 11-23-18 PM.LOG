@@ -1,0 +1,11 @@
+Change Component Footprint: Designator=KF1 Old Footprint=KF-5.08-2-R New Footprint=KF_4
+Change Component Comment : Designator=KF1 Old Comment=KF 2 Pins New Comment=KF 4 Pins
+Add Pin To Net: Unknown Pin: Pin J1-11
+Added Pin To Net: NetName=B2 Pin=KF1-3
+Added Pin To Net: NetName=A2 Pin=KF1-4
+Added Member To Class: ClassName=Power_Supply Member=Component C39 0.1uF/50V
+Added Member To Class: ClassName=RS485_Port Member=Component C40 0.1uF/50V
+Added Member To Class: ClassName=RS485_Port Member=Component C41 0.1uF/50V
+Added Member To Class: ClassName=RS485_Port Member=Component LED6 YELLOW
+Added Member To Class: ClassName=RS485_Port Member=Component R35 1K/1%
+Added Member To Class: ClassName=RS485_Port Member=Component U7 ADUM1200

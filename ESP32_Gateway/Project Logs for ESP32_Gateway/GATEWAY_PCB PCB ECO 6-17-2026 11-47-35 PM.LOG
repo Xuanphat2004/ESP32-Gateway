@@ -1,0 +1,9 @@
+Change Net Name : Old Net Name=SD_CD New Net Name=NetSD1_CD
+Change Net Name : Old Net Name=SD_MISO New Net Name=NetR37_2
+Added Pin To Net: NetName=NetR40_2 Pin=R40-2
+Added Pin To Net: NetName=NetR40_2 Pin=R43-2
+Added Net: Name=NetR40_2
+Added Pin To Net: NetName=NetR41_2 Pin=R41-2
+Added Pin To Net: NetName=NetR41_2 Pin=R42-2
+Added Pin To Net: NetName=NetR41_2 Pin=U15-13
+Added Net: Name=NetR41_2

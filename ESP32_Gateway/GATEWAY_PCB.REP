@@ -1,1110 +1,1175 @@
 Teardrop Report GATEWAY_PCB.PcbDoc
-On 1/30/2026 at 11:02:52 PM
+On 6/22/2026 at 6:34:29 PM
 
-Pads visited                : 653
+Pads visited                : 669
 
-Vias visited                : 444
+Vias visited                : 493
 
 Pad teardrops failed : 0
 
-Pad U15-40(52.802mm,37.759mm) on Top Layer
-Pad U15-39(51.532mm,37.759mm) on Top Layer
-Pad U15-38(50.262mm,37.759mm) on Top Layer
-Pad U15-37(48.992mm,37.759mm) on Top Layer
-Pad U15-36(47.722mm,37.759mm) on Top Layer
-Pad U15-35(46.452mm,37.759mm) on Top Layer
-Pad U15-34(45.182mm,37.759mm) on Top Layer
-Pad U15-33(43.912mm,37.759mm) on Top Layer
-Pad U15-32(42.642mm,37.759mm) on Top Layer
-Pad U15-31(41.372mm,37.759mm) on Top Layer
-Pad U15-30(40.102mm,37.759mm) on Top Layer
-Pad U15-29(38.832mm,37.759mm) on Top Layer
-Pad U15-28(37.562mm,37.759mm) on Top Layer
-Pad U15-27(36.292mm,37.759mm) on Top Layer
-Pad U15-26(35.042mm,39.524mm) on Top Layer
-Pad U15-25(35.042mm,40.794mm) on Top Layer
-Pad U15-41_3(46.482mm,46.609mm) on Top Layer
-Pad U15-41_2(46.482mm,48.009mm) on Top Layer
-Pad U15-41_1(46.482mm,49.409mm) on Top Layer
-Pad U15-41_9(43.682mm,46.609mm) on Top Layer
-Pad U15-41_8(43.682mm,48.009mm) on Top Layer
-Pad U15-41_7(43.682mm,49.409mm) on Top Layer
-Pad U15-41_6(45.082mm,46.609mm) on Top Layer
-Pad U15-41_4(45.082mm,49.409mm) on Top Layer
-Pad U15-24(35.042mm,42.064mm) on Top Layer
-Pad U15-23(35.042mm,43.334mm) on Top Layer
-Pad U15-22(35.042mm,44.604mm) on Top Layer
-Pad U15-21(35.042mm,45.874mm) on Top Layer
-Pad U15-20(35.042mm,47.144mm) on Top Layer
-Pad U15-19(35.042mm,48.414mm) on Top Layer
-Pad U15-18(35.042mm,49.684mm) on Top Layer
-Pad U15-17(35.042mm,50.954mm) on Top Layer
-Pad U15-16(35.042mm,52.224mm) on Top Layer
-Pad U15-15(35.042mm,53.494mm) on Top Layer
-Pad U15-14(36.292mm,55.259mm) on Top Layer
-Pad U15-13(37.562mm,55.259mm) on Top Layer
-Pad U15-12(38.832mm,55.259mm) on Top Layer
-Pad U15-11(40.102mm,55.259mm) on Top Layer
-Pad U15-10(41.372mm,55.259mm) on Top Layer
-Pad U15-9(42.642mm,55.259mm) on Top Layer
-Pad U15-8(43.912mm,55.259mm) on Top Layer
-Pad U15-7(45.182mm,55.259mm) on Top Layer
-Pad U15-6(46.452mm,55.259mm) on Top Layer
-Pad U15-5(47.722mm,55.259mm) on Top Layer
-Pad U15-4(48.992mm,55.259mm) on Top Layer
-Pad U15-3(50.262mm,55.259mm) on Top Layer
-Pad U15-2(51.532mm,55.259mm) on Top Layer
-Pad U15-1(52.802mm,55.259mm) on Top Layer
-Pad U15-41_5(45.082mm,48.009mm) on Top Layer
-Pad R26-2(35.421mm,92.457mm) on Top Layer
-Pad R26-1(35.421mm,90.907mm) on Top Layer
-Pad R27-1(33.008mm,90.907mm) on Top Layer
-Pad R27-2(33.008mm,92.457mm) on Top Layer
-Pad R28-2(30.722mm,92.457mm) on Top Layer
-Pad R28-1(30.722mm,90.907mm) on Top Layer
-Pad R25-1(26.15mm,92.457mm) on Top Layer
-Pad R25-2(26.15mm,90.907mm) on Top Layer
-Pad R32-1(28.436mm,90.907mm) on Top Layer
-Pad R32-2(28.436mm,92.457mm) on Top Layer
-Pad U4-1(18.846mm,63.253mm) on Top Layer
-Pad U4-2(18.346mm,63.253mm) on Top Layer
-Pad U4-3(17.846mm,63.253mm) on Top Layer
-Pad U4-4(17.346mm,63.253mm) on Top Layer
-Pad U4-5(16.846mm,63.253mm) on Top Layer
-Pad U4-6(16.346mm,63.253mm) on Top Layer
-Pad U4-7(15.846mm,63.253mm) on Top Layer
-Pad U4-8(15.346mm,63.253mm) on Top Layer
-Pad U4-9(14.846mm,63.253mm) on Top Layer
-Pad U4-10(14.346mm,63.253mm) on Top Layer
-Pad U4-11(13.846mm,63.253mm) on Top Layer
-Pad U4-12(13.346mm,63.253mm) on Top Layer
-Pad U4-13(11.916mm,61.823mm) on Top Layer
-Pad U4-14(11.916mm,61.323mm) on Top Layer
-Pad U4-15(11.916mm,60.823mm) on Top Layer
-Pad U4-16(11.916mm,60.323mm) on Top Layer
-Pad U4-17(11.916mm,59.823mm) on Top Layer
-Pad U4-18(11.916mm,59.323mm) on Top Layer
-Pad U4-19(11.916mm,58.823mm) on Top Layer
-Pad U4-20(11.916mm,58.323mm) on Top Layer
-Pad U4-21(11.916mm,57.823mm) on Top Layer
-Pad U4-22(11.916mm,57.323mm) on Top Layer
-Pad U4-23(11.916mm,56.823mm) on Top Layer
-Pad U4-24(11.916mm,56.323mm) on Top Layer
-Pad U4-25(13.346mm,54.893mm) on Top Layer
-Pad U4-26(13.846mm,54.893mm) on Top Layer
-Pad U4-27(14.346mm,54.893mm) on Top Layer
-Pad U4-28(14.846mm,54.893mm) on Top Layer
-Pad U4-29(15.346mm,54.893mm) on Top Layer
-Pad U4-30(15.846mm,54.893mm) on Top Layer
-Pad U4-31(16.346mm,54.893mm) on Top Layer
-Pad U4-32(16.846mm,54.893mm) on Top Layer
-Pad U4-33(17.346mm,54.893mm) on Top Layer
-Pad U4-34(17.846mm,54.893mm) on Top Layer
-Pad U4-35(18.346mm,54.893mm) on Top Layer
-Pad U4-36(18.846mm,54.893mm) on Top Layer
-Pad U4-37(20.276mm,56.323mm) on Top Layer
-Pad U4-38(20.276mm,56.823mm) on Top Layer
-Pad U4-39(20.276mm,57.323mm) on Top Layer
-Pad U4-40(20.276mm,57.823mm) on Top Layer
-Pad U4-41(20.276mm,58.323mm) on Top Layer
-Pad U4-42(20.276mm,58.823mm) on Top Layer
-Pad U4-43(20.276mm,59.323mm) on Top Layer
-Pad U4-44(20.276mm,59.823mm) on Top Layer
-Pad U4-45(20.276mm,60.323mm) on Top Layer
-Pad U4-46(20.276mm,60.823mm) on Top Layer
-Pad U4-47(20.276mm,61.323mm) on Top Layer
-Pad U4-48(20.276mm,61.823mm) on Top Layer
-Pad R46-1(69.977mm,22.365mm) on Top Layer
-Pad R46-2(69.977mm,20.815mm) on Top Layer
-Pad R37-2(83.82mm,20.815mm) on Top Layer
-Pad R37-1(83.82mm,22.365mm) on Top Layer
-Pad R43-2(86.07mm,18.503mm) on Top Layer
-Pad R43-1(86.07mm,16.953mm) on Top Layer
-Pad LED10-2(87.25mm,9.058mm) on Top Layer
-Pad LED10-1(87.25mm,10.758mm) on Top Layer
-Pad R70-1(47.879mm,15.38mm) on Top Layer
-Pad R70-2(47.879mm,13.83mm) on Top Layer
-Pad U13-5(72.992mm,56.134mm) on Top Layer
-Pad U13-6(72.992mm,54.864mm) on Top Layer
-Pad U13-8(72.992mm,52.324mm) on Top Layer
-Pad U13-4(78.392mm,56.134mm) on Top Layer
-Pad U13-3(78.392mm,54.864mm) on Top Layer
-Pad U13-1(78.392mm,52.324mm) on Top Layer
-Pad U13-7(72.992mm,53.594mm) on Top Layer
-Pad U13-2(78.392mm,53.594mm) on Top Layer
-Pad U14-1(78.569mm,40.259mm) on Top Layer
-Pad U14-2(78.569mm,41.529mm) on Top Layer
-Pad U14-3(78.569mm,42.799mm) on Top Layer
-Pad U14-4(78.569mm,44.069mm) on Top Layer
-Pad U14-5(78.569mm,45.339mm) on Top Layer
-Pad U14-6(78.569mm,46.609mm) on Top Layer
-Pad U14-7(78.569mm,47.879mm) on Top Layer
-Pad U14-8(78.569mm,49.149mm) on Top Layer
-Pad U14-9(69.259mm,49.149mm) on Top Layer
-Pad U14-10(69.259mm,47.879mm) on Top Layer
-Pad U14-11(69.259mm,46.609mm) on Top Layer
-Pad U14-12(69.259mm,45.339mm) on Top Layer
-Pad U14-13(69.259mm,44.069mm) on Top Layer
-Pad U14-14(69.259mm,42.799mm) on Top Layer
-Pad U14-15(69.259mm,41.529mm) on Top Layer
-Pad U14-16(69.259mm,40.259mm) on Top Layer
-Pad R8-2(4.826mm,49.644mm) on Top Layer
-Pad R8-1(4.826mm,51.194mm) on Top Layer
-Pad R11-1(26.543mm,49.898mm) on Top Layer
-Pad R11-2(26.543mm,51.448mm) on Top Layer
-Pad R13-1(22.098mm,51.448mm) on Top Layer
-Pad R13-2(22.098mm,49.898mm) on Top Layer
-Pad R12-2(24.384mm,49.898mm) on Top Layer
-Pad R12-1(24.384mm,51.448mm) on Top Layer
-Pad R14-2(19.939mm,49.898mm) on Top Layer
-Pad R14-1(19.939mm,51.448mm) on Top Layer
-Pad FR1-2(7.239mm,51.055mm) on Top Layer
-Pad FR1-1(7.239mm,49.275mm) on Top Layer
-Pad R9-1(9.779mm,51.194mm) on Top Layer
-Pad R9-2(9.779mm,49.644mm) on Top Layer
-Pad C17-1(12.065mm,49.771mm) on Top Layer
-Pad C17-2(12.065mm,51.321mm) on Top Layer
-Pad C16-2(14.478mm,51.321mm) on Top Layer
-Pad C16-1(14.478mm,49.771mm) on Top Layer
-Pad R10-2(17.653mm,51.448mm) on Top Layer
-Pad R10-1(17.653mm,49.898mm) on Top Layer
-Pad R31-2(28.829mm,51.448mm) on Top Layer
-Pad R31-1(28.829mm,49.898mm) on Top Layer
-Pad LED5-1(9.78mm,46.318mm) on Top Layer
-Pad LED5-2(9.78mm,44.618mm) on Top Layer
-Pad C29-1(12.192mm,44.844mm) on Top Layer
-Pad C29-2(12.192mm,43.294mm) on Top Layer
-Pad LED4-2(4.827mm,44.364mm) on Top Layer
-Pad LED4-1(4.827mm,46.064mm) on Top Layer
-Pad R29-1(15.1mm,47.371mm) on Top Layer
-Pad R29-2(16.65mm,47.371mm) on Top Layer
-Pad C28-2(19.939mm,44.717mm) on Top Layer
-Pad C28-1(19.939mm,43.167mm) on Top Layer
-Pad X1-1(17.174mm,44.931mm) on Top Layer
-Pad X1-2(14.874mm,44.931mm) on Top Layer
-Pad X1-3(14.874mm,43.131mm) on Top Layer
-Pad X1-4(17.174mm,43.131mm) on Top Layer
-Pad VR1-3(81.991mm,93.583mm) on Top Layer
-Pad VR1-2(78.841mm,92.583mm) on Top Layer
-Pad VR1-1(81.991mm,91.583mm) on Top Layer
-Pad R51-1(66.294mm,44.437mm) on Top Layer
-Pad R51-2(66.294mm,45.987mm) on Top Layer
-Pad R30-1(66.294mm,41.161mm) on Top Layer
-Pad R30-2(66.294mm,39.611mm) on Top Layer
-Pad SW2-1(26.797mm,61.922mm) on Top Layer
-Pad SW2-2(26.797mm,54.922mm) on Top Layer
-Pad R47-2(90.5mm,31.339mm) on Top Layer
-Pad R47-1(88.95mm,31.339mm) on Top Layer
-Pad U12-1(81.28mm,33.501mm) on Top Layer
-Pad U12-2(78.74mm,33.501mm) on Top Layer
-Pad U12-4(81.28mm,27.051mm) on Top Layer
-Pad U12-3(78.74mm,27.051mm) on Top Layer
-Pad U9-1(85.598mm,33.451mm) on Top Layer
-Pad U9-2(83.058mm,33.451mm) on Top Layer
-Pad U9-4(85.598mm,27.001mm) on Top Layer
-Pad U9-3(83.058mm,27.001mm) on Top Layer
-Pad U6-3(60.452mm,33.705mm) on Top Layer
-Pad U6-4(57.912mm,33.705mm) on Top Layer
-Pad U6-2(60.452mm,27.255mm) on Top Layer
-Pad U6-1(57.912mm,27.255mm) on Top Layer
-Pad U7-1(74.422mm,27.051mm) on Top Layer
-Pad U7-2(76.962mm,27.051mm) on Top Layer
-Pad U7-4(74.422mm,33.501mm) on Top Layer
-Pad U7-3(76.962mm,33.501mm) on Top Layer
-Pad U8-3(66.675mm,27.255mm) on Top Layer
-Pad U8-4(69.215mm,27.255mm) on Top Layer
-Pad U8-2(66.675mm,33.705mm) on Top Layer
-Pad U8-1(69.215mm,33.705mm) on Top Layer
-Pad U11-3(62.23mm,27.255mm) on Top Layer
-Pad U11-4(64.77mm,27.255mm) on Top Layer
-Pad U11-2(62.23mm,33.705mm) on Top Layer
-Pad U11-1(64.77mm,33.705mm) on Top Layer
-Pad U5-1(65.659mm,24.923mm) on Top Layer
-Pad U5-2(64.389mm,24.923mm) on Top Layer
-Pad U5-3(63.119mm,24.923mm) on Top Layer
-Pad U5-4(61.849mm,24.923mm) on Top Layer
-Pad U5-8(65.659mm,19.273mm) on Top Layer
-Pad U5-7(64.389mm,19.273mm) on Top Layer
-Pad U5-6(63.119mm,19.273mm) on Top Layer
-Pad U5-5(61.849mm,19.273mm) on Top Layer
-Pad SW3-3_1(38.71mm,81.776mm) on Top Layer
-Pad SW3-2_1(38.71mm,84.316mm) on Top Layer
-Pad SW3-1_1(38.71mm,86.856mm) on Top Layer
-Pad SW3-1(30.1mm,86.856mm) on Top Layer
-Pad SW3-2(30.1mm,84.316mm) on Top Layer
-Pad SW3-3(30.1mm,81.776mm) on Top Layer
-Pad R16-1(24.638mm,68.466mm) on Top Layer
-Pad R16-2(24.638mm,66.916mm) on Top Layer
-Pad C27-2(9.525mm,68.593mm) on Top Layer
-Pad C27-1(9.525mm,67.043mm) on Top Layer
-Pad R19-2(11.811mm,68.466mm) on Top Layer
-Pad R19-1(11.811mm,66.916mm) on Top Layer
-Pad R21-2(7.239mm,68.466mm) on Top Layer
-Pad R21-1(7.239mm,66.916mm) on Top Layer
-Pad U2-1(68.676mm,68.707mm) on Top Layer
-Pad U2-2(68.676mm,67.437mm) on Top Layer
-Pad U2-3(68.676mm,66.167mm) on Top Layer
-Pad U2-4(68.676mm,64.897mm) on Top Layer
-Pad U2-8(74.326mm,68.707mm) on Top Layer
-Pad U2-7(74.326mm,67.437mm) on Top Layer
-Pad U2-6(74.326mm,66.167mm) on Top Layer
-Pad U2-5(74.326mm,64.897mm) on Top Layer
-Pad C2-1(87.008mm,35.941mm) on Top Layer
-Pad C2-2(85.458mm,35.941mm) on Top Layer
-Pad C3-2(58.153mm,59.944mm) on Top Layer
-Pad C3-1(59.703mm,59.944mm) on Top Layer
-Pad C4-1(62.217mm,59.944mm) on Top Layer
-Pad C4-2(63.767mm,59.944mm) on Top Layer
-Pad C5-2(66.802mm,82.436mm) on Top Layer
-Pad C5-1(66.802mm,80.886mm) on Top Layer
-Pad C7-1(78.486mm,78.854mm) on Top Layer
-Pad C7-2(78.486mm,80.404mm) on Top Layer
-Pad C8-2(75.946mm,80.404mm) on Top Layer
-Pad C8-1(75.946mm,78.854mm) on Top Layer
-Pad C10-1(67.551mm,70.485mm) on Top Layer
-Pad C10-2(69.101mm,70.485mm) on Top Layer
-Pad C13-2(91.935mm,39.116mm) on Top Layer
-Pad C13-1(93.485mm,39.116mm) on Top Layer
-Pad C14-1(88.265mm,20.333mm) on Top Layer
-Pad C14-2(88.265mm,18.783mm) on Top Layer
-Pad C15-2(6.223mm,80.912mm) on Top Layer
-Pad C15-1(6.223mm,79.362mm) on Top Layer
-Pad C18-1(6.337mm,55.372mm) on Top Layer
-Pad C18-2(7.887mm,55.372mm) on Top Layer
-Pad C22-1(6.337mm,61.087mm) on Top Layer
-Pad C22-2(7.887mm,61.087mm) on Top Layer
-Pad C23-2(7.887mm,59.182mm) on Top Layer
-Pad C23-1(6.337mm,59.182mm) on Top Layer
-Pad C24-1(6.337mm,53.467mm) on Top Layer
-Pad C24-2(7.887mm,53.467mm) on Top Layer
-Pad C25-2(7.887mm,57.277mm) on Top Layer
-Pad C25-1(6.337mm,57.277mm) on Top Layer
-Pad C26-1(6.337mm,62.992mm) on Top Layer
-Pad C26-2(7.887mm,62.992mm) on Top Layer
-Pad C30-1(23.114mm,57.925mm) on Top Layer
-Pad C30-2(23.114mm,56.375mm) on Top Layer
-Pad C37-2(70.752mm,59.182mm) on Top Layer
-Pad C37-1(69.202mm,59.182mm) on Top Layer
-Pad C38-1(74.816mm,59.182mm) on Top Layer
-Pad C38-2(73.266mm,59.182mm) on Top Layer
-Pad C42-1(50.292mm,93.612mm) on Top Layer
-Pad C42-2(50.292mm,92.062mm) on Top Layer
-Pad C43-2(52.832mm,92.062mm) on Top Layer
-Pad C43-1(52.832mm,93.612mm) on Top Layer
-Pad C44-1(31.229mm,42.545mm) on Top Layer
-Pad C44-2(32.779mm,42.545mm) on Top Layer
-Pad C45-2(37.592mm,34.938mm) on Top Layer
-Pad C45-1(37.592mm,33.388mm) on Top Layer
-Pad C46-1(32.131mm,13.576mm) on Top Layer
-Pad C46-2(32.131mm,15.126mm) on Top Layer
-Pad C47-2(50.419mm,26.048mm) on Top Layer
-Pad C47-1(50.419mm,24.498mm) on Top Layer
-Pad C48-1(50.419mm,15.507mm) on Top Layer
-Pad C48-2(50.419mm,13.957mm) on Top Layer
-Pad C49-2(32.779mm,40.132mm) on Top Layer
-Pad C49-1(31.229mm,40.132mm) on Top Layer
-Pad C50-1(12.586mm,26.289mm) on Top Layer
-Pad C50-2(11.036mm,26.289mm) on Top Layer
-Pad C51-2(11.036mm,28.956mm) on Top Layer
-Pad C51-1(12.586mm,28.956mm) on Top Layer
-Pad C52-1(81.407mm,46.114mm) on Top Layer
-Pad C52-2(81.407mm,44.564mm) on Top Layer
-Pad C53-2(81.421mm,42.167mm) on Top Layer
-Pad C53-1(81.421mm,40.617mm) on Top Layer
-Pad C54-1(52.972mm,57.531mm) on Top Layer
-Pad C54-2(51.422mm,57.531mm) on Top Layer
-Pad C55-2(51.422mm,59.944mm) on Top Layer
-Pad C55-1(52.972mm,59.944mm) on Top Layer
-Pad C57-1(19.317mm,29.083mm) on Top Layer
-Pad C57-2(17.767mm,29.083mm) on Top Layer
-Pad C56-2(49.035mm,57.531mm) on Top Layer
-Pad C56-1(47.485mm,57.531mm) on Top Layer
-Pad C58-1(35.052mm,33.388mm) on Top Layer
-Pad C58-2(35.052mm,34.938mm) on Top Layer
-Pad C1-2(85.458mm,38.354mm) on Top Layer
-Pad C1-1(87.008mm,38.354mm) on Top Layer
-Pad U10-1(81.788mm,24.796mm) on Top Layer
-Pad U10-2(80.518mm,24.796mm) on Top Layer
-Pad U10-3(79.248mm,24.796mm) on Top Layer
-Pad U10-4(77.978mm,24.796mm) on Top Layer
-Pad U10-8(81.788mm,19.146mm) on Top Layer
-Pad U10-7(80.518mm,19.146mm) on Top Layer
-Pad U10-6(79.248mm,19.146mm) on Top Layer
-Pad U10-5(77.978mm,19.146mm) on Top Layer
-Pad C6-2(79.019mm,66.085mm) on Top Layer
-Pad C6-1(79.019mm,71.685mm) on Top Layer
-Pad C11-1(55.118mm,63.24mm) on Top Layer
-Pad C11-2(55.118mm,68.84mm) on Top Layer
-Pad C12-2(54.991mm,78.746mm) on Top Layer
-Pad C12-1(54.991mm,73.146mm) on Top Layer
-Pad U1-1(67.914mm,78.232mm) on Top Layer
-Pad U1-2(67.914mm,76.962mm) on Top Layer
-Pad U1-3(67.914mm,75.692mm) on Top Layer
-Pad U1-4(67.914mm,74.422mm) on Top Layer
-Pad U1-8(73.564mm,78.232mm) on Top Layer
-Pad U1-7(73.564mm,76.962mm) on Top Layer
-Pad U1-6(73.564mm,75.692mm) on Top Layer
-Pad U1-5(73.564mm,74.422mm) on Top Layer
-Pad U1-9(70.739mm,76.327mm) on Top Layer
-Pad TP1-1(85.852mm,50.546mm) on Top Layer
-Pad R2-2(58.178mm,81.839mm) on Top Layer
-Pad R2-1(59.728mm,81.839mm) on Top Layer
-Pad R3-1(63.767mm,57.658mm) on Top Layer
-Pad R3-2(62.217mm,57.658mm) on Top Layer
-Pad R1-2(82.689mm,61.646mm) on Top Layer
-Pad R1-1(84.239mm,61.646mm) on Top Layer
-Pad R4-1(75.692mm,76.594mm) on Top Layer
-Pad R4-2(75.692mm,75.044mm) on Top Layer
-Pad R5-2(69.101mm,72.771mm) on Top Layer
-Pad R5-1(67.551mm,72.771mm) on Top Layer
-Pad R6-1(77.851mm,75.044mm) on Top Layer
-Pad R6-2(77.851mm,76.594mm) on Top Layer
-Pad R7-2(72.784mm,72.771mm) on Top Layer
-Pad R7-1(71.234mm,72.771mm) on Top Layer
-Pad R15-2(13.97mm,66.929mm) on Top Layer
-Pad R15-1(13.97mm,68.479mm) on Top Layer
-Pad R18-1(18.161mm,66.916mm) on Top Layer
-Pad R18-2(18.161mm,68.466mm) on Top Layer
-Pad R20-1(7.887mm,64.77mm) on Top Layer
-Pad R20-2(6.337mm,64.77mm) on Top Layer
-Pad R22-1(16.129mm,66.916mm) on Top Layer
-Pad R22-2(16.129mm,68.466mm) on Top Layer
-Pad R23-2(22.479mm,68.466mm) on Top Layer
-Pad R23-1(22.479mm,66.916mm) on Top Layer
-Pad R24-1(20.32mm,66.916mm) on Top Layer
-Pad R24-2(20.32mm,68.466mm) on Top Layer
-Pad R33-1(67.691mm,17.005mm) on Top Layer
-Pad R33-2(67.691mm,18.555mm) on Top Layer
-Pad R34-2(56.134mm,33.795mm) on Top Layer
-Pad R34-1(56.134mm,32.245mm) on Top Layer
-Pad R35-1(67.691mm,22.365mm) on Top Layer
-Pad R35-2(67.691mm,20.815mm) on Top Layer
-Pad R36-2(72.771mm,33.16mm) on Top Layer
-Pad R36-1(72.771mm,31.61mm) on Top Layer
-Pad R38-2(65.037mm,17.018mm) on Top Layer
-Pad R38-1(63.487mm,17.018mm) on Top Layer
-Pad R39-1(59.55mm,17.018mm) on Top Layer
-Pad R39-2(61.1mm,17.018mm) on Top Layer
-Pad R40-2(71.12mm,33.16mm) on Top Layer
-Pad R40-1(71.12mm,31.61mm) on Top Layer
-Pad R41-1(69.977mm,17.005mm) on Top Layer
-Pad R41-2(69.977mm,18.555mm) on Top Layer
-Pad R42-2(87.249mm,33.287mm) on Top Layer
-Pad R42-1(87.249mm,31.737mm) on Top Layer
-Pad R44-2(83.82mm,18.555mm) on Top Layer
-Pad R44-1(83.82mm,17.005mm) on Top Layer
-Pad R45-1(71.107mm,34.798mm) on Top Layer
-Pad R45-2(72.657mm,34.798mm) on Top Layer
-Pad R48-2(86.106mm,20.815mm) on Top Layer
-Pad R48-1(86.106mm,22.365mm) on Top Layer
-Pad R49-1(80.124mm,16.764mm) on Top Layer
-Pad R49-2(81.674mm,16.764mm) on Top Layer
-Pad R50-2(77.737mm,16.764mm) on Top Layer
-Pad R50-1(76.187mm,16.764mm) on Top Layer
-Pad R55-1(87.249mm,14.745mm) on Top Layer
-Pad R55-2(87.249mm,13.195mm) on Top Layer
-Pad R56-2(71.12mm,13.195mm) on Top Layer
-Pad R56-1(71.12mm,14.745mm) on Top Layer
-Pad R62-1(87.516mm,56.642mm) on Top Layer
-Pad R62-2(85.966mm,56.642mm) on Top Layer
-Pad R61-2(85.09mm,44.564mm) on Top Layer
-Pad R61-1(85.09mm,46.114mm) on Top Layer
-Pad R65-1(25.273mm,13.449mm) on Top Layer
-Pad R65-2(25.273mm,14.999mm) on Top Layer
-Pad R66-2(29.718mm,14.999mm) on Top Layer
-Pad R66-1(29.718mm,13.449mm) on Top Layer
-Pad R68-2(34.544mm,13.449mm) on Top Layer
-Pad R68-1(34.544mm,14.999mm) on Top Layer
-Pad R69-1(48.006mm,24.625mm) on Top Layer
-Pad R69-2(48.006mm,26.175mm) on Top Layer
-Pad R72-2(27.432mm,13.449mm) on Top Layer
-Pad R72-1(27.432mm,14.999mm) on Top Layer
-Pad R74-2(20.701mm,14.999mm) on Top Layer
-Pad R74-1(20.701mm,13.449mm) on Top Layer
-Pad R75-1(30.734mm,26.429mm) on Top Layer
-Pad R75-2(30.734mm,24.879mm) on Top Layer
-Pad R76-2(24.765mm,21.069mm) on Top Layer
-Pad R76-1(24.765mm,22.619mm) on Top Layer
-Pad R77-1(49.162mm,59.817mm) on Top Layer
-Pad R77-2(47.612mm,59.817mm) on Top Layer
-Pad R78-2(18.021mm,31.496mm) on Top Layer
-Pad R78-1(19.571mm,31.496mm) on Top Layer
-Pad R79-1(24.765mm,24.879mm) on Top Layer
-Pad R79-2(24.765mm,26.429mm) on Top Layer
-Pad R80-2(30.734mm,22.746mm) on Top Layer
-Pad R80-1(30.734mm,21.196mm) on Top Layer
-Pad R81-1(22.987mm,14.999mm) on Top Layer
-Pad R81-2(22.987mm,13.449mm) on Top Layer
-Pad R82-2(14.364mm,18.415mm) on Top Layer
-Pad R82-1(12.814mm,18.415mm) on Top Layer
-Pad R83-1(12.814mm,24.003mm) on Top Layer
-Pad R83-2(14.364mm,24.003mm) on Top Layer
-Pad LED2-1(55.97mm,81.787mm) on Top Layer
-Pad LED2-2(54.27mm,81.787mm) on Top Layer
-Pad LED1-2(78.908mm,61.721mm) on Top Layer
-Pad LED1-1(80.608mm,61.721mm) on Top Layer
-Pad LED11-2(71.121mm,9.058mm) on Top Layer
-Pad LED11-1(71.121mm,10.758mm) on Top Layer
-Pad LED13-1(83.529mm,56.641mm) on Top Layer
-Pad LED13-2(81.829mm,56.641mm) on Top Layer
-Pad LED12-2(85.093mm,40.771mm) on Top Layer
-Pad LED12-1(85.093mm,42.471mm) on Top Layer
-Pad LED14-1(47.535mm,62.104mm) on Top Layer
-Pad LED14-2(49.235mm,62.104mm) on Top Layer
-Pad LED15-2(14.859mm,29.161mm) on Top Layer
-Pad LED15-1(14.859mm,30.861mm) on Top Layer
-Pad D3-3(57.741mm,20.32mm) on Top Layer
-Pad D3-2(59.861mm,21.27mm) on Top Layer
-Pad D3-1(59.861mm,19.37mm) on Top Layer
-Pad D4-1(76.117mm,18.862mm) on Top Layer
-Pad D4-2(76.117mm,20.762mm) on Top Layer
-Pad D4-3(73.997mm,19.812mm) on Top Layer
-Pad Q6-3(28.873mm,25.781mm) on Top Layer
-Pad Q6-2(26.753mm,24.831mm) on Top Layer
-Pad Q6-1(26.753mm,26.731mm) on Top Layer
-Pad Q7-1(26.753mm,23.175mm) on Top Layer
-Pad Q7-2(26.753mm,21.275mm) on Top Layer
-Pad Q7-3(28.873mm,22.225mm) on Top Layer
-Pad D6-6(14.331mm,22.159mm) on Top Layer
-Pad D6-5(14.331mm,21.209mm) on Top Layer
-Pad D6-4(14.331mm,20.259mm) on Top Layer
-Pad D6-3(11.831mm,20.259mm) on Top Layer
-Pad D6-2(11.831mm,21.209mm) on Top Layer
-Pad D6-1(11.831mm,22.159mm) on Top Layer
-Pad F1-2(68.521mm,14.097mm) on Top Layer
-Pad F1-1(64.321mm,14.097mm) on Top Layer
-Pad F2-1(61.917mm,14.097mm) on Top Layer
-Pad F2-2(57.717mm,14.097mm) on Top Layer
-Pad F3-2(85.158mm,14.097mm) on Top Layer
-Pad F3-1(80.958mm,14.097mm) on Top Layer
-Pad F4-1(78.681mm,14.097mm) on Top Layer
-Pad F4-2(74.481mm,14.097mm) on Top Layer
-Pad LED3-2(58.081mm,57.66mm) on Top Layer
-Pad LED3-1(59.781mm,57.66mm) on Top Layer
-Pad D1-1(74.168mm,62.23mm) on Top Layer
-Pad D1-2(70.104mm,62.23mm) on Top Layer
-Pad D2-2(73.533mm,80.899mm) on Top Layer
-Pad D2-1(69.469mm,80.899mm) on Top Layer
-Pad D5-1(3.429mm,30.988mm) on Top Layer
-Pad D5-2(7.493mm,30.988mm) on Top Layer
-Pad SW8-2(10.922mm,11.245mm) on Top Layer
-Pad SW8-1(10.922mm,4.245mm) on Top Layer
-Pad SW9-1(17.399mm,4.245mm) on Top Layer
-Pad SW9-2(17.399mm,11.245mm) on Top Layer
-Pad TP2-1(2.921mm,36.195mm) on Top Layer
-Pad TP3-1(93.98mm,17.272mm) on Top Layer
-Pad TP4-1(81.28mm,37.846mm) on Top Layer
-Pad TP5-1(66.294mm,58.42mm) on Top Layer
-Pad TP6-1(62.195mm,81.839mm) on Top Layer
-Pad TP8-1(86.801mm,61.535mm) on Top Layer
-Pad TP10-1(56.388mm,24.511mm) on Top Layer
-Pad TP11-1(91.059mm,17.399mm) on Top Layer
-Pad TP14-1(49.911mm,65.659mm) on Top Layer
-Pad TP15-1(15.875mm,15.113mm) on Top Layer
-Pad L2-1(62.865mm,69.065mm) on Top Layer
-Pad L2-2(62.865mm,63.015mm) on Top Layer
-Pad U16-1(17.189mm,26.924mm) on Top Layer
-Pad U16-2(17.189mm,25.654mm) on Top Layer
-Pad U16-3(17.189mm,24.384mm) on Top Layer
-Pad U16-4(17.189mm,23.114mm) on Top Layer
-Pad U16-5(17.189mm,21.844mm) on Top Layer
-Pad U16-6(17.189mm,20.574mm) on Top Layer
-Pad U16-7(17.189mm,19.304mm) on Top Layer
-Pad U16-8(17.189mm,18.034mm) on Top Layer
-Pad U16-9(22.689mm,18.034mm) on Top Layer
-Pad U16-10(22.689mm,19.304mm) on Top Layer
-Pad U16-11(22.689mm,20.574mm) on Top Layer
-Pad U16-12(22.689mm,21.844mm) on Top Layer
-Pad U16-13(22.689mm,23.114mm) on Top Layer
-Pad U16-14(22.689mm,24.384mm) on Top Layer
-Pad U16-15(22.689mm,25.654mm) on Top Layer
-Pad U16-16(22.689mm,26.924mm) on Top Layer
-Pad USB1-A6(8.191mm,21.461mm) on Top Layer
-Pad USB1-A7(8.191mm,20.961mm) on Top Layer
-Pad USB1-B6(8.191mm,20.461mm) on Top Layer
-Pad USB1-B8(8.191mm,19.961mm) on Top Layer
-Pad USB1-B5(8.191mm,19.461mm) on Top Layer
-Pad USB1-B7(8.191mm,21.961mm) on Top Layer
-Pad USB1-A5(8.191mm,22.461mm) on Top Layer
-Pad USB1-A8(8.191mm,22.961mm) on Top Layer
-Pad USB1-A4(8.191mm,23.611mm) on Top Layer
-Pad USB1-B4(8.191mm,18.811mm) on Top Layer
-Pad USB1-B1(8.191mm,18.011mm) on Top Layer
-Pad USB1-A1(8.191mm,24.411mm) on Top Layer
-Pad Fuse1-2(85.344mm,65.138mm) on Top Layer
-Pad Fuse1-1(85.344mm,71.514mm) on Top Layer
-Pad L1-2(62.865mm,72.921mm) on Top Layer
-Pad L1-1(62.865mm,78.971mm) on Top Layer
-Pad LCD1-1(91.821mm,34.798mm) on Multi-Layer
-Pad LCD1-11(59.055mm,89.789mm) on Multi-Layer
-Pad LCD1-4(76.835mm,89.789mm) on Multi-Layer
-Pad LCD1-16(46.355mm,89.789mm) on Multi-Layer
-Pad LCD1-15(48.895mm,89.789mm) on Multi-Layer
-Pad LCD1-14(51.435mm,89.789mm) on Multi-Layer
-Pad LCD1-13(53.975mm,89.789mm) on Multi-Layer
-Pad LCD1-12(56.515mm,89.789mm) on Multi-Layer
-Pad LCD1-10(61.595mm,89.789mm) on Multi-Layer
-Pad LCD1-8(66.675mm,89.789mm) on Multi-Layer
-Pad LCD1-7(69.215mm,89.789mm) on Multi-Layer
-Pad LCD1-6(71.755mm,89.789mm) on Multi-Layer
-Pad LCD1-5(74.295mm,89.789mm) on Multi-Layer
-Pad LCD1-3(79.375mm,89.789mm) on Multi-Layer
-Pad LCD1-2(81.915mm,89.789mm) on Multi-Layer
-Pad LCD1-1(84.455mm,89.789mm) on Multi-Layer
-Pad LCD1-9(64.135mm,89.789mm) on Multi-Layer
-Pad LCD1-1(91.694mm,89.662mm) on Multi-Layer
-Pad LCD1-1(9.906mm,34.798mm) on Multi-Layer
-Pad U15-41_21(43.682mm,47.309mm) on Multi-Layer
-Pad U15-41_20(43.682mm,48.709mm) on Multi-Layer
-Pad U15-41_16(45.082mm,47.309mm) on Multi-Layer
-Pad U15-41_15(45.082mm,48.709mm) on Multi-Layer
-Pad U15-41_11(46.482mm,47.309mm) on Multi-Layer
-Pad U15-41_10(46.482mm,48.709mm) on Multi-Layer
-Pad U15-41_19(44.382mm,46.609mm) on Multi-Layer
-Pad U15-41_18(44.382mm,48.009mm) on Multi-Layer
-Pad U15-41_17(44.382mm,49.409mm) on Multi-Layer
-Pad U15-41_14(45.782mm,46.609mm) on Multi-Layer
-Pad U15-41_12(45.782mm,49.409mm) on Multi-Layer
-Pad U15-41_13(45.782mm,48.009mm) on Multi-Layer
-Pad COM1-(22.22mm,84.074mm) on Multi-Layer
-Pad COM1-(10.79mm,84.074mm) on Multi-Layer
-Pad COM1-16(8.76mm,81.024mm) on Multi-Layer
-Pad COM1-15(24.25mm,81.024mm) on Multi-Layer
-Pad COM1-11(12.42mm,88.974mm) on Multi-Layer
-Pad COM1-12(9.88mm,88.974mm) on Multi-Layer
-Pad COM1-10(20.59mm,88.974mm) on Multi-Layer
-Pad COM1-9(23.13mm,88.974mm) on Multi-Layer
-Pad COM1-8(12.065mm,75.184mm) on Multi-Layer
-Pad COM1-7(13.335mm,77.724mm) on Multi-Layer
-Pad COM1-6(14.605mm,75.184mm) on Multi-Layer
-Pad COM1-5(15.875mm,77.724mm) on Multi-Layer
-Pad COM1-4(17.145mm,75.184mm) on Multi-Layer
-Pad COM1-3(18.415mm,77.724mm) on Multi-Layer
-Pad COM1-2(19.685mm,75.184mm) on Multi-Layer
-Pad COM1-1(20.955mm,77.724mm) on Multi-Layer
-Pad J1-1(30.734mm,55.245mm) on Multi-Layer
-Pad J1-2(30.734mm,57.785mm) on Multi-Layer
-Pad J1-4(30.734mm,62.865mm) on Multi-Layer
-Pad J1-5(30.734mm,65.405mm) on Multi-Layer
-Pad J1-6(30.734mm,67.945mm) on Multi-Layer
-Pad J1-7(30.734mm,70.485mm) on Multi-Layer
-Pad J1-8(30.734mm,73.025mm) on Multi-Layer
-Pad J1-9(30.734mm,75.565mm) on Multi-Layer
-Pad J1-10(30.734mm,78.105mm) on Multi-Layer
-Pad J1-3(30.734mm,60.325mm) on Multi-Layer
-Pad U3-1(93.794mm,29.21mm) on Multi-Layer
-Pad U3-2(93.794mm,26.67mm) on Multi-Layer
-Pad U3-4(93.794mm,21.59mm) on Multi-Layer
-Pad U3-3(93.794mm,24.13mm) on Multi-Layer
-Pad EN1-SH2(41.021mm,14.039mm) on Multi-Layer
-Pad EN1-SH1(41.021mm,25.839mm) on Multi-Layer
-Pad EN1-C(48.521mm,19.939mm) on Multi-Layer
-Pad EN1-B(48.521mm,17.439mm) on Multi-Layer
-Pad EN1-A(48.521mm,22.439mm) on Multi-Layer
-Pad EN1-E(34.021mm,17.439mm) on Multi-Layer
-Pad EN1-D(34.021mm,22.439mm) on Multi-Layer
-Pad KF1-1(67.056mm,10.414mm) on Multi-Layer
-Pad KF1-2(61.976mm,10.414mm) on Multi-Layer
-Pad USB1-SHIELD(6.774mm,24.101mm) on Multi-Layer
-Pad USB1-SHIELD(6.774mm,18.321mm) on Multi-Layer
-Pad USB1-SHIELD(7.274mm,25.531mm) on Multi-Layer
-Pad USB1-SHIELD(7.274mm,16.891mm) on Multi-Layer
-Pad USB1-SHIELD(3.124mm,25.531mm) on Multi-Layer
-Pad USB1-SHIELD(3.124mm,16.891mm) on Multi-Layer
-Pad DC1-1(82.338mm,79.756mm) on Multi-Layer
-Pad DC1-3(85.338mm,84.556mm) on Multi-Layer
-Pad DC1-2(88.138mm,79.756mm) on Multi-Layer
-Pad SW1-2(91.846mm,66.725mm) on Multi-Layer
-Pad SW1-3(91.846mm,62.025mm) on Multi-Layer
-Pad SW1-1(91.846mm,71.425mm) on Multi-Layer
-Pad MH3-1(4.039mm,91.288mm) on Multi-Layer
-Pad KF2-2(75.946mm,10.414mm) on Multi-Layer
-Pad KF2-1(81.026mm,10.414mm) on Multi-Layer
-Pad MH1-1(91.821mm,4.064mm) on Multi-Layer
-Pad MH4-1(4.064mm,4.064mm) on Multi-Layer
-Pad R17-1(19.431mm,69.863mm) on Bottom Layer
-Pad R17-2(19.431mm,68.313mm) on Bottom Layer
-Pad C19-1(17.653mm,69.863mm) on Bottom Layer
-Pad C19-2(17.653mm,68.313mm) on Bottom Layer
-Pad C20-1(13.716mm,69.863mm) on Bottom Layer
-Pad C20-2(13.716mm,68.313mm) on Bottom Layer
-Pad C21-2(15.748mm,68.313mm) on Bottom Layer
-Pad C21-1(15.748mm,69.863mm) on Bottom Layer
-Pad C31-2(85.979mm,20.333mm) on Bottom Layer
-Pad C31-1(85.979mm,18.783mm) on Bottom Layer
-Pad C32-1(83.947mm,18.783mm) on Bottom Layer
-Pad C32-2(83.947mm,20.333mm) on Bottom Layer
-Pad C33-2(73.986mm,20.472mm) on Bottom Layer
-Pad C33-1(73.986mm,18.922mm) on Bottom Layer
-Pad C34-1(71.882mm,18.91mm) on Bottom Layer
-Pad C34-2(71.882mm,20.46mm) on Bottom Layer
-Pad C35-2(74.295mm,41.923mm) on Bottom Layer
-Pad C35-1(74.295mm,40.373mm) on Bottom Layer
-Pad C36-1(76.327mm,40.373mm) on Bottom Layer
-Pad C36-2(76.327mm,41.923mm) on Bottom Layer
-Pad C39-2(72.898mm,43.929mm) on Bottom Layer
-Pad C39-1(72.898mm,45.479mm) on Bottom Layer
-Pad C40-1(74.93mm,45.479mm) on Bottom Layer
-Pad C40-2(74.93mm,43.929mm) on Bottom Layer
-Pad SW5-2(12.956mm,5.072mm) on Bottom Layer
-Pad SW5-1(12.956mm,9.572mm) on Bottom Layer
-Pad SW5-2(20.906mm,5.072mm) on Bottom Layer
-Pad SW5-1(20.906mm,9.572mm) on Bottom Layer
-Pad SW6-1(50.015mm,9.572mm) on Bottom Layer
-Pad SW6-2(50.015mm,5.072mm) on Bottom Layer
-Pad SW6-1(42.065mm,9.572mm) on Bottom Layer
-Pad SW6-2(42.065mm,5.072mm) on Bottom Layer
-Pad SW7-2(27.46mm,5.072mm) on Bottom Layer
-Pad SW7-1(27.46mm,9.572mm) on Bottom Layer
-Pad SW7-2(35.41mm,5.072mm) on Bottom Layer
-Pad SW7-1(35.41mm,9.572mm) on Bottom Layer
-Pad VBAT1-P(91.376mm,54.483mm) on Bottom Layer
-Pad VBAT1-N(61.976mm,54.483mm) on Bottom Layer
+Pad U15-41_5(71.752mm,64.011mm) on SIGNAL_TOP
+Pad U15-1(79.472mm,71.261mm) on SIGNAL_TOP
+Pad U15-2(78.202mm,71.261mm) on SIGNAL_TOP
+Pad U15-3(76.932mm,71.261mm) on SIGNAL_TOP
+Pad U15-4(75.662mm,71.261mm) on SIGNAL_TOP
+Pad U15-5(74.392mm,71.261mm) on SIGNAL_TOP
+Pad U15-6(73.122mm,71.261mm) on SIGNAL_TOP
+Pad U15-7(71.852mm,71.261mm) on SIGNAL_TOP
+Pad U15-8(70.582mm,71.261mm) on SIGNAL_TOP
+Pad U15-9(69.312mm,71.261mm) on SIGNAL_TOP
+Pad U15-10(68.042mm,71.261mm) on SIGNAL_TOP
+Pad U15-11(66.772mm,71.261mm) on SIGNAL_TOP
+Pad U15-12(65.502mm,71.261mm) on SIGNAL_TOP
+Pad U15-13(64.232mm,71.261mm) on SIGNAL_TOP
+Pad U15-14(62.962mm,71.261mm) on SIGNAL_TOP
+Pad U15-15(61.712mm,69.496mm) on SIGNAL_TOP
+Pad U15-16(61.712mm,68.226mm) on SIGNAL_TOP
+Pad U15-17(61.712mm,66.956mm) on SIGNAL_TOP
+Pad U15-18(61.712mm,65.686mm) on SIGNAL_TOP
+Pad U15-19(61.712mm,64.416mm) on SIGNAL_TOP
+Pad U15-20(61.712mm,63.146mm) on SIGNAL_TOP
+Pad U15-21(61.712mm,61.876mm) on SIGNAL_TOP
+Pad U15-22(61.712mm,60.606mm) on SIGNAL_TOP
+Pad U15-23(61.712mm,59.336mm) on SIGNAL_TOP
+Pad U15-24(61.712mm,58.066mm) on SIGNAL_TOP
+Pad U15-41_4(71.752mm,65.411mm) on SIGNAL_TOP
+Pad U15-41_6(71.752mm,62.611mm) on SIGNAL_TOP
+Pad U15-41_7(70.352mm,65.411mm) on SIGNAL_TOP
+Pad U15-41_8(70.352mm,64.011mm) on SIGNAL_TOP
+Pad U15-41_9(70.352mm,62.611mm) on SIGNAL_TOP
+Pad U15-41_1(73.152mm,65.411mm) on SIGNAL_TOP
+Pad U15-41_2(73.152mm,64.011mm) on SIGNAL_TOP
+Pad U15-41_3(73.152mm,62.611mm) on SIGNAL_TOP
+Pad U15-25(61.712mm,56.796mm) on SIGNAL_TOP
+Pad U15-26(61.712mm,55.526mm) on SIGNAL_TOP
+Pad U15-27(62.962mm,53.761mm) on SIGNAL_TOP
+Pad U15-28(64.232mm,53.761mm) on SIGNAL_TOP
+Pad U15-29(65.502mm,53.761mm) on SIGNAL_TOP
+Pad U15-30(66.772mm,53.761mm) on SIGNAL_TOP
+Pad U15-31(68.042mm,53.761mm) on SIGNAL_TOP
+Pad U15-32(69.312mm,53.761mm) on SIGNAL_TOP
+Pad U15-33(70.582mm,53.761mm) on SIGNAL_TOP
+Pad U15-34(71.852mm,53.761mm) on SIGNAL_TOP
+Pad U15-35(73.122mm,53.761mm) on SIGNAL_TOP
+Pad U15-36(74.392mm,53.761mm) on SIGNAL_TOP
+Pad U15-37(75.662mm,53.761mm) on SIGNAL_TOP
+Pad U15-38(76.932mm,53.761mm) on SIGNAL_TOP
+Pad U15-39(78.202mm,53.761mm) on SIGNAL_TOP
+Pad U15-40(79.472mm,53.761mm) on SIGNAL_TOP
+Pad C58-1(62mm,49.425mm) on SIGNAL_TOP
+Pad C58-2(62mm,50.975mm) on SIGNAL_TOP
+Pad C45-2(64.1mm,50.975mm) on SIGNAL_TOP
+Pad C45-1(64.1mm,49.425mm) on SIGNAL_TOP
+Pad C46-1(66.2mm,49.425mm) on SIGNAL_TOP
+Pad C46-2(66.2mm,50.975mm) on SIGNAL_TOP
+Pad C48-1(68.3mm,49.425mm) on SIGNAL_TOP
+Pad C48-2(68.3mm,50.975mm) on SIGNAL_TOP
+Pad U14-2(95.7mm,61.8mm) on SIGNAL_TOP
+Pad U14-3(95.7mm,63.07mm) on SIGNAL_TOP
+Pad U14-4(95.7mm,64.34mm) on SIGNAL_TOP
+Pad U14-5(95.7mm,65.61mm) on SIGNAL_TOP
+Pad U14-6(95.7mm,66.88mm) on SIGNAL_TOP
+Pad U14-7(95.7mm,68.15mm) on SIGNAL_TOP
+Pad U14-8(95.7mm,69.42mm) on SIGNAL_TOP
+Pad U14-9(86.39mm,69.42mm) on SIGNAL_TOP
+Pad U14-10(86.39mm,68.15mm) on SIGNAL_TOP
+Pad U14-11(86.39mm,66.88mm) on SIGNAL_TOP
+Pad U14-12(86.39mm,65.61mm) on SIGNAL_TOP
+Pad U14-13(86.39mm,64.34mm) on SIGNAL_TOP
+Pad U14-14(86.39mm,63.07mm) on SIGNAL_TOP
+Pad U14-15(86.39mm,61.8mm) on SIGNAL_TOP
+Pad U14-16(86.39mm,60.53mm) on SIGNAL_TOP
+Pad U14-1(95.7mm,60.53mm) on SIGNAL_TOP
+Pad C9-2(76.698mm,76.017mm) on SIGNAL_TOP
+Pad C9-1(75.148mm,76.017mm) on SIGNAL_TOP
+Pad R6-2(104.9mm,92.675mm) on SIGNAL_TOP
+Pad R6-1(104.9mm,91.125mm) on SIGNAL_TOP
+Pad LED7-2(97.409mm,41.275mm) on SIGNAL_TOP
+Pad LED7-1(97.409mm,38.989mm) on SIGNAL_TOP
+Pad LED6-1(105.029mm,38.989mm) on SIGNAL_TOP
+Pad LED6-2(105.029mm,41.275mm) on SIGNAL_TOP
+Pad R49-2(93.975mm,33.2mm) on SIGNAL_TOP
+Pad R49-1(92.425mm,33.2mm) on SIGNAL_TOP
+Pad R50-1(88.825mm,33.2mm) on SIGNAL_TOP
+Pad R50-2(90.375mm,33.2mm) on SIGNAL_TOP
+Pad R39-2(106.82mm,33.089mm) on SIGNAL_TOP
+Pad R39-1(105.27mm,33.089mm) on SIGNAL_TOP
+Pad R38-1(108.699mm,33.089mm) on SIGNAL_TOP
+Pad R38-2(110.249mm,33.089mm) on SIGNAL_TOP
+Pad R33-2(113.691mm,33.089mm) on SIGNAL_TOP
+Pad R33-1(112.141mm,33.089mm) on SIGNAL_TOP
+Pad R2-1(74.8mm,92.875mm) on SIGNAL_TOP
+Pad R2-2(74.8mm,91.325mm) on SIGNAL_TOP
+Pad R3-2(74.6mm,82.475mm) on SIGNAL_TOP
+Pad R3-1(74.6mm,80.925mm) on SIGNAL_TOP
+Pad R4-2(102.8mm,91.125mm) on SIGNAL_TOP
+Pad R4-1(102.8mm,92.675mm) on SIGNAL_TOP
+Pad R5-1(94.221mm,88.773mm) on SIGNAL_TOP
+Pad R5-2(95.771mm,88.773mm) on SIGNAL_TOP
+Pad R7-1(97.904mm,88.773mm) on SIGNAL_TOP
+Pad R7-2(99.454mm,88.773mm) on SIGNAL_TOP
+Pad R8-2(31.64mm,61.66mm) on SIGNAL_TOP
+Pad R8-1(31.64mm,63.21mm) on SIGNAL_TOP
+Pad R9-1(33.74mm,63.185mm) on SIGNAL_TOP
+Pad R9-2(33.74mm,61.635mm) on SIGNAL_TOP
+Pad R10-2(45.2mm,67.675mm) on SIGNAL_TOP
+Pad R10-1(45.2mm,66.125mm) on SIGNAL_TOP
+Pad R11-1(53.6mm,66.125mm) on SIGNAL_TOP
+Pad R11-2(53.6mm,67.675mm) on SIGNAL_TOP
+Pad R12-2(51.5mm,66.125mm) on SIGNAL_TOP
+Pad R12-1(51.5mm,67.675mm) on SIGNAL_TOP
+Pad R13-1(49.4mm,67.675mm) on SIGNAL_TOP
+Pad R13-2(49.4mm,66.125mm) on SIGNAL_TOP
+Pad R14-2(47.3mm,66.125mm) on SIGNAL_TOP
+Pad R14-1(47.3mm,67.675mm) on SIGNAL_TOP
+Pad R15-1(38.6mm,88.775mm) on SIGNAL_TOP
+Pad R15-2(38.6mm,87.225mm) on SIGNAL_TOP
+Pad R16-2(46.9mm,87.225mm) on SIGNAL_TOP
+Pad R16-1(46.9mm,88.775mm) on SIGNAL_TOP
+Pad R17-1(48.9mm,88.775mm) on SIGNAL_TOP
+Pad R17-2(48.9mm,87.225mm) on SIGNAL_TOP
+Pad R18-2(44.9mm,88.775mm) on SIGNAL_TOP
+Pad R18-1(44.9mm,87.225mm) on SIGNAL_TOP
+Pad R19-1(40.7mm,87.225mm) on SIGNAL_TOP
+Pad R19-2(40.7mm,88.775mm) on SIGNAL_TOP
+Pad R20-2(34.419mm,88.744mm) on SIGNAL_TOP
+Pad R20-1(34.419mm,87.194mm) on SIGNAL_TOP
+Pad R21-1(36.519mm,88.744mm) on SIGNAL_TOP
+Pad R21-2(36.519mm,87.194mm) on SIGNAL_TOP
+Pad R22-2(42.8mm,88.775mm) on SIGNAL_TOP
+Pad R22-1(42.8mm,87.225mm) on SIGNAL_TOP
+Pad R23-1(53.1mm,87.225mm) on SIGNAL_TOP
+Pad R23-2(53.1mm,88.775mm) on SIGNAL_TOP
+Pad R24-2(51mm,88.775mm) on SIGNAL_TOP
+Pad R24-1(51mm,87.225mm) on SIGNAL_TOP
+Pad R25-1(52.82mm,108.459mm) on SIGNAL_TOP
+Pad R25-2(52.82mm,106.909mm) on SIGNAL_TOP
+Pad R26-2(62.091mm,108.459mm) on SIGNAL_TOP
+Pad R26-1(62.091mm,106.909mm) on SIGNAL_TOP
+Pad R27-1(59.678mm,106.909mm) on SIGNAL_TOP
+Pad R27-2(59.678mm,108.459mm) on SIGNAL_TOP
+Pad R28-2(57.392mm,108.459mm) on SIGNAL_TOP
+Pad R28-1(57.392mm,106.909mm) on SIGNAL_TOP
+Pad R29-1(42.125mm,63.4mm) on SIGNAL_TOP
+Pad R29-2(43.675mm,63.4mm) on SIGNAL_TOP
+Pad R31-2(55.7mm,67.675mm) on SIGNAL_TOP
+Pad R31-1(55.7mm,66.125mm) on SIGNAL_TOP
+Pad R32-1(55.106mm,106.909mm) on SIGNAL_TOP
+Pad R32-2(55.106mm,108.459mm) on SIGNAL_TOP
+Pad R44-1(96.025mm,33.2mm) on SIGNAL_TOP
+Pad R44-2(97.575mm,33.2mm) on SIGNAL_TOP
+Pad R56-2(120.65mm,31.991mm) on SIGNAL_TOP
+Pad R56-1(120.65mm,33.541mm) on SIGNAL_TOP
+Pad R61-1(113.197mm,61.478mm) on SIGNAL_TOP
+Pad R61-2(111.647mm,61.478mm) on SIGNAL_TOP
+Pad R65-2(51.943mm,31.001mm) on SIGNAL_TOP
+Pad R65-1(51.943mm,29.451mm) on SIGNAL_TOP
+Pad R66-1(56.388mm,29.451mm) on SIGNAL_TOP
+Pad R66-2(56.388mm,31.001mm) on SIGNAL_TOP
+Pad R68-2(60.5mm,34.975mm) on SIGNAL_TOP
+Pad R68-1(60.5mm,33.425mm) on SIGNAL_TOP
+Pad R69-1(79.6mm,38.825mm) on SIGNAL_TOP
+Pad R69-2(79.6mm,40.375mm) on SIGNAL_TOP
+Pad R70-2(79.6mm,31.825mm) on SIGNAL_TOP
+Pad R70-1(79.6mm,33.375mm) on SIGNAL_TOP
+Pad R72-1(54.102mm,31.001mm) on SIGNAL_TOP
+Pad R72-2(54.102mm,29.451mm) on SIGNAL_TOP
+Pad R74-2(47.4mm,31mm) on SIGNAL_TOP
+Pad R74-1(47.4mm,29.45mm) on SIGNAL_TOP
+Pad R75-1(57.5mm,42.475mm) on SIGNAL_TOP
+Pad R75-2(57.5mm,40.925mm) on SIGNAL_TOP
+Pad R76-2(51.435mm,37.071mm) on SIGNAL_TOP
+Pad R76-1(51.435mm,38.621mm) on SIGNAL_TOP
+Pad R78-1(45.975mm,47.1mm) on SIGNAL_TOP
+Pad R78-2(44.425mm,47.1mm) on SIGNAL_TOP
+Pad R79-2(51.435mm,42.431mm) on SIGNAL_TOP
+Pad R79-1(51.435mm,40.881mm) on SIGNAL_TOP
+Pad R80-1(57.5mm,37.225mm) on SIGNAL_TOP
+Pad R80-2(57.5mm,38.775mm) on SIGNAL_TOP
+Pad R81-2(49.657mm,29.451mm) on SIGNAL_TOP
+Pad R81-1(49.657mm,31.001mm) on SIGNAL_TOP
+Pad R82-1(39.484mm,34.417mm) on SIGNAL_TOP
+Pad R82-2(41.034mm,34.417mm) on SIGNAL_TOP
+Pad R83-2(41.034mm,40.005mm) on SIGNAL_TOP
+Pad R83-1(39.484mm,40.005mm) on SIGNAL_TOP
+Pad R30-1(82.169mm,61.71mm) on SIGNAL_TOP
+Pad R30-2(82.169mm,60.16mm) on SIGNAL_TOP
+Pad R51-2(82.2mm,65.475mm) on SIGNAL_TOP
+Pad R51-1(82.2mm,63.925mm) on SIGNAL_TOP
+Pad R34-1(102.9mm,38.925mm) on SIGNAL_TOP
+Pad R34-2(102.9mm,40.475mm) on SIGNAL_TOP
+Pad R35-2(99.6mm,40.475mm) on SIGNAL_TOP
+Pad R35-1(99.6mm,38.925mm) on SIGNAL_TOP
+Pad R36-1(113.175mm,63.8mm) on SIGNAL_TOP
+Pad R36-2(111.625mm,63.8mm) on SIGNAL_TOP
+Pad R37-2(111.527mm,70.727mm) on SIGNAL_TOP
+Pad R37-1(113.077mm,70.727mm) on SIGNAL_TOP
+Pad R40-1(113.175mm,66.1mm) on SIGNAL_TOP
+Pad R40-2(111.625mm,66.1mm) on SIGNAL_TOP
+Pad R41-2(111.625mm,68.4mm) on SIGNAL_TOP
+Pad R41-1(113.175mm,68.4mm) on SIGNAL_TOP
+Pad C2-1(115.55mm,52.587mm) on SIGNAL_TOP
+Pad C2-2(115.55mm,54.137mm) on SIGNAL_TOP
+Pad C5-2(93.472mm,98.438mm) on SIGNAL_TOP
+Pad C5-1(93.472mm,96.888mm) on SIGNAL_TOP
+Pad C7-1(104.9mm,94.725mm) on SIGNAL_TOP
+Pad C7-2(104.9mm,96.275mm) on SIGNAL_TOP
+Pad C8-2(102.8mm,96.275mm) on SIGNAL_TOP
+Pad C8-1(102.8mm,94.725mm) on SIGNAL_TOP
+Pad C10-1(94.221mm,86.487mm) on SIGNAL_TOP
+Pad C10-2(95.771mm,86.487mm) on SIGNAL_TOP
+Pad C14-1(115.7mm,36.875mm) on SIGNAL_TOP
+Pad C14-2(115.7mm,35.325mm) on SIGNAL_TOP
+Pad C16-1(41.2mm,65.925mm) on SIGNAL_TOP
+Pad C16-2(41.2mm,67.475mm) on SIGNAL_TOP
+Pad C17-2(39mm,67.475mm) on SIGNAL_TOP
+Pad C17-1(39mm,65.925mm) on SIGNAL_TOP
+Pad C18-1(32.225mm,71.8mm) on SIGNAL_TOP
+Pad C18-2(33.775mm,71.8mm) on SIGNAL_TOP
+Pad C19-2(33.775mm,74mm) on SIGNAL_TOP
+Pad C19-1(32.225mm,74mm) on SIGNAL_TOP
+Pad C20-1(32.225mm,69.6mm) on SIGNAL_TOP
+Pad C20-2(33.775mm,69.6mm) on SIGNAL_TOP
+Pad C21-2(33.775mm,78.4mm) on SIGNAL_TOP
+Pad C21-1(32.225mm,78.4mm) on SIGNAL_TOP
+Pad C22-1(32.225mm,82.8mm) on SIGNAL_TOP
+Pad C22-2(33.775mm,82.8mm) on SIGNAL_TOP
+Pad C23-2(33.775mm,80.6mm) on SIGNAL_TOP
+Pad C23-1(32.225mm,80.6mm) on SIGNAL_TOP
+Pad C24-1(32.225mm,67.4mm) on SIGNAL_TOP
+Pad C24-2(33.775mm,67.4mm) on SIGNAL_TOP
+Pad C25-2(33.775mm,76.2mm) on SIGNAL_TOP
+Pad C25-1(32.225mm,76.2mm) on SIGNAL_TOP
+Pad C26-1(32.225mm,85mm) on SIGNAL_TOP
+Pad C26-2(33.775mm,85mm) on SIGNAL_TOP
+Pad C27-2(32.219mm,88.844mm) on SIGNAL_TOP
+Pad C27-1(32.219mm,87.294mm) on SIGNAL_TOP
+Pad C28-1(46.6mm,59.725mm) on SIGNAL_TOP
+Pad C28-2(46.6mm,61.275mm) on SIGNAL_TOP
+Pad C29-2(39.1mm,59.725mm) on SIGNAL_TOP
+Pad C29-1(39.1mm,61.275mm) on SIGNAL_TOP
+Pad C30-1(49.784mm,73.927mm) on SIGNAL_TOP
+Pad C30-2(49.784mm,72.377mm) on SIGNAL_TOP
+Pad C31-2(111.379mm,35.293mm) on SIGNAL_TOP
+Pad C31-1(111.379mm,36.843mm) on SIGNAL_TOP
+Pad C32-1(113.538mm,36.843mm) on SIGNAL_TOP
+Pad C32-2(113.538mm,35.293mm) on SIGNAL_TOP
+Pad C33-2(95.212mm,35.326mm) on SIGNAL_TOP
+Pad C33-1(95.212mm,36.876mm) on SIGNAL_TOP
+Pad C34-1(97.409mm,36.843mm) on SIGNAL_TOP
+Pad C34-2(97.409mm,35.293mm) on SIGNAL_TOP
+Pad C35-2(92.525mm,76.5mm) on SIGNAL_TOP
+Pad C35-1(94.075mm,76.5mm) on SIGNAL_TOP
+Pad C36-1(88.725mm,76.5mm) on SIGNAL_TOP
+Pad C36-2(90.275mm,76.5mm) on SIGNAL_TOP
+Pad C37-2(98.125mm,63.4mm) on SIGNAL_TOP
+Pad C37-1(99.675mm,63.4mm) on SIGNAL_TOP
+Pad C38-1(99.675mm,65.7mm) on SIGNAL_TOP
+Pad C38-2(98.125mm,65.7mm) on SIGNAL_TOP
+Pad C42-2(78.867mm,108.064mm) on SIGNAL_TOP
+Pad C42-1(78.867mm,109.614mm) on SIGNAL_TOP
+Pad C43-1(81.153mm,109.614mm) on SIGNAL_TOP
+Pad C43-2(81.153mm,108.064mm) on SIGNAL_TOP
+Pad C44-2(59.449mm,58.547mm) on SIGNAL_TOP
+Pad C44-1(57.899mm,58.547mm) on SIGNAL_TOP
+Pad C47-1(70.4mm,49.425mm) on SIGNAL_TOP
+Pad C47-2(70.4mm,50.975mm) on SIGNAL_TOP
+Pad C49-1(57.899mm,56.134mm) on SIGNAL_TOP
+Pad C49-2(59.449mm,56.134mm) on SIGNAL_TOP
+Pad C50-2(37.706mm,42.291mm) on SIGNAL_TOP
+Pad C50-1(39.256mm,42.291mm) on SIGNAL_TOP
+Pad C51-1(39.275mm,44.5mm) on SIGNAL_TOP
+Pad C51-2(37.725mm,44.5mm) on SIGNAL_TOP
+Pad C54-2(78.973mm,73.7mm) on SIGNAL_TOP
+Pad C54-1(80.523mm,73.7mm) on SIGNAL_TOP
+Pad C55-1(80.523mm,76mm) on SIGNAL_TOP
+Pad C55-2(78.973mm,76mm) on SIGNAL_TOP
+Pad C57-2(44.437mm,45.085mm) on SIGNAL_TOP
+Pad C57-1(45.987mm,45.085mm) on SIGNAL_TOP
+Pad C56-1(75.125mm,73.7mm) on SIGNAL_TOP
+Pad C56-2(76.675mm,73.7mm) on SIGNAL_TOP
+Pad C1-1(117.707mm,52.592mm) on SIGNAL_TOP
+Pad C1-2(117.707mm,54.142mm) on SIGNAL_TOP
+Pad C63-2(115.639mm,68.343mm) on SIGNAL_TOP
+Pad C63-1(117.189mm,68.343mm) on SIGNAL_TOP
+Pad C64-1(117.237mm,70.663mm) on SIGNAL_TOP
+Pad C64-2(115.687mm,70.663mm) on SIGNAL_TOP
+Pad C40-2(113.411mm,54.115mm) on SIGNAL_TOP
+Pad C40-1(113.411mm,52.565mm) on SIGNAL_TOP
+Pad C62-1(97.155mm,47.892mm) on SIGNAL_TOP
+Pad C62-2(97.155mm,46.342mm) on SIGNAL_TOP
+Pad C61-2(97.155mm,54.115mm) on SIGNAL_TOP
+Pad C61-1(97.155mm,52.565mm) on SIGNAL_TOP
+Pad C59-1(105.283mm,52.565mm) on SIGNAL_TOP
+Pad C59-2(105.283mm,54.115mm) on SIGNAL_TOP
+Pad C41-2(113.411mm,46.342mm) on SIGNAL_TOP
+Pad C41-1(113.411mm,47.892mm) on SIGNAL_TOP
+Pad C60-1(105.283mm,47.892mm) on SIGNAL_TOP
+Pad C60-2(105.283mm,46.342mm) on SIGNAL_TOP
+Pad D14-A(79.9mm,24.215mm) on SIGNAL_TOP
+Pad D14-C(79.9mm,19.985mm) on SIGNAL_TOP
+Pad D10-A(68.5mm,24.015mm) on SIGNAL_TOP
+Pad D10-C(68.5mm,19.785mm) on SIGNAL_TOP
+Pad D9-A(56.4mm,23.915mm) on SIGNAL_TOP
+Pad D9-C(56.4mm,19.685mm) on SIGNAL_TOP
+Pad D11-A(65.9mm,38.315mm) on SIGNAL_TOP
+Pad D11-C(65.9mm,34.085mm) on SIGNAL_TOP
+Pad D13-A(73.7mm,38.215mm) on SIGNAL_TOP
+Pad D13-C(73.7mm,33.985mm) on SIGNAL_TOP
+Pad D12-A(69.8mm,38.215mm) on SIGNAL_TOP
+Pad D12-C(69.8mm,33.985mm) on SIGNAL_TOP
+Pad D15-A(47.875mm,19.496mm) on SIGNAL_TOP
+Pad D15-C(47.875mm,23.726mm) on SIGNAL_TOP
+Pad D16-A(43.8mm,31.715mm) on SIGNAL_TOP
+Pad D16-C(43.8mm,27.485mm) on SIGNAL_TOP
+Pad U13-5(90.5mm,74.805mm) on SIGNAL_TOP
+Pad U13-6(90.5mm,73.535mm) on SIGNAL_TOP
+Pad U13-8(90.5mm,70.995mm) on SIGNAL_TOP
+Pad U13-4(95.9mm,74.805mm) on SIGNAL_TOP
+Pad U13-3(95.9mm,73.535mm) on SIGNAL_TOP
+Pad U13-1(95.9mm,70.995mm) on SIGNAL_TOP
+Pad U13-7(90.5mm,72.265mm) on SIGNAL_TOP
+Pad U13-2(95.9mm,72.265mm) on SIGNAL_TOP
+Pad D7-A(109.2mm,99.115mm) on SIGNAL_TOP
+Pad D7-C(109.2mm,94.885mm) on SIGNAL_TOP
+Pad U4-1(45.55mm,80.68mm) on SIGNAL_TOP
+Pad U4-2(45.05mm,80.68mm) on SIGNAL_TOP
+Pad U4-3(44.55mm,80.68mm) on SIGNAL_TOP
+Pad U4-4(44.05mm,80.68mm) on SIGNAL_TOP
+Pad U4-5(43.55mm,80.68mm) on SIGNAL_TOP
+Pad U4-6(43.05mm,80.68mm) on SIGNAL_TOP
+Pad U4-7(42.55mm,80.68mm) on SIGNAL_TOP
+Pad U4-8(42.05mm,80.68mm) on SIGNAL_TOP
+Pad U4-9(41.55mm,80.68mm) on SIGNAL_TOP
+Pad U4-10(41.05mm,80.68mm) on SIGNAL_TOP
+Pad U4-11(40.55mm,80.68mm) on SIGNAL_TOP
+Pad U4-12(40.05mm,80.68mm) on SIGNAL_TOP
+Pad U4-13(38.62mm,79.25mm) on SIGNAL_TOP
+Pad U4-14(38.62mm,78.75mm) on SIGNAL_TOP
+Pad U4-15(38.62mm,78.25mm) on SIGNAL_TOP
+Pad U4-16(38.62mm,77.75mm) on SIGNAL_TOP
+Pad U4-17(38.62mm,77.25mm) on SIGNAL_TOP
+Pad U4-18(38.62mm,76.75mm) on SIGNAL_TOP
+Pad U4-19(38.62mm,76.25mm) on SIGNAL_TOP
+Pad U4-20(38.62mm,75.75mm) on SIGNAL_TOP
+Pad U4-21(38.62mm,75.25mm) on SIGNAL_TOP
+Pad U4-22(38.62mm,74.75mm) on SIGNAL_TOP
+Pad U4-23(38.62mm,74.25mm) on SIGNAL_TOP
+Pad U4-24(38.62mm,73.75mm) on SIGNAL_TOP
+Pad U4-25(40.05mm,72.32mm) on SIGNAL_TOP
+Pad U4-26(40.55mm,72.32mm) on SIGNAL_TOP
+Pad U4-27(41.05mm,72.32mm) on SIGNAL_TOP
+Pad U4-28(41.55mm,72.32mm) on SIGNAL_TOP
+Pad U4-29(42.05mm,72.32mm) on SIGNAL_TOP
+Pad U4-30(42.55mm,72.32mm) on SIGNAL_TOP
+Pad U4-31(43.05mm,72.32mm) on SIGNAL_TOP
+Pad U4-32(43.55mm,72.32mm) on SIGNAL_TOP
+Pad U4-33(44.05mm,72.32mm) on SIGNAL_TOP
+Pad U4-34(44.55mm,72.32mm) on SIGNAL_TOP
+Pad U4-35(45.05mm,72.32mm) on SIGNAL_TOP
+Pad U4-36(45.55mm,72.32mm) on SIGNAL_TOP
+Pad U4-37(46.98mm,73.75mm) on SIGNAL_TOP
+Pad U4-38(46.98mm,74.25mm) on SIGNAL_TOP
+Pad U4-39(46.98mm,74.75mm) on SIGNAL_TOP
+Pad U4-40(46.98mm,75.25mm) on SIGNAL_TOP
+Pad U4-41(46.98mm,75.75mm) on SIGNAL_TOP
+Pad U4-42(46.98mm,76.25mm) on SIGNAL_TOP
+Pad U4-43(46.98mm,76.75mm) on SIGNAL_TOP
+Pad U4-44(46.98mm,77.25mm) on SIGNAL_TOP
+Pad U4-45(46.98mm,77.75mm) on SIGNAL_TOP
+Pad U4-46(46.98mm,78.25mm) on SIGNAL_TOP
+Pad U4-47(46.98mm,78.75mm) on SIGNAL_TOP
+Pad U4-48(46.98mm,79.25mm) on SIGNAL_TOP
+Pad L1-2(89.535mm,88.923mm) on SIGNAL_TOP
+Pad L1-1(89.535mm,94.973mm) on SIGNAL_TOP
+Pad L2-1(89.535mm,85.067mm) on SIGNAL_TOP
+Pad L2-2(89.535mm,79.017mm) on SIGNAL_TOP
+Pad X1-1(43.944mm,61.233mm) on SIGNAL_TOP
+Pad X1-2(41.644mm,61.233mm) on SIGNAL_TOP
+Pad X1-3(41.644mm,59.433mm) on SIGNAL_TOP
+Pad X1-4(43.944mm,59.433mm) on SIGNAL_TOP
+Pad U16-1(43.859mm,42.926mm) on SIGNAL_TOP
+Pad U16-2(43.859mm,41.656mm) on SIGNAL_TOP
+Pad U16-3(43.859mm,40.386mm) on SIGNAL_TOP
+Pad U16-4(43.859mm,39.116mm) on SIGNAL_TOP
+Pad U16-5(43.859mm,37.846mm) on SIGNAL_TOP
+Pad U16-6(43.859mm,36.576mm) on SIGNAL_TOP
+Pad U16-7(43.859mm,35.306mm) on SIGNAL_TOP
+Pad U16-8(43.859mm,34.036mm) on SIGNAL_TOP
+Pad U16-9(49.359mm,34.036mm) on SIGNAL_TOP
+Pad U16-10(49.359mm,35.306mm) on SIGNAL_TOP
+Pad U16-11(49.359mm,36.576mm) on SIGNAL_TOP
+Pad U16-12(49.359mm,37.846mm) on SIGNAL_TOP
+Pad U16-13(49.359mm,39.116mm) on SIGNAL_TOP
+Pad U16-14(49.359mm,40.386mm) on SIGNAL_TOP
+Pad U16-15(49.359mm,41.656mm) on SIGNAL_TOP
+Pad U16-16(49.359mm,42.926mm) on SIGNAL_TOP
+Pad USB1-A6(34.861mm,37.463mm) on SIGNAL_TOP
+Pad USB1-A7(34.861mm,36.963mm) on SIGNAL_TOP
+Pad USB1-B6(34.861mm,36.463mm) on SIGNAL_TOP
+Pad USB1-B8(34.861mm,35.963mm) on SIGNAL_TOP
+Pad USB1-B5(34.861mm,35.463mm) on SIGNAL_TOP
+Pad USB1-B7(34.861mm,37.963mm) on SIGNAL_TOP
+Pad USB1-A5(34.861mm,38.463mm) on SIGNAL_TOP
+Pad USB1-A8(34.861mm,38.963mm) on SIGNAL_TOP
+Pad USB1-A4(34.861mm,39.613mm) on SIGNAL_TOP
+Pad USB1-B4(34.861mm,34.813mm) on SIGNAL_TOP
+Pad USB1-B1(34.861mm,34.013mm) on SIGNAL_TOP
+Pad USB1-A1(34.861mm,40.413mm) on SIGNAL_TOP
+Pad Q7-1(53.423mm,39.177mm) on SIGNAL_TOP
+Pad Q7-2(53.423mm,37.277mm) on SIGNAL_TOP
+Pad Q7-3(55.543mm,38.227mm) on SIGNAL_TOP
+Pad Q6-3(55.543mm,41.783mm) on SIGNAL_TOP
+Pad Q6-2(53.423mm,40.833mm) on SIGNAL_TOP
+Pad Q6-1(53.423mm,42.733mm) on SIGNAL_TOP
+Pad TP2-1(27.5mm,53.7mm) on SIGNAL_TOP
+Pad F3-2(98.493mm,29.988mm) on SIGNAL_TOP
+Pad F3-1(94.293mm,29.988mm) on SIGNAL_TOP
+Pad F4-1(92.075mm,29.988mm) on SIGNAL_TOP
+Pad F4-2(87.875mm,29.988mm) on SIGNAL_TOP
+Pad F1-1(110.3mm,30.1mm) on SIGNAL_TOP
+Pad F1-2(114.5mm,30.1mm) on SIGNAL_TOP
+Pad U5-5(107.442mm,39.212mm) on SIGNAL_TOP
+Pad U5-6(108.712mm,39.212mm) on SIGNAL_TOP
+Pad U5-7(109.982mm,39.212mm) on SIGNAL_TOP
+Pad U5-8(111.252mm,39.212mm) on SIGNAL_TOP
+Pad U5-4(107.442mm,44.862mm) on SIGNAL_TOP
+Pad U5-3(108.712mm,44.862mm) on SIGNAL_TOP
+Pad U5-2(109.982mm,44.862mm) on SIGNAL_TOP
+Pad U5-1(111.252mm,44.862mm) on SIGNAL_TOP
+Pad F2-2(104mm,30.1mm) on SIGNAL_TOP
+Pad F2-1(108.2mm,30.1mm) on SIGNAL_TOP
+Pad D3-1(106.47mm,34.991mm) on SIGNAL_TOP
+Pad D3-2(106.47mm,36.891mm) on SIGNAL_TOP
+Pad D3-3(104.35mm,35.941mm) on SIGNAL_TOP
+Pad U10-1(94.996mm,44.862mm) on SIGNAL_TOP
+Pad U10-2(93.726mm,44.862mm) on SIGNAL_TOP
+Pad U10-3(92.456mm,44.862mm) on SIGNAL_TOP
+Pad U10-4(91.186mm,44.862mm) on SIGNAL_TOP
+Pad U10-8(94.996mm,39.212mm) on SIGNAL_TOP
+Pad U10-7(93.726mm,39.212mm) on SIGNAL_TOP
+Pad U10-6(92.456mm,39.212mm) on SIGNAL_TOP
+Pad U10-5(91.186mm,39.212mm) on SIGNAL_TOP
+Pad D4-1(90.56mm,34.95mm) on SIGNAL_TOP
+Pad D4-2(90.56mm,36.85mm) on SIGNAL_TOP
+Pad D4-3(88.44mm,35.9mm) on SIGNAL_TOP
+Pad TP11-1(120.1mm,28.8mm) on SIGNAL_TOP
+Pad TP3-1(117.1mm,28.8mm) on SIGNAL_TOP
+Pad LED15-2(40.752mm,47.099mm) on SIGNAL_TOP
+Pad LED15-1(42.452mm,47.099mm) on SIGNAL_TOP
+Pad LED2-2(77.001mm,91.252mm) on SIGNAL_TOP
+Pad LED2-1(77.001mm,92.952mm) on SIGNAL_TOP
+Pad TP6-1(76.7mm,95.3mm) on SIGNAL_TOP
+Pad VR1-1(111.201mm,107.839mm) on SIGNAL_TOP
+Pad VR1-2(108.051mm,108.839mm) on SIGNAL_TOP
+Pad VR1-3(111.201mm,109.839mm) on SIGNAL_TOP
+Pad TP8-1(105.6mm,78.3mm) on SIGNAL_TOP
+Pad TP5-1(76.6mm,78.4mm) on SIGNAL_TOP
+Pad D1-2(96.774mm,78.232mm) on SIGNAL_TOP
+Pad D1-1(100.838mm,78.232mm) on SIGNAL_TOP
+Pad LED3-2(76.802mm,82.647mm) on SIGNAL_TOP
+Pad LED3-1(76.802mm,80.947mm) on SIGNAL_TOP
+Pad LED11-2(118.237mm,33.704mm) on SIGNAL_TOP
+Pad LED11-1(118.237mm,32.004mm) on SIGNAL_TOP
+Pad TP1-1(121.4mm,54.3mm) on SIGNAL_TOP
+Pad LED12-2(113.248mm,59.301mm) on SIGNAL_TOP
+Pad LED12-1(111.548mm,59.301mm) on SIGNAL_TOP
+Pad LED4-2(31.642mm,57.962mm) on SIGNAL_TOP
+Pad LED4-1(31.642mm,59.662mm) on SIGNAL_TOP
+Pad LED5-1(33.742mm,59.662mm) on SIGNAL_TOP
+Pad LED5-2(33.742mm,57.962mm) on SIGNAL_TOP
+Pad D5-2(34.532mm,44.7mm) on SIGNAL_TOP
+Pad D5-1(30.468mm,44.7mm) on SIGNAL_TOP
+Pad D2-1(96.139mm,96.901mm) on SIGNAL_TOP
+Pad D2-2(100.203mm,96.901mm) on SIGNAL_TOP
+Pad SW3-3(56.77mm,97.778mm) on SIGNAL_TOP
+Pad SW3-2(56.77mm,100.318mm) on SIGNAL_TOP
+Pad SW3-1(56.77mm,102.858mm) on SIGNAL_TOP
+Pad SW3-1_1(65.38mm,102.858mm) on SIGNAL_TOP
+Pad SW3-2_1(65.38mm,100.318mm) on SIGNAL_TOP
+Pad SW3-3_1(65.38mm,97.778mm) on SIGNAL_TOP
+Pad SW9-2(43.8mm,24.798mm) on SIGNAL_TOP
+Pad SW9-1(43.8mm,17.798mm) on SIGNAL_TOP
+Pad D6-1(38.501mm,38.161mm) on SIGNAL_TOP
+Pad D6-2(38.501mm,37.211mm) on SIGNAL_TOP
+Pad D6-3(38.501mm,36.261mm) on SIGNAL_TOP
+Pad D6-4(41.001mm,36.261mm) on SIGNAL_TOP
+Pad D6-5(41.001mm,37.211mm) on SIGNAL_TOP
+Pad D6-6(41.001mm,38.161mm) on SIGNAL_TOP
+Pad U7-1(103.124mm,53.244mm) on SIGNAL_TOP
+Pad U7-2(101.854mm,53.244mm) on SIGNAL_TOP
+Pad U7-3(100.584mm,53.244mm) on SIGNAL_TOP
+Pad U7-4(99.314mm,53.244mm) on SIGNAL_TOP
+Pad U7-8(103.124mm,47.594mm) on SIGNAL_TOP
+Pad U7-7(101.854mm,47.594mm) on SIGNAL_TOP
+Pad U7-6(100.584mm,47.594mm) on SIGNAL_TOP
+Pad U7-5(99.314mm,47.594mm) on SIGNAL_TOP
+Pad U6-1(111.252mm,53.244mm) on SIGNAL_TOP
+Pad U6-2(109.982mm,53.244mm) on SIGNAL_TOP
+Pad U6-3(108.712mm,53.244mm) on SIGNAL_TOP
+Pad U6-4(107.442mm,53.244mm) on SIGNAL_TOP
+Pad U6-8(111.252mm,47.594mm) on SIGNAL_TOP
+Pad U6-7(109.982mm,47.594mm) on SIGNAL_TOP
+Pad U6-6(108.712mm,47.594mm) on SIGNAL_TOP
+Pad U6-5(107.442mm,47.594mm) on SIGNAL_TOP
+Pad U8-1(94.996mm,53.244mm) on SIGNAL_TOP
+Pad U8-2(93.726mm,53.244mm) on SIGNAL_TOP
+Pad U8-3(92.456mm,53.244mm) on SIGNAL_TOP
+Pad U8-4(91.186mm,53.244mm) on SIGNAL_TOP
+Pad U8-8(94.996mm,47.594mm) on SIGNAL_TOP
+Pad U8-7(93.726mm,47.594mm) on SIGNAL_TOP
+Pad U8-6(92.456mm,47.594mm) on SIGNAL_TOP
+Pad U8-5(91.186mm,47.594mm) on SIGNAL_TOP
+Pad U1-9(97.409mm,92.329mm) on SIGNAL_TOP
+Pad U1-5(100.234mm,90.424mm) on SIGNAL_TOP
+Pad U1-6(100.234mm,91.694mm) on SIGNAL_TOP
+Pad U1-7(100.234mm,92.964mm) on SIGNAL_TOP
+Pad U1-8(100.234mm,94.234mm) on SIGNAL_TOP
+Pad U1-4(94.584mm,90.424mm) on SIGNAL_TOP
+Pad U1-3(94.584mm,91.694mm) on SIGNAL_TOP
+Pad U1-2(94.584mm,92.964mm) on SIGNAL_TOP
+Pad U1-1(94.584mm,94.234mm) on SIGNAL_TOP
+Pad U2-5(100.996mm,80.899mm) on SIGNAL_TOP
+Pad U2-6(100.996mm,82.169mm) on SIGNAL_TOP
+Pad U2-7(100.996mm,83.439mm) on SIGNAL_TOP
+Pad U2-8(100.996mm,84.709mm) on SIGNAL_TOP
+Pad U2-4(95.346mm,80.899mm) on SIGNAL_TOP
+Pad U2-3(95.346mm,82.169mm) on SIGNAL_TOP
+Pad U2-2(95.346mm,83.439mm) on SIGNAL_TOP
+Pad U2-1(95.346mm,84.709mm) on SIGNAL_TOP
+Pad SW2-2(53.467mm,70.924mm) on SIGNAL_TOP
+Pad SW2-1(53.467mm,77.924mm) on SIGNAL_TOP
+Pad TP10-1(88.8mm,45.1mm) on SIGNAL_TOP
+Pad Fuse1-1(112.7mm,87.488mm) on SIGNAL_TOP
+Pad Fuse1-2(112.7mm,81.112mm) on SIGNAL_TOP
+Pad C6-1(105.689mm,87.687mm) on SIGNAL_TOP
+Pad C6-2(105.689mm,82.087mm) on SIGNAL_TOP
+Pad C11-2(81.788mm,84.842mm) on SIGNAL_TOP
+Pad C11-1(81.788mm,79.242mm) on SIGNAL_TOP
+Pad C12-1(81.661mm,89.148mm) on SIGNAL_TOP
+Pad C12-2(81.661mm,94.748mm) on SIGNAL_TOP
+Pad FR1-1(36.6mm,67.39mm) on SIGNAL_TOP
+Pad FR1-2(36.6mm,65.61mm) on SIGNAL_TOP
+Pad SD1-(119.6mm,61.6mm) on Multi-Layer
+Pad SD1-(119.6mm,69.6mm) on Multi-Layer
+Pad JP1-02(58.2mm,85.76mm) on Multi-Layer
+Pad JP1-03(58.2mm,88.3mm) on Multi-Layer
+Pad JP1-01(58.2mm,83.22mm) on Multi-Layer
+Pad KF1-2(103.759mm,25.908mm) on Multi-Layer
+Pad KF1-3(98.677mm,25.91mm) on Multi-Layer
+Pad KF1-4(93.589mm,25.918mm) on Multi-Layer
+Pad KF1-1(108.839mm,25.908mm) on Multi-Layer
+Pad EN1-D(62.85mm,38.568mm) on Multi-Layer
+Pad EN1-E(62.85mm,33.568mm) on Multi-Layer
+Pad EN1-A(77.35mm,38.568mm) on Multi-Layer
+Pad EN1-B(77.35mm,33.568mm) on Multi-Layer
+Pad EN1-C(77.35mm,36.068mm) on Multi-Layer
+Pad EN1-SH1(69.85mm,41.968mm) on Multi-Layer
+Pad EN1-SH2(69.85mm,30.168mm) on Multi-Layer
+Pad COM1-(48.6mm,103.3mm) on Multi-Layer
+Pad COM1-(37.17mm,103.3mm) on Multi-Layer
+Pad COM1-16(35.14mm,100.25mm) on Multi-Layer
+Pad COM1-15(50.63mm,100.25mm) on Multi-Layer
+Pad COM1-11(38.8mm,108.2mm) on Multi-Layer
+Pad COM1-12(36.26mm,108.2mm) on Multi-Layer
+Pad COM1-10(46.97mm,108.2mm) on Multi-Layer
+Pad COM1-9(49.51mm,108.2mm) on Multi-Layer
+Pad COM1-8(38.445mm,94.41mm) on Multi-Layer
+Pad COM1-7(39.715mm,96.95mm) on Multi-Layer
+Pad COM1-6(40.985mm,94.41mm) on Multi-Layer
+Pad COM1-5(42.255mm,96.95mm) on Multi-Layer
+Pad COM1-4(43.525mm,94.41mm) on Multi-Layer
+Pad COM1-3(44.795mm,96.95mm) on Multi-Layer
+Pad COM1-2(46.065mm,94.41mm) on Multi-Layer
+Pad COM1-1(47.335mm,96.95mm) on Multi-Layer
+Pad U3-3(118.296mm,39.497mm) on Multi-Layer
+Pad U3-4(118.296mm,36.957mm) on Multi-Layer
+Pad U3-2(118.296mm,42.037mm) on Multi-Layer
+Pad U3-1(118.296mm,44.577mm) on Multi-Layer
+Pad USB1-SHIELD(33.444mm,40.103mm) on Multi-Layer
+Pad USB1-SHIELD(33.444mm,34.323mm) on Multi-Layer
+Pad USB1-SHIELD(33.944mm,41.533mm) on Multi-Layer
+Pad USB1-SHIELD(33.944mm,32.893mm) on Multi-Layer
+Pad USB1-SHIELD(29.794mm,41.533mm) on Multi-Layer
+Pad USB1-SHIELD(29.794mm,32.893mm) on Multi-Layer
+Pad JP2-05(61mm,88.36mm) on Multi-Layer
+Pad JP2-04(61mm,85.82mm) on Multi-Layer
+Pad JP2-03(61mm,83.28mm) on Multi-Layer
+Pad JP2-02(61mm,80.74mm) on Multi-Layer
+Pad JP2-01(61mm,78.2mm) on Multi-Layer
+Pad LCD1-S4(28.419mm,49.434mm) on Multi-Layer
+Pad LCD1-S3(121.419mm,49.434mm) on Multi-Layer
+Pad LCD1-16(75.819mm,104.394mm) on Multi-Layer
+Pad LCD1-15(78.359mm,104.394mm) on Multi-Layer
+Pad LCD1-14(80.899mm,104.394mm) on Multi-Layer
+Pad LCD1-13(83.439mm,104.394mm) on Multi-Layer
+Pad LCD1-12(85.979mm,104.394mm) on Multi-Layer
+Pad LCD1-11(88.519mm,104.394mm) on Multi-Layer
+Pad LCD1-10(91.059mm,104.394mm) on Multi-Layer
+Pad LCD1-9(93.599mm,104.394mm) on Multi-Layer
+Pad LCD1-8(96.139mm,104.394mm) on Multi-Layer
+Pad LCD1-7(98.679mm,104.394mm) on Multi-Layer
+Pad LCD1-6(101.219mm,104.394mm) on Multi-Layer
+Pad LCD1-5(103.759mm,104.394mm) on Multi-Layer
+Pad LCD1-4(106.299mm,104.394mm) on Multi-Layer
+Pad LCD1-3(108.839mm,104.394mm) on Multi-Layer
+Pad LCD1-2(111.379mm,104.394mm) on Multi-Layer
+Pad LCD1-1(113.919mm,104.394mm) on Multi-Layer
+Pad MH3-1(29.975mm,107.475mm) on Multi-Layer
+Pad MH1-1(120mm,19.4mm) on Multi-Layer
+Pad MH4-SS(29.825mm,19.575mm) on Multi-Layer
+Pad SW8-1(35.56mm,29.972mm) on Multi-Layer
+Pad SW8-2(35.56mm,25.472mm) on Multi-Layer
+Pad SW8-S1(38.05mm,31.227mm) on Multi-Layer
+Pad SW8-S2(38.05mm,24.217mm) on Multi-Layer
+Pad MH2-1(119.975mm,107.475mm) on Multi-Layer
+Pad SW1-1(119.4mm,87.4mm) on Multi-Layer
+Pad SW1-3(119.4mm,78mm) on Multi-Layer
+Pad SW1-2(119.4mm,82.7mm) on Multi-Layer
+Pad DC1-2(118.5mm,95.6mm) on Multi-Layer
+Pad DC1-3(115.7mm,100.4mm) on Multi-Layer
+Pad DC1-1(112.7mm,95.6mm) on Multi-Layer
+Pad SD1-1(108.6mm,62.4mm) on SIGNAL_BOTTOM
+Pad SD1-2(108.6mm,63.5mm) on SIGNAL_BOTTOM
+Pad SD1-3(108.6mm,64.6mm) on SIGNAL_BOTTOM
+Pad SD1-4(108.6mm,65.7mm) on SIGNAL_BOTTOM
+Pad SD1-5(108.6mm,66.8mm) on SIGNAL_BOTTOM
+Pad SD1-6(108.6mm,67.9mm) on SIGNAL_BOTTOM
+Pad SD1-7(108.6mm,69mm) on SIGNAL_BOTTOM
+Pad SD1-8(108.6mm,70.1mm) on SIGNAL_BOTTOM
+Pad SD1-G2(109.65mm,57.8mm) on SIGNAL_BOTTOM
+Pad SD1-G1(109.9mm,72.4mm) on SIGNAL_BOTTOM
+Pad SD1-G4(119.2mm,56.9mm) on SIGNAL_BOTTOM
+Pad SD1-G3(119.2mm,72.4mm) on SIGNAL_BOTTOM
+Pad SD1-CD(108.6mm,71.2mm) on SIGNAL_BOTTOM
+Pad VBAT1-N(78.804mm,84.709mm) on SIGNAL_BOTTOM
+Pad VBAT1-P(108.204mm,84.709mm) on SIGNAL_BOTTOM
+Pad R1-1(120.725mm,101.5mm) on SIGNAL_BOTTOM
+Pad R1-2(122.275mm,101.5mm) on SIGNAL_BOTTOM
+Pad R42-1(102.075mm,66.9mm) on SIGNAL_BOTTOM
+Pad R42-2(100.525mm,66.9mm) on SIGNAL_BOTTOM
+Pad R43-2(100.525mm,64.75mm) on SIGNAL_BOTTOM
+Pad R43-1(102.075mm,64.75mm) on SIGNAL_BOTTOM
+Pad R45-1(102.075mm,69mm) on SIGNAL_BOTTOM
+Pad R45-2(100.525mm,69mm) on SIGNAL_BOTTOM
+Pad R46-2(100.525mm,62.6mm) on SIGNAL_BOTTOM
+Pad R46-1(102.075mm,62.6mm) on SIGNAL_BOTTOM
+Pad C3-2(122.314mm,45.593mm) on SIGNAL_BOTTOM
+Pad C3-1(120.764mm,45.593mm) on SIGNAL_BOTTOM
+Pad C4-1(120.764mm,43.688mm) on SIGNAL_BOTTOM
+Pad C4-2(122.314mm,43.688mm) on SIGNAL_BOTTOM
+Pad C13-2(122.314mm,41.783mm) on SIGNAL_BOTTOM
+Pad C13-1(120.764mm,41.783mm) on SIGNAL_BOTTOM
+Pad C15-2(33.3mm,96.175mm) on SIGNAL_BOTTOM
+Pad C15-1(33.3mm,94.625mm) on SIGNAL_BOTTOM
+Pad SW5-1(60.363mm,23.586mm) on SIGNAL_BOTTOM
+Pad SW5-2(60.363mm,19.086mm) on SIGNAL_BOTTOM
+Pad SW5-1(52.413mm,23.586mm) on SIGNAL_BOTTOM
+Pad SW5-2(52.413mm,19.086mm) on SIGNAL_BOTTOM
+Pad SW7-2(76.035mm,19.213mm) on SIGNAL_BOTTOM
+Pad SW7-1(76.035mm,23.713mm) on SIGNAL_BOTTOM
+Pad SW7-2(83.985mm,19.213mm) on SIGNAL_BOTTOM
+Pad SW7-1(83.985mm,23.713mm) on SIGNAL_BOTTOM
+Pad SW6-2(64.351mm,19.086mm) on SIGNAL_BOTTOM
+Pad SW6-1(64.351mm,23.586mm) on SIGNAL_BOTTOM
+Pad SW6-2(72.301mm,19.086mm) on SIGNAL_BOTTOM
+Pad SW6-1(72.301mm,23.586mm) on SIGNAL_BOTTOM
+Pad LED1-2(122.248mm,99.499mm) on SIGNAL_BOTTOM
+Pad LED1-1(120.548mm,99.499mm) on SIGNAL_BOTTOM
 
 Via teardrops failed : 0
 
-Via (62.23mm,27.813mm) from Top Layer to Bottom Layer
-Via (71.12mm,18.542mm) from Top Layer to Bottom Layer
-Via (37.719mm,31.496mm) from Top Layer to Bottom Layer
-Via (38.984mm,31.164mm) from Top Layer to Bottom Layer
-Via (77.978mm,27.432mm) from Top Layer to Bottom Layer
-Via (93mm,93mm) from Top Layer to Bottom Layer
-Via (94.5mm,84mm) from Top Layer to Bottom Layer
-Via (93mm,81mm) from Top Layer to Bottom Layer
-Via (94.5mm,78mm) from Top Layer to Bottom Layer
-Via (93mm,69mm) from Top Layer to Bottom Layer
-Via (94.5mm,60mm) from Top Layer to Bottom Layer
-Via (94.5mm,54mm) from Top Layer to Bottom Layer
-Via (94.5mm,48mm) from Top Layer to Bottom Layer
-Via (94.5mm,42mm) from Top Layer to Bottom Layer
-Via (90mm,93mm) from Top Layer to Bottom Layer
-Via (91.5mm,84mm) from Top Layer to Bottom Layer
-Via (91.5mm,78mm) from Top Layer to Bottom Layer
-Via (90mm,69mm) from Top Layer to Bottom Layer
-Via (90mm,51mm) from Top Layer to Bottom Layer
-Via (91.5mm,48mm) from Top Layer to Bottom Layer
-Via (90mm,45mm) from Top Layer to Bottom Layer
-Via (91.5mm,42mm) from Top Layer to Bottom Layer
-Via (90mm,39mm) from Top Layer to Bottom Layer
-Via (87mm,93mm) from Top Layer to Bottom Layer
-Via (87mm,87mm) from Top Layer to Bottom Layer
-Via (88.5mm,84mm) from Top Layer to Bottom Layer
-Via (87mm,69mm) from Top Layer to Bottom Layer
-Via (88.5mm,66mm) from Top Layer to Bottom Layer
-Via (88.5mm,54mm) from Top Layer to Bottom Layer
-Via (88.5mm,48mm) from Top Layer to Bottom Layer
-Via (88.5mm,42mm) from Top Layer to Bottom Layer
-Via (84mm,93mm) from Top Layer to Bottom Layer
-Via (84mm,87mm) from Top Layer to Bottom Layer
-Via (85.5mm,78mm) from Top Layer to Bottom Layer
-Via (84mm,69mm) from Top Layer to Bottom Layer
-Via (85.5mm,54mm) from Top Layer to Bottom Layer
-Via (84mm,51mm) from Top Layer to Bottom Layer
-Via (84mm,45mm) from Top Layer to Bottom Layer
-Via (84mm,39mm) from Top Layer to Bottom Layer
-Via (84mm,33mm) from Top Layer to Bottom Layer
-Via (81mm,87mm) from Top Layer to Bottom Layer
-Via (82.5mm,84mm) from Top Layer to Bottom Layer
-Via (81mm,75mm) from Top Layer to Bottom Layer
-Via (82.5mm,72mm) from Top Layer to Bottom Layer
-Via (82.5mm,66mm) from Top Layer to Bottom Layer
-Via (81mm,63mm) from Top Layer to Bottom Layer
-Via (82.5mm,54mm) from Top Layer to Bottom Layer
-Via (81mm,51mm) from Top Layer to Bottom Layer
-Via (82.5mm,48mm) from Top Layer to Bottom Layer
-Via (82.5mm,42mm) from Top Layer to Bottom Layer
-Via (78mm,87mm) from Top Layer to Bottom Layer
-Via (79.5mm,84mm) from Top Layer to Bottom Layer
-Via (78mm,69mm) from Top Layer to Bottom Layer
-Via (78mm,63mm) from Top Layer to Bottom Layer
-Via (78mm,57mm) from Top Layer to Bottom Layer
-Via (78mm,51mm) from Top Layer to Bottom Layer
-Via (78mm,33mm) from Top Layer to Bottom Layer
-Via (75mm,93mm) from Top Layer to Bottom Layer
-Via (76.5mm,84mm) from Top Layer to Bottom Layer
-Via (76.5mm,72mm) from Top Layer to Bottom Layer
-Via (76.5mm,54mm) from Top Layer to Bottom Layer
-Via (75mm,51mm) from Top Layer to Bottom Layer
-Via (76.5mm,48mm) from Top Layer to Bottom Layer
-Via (72mm,93mm) from Top Layer to Bottom Layer
-Via (72mm,87mm) from Top Layer to Bottom Layer
-Via (73.5mm,84mm) from Top Layer to Bottom Layer
-Via (72mm,69mm) from Top Layer to Bottom Layer
-Via (72mm,63mm) from Top Layer to Bottom Layer
-Via (72mm,57mm) from Top Layer to Bottom Layer
-Via (73.5mm,48mm) from Top Layer to Bottom Layer
-Via (69mm,93mm) from Top Layer to Bottom Layer
-Via (70.5mm,72mm) from Top Layer to Bottom Layer
-Via (69mm,57mm) from Top Layer to Bottom Layer
-Via (70.5mm,54mm) from Top Layer to Bottom Layer
-Via (69mm,51mm) from Top Layer to Bottom Layer
-Via (66mm,93mm) from Top Layer to Bottom Layer
-Via (66mm,87mm) from Top Layer to Bottom Layer
-Via (66mm,63mm) from Top Layer to Bottom Layer
-Via (67.5mm,54mm) from Top Layer to Bottom Layer
-Via (64.5mm,54mm) from Top Layer to Bottom Layer
-Via (63mm,51mm) from Top Layer to Bottom Layer
-Via (64.5mm,48mm) from Top Layer to Bottom Layer
-Via (63mm,45mm) from Top Layer to Bottom Layer
-Via (63mm,39mm) from Top Layer to Bottom Layer
-Via (60mm,93mm) from Top Layer to Bottom Layer
-Via (60mm,87mm) from Top Layer to Bottom Layer
-Via (60mm,51mm) from Top Layer to Bottom Layer
-Via (61.5mm,48mm) from Top Layer to Bottom Layer
-Via (60mm,45mm) from Top Layer to Bottom Layer
-Via (60mm,39mm) from Top Layer to Bottom Layer
-Via (57mm,93mm) from Top Layer to Bottom Layer
-Via (57mm,81mm) from Top Layer to Bottom Layer
-Via (58.5mm,78mm) from Top Layer to Bottom Layer
-Via (57mm,69mm) from Top Layer to Bottom Layer
-Via (58.5mm,66mm) from Top Layer to Bottom Layer
-Via (57mm,57mm) from Top Layer to Bottom Layer
-Via (58.5mm,54mm) from Top Layer to Bottom Layer
-Via (57mm,51mm) from Top Layer to Bottom Layer
-Via (58.5mm,48mm) from Top Layer to Bottom Layer
-Via (58.5mm,42mm) from Top Layer to Bottom Layer
-Via (57mm,39mm) from Top Layer to Bottom Layer
-Via (54mm,93mm) from Top Layer to Bottom Layer
-Via (55.5mm,66mm) from Top Layer to Bottom Layer
-Via (55.5mm,60mm) from Top Layer to Bottom Layer
-Via (54mm,57mm) from Top Layer to Bottom Layer
-Via (55.5mm,54mm) from Top Layer to Bottom Layer
-Via (54mm,51mm) from Top Layer to Bottom Layer
-Via (54mm,45mm) from Top Layer to Bottom Layer
-Via (55.5mm,42mm) from Top Layer to Bottom Layer
-Via (54mm,39mm) from Top Layer to Bottom Layer
-Via (52.5mm,78mm) from Top Layer to Bottom Layer
-Via (52.5mm,72mm) from Top Layer to Bottom Layer
-Via (51mm,69mm) from Top Layer to Bottom Layer
-Via (52.5mm,66mm) from Top Layer to Bottom Layer
-Via (51mm,63mm) from Top Layer to Bottom Layer
-Via (52.5mm,54mm) from Top Layer to Bottom Layer
-Via (52.5mm,48mm) from Top Layer to Bottom Layer
-Via (51mm,45mm) from Top Layer to Bottom Layer
-Via (52.5mm,42mm) from Top Layer to Bottom Layer
-Via (51mm,39mm) from Top Layer to Bottom Layer
-Via (51mm,21mm) from Top Layer to Bottom Layer
-Via (52.5mm,6mm) from Top Layer to Bottom Layer
-Via (51mm,3mm) from Top Layer to Bottom Layer
-Via (48mm,93mm) from Top Layer to Bottom Layer
-Via (48mm,87mm) from Top Layer to Bottom Layer
-Via (48mm,69mm) from Top Layer to Bottom Layer
-Via (48mm,63mm) from Top Layer to Bottom Layer
-Via (48mm,51mm) from Top Layer to Bottom Layer
-Via (49.5mm,42mm) from Top Layer to Bottom Layer
-Via (48mm,39mm) from Top Layer to Bottom Layer
-Via (49.5mm,30mm) from Top Layer to Bottom Layer
-Via (48mm,3mm) from Top Layer to Bottom Layer
-Via (45mm,93mm) from Top Layer to Bottom Layer
-Via (45mm,87mm) from Top Layer to Bottom Layer
-Via (46.5mm,54mm) from Top Layer to Bottom Layer
-Via (45mm,51mm) from Top Layer to Bottom Layer
-Via (45mm,45mm) from Top Layer to Bottom Layer
-Via (45mm,39mm) from Top Layer to Bottom Layer
-Via (46.5mm,30mm) from Top Layer to Bottom Layer
-Via (46.5mm,24mm) from Top Layer to Bottom Layer
-Via (45mm,21mm) from Top Layer to Bottom Layer
-Via (46.5mm,18mm) from Top Layer to Bottom Layer
-Via (45mm,15mm) from Top Layer to Bottom Layer
-Via (45mm,3mm) from Top Layer to Bottom Layer
-Via (42mm,93mm) from Top Layer to Bottom Layer
-Via (43.5mm,90mm) from Top Layer to Bottom Layer
-Via (43.5mm,84mm) from Top Layer to Bottom Layer
-Via (42mm,81mm) from Top Layer to Bottom Layer
-Via (43.5mm,54mm) from Top Layer to Bottom Layer
-Via (43.5mm,42mm) from Top Layer to Bottom Layer
-Via (42mm,33mm) from Top Layer to Bottom Layer
-Via (43.5mm,24mm) from Top Layer to Bottom Layer
-Via (43.5mm,18mm) from Top Layer to Bottom Layer
-Via (42mm,3mm) from Top Layer to Bottom Layer
-Via (39mm,93mm) from Top Layer to Bottom Layer
-Via (40.5mm,84mm) from Top Layer to Bottom Layer
-Via (39mm,69mm) from Top Layer to Bottom Layer
-Via (39mm,51mm) from Top Layer to Bottom Layer
-Via (39mm,45mm) from Top Layer to Bottom Layer
-Via (40.5mm,42mm) from Top Layer to Bottom Layer
-Via (39mm,39mm) from Top Layer to Bottom Layer
-Via (39mm,21mm) from Top Layer to Bottom Layer
-Via (40.5mm,18mm) from Top Layer to Bottom Layer
-Via (39mm,3mm) from Top Layer to Bottom Layer
-Via (37.5mm,90mm) from Top Layer to Bottom Layer
-Via (36mm,81mm) from Top Layer to Bottom Layer
-Via (37.5mm,72mm) from Top Layer to Bottom Layer
-Via (37.5mm,54mm) from Top Layer to Bottom Layer
-Via (37.5mm,48mm) from Top Layer to Bottom Layer
-Via (37.5mm,24mm) from Top Layer to Bottom Layer
-Via (37.5mm,18mm) from Top Layer to Bottom Layer
-Via (36mm,15mm) from Top Layer to Bottom Layer
-Via (37.5mm,6mm) from Top Layer to Bottom Layer
-Via (36mm,3mm) from Top Layer to Bottom Layer
-Via (34.5mm,90mm) from Top Layer to Bottom Layer
-Via (34.5mm,84mm) from Top Layer to Bottom Layer
-Via (33mm,81mm) from Top Layer to Bottom Layer
-Via (34.5mm,72mm) from Top Layer to Bottom Layer
-Via (34.5mm,60mm) from Top Layer to Bottom Layer
-Via (33mm,57mm) from Top Layer to Bottom Layer
-Via (34.5mm,36mm) from Top Layer to Bottom Layer
-Via (33mm,33mm) from Top Layer to Bottom Layer
-Via (33mm,21mm) from Top Layer to Bottom Layer
-Via (33mm,3mm) from Top Layer to Bottom Layer
-Via (31.5mm,90mm) from Top Layer to Bottom Layer
-Via (30mm,51mm) from Top Layer to Bottom Layer
-Via (30mm,39mm) from Top Layer to Bottom Layer
-Via (31.5mm,36mm) from Top Layer to Bottom Layer
-Via (30mm,33mm) from Top Layer to Bottom Layer
-Via (31.5mm,18mm) from Top Layer to Bottom Layer
-Via (30mm,3mm) from Top Layer to Bottom Layer
-Via (27mm,81mm) from Top Layer to Bottom Layer
-Via (27mm,75mm) from Top Layer to Bottom Layer
-Via (27mm,69mm) from Top Layer to Bottom Layer
-Via (27mm,57mm) from Top Layer to Bottom Layer
-Via (28.5mm,54mm) from Top Layer to Bottom Layer
-Via (28.5mm,42mm) from Top Layer to Bottom Layer
-Via (28.5mm,36mm) from Top Layer to Bottom Layer
-Via (28.5mm,12mm) from Top Layer to Bottom Layer
-Via (27mm,3mm) from Top Layer to Bottom Layer
-Via (24mm,87mm) from Top Layer to Bottom Layer
-Via (25.5mm,84mm) from Top Layer to Bottom Layer
-Via (25.5mm,78mm) from Top Layer to Bottom Layer
-Via (24mm,75mm) from Top Layer to Bottom Layer
-Via (25.5mm,72mm) from Top Layer to Bottom Layer
-Via (24mm,63mm) from Top Layer to Bottom Layer
-Via (25.5mm,42mm) from Top Layer to Bottom Layer
-Via (24mm,39mm) from Top Layer to Bottom Layer
-Via (25.5mm,36mm) from Top Layer to Bottom Layer
-Via (24mm,33mm) from Top Layer to Bottom Layer
-Via (24mm,3mm) from Top Layer to Bottom Layer
-Via (21mm,87mm) from Top Layer to Bottom Layer
-Via (22.5mm,78mm) from Top Layer to Bottom Layer
-Via (21mm,63mm) from Top Layer to Bottom Layer
-Via (21mm,45mm) from Top Layer to Bottom Layer
-Via (22.5mm,42mm) from Top Layer to Bottom Layer
-Via (21mm,39mm) from Top Layer to Bottom Layer
-Via (21mm,3mm) from Top Layer to Bottom Layer
-Via (19.5mm,90mm) from Top Layer to Bottom Layer
-Via (18mm,87mm) from Top Layer to Bottom Layer
-Via (19.5mm,84mm) from Top Layer to Bottom Layer
-Via (18mm,57mm) from Top Layer to Bottom Layer
-Via (19.5mm,42mm) from Top Layer to Bottom Layer
-Via (18mm,39mm) from Top Layer to Bottom Layer
-Via (18mm,33mm) from Top Layer to Bottom Layer
-Via (19.5mm,30mm) from Top Layer to Bottom Layer
-Via (18mm,3mm) from Top Layer to Bottom Layer
-Via (16.5mm,90mm) from Top Layer to Bottom Layer
-Via (16.5mm,84mm) from Top Layer to Bottom Layer
-Via (16.5mm,60mm) from Top Layer to Bottom Layer
-Via (15mm,57mm) from Top Layer to Bottom Layer
-Via (15mm,39mm) from Top Layer to Bottom Layer
-Via (16.5mm,36mm) from Top Layer to Bottom Layer
-Via (15mm,33mm) from Top Layer to Bottom Layer
-Via (16.5mm,30mm) from Top Layer to Bottom Layer
-Via (16.5mm,12mm) from Top Layer to Bottom Layer
-Via (15mm,9mm) from Top Layer to Bottom Layer
-Via (15mm,3mm) from Top Layer to Bottom Layer
-Via (12mm,93mm) from Top Layer to Bottom Layer
-Via (12mm,87mm) from Top Layer to Bottom Layer
-Via (13.5mm,84mm) from Top Layer to Bottom Layer
-Via (13.5mm,60mm) from Top Layer to Bottom Layer
-Via (13.5mm,48mm) from Top Layer to Bottom Layer
-Via (13.5mm,42mm) from Top Layer to Bottom Layer
-Via (12mm,39mm) from Top Layer to Bottom Layer
-Via (13.5mm,36mm) from Top Layer to Bottom Layer
-Via (13.5mm,30mm) from Top Layer to Bottom Layer
-Via (12mm,15mm) from Top Layer to Bottom Layer
-Via (13.5mm,12mm) from Top Layer to Bottom Layer
-Via (12mm,3mm) from Top Layer to Bottom Layer
-Via (9mm,93mm) from Top Layer to Bottom Layer
-Via (9mm,87mm) from Top Layer to Bottom Layer
-Via (9mm,75mm) from Top Layer to Bottom Layer
-Via (10.5mm,66mm) from Top Layer to Bottom Layer
-Via (9mm,63mm) from Top Layer to Bottom Layer
-Via (10.5mm,48mm) from Top Layer to Bottom Layer
-Via (10.5mm,42mm) from Top Layer to Bottom Layer
-Via (9mm,39mm) from Top Layer to Bottom Layer
-Via (9mm,27mm) from Top Layer to Bottom Layer
-Via (10.5mm,18mm) from Top Layer to Bottom Layer
-Via (9mm,15mm) from Top Layer to Bottom Layer
-Via (9mm,9mm) from Top Layer to Bottom Layer
-Via (10.5mm,6mm) from Top Layer to Bottom Layer
-Via (9mm,3mm) from Top Layer to Bottom Layer
-Via (7.5mm,84mm) from Top Layer to Bottom Layer
-Via (7.5mm,78mm) from Top Layer to Bottom Layer
-Via (6mm,75mm) from Top Layer to Bottom Layer
-Via (7.5mm,48mm) from Top Layer to Bottom Layer
-Via (6mm,45mm) from Top Layer to Bottom Layer
-Via (7.5mm,42mm) from Top Layer to Bottom Layer
-Via (6mm,39mm) from Top Layer to Bottom Layer
-Via (6mm,33mm) from Top Layer to Bottom Layer
-Via (6mm,27mm) from Top Layer to Bottom Layer
-Via (6mm,15mm) from Top Layer to Bottom Layer
-Via (7.5mm,12mm) from Top Layer to Bottom Layer
-Via (6mm,9mm) from Top Layer to Bottom Layer
-Via (3mm,87mm) from Top Layer to Bottom Layer
-Via (4.5mm,84mm) from Top Layer to Bottom Layer
-Via (4.5mm,78mm) from Top Layer to Bottom Layer
-Via (4.5mm,72mm) from Top Layer to Bottom Layer
-Via (4.5mm,60mm) from Top Layer to Bottom Layer
-Via (3mm,51mm) from Top Layer to Bottom Layer
-Via (3mm,45mm) from Top Layer to Bottom Layer
-Via (4.5mm,42mm) from Top Layer to Bottom Layer
-Via (3mm,39mm) from Top Layer to Bottom Layer
-Via (4.5mm,36mm) from Top Layer to Bottom Layer
-Via (3mm,33mm) from Top Layer to Bottom Layer
-Via (3mm,27mm) from Top Layer to Bottom Layer
-Via (4.5mm,24mm) from Top Layer to Bottom Layer
-Via (3mm,21mm) from Top Layer to Bottom Layer
-Via (4.5mm,18mm) from Top Layer to Bottom Layer
-Via (3mm,15mm) from Top Layer to Bottom Layer
-Via (4.5mm,12mm) from Top Layer to Bottom Layer
-Via (3mm,9mm) from Top Layer to Bottom Layer
-Via (93mm,15mm) from Top Layer to Bottom Layer
-Via (94.5mm,12mm) from Top Layer to Bottom Layer
-Via (93mm,9mm) from Top Layer to Bottom Layer
-Via (90mm,15mm) from Top Layer to Bottom Layer
-Via (91.5mm,12mm) from Top Layer to Bottom Layer
-Via (90mm,9mm) from Top Layer to Bottom Layer
-Via (88.5mm,12mm) from Top Layer to Bottom Layer
-Via (88.5mm,6mm) from Top Layer to Bottom Layer
-Via (87mm,3mm) from Top Layer to Bottom Layer
-Via (84mm,9mm) from Top Layer to Bottom Layer
-Via (85.5mm,6mm) from Top Layer to Bottom Layer
-Via (84mm,3mm) from Top Layer to Bottom Layer
-Via (82.5mm,24mm) from Top Layer to Bottom Layer
-Via (81mm,21mm) from Top Layer to Bottom Layer
-Via (82.5mm,6mm) from Top Layer to Bottom Layer
-Via (81mm,3mm) from Top Layer to Bottom Layer
-Via (79.5mm,12mm) from Top Layer to Bottom Layer
-Via (78mm,9mm) from Top Layer to Bottom Layer
-Via (79.5mm,6mm) from Top Layer to Bottom Layer
-Via (78mm,3mm) from Top Layer to Bottom Layer
-Via (75mm,21mm) from Top Layer to Bottom Layer
-Via (76.5mm,18mm) from Top Layer to Bottom Layer
-Via (76.5mm,6mm) from Top Layer to Bottom Layer
-Via (75mm,3mm) from Top Layer to Bottom Layer
-Via (73.5mm,24mm) from Top Layer to Bottom Layer
-Via (73.5mm,18mm) from Top Layer to Bottom Layer
-Via (72mm,15mm) from Top Layer to Bottom Layer
-Via (72mm,9mm) from Top Layer to Bottom Layer
-Via (73.5mm,6mm) from Top Layer to Bottom Layer
-Via (72mm,3mm) from Top Layer to Bottom Layer
-Via (69mm,9mm) from Top Layer to Bottom Layer
-Via (70.5mm,6mm) from Top Layer to Bottom Layer
-Via (69mm,3mm) from Top Layer to Bottom Layer
-Via (66mm,15mm) from Top Layer to Bottom Layer
-Via (67.5mm,6mm) from Top Layer to Bottom Layer
-Via (66mm,3mm) from Top Layer to Bottom Layer
-Via (63mm,15mm) from Top Layer to Bottom Layer
-Via (64.5mm,12mm) from Top Layer to Bottom Layer
-Via (64.5mm,6mm) from Top Layer to Bottom Layer
-Via (63mm,3mm) from Top Layer to Bottom Layer
-Via (60mm,15mm) from Top Layer to Bottom Layer
-Via (60mm,9mm) from Top Layer to Bottom Layer
-Via (61.5mm,6mm) from Top Layer to Bottom Layer
-Via (60mm,3mm) from Top Layer to Bottom Layer
-Via (58.5mm,24mm) from Top Layer to Bottom Layer
-Via (58.5mm,18mm) from Top Layer to Bottom Layer
-Via (57mm,9mm) from Top Layer to Bottom Layer
-Via (58.5mm,6mm) from Top Layer to Bottom Layer
-Via (57mm,3mm) from Top Layer to Bottom Layer
-Via (92.343mm,31.2mm) from Top Layer to Bottom Layer
-Via (51.435mm,73.025mm) from Top Layer to Bottom Layer
-Via (36.449mm,39.497mm) from Top Layer to Bottom Layer
-Via (36.449mm,40.767mm) from Top Layer to Bottom Layer
-Via (24.13mm,31.496mm) from Top Layer to Bottom Layer
-Via (24.511mm,54.864mm) from Top Layer to Bottom Layer
-Via (49.048mm,58.484mm) from Top Layer to Bottom Layer
-Via (86.094mm,23.181mm) from Top Layer to Bottom Layer
-Via (78.105mm,23.241mm) from Top Layer to Bottom Layer
-Via (77.978mm,26.162mm) from Top Layer to Bottom Layer
-Via (80.264mm,27.051mm) from Top Layer to Bottom Layer
-Via (68.961mm,22.86mm) from Top Layer to Bottom Layer
-Via (88.265mm,21.257mm) from Top Layer to Bottom Layer
-Via (64.643mm,22.733mm) from Top Layer to Bottom Layer
-Via (36.83mm,26.543mm) from Top Layer to Bottom Layer
-Via (19.685mm,13.462mm) from Top Layer to Bottom Layer
-Via (9.906mm,30.988mm) from Top Layer to Bottom Layer
-Via (11.049mm,24.892mm) from Top Layer to Bottom Layer
-Via (25.908mm,23.749mm) from Top Layer to Bottom Layer
-Via (32.004mm,27.559mm) from Top Layer to Bottom Layer
-Via (32.004mm,31.623mm) from Top Layer to Bottom Layer
-Via (54.737mm,31.496mm) from Top Layer to Bottom Layer
-Via (70.866mm,42.799mm) from Top Layer to Bottom Layer
-Via (74.549mm,42.926mm) from Top Layer to Bottom Layer
-Via (18.796mm,51.308mm) from Top Layer to Bottom Layer
-Via (24.511mm,61.214mm) from Top Layer to Bottom Layer
-Via (17.145mm,41.402mm) from Top Layer to Bottom Layer
-Via (23.368mm,46.101mm) from Top Layer to Bottom Layer
-Via (23.876mm,48.006mm) from Top Layer to Bottom Layer
-Via (14.478mm,52.705mm) from Top Layer to Bottom Layer
-Via (24.638mm,65.532mm) from Top Layer to Bottom Layer
-Via (18.158mm,71.312mm) from Top Layer to Bottom Layer
-Via (20.32mm,71.755mm) from Top Layer to Bottom Layer
-Via (18.034mm,65.659mm) from Top Layer to Bottom Layer
-Via (4.572mm,66.929mm) from Top Layer to Bottom Layer
-Via (6.096mm,66.929mm) from Top Layer to Bottom Layer
-Via (22.86mm,71.755mm) from Top Layer to Bottom Layer
-Via (18.669mm,9.271mm) from Top Layer to Bottom Layer
-Via (61.341mm,26.162mm) from Top Layer to Bottom Layer
-Via (66.548mm,24.892mm) from Top Layer to Bottom Layer
-Via (60.452mm,25.908mm) from Top Layer to Bottom Layer
-Via (82.804mm,24.638mm) from Top Layer to Bottom Layer
-Via (76.962mm,25.4mm) from Top Layer to Bottom Layer
-Via (43.561mm,26.543mm) from Top Layer to Bottom Layer
-Via (37.973mm,26.67mm) from Top Layer to Bottom Layer
-Via (35.56mm,31.369mm) from Top Layer to Bottom Layer
-Via (70.104mm,34.544mm) from Top Layer to Bottom Layer
-Via (11.879mm,65.532mm) from Top Layer to Bottom Layer
-Via (15.367mm,65.532mm) from Top Layer to Bottom Layer
-Via (63.754mm,27.178mm) from Top Layer to Bottom Layer
-Via (70.104mm,33.147mm) from Top Layer to Bottom Layer
-Via (77.216mm,41.529mm) from Top Layer to Bottom Layer
-Via (49.911mm,77.978mm) from Top Layer to Bottom Layer
-Via (80.645mm,35.052mm) from Top Layer to Bottom Layer
-Via (45.593mm,84.201mm) from Top Layer to Bottom Layer
-Via (28.548mm,31.491mm) from Top Layer to Bottom Layer
-Via (27.205mm,31.491mm) from Top Layer to Bottom Layer
-Via (71.12mm,15.875mm) from Top Layer to Bottom Layer
-Via (82.931mm,18.923mm) from Top Layer to Bottom Layer
-Via (25.849mm,25.908mm) from Top Layer to Bottom Layer
-Via (23.876mm,27.559mm) from Top Layer to Bottom Layer
-Via (73.986mm,21.475mm) from Top Layer to Bottom Layer
-Via (74.422mm,35.052mm) from Top Layer to Bottom Layer
-Via (87.122mm,34.29mm) from Top Layer to Bottom Layer
-Via (88.265mm,34.925mm) from Top Layer to Bottom Layer
-Via (25.4mm,27.432mm) from Top Layer to Bottom Layer
-Via (67.564mm,33.528mm) from Top Layer to Bottom Layer
-Via (77.978mm,76.669mm) from Top Layer to Bottom Layer
-Via (50.673mm,34.417mm) from Top Layer to Bottom Layer
-Via (25.781mm,16.891mm) from Top Layer to Bottom Layer
-Via (9.271mm,60.071mm) from Top Layer to Bottom Layer
-Via (41.275mm,31.75mm) from Top Layer to Bottom Layer
-Via (25.146mm,29.21mm) from Top Layer to Bottom Layer
-Via (13.081mm,21.209mm) from Top Layer to Bottom Layer
-Via (26.416mm,19.431mm) from Top Layer to Bottom Layer
-Via (23.114mm,10.541mm) from Top Layer to Bottom Layer
-Via (24.003mm,13.462mm) from Top Layer to Bottom Layer
-Via (25.908mm,11.303mm) from Top Layer to Bottom Layer
-Via (30.861mm,13.462mm) from Top Layer to Bottom Layer
-Via (28.448mm,13.462mm) from Top Layer to Bottom Layer
-Via (26.289mm,13.462mm) from Top Layer to Bottom Layer
-Via (63.017mm,82.728mm) from Top Layer to Bottom Layer
-Via (65.786mm,34.29mm) from Top Layer to Bottom Layer
-Via (61.468mm,32.766mm) from Top Layer to Bottom Layer
-Via (46.355mm,35.306mm) from Top Layer to Bottom Layer
-Via (45.212mm,34.925mm) from Top Layer to Bottom Layer
-Via (44.196mm,34.29mm) from Top Layer to Bottom Layer
-Via (43.307mm,33.655mm) from Top Layer to Bottom Layer
-Via (29.718mm,11.176mm) from Top Layer to Bottom Layer
-Via (81.28mm,38.1mm) from Top Layer to Bottom Layer
-Via (4.445mm,53.213mm) from Top Layer to Bottom Layer
-Via (4.826mm,54.356mm) from Top Layer to Bottom Layer
-Via (10.287mm,54.483mm) from Top Layer to Bottom Layer
-Via (11.176mm,53.594mm) from Top Layer to Bottom Layer
-Via (62.992mm,92.075mm) from Top Layer to Bottom Layer
-Via (10.922mm,52.832mm) from Top Layer to Bottom Layer
-Via (10.541mm,19.431mm) from Top Layer to Bottom Layer
-Via (15.748mm,21.209mm) from Top Layer to Bottom Layer
-Via (10.541mm,21.844mm) from Top Layer to Bottom Layer
-Via (8.89mm,55.372mm) from Top Layer to Bottom Layer
-Via (8.89mm,59.182mm) from Top Layer to Bottom Layer
+Via (76.86mm,51.562mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (72.593mm,52.375mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (71.247mm,52.375mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (69.875mm,52.375mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (47.904mm,62.027mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (116.737mm,84.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (42.266mm,92.1mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (88.237mm,51.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (69.033mm,65.858mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (84.303mm,63.348mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (67.237mm,57.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (53.737mm,96.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (52.798mm,85.417mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (64.872mm,66.294mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (72.644mm,59.334mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (77.737mm,48.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (91.237mm,63.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (49.237mm,81.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (43.237mm,51.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (103.237mm,99.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (29.737mm,36.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (104.737mm,84.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (50.737mm,24.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (32.737mm,90.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (70.237mm,27.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (37.237mm,93.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (65.737mm,96.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (64.237mm,63.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (28.237mm,45.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (103.237mm,75.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (66.599mm,65.837mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (28.237mm,63.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (26.737mm,36.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (32.737mm,48.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (65.737mm,36.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (58.237mm,27.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (43.237mm,21.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (73.237mm,27.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (70.237mm,57.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (65.737mm,72.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (73.237mm,51.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (92.737mm,78.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (80.737mm,30.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (119.737mm,66.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (76.237mm,63.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (47.737mm,72.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (52.237mm,93.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (83.737mm,42.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (52.237mm,99.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (46.237mm,39.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (26.737mm,72.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (28.237mm,27.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (119.737mm,54.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (71.737mm,102.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (68.737mm,108.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (80.737mm,72.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (49.237mm,105.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (121.237mm,75.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (101.737mm,102.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (35.737mm,60.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (100.237mm,87.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (95.737mm,54.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (74.737mm,18.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (101.854mm,73.558mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (118.237mm,63.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (110.737mm,102.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (82.237mm,33.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (55.237mm,57.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (52.349mm,59.563mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (84.372mm,65.989mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (118.237mm,99.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (41.737mm,108.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (74.737mm,108.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (35.737mm,84.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (61.237mm,93.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (37.237mm,21.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (109.237mm,75.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (28.237mm,99.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (115.237mm,57.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (56.737mm,54.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (55.88mm,59.614mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (79.237mm,81.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (34.237mm,93.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (35.737mm,18.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (70.237mm,105.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (26.737mm,96.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (68.58mm,56.134mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (107.036mm,62.382mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (109.83mm,74.041mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (49.237mm,75.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (64.237mm,27.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (47.737mm,54.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (35.737mm,54.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (28.237mm,93.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (48.209mm,91.948mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (74.737mm,48.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (73.237mm,21.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (121.237mm,63.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (70.237mm,21.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (26.737mm,90.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (26.737mm,66.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (67.237mm,99.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (44.737mm,108.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (75.108mm,59.309mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (79.036mm,59.343mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (79.324mm,65.608mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (80.467mm,59.284mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (38.737mm,84.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (86.106mm,70.536mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (37.237mm,81.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (106.237mm,99.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (112.237mm,105.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (64.237mm,39.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (89.078mm,54.077mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (59.737mm,90.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (63.551mm,64.973mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (77.737mm,30.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (63.5mm,60.503mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (31.237mm,81.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (77.737mm,108.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (67.237mm,27.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (59.737mm,54.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (81.559mm,54.051mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (121.237mm,57.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (81.356mm,70.51mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (62.737mm,84.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (44.196mm,69.317mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (61.237mm,99.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (52.237mm,21.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (47.737mm,60.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (40.237mm,21.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (83.737mm,30.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (53.737mm,84.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (40.237mm,51.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (79.237mm,51.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (26.737mm,102.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (26.737mm,78.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (82.237mm,105.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (61.237mm,27.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (29.737mm,54.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (28.237mm,39.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (29.737mm,102.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (63.602mm,61.849mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (38.737mm,18.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (32.737mm,60.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (83.737mm,84.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (98.737mm,54.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (46.237mm,105.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (84.633mm,70.485mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (44.737mm,48.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (62.737mm,36.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (46.237mm,57.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (118.237mm,51.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (31.237mm,75.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (67.237mm,105.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (64.237mm,93.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (31.237mm,27.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (88.321mm,74.695mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (62.737mm,96.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (79.237mm,93.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (31.237mm,39.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (105.004mm,61.874mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (115.237mm,75.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (28.237mm,33.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (77.737mm,24.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (54.239mm,59.644mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (41.737mm,102.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (26.737mm,24.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (110.737mm,84.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (40.237mm,63.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (28.237mm,57.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (45.161mm,83.922mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (119.737mm,84.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (76.237mm,45.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (97.237mm,75.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (74.737mm,72.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (58.237mm,93.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (92.38mm,65.761mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (32.737mm,30.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (55.237mm,105.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (80.737mm,42.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (112.237mm,57.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (52.237mm,105.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (118.237mm,75.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (31.237mm,33.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (50.737mm,90.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (52.237mm,51.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (43.237mm,57.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (28.237mm,75.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (65.737mm,108.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (50.737mm,102.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (80.737mm,48.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (36.627mm,71.018mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (80.737mm,36.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (49.237mm,51.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (43.237mm,45.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (58.237mm,21.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (52.237mm,75.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (101.905mm,56.617mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (79.237mm,63.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (98.577mm,61.265mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (52.237mm,33.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (88.237mm,99.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (76.237mm,87.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (85.496mm,59.055mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (101.092mm,59.055mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (116.737mm,78.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (62.737mm,42.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (38.737mm,54.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (82.237mm,51.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (115.237mm,93.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (98.737mm,84.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (93.929mm,59.055mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (85.237mm,51.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (76.237mm,27.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (53.737mm,24.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (50.737mm,96.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (116.737mm,96.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (107.721mm,58.445mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (41.737mm,48.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (110.737mm,96.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (79.237mm,27.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (26.737mm,84.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (62.737mm,24.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (74.737mm,42.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (61.237mm,75.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (83.737mm,48.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (41.737mm,78.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (35.737mm,48.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (31.237mm,51.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (83.185mm,70.434mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (64.237mm,21.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (83.871mm,54.051mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (90.018mm,65.811mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (97.237mm,105.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (82.237mm,21.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (121.237mm,69.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (112.237mm,69.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (103.237mm,87.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (100.237mm,105.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (64.237mm,81.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (58.237mm,105.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (52.237mm,57.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (50.737mm,18.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (49.237mm,57.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (119.737mm,60.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (83.737mm,72.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (118.237mm,69.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (59.737mm,48.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (44.737mm,78.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (79.237mm,45.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (86.737mm,72.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (107.737mm,102.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (82.237mm,81.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (113.737mm,84.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (46.237mm,21.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (38.737mm,48.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (59.737mm,96.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (97.237mm,87.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (32.737mm,24.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (32.737mm,54.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (29.737mm,60.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (89.84mm,59.055mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (76.327mm,65.862mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (34.237mm,27.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (28.237mm,81.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (26.737mm,60.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (44.737mm,102.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (67.237mm,21.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (121.237mm,93.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (77.737mm,42.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (46.237mm,51.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (46.101mm,84.938mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (41.737mm,30.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (28.237mm,87.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (86.512mm,54.077mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (79.237mm,87.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (49.237mm,93.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (51.232mm,84.125mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (31.237mm,93.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (40.237mm,45.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (77.295mm,59.286mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (100.237mm,75.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (46.237mm,63.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (29.737mm,30.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (64.237mm,105.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (71.737mm,108.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (46.237mm,27.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (48.666mm,83.083mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (43.237mm,75.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (40.237mm,57.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (107.737mm,96.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (85.237mm,93.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (67.237mm,63.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (73.237mm,105.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (49.479mm,60.223mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (74.737mm,84.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (40.237mm,75.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (34.237mm,21.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (115.237mm,81.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (85.237mm,75.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (61.237mm,105.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (91.237mm,99.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (65.737mm,24.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (34.237mm,51.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (62.737mm,30.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (105.359mm,73.533mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (53.737mm,90.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (47.737mm,48.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (41.737mm,54.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (106.237mm,75.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (58.237mm,51.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (83.737mm,96.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (82.237mm,39.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (68.737mm,102.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (83.769mm,61.29mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (56.737mm,66.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (63.729mm,67.843mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (61.237mm,39.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (82.237mm,27.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (50.737mm,108.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (41.737mm,24.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (83.737mm,36.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (113.737mm,108.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (109.237mm,87.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (62.737mm,90.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (74.295mm,65.938mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (73.237mm,45.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (64.237mm,87.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (41.737mm,18.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (82.237mm,45.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (46.237mm,33.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (65.737mm,30.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (98.737mm,78.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (37.237mm,33.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (31.237mm,99.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (28.237mm,69.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (56.737mm,48.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (26.737mm,42.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (29.737mm,24.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (53.737mm,102.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (104.673mm,56.439mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (113.737mm,72.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (62.737mm,18.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (98.737mm,72.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (97.993mm,70.561mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (86.737mm,96.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (74.737mm,30.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (57.988mm,65.888mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (76.237mm,21.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (38.737mm,72.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (59.737mm,30.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (26.737mm,30.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (110.947mm,55.575mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (67.237mm,33.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (49.237mm,21.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (86.39mm,63.07mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (64.592mm,43.815mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (40.7mm,87.15mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (117.103mm,47.6mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (60.198mm,66.98mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (59.36mm,72.873mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (64.284mm,56.771mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (65.913mm,75.336mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (67.742mm,74.498mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (103.708mm,63.652mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (103.708mm,65.761mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (103.759mm,70.155mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (103.708mm,67.97mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (63.17mm,69.723mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (64.237mm,69.723mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (65.481mm,69.748mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (66.751mm,69.723mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (68.042mm,69.753mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (47.65mm,47.092mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (51.105mm,43.739mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (49.454mm,43.713mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (112.5mm,72.4mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (76.775mm,73.7mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (53.8mm,48.2mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (55.2mm,48.2mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (68.7mm,47.6mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (66.5mm,47.6mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (64.6mm,47.7mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (62.4mm,47.7mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (60.3mm,47.8mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (78.903mm,78.4mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (112.237mm,39.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (106.237mm,45.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (106.237mm,39.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (97.237mm,27.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (87.4mm,33.1mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (46.9mm,89.778mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (44.9mm,89.778mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (44.8mm,90.7mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (97.155mm,52.565mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (91.6mm,36.9mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (104.9mm,92.75mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (41.3mm,90.7mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (46.9mm,87.225mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (113.418mm,52.572mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (105.283mm,52.565mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (103.3mm,33.1mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (33.775mm,69.6mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (38.501mm,37.211mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (83.015mm,108mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (68.6mm,43.8mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (121.237mm,39.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (119.737mm,30.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (121.237mm,27.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (119.737mm,24.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (116.737mm,30.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (118.237mm,27.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (116.737mm,24.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (115.237mm,39.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (115.237mm,33.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (113.737mm,24.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (115.237mm,21.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (113.737mm,18.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (110.737mm,42.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (112.237mm,27.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (110.737mm,24.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (112.237mm,21.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (110.737mm,18.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (107.737mm,42.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (109.237mm,21.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (107.737mm,18.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (106.237mm,27.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (106.237mm,21.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (104.737mm,18.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (101.737mm,42.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (101.737mm,36.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (101.737mm,30.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (101.737mm,24.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (103.237mm,21.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (101.737mm,18.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (98.737mm,42.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (100.237mm,27.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (100.237mm,21.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (98.737mm,18.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (95.737mm,42.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (95.737mm,30.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (95.737mm,24.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (97.237mm,21.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (95.737mm,18.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (92.737mm,42.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (94.237mm,21.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (92.737mm,18.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (89.737mm,42.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (89.737mm,30.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (91.237mm,27.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (89.737mm,24.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (91.237mm,21.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (89.737mm,18.547mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (66.1mm,43.9mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (56.4mm,19.635mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (68.5mm,19.785mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (79.9mm,19.4mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (115.514mm,66.793mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (44.3mm,67.5mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (40.1mm,67.5mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (33.775mm,78.4mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (35.081mm,64.581mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (53.1mm,89.9mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (35.6mm,89.925mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (32.1mm,88.8mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (40.7mm,88.85mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (37.4mm,47mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (111.201mm,107.839mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (105.291mm,47.9mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (47.4mm,32.4mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (63.9mm,55.5mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (76.65mm,95.25mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (55.118mm,29.464mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (52.959mm,29.464mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (113.4mm,44.3mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (85.8mm,89.101mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (98.3mm,47.9mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (107.823mm,36.83mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (109.855mm,36.83mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (93.726mm,36.195mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (37.211mm,37.846mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (42.418mm,37.211mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (37.211mm,35.433mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (37.719mm,40.894mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (52.519mm,41.91mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (52.578mm,39.751mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (53.086mm,35.433mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (50.673mm,29.464mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (46.384mm,29.463mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (57.531mm,29.464mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (58.674mm,43.561mm) from SIGNAL_TOP to SIGNAL_BOTTOM
+Via (51.181mm,70.866mm) from SIGNAL_TOP to SIGNAL_BOTTOM
 

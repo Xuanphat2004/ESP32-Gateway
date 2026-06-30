@@ -287,6 +287,23 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=
 
+[Document15]
+DocumentPath=CAMtastic.Cam
+AnnotationEnabled=1
+AnnotateStartValue=1
+AnnotationIndexControlEnabled=0
+AnnotateSuffix=
+AnnotateScope=All
+AnnotateOrder=-1
+DoLibraryUpdate=1
+DoDatabaseUpdate=1
+ClassGenCCAutoEnabled=1
+ClassGenCCAutoRoomEnabled=0
+ClassGenNCAutoScope=None
+DItemRevisionGUID=
+GenerateClassCluster=0
+DocumentUniqueId=
+
 [GeneratedDocument1]
 DocumentPath=Project Outputs for ESP32_Gateway\Design Rule Check - GATEWAY_PCB.html
 DItemRevisionGUID=
@@ -336,102 +353,122 @@ DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB.REP
 DItemRevisionGUID=
 
 [GeneratedDocument13]
-DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Bottom_Assembly.gbr
+DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Bottom_3D_Body.gbr
 DItemRevisionGUID=
 
 [GeneratedDocument14]
-DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Bottom_Component_Center.gbr
+DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Bottom_Assembly.gbr
 DItemRevisionGUID=
 
 [GeneratedDocument15]
-DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Bottom_Courtyard.gbr
+DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Bottom_Component_Center.gbr
 DItemRevisionGUID=
 
 [GeneratedDocument16]
-DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Copper_Signal_Bot.gbr
+DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Bottom_Courtyard.gbr
 DItemRevisionGUID=
 
 [GeneratedDocument17]
-DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Copper_Signal_Top.gbr
+DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Copper_Signal_1.gbr
 DItemRevisionGUID=
 
 [GeneratedDocument18]
-DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Drawing_1.gbr
+DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Copper_Signal_2.gbr
 DItemRevisionGUID=
 
 [GeneratedDocument19]
-DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Drillmap_1.gbr
+DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Copper_Signal_Bot.gbr
 DItemRevisionGUID=
 
 [GeneratedDocument20]
-DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Keep-out.gbr
+DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Copper_Signal_Top.gbr
 DItemRevisionGUID=
 
 [GeneratedDocument21]
-DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Legend_Bot.gbr
+DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Drawing_1.gbr
 DItemRevisionGUID=
 
 [GeneratedDocument22]
-DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Legend_Top.gbr
+DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Drillmap_1.gbr
 DItemRevisionGUID=
 
 [GeneratedDocument23]
-DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Mechanical_1.gbr
+DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Keep-out.gbr
 DItemRevisionGUID=
 
 [GeneratedDocument24]
-DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Mechanical_13.gbr
+DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Legend_Bot.gbr
 DItemRevisionGUID=
 
 [GeneratedDocument25]
-DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Mechanical_15.gbr
+DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Legend_Top.gbr
 DItemRevisionGUID=
 
 [GeneratedDocument26]
-DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_NPTH_Drill.gbr
+DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Mechanical_1.gbr
 DItemRevisionGUID=
 
 [GeneratedDocument27]
-DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Pads_Bot.gbr
+DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Mechanical_12.gbr
 DItemRevisionGUID=
 
 [GeneratedDocument28]
-DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Pads_Top.gbr
+DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Mechanical_13.gbr
 DItemRevisionGUID=
 
 [GeneratedDocument29]
-DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Paste_Bot.gbr
+DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Mechanical_15.gbr
 DItemRevisionGUID=
 
 [GeneratedDocument30]
-DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Paste_Top.gbr
+DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_NPTH_Drill.gbr
 DItemRevisionGUID=
 
 [GeneratedDocument31]
-DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Profile.gbr
+DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Pads_Bot.gbr
 DItemRevisionGUID=
 
 [GeneratedDocument32]
-DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_PTH_Drill.gbr
+DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Pads_Top.gbr
 DItemRevisionGUID=
 
 [GeneratedDocument33]
-DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Soldermask_Bot.gbr
+DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Paste_Bot.gbr
 DItemRevisionGUID=
 
 [GeneratedDocument34]
-DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Soldermask_Top.gbr
+DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Paste_Top.gbr
 DItemRevisionGUID=
 
 [GeneratedDocument35]
-DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Top_Assembly.gbr
+DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Profile.gbr
 DItemRevisionGUID=
 
 [GeneratedDocument36]
-DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Top_Component_Center.gbr
+DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_PTH_Drill.gbr
 DItemRevisionGUID=
 
 [GeneratedDocument37]
+DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Soldermask_Bot.gbr
+DItemRevisionGUID=
+
+[GeneratedDocument38]
+DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Soldermask_Top.gbr
+DItemRevisionGUID=
+
+[GeneratedDocument39]
+DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Top_3D_Body.gbr
+DItemRevisionGUID=
+
+[GeneratedDocument40]
+DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Top_Assembly.gbr
+DItemRevisionGUID=
+
+[GeneratedDocument41]
+DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Top_Component_Center.gbr
+DItemRevisionGUID=
+
+[GeneratedDocument42]
 DocumentPath=Project Outputs for ESP32_Gateway\GATEWAY_PCB_Top_Courtyard.gbr
 DItemRevisionGUID=
 
@@ -821,71 +858,71 @@ Name=Fabrication Outputs
 Description=
 TargetPrinter=Microsoft Print to PDF
 PrinterOptions=Record=PrinterOptions|Copies=1|Duplex=1|TrueTypeOptions=3|Collate=1|PrintJobKind=1|PrintWhat=1
-OutputType1=CompositeDrill
-OutputName1=Composite Drill Drawing
+OutputType1=NC Drill
+OutputName1=NC Drill Files
 OutputDocumentPath1=
-OutputVariantName1=[No Variations]
+OutputVariantName1=
 OutputDefault1=0
-PageOptions1=Record=PageOptions|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-3|MediaType=1|DitherType=10|PrintScaleMode=1|PaperKind=Letter|PaperIndex=1
-OutputType2=Drill
-OutputName2=Drill Drawing/Guides
+OutputType2=Mask
+OutputName2=Solder/Paste Mask Prints
 OutputDocumentPath2=
 OutputVariantName2=[No Variations]
 OutputDefault2=0
 PageOptions2=Record=PageOptions|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-3|MediaType=1|DitherType=10|PrintScaleMode=1|PaperKind=Letter|PaperIndex=1
-OutputType3=Board Stack Report
-OutputName3=Report Board Stack
+OutputType3=IPC2581
+OutputName3=IPC-2581 Files
 OutputDocumentPath3=
-OutputVariantName3=
+OutputVariantName3=[No Variations]
 OutputDefault3=0
-PageOptions3=Record=PageOptions|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-3|MediaType=1|DitherType=10|PrintScaleMode=1|PaperKind=Letter|PaperIndex=1
-OutputType4=Final
-OutputName4=Final Artwork Prints
+OutputType4=Test Points
+OutputName4=Test Point Report
 OutputDocumentPath4=
-OutputVariantName4=[No Variations]
+OutputVariantName4=
 OutputDefault4=0
-PageOptions4=Record=PageOptions|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-3|MediaType=1|DitherType=10|PrintScaleMode=1|PaperKind=Letter|PaperIndex=1
-OutputType5=Gerber X2
-OutputName5=Gerber X2 Files
+OutputType5=Plane
+OutputName5=Power-Plane Prints
 OutputDocumentPath5=
 OutputVariantName5=[No Variations]
 OutputDefault5=0
-Configuration5_Name1=ForceUpdateSettings
-Configuration5_Item1=False
-Configuration5_Name2=OutputConfigurationParameter1
-Configuration5_Item2=BoardID=QWGRVHIA|FileComment= |FileSubject=Autodetect|GenerateDRCRulesFile=False|GenerateReports=True|GerberUnit=Metric|IncludeUnconnectedMidLayerPads=True|MergePadAndRegion=False|MinusApertureTolerance=50|NumberOfDecimals=5|OptimizeChangeLocationCommands=True|OutputFormat=Single|PlotBackDrillingPairs=False|PlotBlindViasPairs=False|PlotBoardProfile=True|PlotBoardProfileFileName= |PlotCounterHolesPairs=False|PlotDrillDrawingPair0_Backdrill=False|PlotDrillDrawingPair0_Checked=True|PlotDrillDrawingPair0_DrillType=Regular|PlotDrillDrawingPair0_FileName= |PlotDrillDrawingPair0_HighLayer=Bottom Layer|PlotDrillDrawingPair0_LowLayer=Top Layer|PlotDrillDrawingPairs=False|PlotDrillGuidePair0_Backdrill=False|PlotDrillGuidePair0_Checked=True|PlotDrillGuidePair0_DrillType=Regular|PlotDrillGuidePair0_FileName= |PlotDrillGuidePair0_HighLayer=Bottom Layer|PlotDrillGuidePair0_LowLayer=Top Layer|PlotDrillGuidePairs=False|PlotMicroViasPairs=False|PlotNPTHPair0_Backdrill=False|PlotNPTHPair0_Checked=True|PlotNPTHPair0_DrillType=Regular|PlotNPTHPair0_FileName= |PlotNPTHPair0_HighLayer=Top Layer|PlotNPTHPair0_LowLayer=Bottom Layer|PlotNPTHPairs=False|PlotPTHPair0_Backdrill=False|PlotPTHPair0_Checked=True|PlotPTHPair0_DrillType=Regular|PlotPTHPair0_FileName= |PlotPTHPair0_HighLayer=Top Layer|PlotPTHPair0_LowLayer=Bottom Layer|PlotPTHPairs=False|PlotViaTypeDrillDrawingPairs=False|PlotViaTypeDrillGuidePairs=False|PlotViaTypeDrillPairs=False|PlotX2.Set=SerializeLayerHash.Version~2,ClassName~TPlotLayerStateArray,16777217~1,16842751~1,16973830~1,16973831~1,16973834~1,16973835~1,16973832~1,16973833~1,16908289~1,16908291~1,16908293~1,16908301~1,16908303~1,16908304~1,16908308~1,16908309~1,16908312~1,16973837~1,16973848~1,16973849~1|PlusApertureTolerance=50|Record=GerberX2View|Sorted=False|DocumentPath=D:\08_Semester 8\01. Luan Van Tot Nghiep\03. Project\01. Schematic & PCB\01. ESP32 Gateway Board\ESP32_Gateway\GATEWAY_PCB.PcbDoc
+PageOptions5=Record=PageOptions|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-3|MediaType=1|DitherType=10|PrintScaleMode=1|PaperKind=Letter|PaperIndex=1
 OutputType6=ODB
 OutputName6=ODB++ Files
 OutputDocumentPath6=
 OutputVariantName6=[No Variations]
 OutputDefault6=0
-OutputType7=Mask
-OutputName7=Solder/Paste Mask Prints
+OutputType7=Drill
+OutputName7=Drill Drawing/Guides
 OutputDocumentPath7=
 OutputVariantName7=[No Variations]
 OutputDefault7=0
 PageOptions7=Record=PageOptions|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-3|MediaType=1|DitherType=10|PrintScaleMode=1|PaperKind=Letter|PaperIndex=1
-OutputType8=NC Drill
-OutputName8=NC Drill Files
+OutputType8=CompositeDrill
+OutputName8=Composite Drill Drawing
 OutputDocumentPath8=
-OutputVariantName8=
+OutputVariantName8=[No Variations]
 OutputDefault8=0
-OutputType9=IPC2581
-OutputName9=IPC-2581 Files
+PageOptions8=Record=PageOptions|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-3|MediaType=1|DitherType=10|PrintScaleMode=1|PaperKind=Letter|PaperIndex=1
+OutputType9=Board Stack Report
+OutputName9=Report Board Stack
 OutputDocumentPath9=
-OutputVariantName9=[No Variations]
+OutputVariantName9=
 OutputDefault9=0
-OutputType10=Plane
-OutputName10=Power-Plane Prints
+PageOptions9=Record=PageOptions|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-3|MediaType=1|DitherType=10|PrintScaleMode=1|PaperKind=Letter|PaperIndex=1
+OutputType10=Gerber X2
+OutputName10=Gerber X2 Files
 OutputDocumentPath10=
 OutputVariantName10=[No Variations]
 OutputDefault10=0
-PageOptions10=Record=PageOptions|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-3|MediaType=1|DitherType=10|PrintScaleMode=1|PaperKind=Letter|PaperIndex=1
-OutputType11=Test Points
-OutputName11=Test Point Report
+Configuration10_Name1=ForceUpdateSettings
+Configuration10_Item1=False
+Configuration10_Name2=OutputConfigurationParameter1
+Configuration10_Item2=BoardID=QWGRVHIA|FileComment= |FileSubject=Autodetect|GenerateDRCRulesFile=False|GenerateReports=True|GerberUnit=Metric|IncludeUnconnectedMidLayerPads=True|MergePadAndRegion=False|MinusApertureTolerance=50|NumberOfDecimals=5|OptimizeChangeLocationCommands=True|OutputFormat=Single|PlotBackDrillingPairs=False|PlotBlindViasPairs=False|PlotBoardProfile=True|PlotBoardProfileFileName= |PlotCounterHolesPairs=False|PlotDrillDrawingPair0_Backdrill=False|PlotDrillDrawingPair0_Checked=True|PlotDrillDrawingPair0_DrillType=Regular|PlotDrillDrawingPair0_FileName= |PlotDrillDrawingPair0_HighLayer=Bottom Layer|PlotDrillDrawingPair0_LowLayer=Top Layer|PlotDrillDrawingPairs=False|PlotDrillGuidePair0_Backdrill=False|PlotDrillGuidePair0_Checked=True|PlotDrillGuidePair0_DrillType=Regular|PlotDrillGuidePair0_FileName= |PlotDrillGuidePair0_HighLayer=Bottom Layer|PlotDrillGuidePair0_LowLayer=Top Layer|PlotDrillGuidePairs=False|PlotMicroViasPairs=False|PlotNPTHPair0_Backdrill=False|PlotNPTHPair0_Checked=True|PlotNPTHPair0_DrillType=Regular|PlotNPTHPair0_FileName= |PlotNPTHPair0_HighLayer=Top Layer|PlotNPTHPair0_LowLayer=Bottom Layer|PlotNPTHPairs=False|PlotPTHPair0_Backdrill=False|PlotPTHPair0_Checked=True|PlotPTHPair0_DrillType=Regular|PlotPTHPair0_FileName= |PlotPTHPair0_HighLayer=Top Layer|PlotPTHPair0_LowLayer=Bottom Layer|PlotPTHPairs=False|PlotViaTypeDrillDrawingPairs=False|PlotViaTypeDrillGuidePairs=False|PlotViaTypeDrillPairs=False|PlotX2.Set=SerializeLayerHash.Version~2,ClassName~TPlotLayerStateArray,16973830~1,16973831~1,16973834~1,16973835~1,16973832~1,16973833~1,16973837~1,16973848~1,16973849~1,16777217~1,16777218~1,16777219~1,16842751~1,16908289~1,16908291~1,16908292~1,16908293~1,16908300~1,16908301~1,16908302~1,16908303~1,16908304~1,16908308~1,16908309~1,16908312~1|PlusApertureTolerance=50|Record=GerberX2View|Sorted=False|DocumentPath=D:\08_Semester 8\01. Luan Van Tot Nghiep\03. Project\ESP32_Gateway\GATEWAY_PCB.PcbDoc
+OutputType11=Final
+OutputName11=Final Artwork Prints
 OutputDocumentPath11=
-OutputVariantName11=
+OutputVariantName11=[No Variations]
 OutputDefault11=0
+PageOptions11=Record=PageOptions|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-3|MediaType=1|DitherType=10|PrintScaleMode=1|PaperKind=Letter|PaperIndex=1
 OutputType12=Gerber
 OutputName12=Gerber Files
 OutputDocumentPath12=
@@ -1539,6 +1576,240 @@ SelectedOnly=0
 UpdateVariants=1
 UpdateToLatestRevision=1
 PartTypes=0
+ComponentLibIdentifierKind0=Library Name And Type
+ComponentLibraryIdentifier0=NewLibrary.SchLib
+ComponentDesignItemID0=ADUM1200
+ComponentSymbolReference0=ADUM1200
+ComponentUpdate0=1
+ComponentIsDeviceSheet0=0
+ComponentLibIdentifierKind1=Library Name And Type
+ComponentLibraryIdentifier1=NewLibrary.SchLib
+ComponentDesignItemID1=ADUM1201
+ComponentSymbolReference1=ADUM1201
+ComponentUpdate1=1
+ComponentIsDeviceSheet1=0
+ComponentLibIdentifierKind2=Library Name And Type
+ComponentLibraryIdentifier2=NewLibrary.SchLib
+ComponentDesignItemID2=Alu_Capacitor
+ComponentSymbolReference2=Alu_Capacitor
+ComponentUpdate2=1
+ComponentIsDeviceSheet2=0
+ComponentLibIdentifierKind3=Library Name And Type
+ComponentLibraryIdentifier3=NewLibrary.SchLib
+ComponentDesignItemID3=AT24C256C
+ComponentSymbolReference3=AT24C256C
+ComponentUpdate3=1
+ComponentIsDeviceSheet3=0
+ComponentLibIdentifierKind4=Library Name And Type
+ComponentLibraryIdentifier4=NewLibrary.SchLib
+ComponentDesignItemID4=B0505S/1W
+ComponentSymbolReference4=B0505S/1W
+ComponentUpdate4=1
+ComponentIsDeviceSheet4=0
+ComponentLibIdentifierKind5=Library Name And Type
+ComponentLibraryIdentifier5=NewLibrary.SchLib
+ComponentDesignItemID5=Battery Base
+ComponentSymbolReference5=Battery Base
+ComponentUpdate5=1
+ComponentIsDeviceSheet5=0
+ComponentLibIdentifierKind6=Library Name And Type
+ComponentLibraryIdentifier6=NewLibrary.SchLib
+ComponentDesignItemID6=Button 2 Pins
+ComponentSymbolReference6=Button 2 Pins
+ComponentUpdate6=1
+ComponentIsDeviceSheet6=0
+ComponentLibIdentifierKind7=Library Name And Type
+ComponentLibraryIdentifier7=NewLibrary.SchLib
+ComponentDesignItemID7=CAPACITOR
+ComponentSymbolReference7=CAPACITOR
+ComponentUpdate7=1
+ComponentIsDeviceSheet7=0
+ComponentLibIdentifierKind8=Library Name And Type
+ComponentLibraryIdentifier8=NewLibrary.SchLib
+ComponentDesignItemID8=CH340C
+ComponentSymbolReference8=CH340C
+ComponentUpdate8=1
+ComponentIsDeviceSheet8=0
+ComponentLibIdentifierKind9=Library Name And Type
+ComponentLibraryIdentifier9=NewLibrary.SchLib
+ComponentDesignItemID9=CRYSTAL 8MHz
+ComponentSymbolReference9=CRYSTAL 8MHz
+ComponentUpdate9=1
+ComponentIsDeviceSheet9=0
+ComponentLibIdentifierKind10=Library Name And Type
+ComponentLibraryIdentifier10=NewLibrary.SchLib
+ComponentDesignItemID10=DIP Switch 3 Pins
+ComponentSymbolReference10=DIP Switch 3 Pins
+ComponentUpdate10=1
+ComponentIsDeviceSheet10=0
+ComponentLibIdentifierKind11=Library Name And Type
+ComponentLibraryIdentifier11=NewLibrary.SchLib
+ComponentDesignItemID11=DS3231SN#
+ComponentSymbolReference11=DS3231SN#
+ComponentUpdate11=1
+ComponentIsDeviceSheet11=0
+ComponentLibIdentifierKind12=Library Name And Type
+ComponentLibraryIdentifier12=NewLibrary.SchLib
+ComponentDesignItemID12=Encoder - EC11
+ComponentSymbolReference12=Encoder - EC11
+ComponentUpdate12=1
+ComponentIsDeviceSheet12=0
+ComponentLibIdentifierKind13=Library Name And Type
+ComponentLibraryIdentifier13=NewLibrary.SchLib
+ComponentDesignItemID13=ESP32-S3-WROOM-1U-N8R2
+ComponentSymbolReference13=ESP32-S3-WROOM-1U-N8R2
+ComponentUpdate13=1
+ComponentIsDeviceSheet13=0
+ComponentLibIdentifierKind14=Library Name And Type
+ComponentLibraryIdentifier14=NewLibrary.SchLib
+ComponentDesignItemID14=Ferrite Beads
+ComponentSymbolReference14=Ferrite Beads
+ComponentUpdate14=1
+ComponentIsDeviceSheet14=0
+ComponentLibIdentifierKind15=Library Name And Type
+ComponentLibraryIdentifier15=NewLibrary.SchLib
+ComponentDesignItemID15=Fuse
+ComponentSymbolReference15=Fuse
+ComponentUpdate15=1
+ComponentIsDeviceSheet15=0
+ComponentLibIdentifierKind16=Library Name And Type
+ComponentLibraryIdentifier16=NewLibrary.SchLib
+ComponentDesignItemID16=Inductor_1_SMD
+ComponentSymbolReference16=Inductor_1_SMD
+ComponentUpdate16=1
+ComponentIsDeviceSheet16=0
+ComponentLibIdentifierKind17=Library Name And Type
+ComponentLibraryIdentifier17=NewLibrary.SchLib
+ComponentDesignItemID17=Jack_DC
+ComponentSymbolReference17=Jack_DC
+ComponentUpdate17=1
+ComponentIsDeviceSheet17=0
+ComponentLibIdentifierKind18=Library Name And Type
+ComponentLibraryIdentifier18=NewLibrary.SchLib
+ComponentDesignItemID18=JUMP 11 PINS
+ComponentSymbolReference18=JUMP 11 PINS
+ComponentUpdate18=1
+ComponentIsDeviceSheet18=0
+ComponentLibIdentifierKind19=Library Name And Type
+ComponentLibraryIdentifier19=NewLibrary.SchLib
+ComponentDesignItemID19=KF 4 Pins
+ComponentSymbolReference19=KF 4 Pins
+ComponentUpdate19=1
+ComponentIsDeviceSheet19=0
+ComponentLibIdentifierKind20=Library Name And Type
+ComponentLibraryIdentifier20=NewLibrary.SchLib
+ComponentDesignItemID20=LCD 20x4A
+ComponentSymbolReference20=LCD 20x4A
+ComponentUpdate20=1
+ComponentIsDeviceSheet20=0
+ComponentLibIdentifierKind21=Library Name And Type
+ComponentLibraryIdentifier21=NewLibrary.SchLib
+ComponentDesignItemID21=LED_SMD
+ComponentSymbolReference21=LED_SMD
+ComponentUpdate21=1
+ComponentIsDeviceSheet21=0
+ComponentLibIdentifierKind22=Library Name And Type
+ComponentLibraryIdentifier22=NewLibrary.SchLib
+ComponentDesignItemID22=MAX485ESA
+ComponentSymbolReference22=MAX485ESA
+ComponentUpdate22=1
+ComponentIsDeviceSheet22=0
+ComponentLibIdentifierKind23=Library Name And Type
+ComponentLibraryIdentifier23=NewLibrary.SchLib
+ComponentDesignItemID23=MF-MSMF020-2
+ComponentSymbolReference23=MF-MSMF020-2
+ComponentUpdate23=1
+ComponentIsDeviceSheet23=0
+ComponentLibIdentifierKind24=Library Name And Type
+ComponentLibraryIdentifier24=NewLibrary.SchLib
+ComponentDesignItemID24=MOUNTING HOLE
+ComponentSymbolReference24=MOUNTING HOLE
+ComponentUpdate24=1
+ComponentIsDeviceSheet24=0
+ComponentLibIdentifierKind25=Library Name And Type
+ComponentLibraryIdentifier25=NewLibrary.SchLib
+ComponentDesignItemID25=RESISTOR
+ComponentSymbolReference25=RESISTOR
+ComponentUpdate25=1
+ComponentIsDeviceSheet25=0
+ComponentLibIdentifierKind26=Library Name And Type
+ComponentLibraryIdentifier26=NewLibrary.SchLib
+ComponentDesignItemID26=RJ45
+ComponentSymbolReference26=RJ45
+ComponentUpdate26=1
+ComponentIsDeviceSheet26=0
+ComponentLibIdentifierKind27=Library Name And Type
+ComponentLibraryIdentifier27=NewLibrary.SchLib
+ComponentDesignItemID27=SD Card
+ComponentSymbolReference27=SD Card
+ComponentUpdate27=1
+ComponentIsDeviceSheet27=0
+ComponentLibIdentifierKind28=Library Name And Type
+ComponentLibraryIdentifier28=NewLibrary.SchLib
+ComponentDesignItemID28=SM712-02HTG
+ComponentSymbolReference28=SM712-02HTG
+ComponentUpdate28=1
+ComponentIsDeviceSheet28=0
+ComponentLibIdentifierKind29=Library Name And Type
+ComponentLibraryIdentifier29=NewLibrary.SchLib
+ComponentDesignItemID29=SRV05-4
+ComponentSymbolReference29=SRV05-4
+ComponentUpdate29=1
+ComponentIsDeviceSheet29=0
+ComponentLibIdentifierKind30=Library Name And Type
+ComponentLibraryIdentifier30=NewLibrary.SchLib
+ComponentDesignItemID30=SS54
+ComponentSymbolReference30=SS54
+ComponentUpdate30=1
+ComponentIsDeviceSheet30=0
+ComponentLibIdentifierKind31=Library Name And Type
+ComponentLibraryIdentifier31=NewLibrary.SchLib
+ComponentDesignItemID31=SS8050
+ComponentSymbolReference31=SS8050
+ComponentUpdate31=1
+ComponentIsDeviceSheet31=0
+ComponentLibIdentifierKind32=Library Name And Type
+ComponentLibraryIdentifier32=NewLibrary.SchLib
+ComponentDesignItemID32=Switch
+ComponentSymbolReference32=Switch
+ComponentUpdate32=1
+ComponentIsDeviceSheet32=0
+ComponentLibIdentifierKind33=Library Name And Type
+ComponentLibraryIdentifier33=NewLibrary.SchLib
+ComponentDesignItemID33=TEST POINT
+ComponentSymbolReference33=TEST POINT
+ComponentUpdate33=1
+ComponentIsDeviceSheet33=0
+ComponentLibIdentifierKind34=Library Name And Type
+ComponentLibraryIdentifier34=NewLibrary.SchLib
+ComponentDesignItemID34=TPS5430
+ComponentSymbolReference34=TPS5430
+ComponentUpdate34=1
+ComponentIsDeviceSheet34=0
+ComponentLibIdentifierKind35=Library Name And Type
+ComponentLibraryIdentifier35=NewLibrary.SchLib
+ComponentDesignItemID35=USB Type C
+ComponentSymbolReference35=USB Type C
+ComponentUpdate35=1
+ComponentIsDeviceSheet35=0
+ComponentLibIdentifierKind36=Library Name And Type
+ComponentLibraryIdentifier36=NewLibrary.SchLib
+ComponentDesignItemID36=VARIABLE RESISTOR
+ComponentSymbolReference36=VARIABLE RESISTOR
+ComponentUpdate36=1
+ComponentIsDeviceSheet36=0
+ComponentLibIdentifierKind37=Library Name And Type
+ComponentLibraryIdentifier37=NewLibrary.SchLib
+ComponentDesignItemID37=W5500
+ComponentSymbolReference37=W5500
+ComponentUpdate37=1
+ComponentIsDeviceSheet37=0
+ComponentLibIdentifierKind38=Library Name And Type
+ComponentLibraryIdentifier38=NewLibrary.SchLib
+ComponentDesignItemID38=XL1509
+ComponentSymbolReference38=XL1509
+ComponentUpdate38=1
+ComponentIsDeviceSheet38=0
 
 [Comparison Options]
 ComparisonOptions0=Kind=Net|MinPercent=75|MinMatch=3|ShowMatch=0|UseName=-1|InclAllRules=0

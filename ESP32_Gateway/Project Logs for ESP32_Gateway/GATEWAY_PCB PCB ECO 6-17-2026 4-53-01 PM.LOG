@@ -1,0 +1,11 @@
+Removed Pin From Net: NetName=GND Pin=C9-1
+Removed Pin From Net: NetName=VBAT Pin=C9-2
+Removed Pin From Net: NetName=GND Pin=C39-1
+Removed Pin From Net: NetName=VBAT Pin=C39-2
+Removed Member From Class: ClassName=Power_Supply Member=C9
+Removed Member From Class: ClassName=Power_Supply Member=C39
+Added Component: Designator=TP2(Test Point)
+Add component (AddParameter): Name = "Supplier 1"; Value = "Digikey"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Supplier Part Number 1"; Value = "36-5014-ND"; VariantName = "[No Variations]"
+Added Pin To Net: NetName=GND Pin=TP2-1
+Added Member To Class: ClassName=Power_Supply Member=Component TP2 GND

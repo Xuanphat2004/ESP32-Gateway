@@ -2,6 +2,8 @@ Output: Gerber X2 Files
 Type  : GerberX2
 From  : Variant [[No Variations]] of Project [ESP32_Gateway.PrjPcb]
    Generated File[GATEWAY_PCB_Copper_Signal_Top.gbr]
+   Generated File[GATEWAY_PCB_Copper_Signal_1.gbr]
+   Generated File[GATEWAY_PCB_Copper_Signal_2.gbr]
    Generated File[GATEWAY_PCB_Copper_Signal_Bot.gbr]
    Generated File[GATEWAY_PCB_Pads_Bot.gbr]
    Generated File[GATEWAY_PCB_Pads_Top.gbr]
@@ -14,8 +16,11 @@ From  : Variant [[No Variations]] of Project [ESP32_Gateway.PrjPcb]
    Generated File[GATEWAY_PCB_Keep-out.gbr]
    Generated File[GATEWAY_PCB_Mechanical_1.gbr]
    Generated File[GATEWAY_PCB_Top_Courtyard.gbr]
+   Generated File[GATEWAY_PCB_Top_3D_Body.gbr]
    Generated File[GATEWAY_PCB_Top_Assembly.gbr]
+   Generated File[GATEWAY_PCB_Mechanical_12.gbr]
    Generated File[GATEWAY_PCB_Mechanical_13.gbr]
+   Generated File[GATEWAY_PCB_Bottom_3D_Body.gbr]
    Generated File[GATEWAY_PCB_Mechanical_15.gbr]
    Generated File[GATEWAY_PCB_Top_Component_Center.gbr]
    Generated File[GATEWAY_PCB_Bottom_Assembly.gbr]
@@ -30,7 +35,7 @@ From  : Variant [[No Variations]] of Project [ESP32_Gateway.PrjPcb]
    Generated File[GATEWAY_PCB.REP]
 
 
-Files Generated   : 27
+Files Generated   : 32
 Documents Printed : 0
 
-Finished Output Generation At 7:50:18 PM On 1/30/2026
+Finished Output Generation At 6:40:46 PM On 6/22/2026

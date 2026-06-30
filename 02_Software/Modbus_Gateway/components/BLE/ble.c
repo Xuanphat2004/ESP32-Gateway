@@ -310,8 +310,7 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
         esp_ble_gatts_start_service(param->create.service_handle);
         // Tạo đặc tính và thêm đặc tính đó vào trong service vừa tạo
         esp_bt_uuid_t char_uuid = {.len = ESP_UUID_LEN_16, .uuid.uuid16 = GATTS_CHAR_UUID};
-        esp_ble_gatts_add_char(param->create.service_handle, &char_uuid,
-                               ESP_GATT_PERM_WRITE, ESP_GATT_CHAR_PROP_BIT_WRITE, NULL, NULL);
+        esp_ble_gatts_add_char(param->create.service_handle, &char_uuid, ESP_GATT_PERM_WRITE, ESP_GATT_CHAR_PROP_BIT_WRITE, NULL, NULL);
         break;
 
     case ESP_GATTS_CONNECT_EVT: // sảy ra khi app thực hiện kết nối thành công với gateway
@@ -364,7 +363,6 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
         }
         break;
     }
-
     case ESP_GATTS_DISCONNECT_EVT:
         ESP_LOGW(TAG, "App Disconnect ...");
         blu_connected = false; // Cập nhật trạng thái kết nối BLE

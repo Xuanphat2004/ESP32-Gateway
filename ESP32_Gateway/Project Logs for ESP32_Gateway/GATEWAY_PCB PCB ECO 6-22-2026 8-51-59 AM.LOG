@@ -1,0 +1,6 @@
+Added Pin To Net: NetName=LCD_D6 Pin=LCD1-13
+Added Pin To Net: NetName=LCD_D6 Pin=U15-17
+Added Net: Name=LCD_D6
+Added Pin To Net: NetName=SD_CD Pin=SD1-CD
+Added Pin To Net: NetName=SD_CD Pin=U15-10
+Added Net: Name=SD_CD

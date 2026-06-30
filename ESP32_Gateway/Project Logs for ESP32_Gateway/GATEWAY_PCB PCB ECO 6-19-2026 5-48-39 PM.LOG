@@ -1,0 +1,23 @@
+Removed Pin From Net: NetName=NetD8_1 Pin=R42-1
+Removed Pin From Net: NetName=NetD8_1 Pin=SD1-5
+Added Pin To Net: NetName=NetR41_2 Pin=D8-3
+Added Pin To Net: NetName=NetR40_2 Pin=D8-4
+Added Pin To Net: NetName=NetR37_2 Pin=D8-5
+Added Pin To Net: NetName=SD_CS Pin=D8-6
+Added Pin To Net: NetName=NetD8_1 Pin=SD1-CD
+Added Pin To Net: NetName=NetD8_1 Pin=U15-17
+Change Net Name : Old Net Name=NetR37_2 New Net Name=NetD8_5
+Change Net Name : Old Net Name=NetR40_2 New Net Name=NetD8_4
+Change Net Name : Old Net Name=NetR41_2 New Net Name=NetD8_3
+Added Pin To Net: NetName=NetR42_1 Pin=R42-1
+Added Pin To Net: NetName=NetR42_1 Pin=SD1-5
+Added Net: Name=NetR42_1
+Added Pin To Net: NetName=NetR43_1 Pin=R43-1
+Added Pin To Net: NetName=NetR43_1 Pin=SD1-3
+Added Net: Name=NetR43_1
+Added Pin To Net: NetName=NetR45_1 Pin=R45-1
+Added Pin To Net: NetName=NetR45_1 Pin=SD1-7
+Added Net: Name=NetR45_1
+Added Pin To Net: NetName=NetR46_1 Pin=R46-1
+Added Pin To Net: NetName=NetR46_1 Pin=SD1-2
+Added Net: Name=NetR46_1

@@ -1,0 +1,3 @@
+Removed Pin From Net: NetName=SD_CLK Pin=U15-12
+Added Pin To Net: NetName=SD_MISO Pin=U15-12
+Add Pin To Net: Unknown Pin: Pin U15-14

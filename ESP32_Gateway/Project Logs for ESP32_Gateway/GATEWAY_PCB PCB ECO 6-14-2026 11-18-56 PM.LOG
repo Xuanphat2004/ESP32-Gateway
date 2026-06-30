@@ -1,0 +1,105 @@
+Removed Pin From Net: NetName=GND Pin=C39-1
+Removed Pin From Net: NetName=VBAT Pin=C39-2
+Removed Pin From Net: NetName=GND Pin=C40-1
+Removed Pin From Net: NetName=VBAT Pin=C40-2
+Removed Member From Class: ClassName=RTC_and_EEPROM Member=C39
+Removed Member From Class: ClassName=RTC_and_EEPROM Member=C40
+Removed Member From Class: ClassName=Power_Supply Member=C?
+Removed Member From Class: ClassName=RTC_and_EEPROM Member=J?
+Change Component Designator: OldDesignator=C? NewDesignator=C9
+Change Component Designator: OldDesignator=C? NewDesignator=C39
+Change Component Designator: OldDesignator=C? NewDesignator=C40
+Change Component Designator: OldDesignator=C? NewDesignator=C41
+Change Component Designator: OldDesignator=C? NewDesignator=C59
+Change Component Designator: OldDesignator=C? NewDesignator=C60
+Change Component Designator: OldDesignator=C? NewDesignator=C61
+Change Component Designator: OldDesignator=C? NewDesignator=C62
+Change Component Designator: OldDesignator=LED? NewDesignator=LED6
+Change Component Designator: OldDesignator=LED? NewDesignator=LED7
+Change Component Designator: OldDesignator=R? NewDesignator=R34
+Change Component Designator: OldDesignator=R? NewDesignator=R35
+Change Component Designator: OldDesignator=U? NewDesignator=U6
+Change Component Designator: OldDesignator=U? NewDesignator=U7
+Change Component Designator: OldDesignator=U? NewDesignator=U8
+Added Component: Designator=C63(CAP - 0603)
+Added Component: Designator=C64(CAP - 0603)
+Added Component: Designator=R36(RES - 0603)
+Added Component: Designator=R37(RES - 0603)
+Added Component: Designator=R40(RES - 0603)
+Added Component: Designator=R41(RES - 0603)
+Added Component: Designator=R42(RES - 0603)
+Added Component: Designator=R43(RES - 0603)
+Added Component: Designator=R45(RES - 0603)
+Added Component: Designator=R46(RES - 0603)
+Added Component: Designator=SD1(SD CARD 9 PINs)
+Added Pin To Net: NetName=GND Pin=C63-1
+Added Pin To Net: NetName=+3.3V Pin=C63-2
+Added Pin To Net: NetName=GND Pin=C64-1
+Added Pin To Net: NetName=+3.3V Pin=C64-2
+Add Pin To Net: Unknown Pin: Pin J1-11
+Add Pin To Net: Unknown Pin: Pin KF1-3
+Add Pin To Net: Unknown Pin: Pin KF1-4
+Added Pin To Net: NetName=+3.3V Pin=R36-1
+Added Pin To Net: NetName=IO20 Pin=R36-2
+Added Pin To Net: NetName=+3.3V Pin=R37-1
+Added Pin To Net: NetName=IO48 Pin=R37-2
+Added Pin To Net: NetName=+3.3V Pin=R40-1
+Added Pin To Net: NetName=+3.3V Pin=R41-1
+Added Pin To Net: NetName=IO8 Pin=R41-2
+Added Pin To Net: NetName=IO8 Pin=R42-2
+Added Pin To Net: NetName=IO48 Pin=R45-2
+Added Pin To Net: NetName=IO20 Pin=R46-2
+Added Pin To Net: NetName=+3.3V Pin=SD1-4
+Added Pin To Net: NetName=GND Pin=SD1-6
+Added Pin To Net: NetName=IO9 Pin=SD1-CD
+Added Pin To Net: NetName=GND Pin=SD1-G1
+Added Pin To Net: NetName=GND Pin=SD1-G2
+Added Pin To Net: NetName=GND Pin=SD1-G3
+Added Pin To Net: NetName=GND Pin=SD1-G4
+Added Pin To Net: NetName=DI1 Pin=U6-6
+Added Pin To Net: NetName=RO1 Pin=U6-7
+Added Pin To Net: NetName=DI2 Pin=U7-6
+Added Pin To Net: NetName=RO2 Pin=U7-7
+Added Pin To Net: NetName=EN1 Pin=U8-6
+Added Pin To Net: NetName=EN1 Pin=U8-7
+Change Net Name : Old Net Name=NetLED?_1 New Net Name=NetLED7_1
+Added Pin To Net: NetName=NetLED6_1 Pin=LED6-1
+Added Pin To Net: NetName=NetLED6_1 Pin=R34-2
+Added Net: Name=NetLED6_1
+Added Pin To Net: NetName=NetR40_2 Pin=R40-2
+Added Pin To Net: NetName=NetR40_2 Pin=R43-2
+Added Net: Name=NetR40_2
+Added Pin To Net: NetName=NetR42_1 Pin=R42-1
+Added Pin To Net: NetName=NetR42_1 Pin=SD1-5
+Added Net: Name=NetR42_1
+Added Pin To Net: NetName=NetR43_1 Pin=R43-1
+Added Pin To Net: NetName=NetR43_1 Pin=SD1-3
+Added Net: Name=NetR43_1
+Added Pin To Net: NetName=NetR45_1 Pin=R45-1
+Added Pin To Net: NetName=NetR45_1 Pin=SD1-7
+Added Net: Name=NetR45_1
+Added Pin To Net: NetName=NetR46_1 Pin=R46-1
+Added Pin To Net: NetName=NetR46_1 Pin=SD1-2
+Added Net: Name=NetR46_1
+Added Member To Class: ClassName=Power_Supply Member=Component C9 10uF/50V
+Added Member To Class: ClassName=Power_Supply Member=Component C39 0.1uF/50V
+Added Member To Class: ClassName=RS485_Port Member=Component C40 0.1uF/50V
+Added Member To Class: ClassName=RS485_Port Member=Component C59 0.1uF/50V
+Added Member To Class: ClassName=RS485_Port Member=Component C60 0.1uF/50V
+Added Member To Class: ClassName=RS485_Port Member=Component C61 0.1uF/50V
+Added Member To Class: ClassName=RS485_Port Member=Component C62 0.1uF/50V
+Added Member To Class: ClassName=RTC_and_EEPROM Member=Component C63 10uF/50V
+Added Member To Class: ClassName=RTC_and_EEPROM Member=Component C64 0.1uF/50V
+Added Member To Class: ClassName=RS485_Port Member=Component LED7 YELLOW
+Added Member To Class: ClassName=RS485_Port Member=Component R34 1K/1%
+Added Member To Class: ClassName=RTC_and_EEPROM Member=Component R36 10K/1%
+Added Member To Class: ClassName=RTC_and_EEPROM Member=Component R37 10K/1%
+Added Member To Class: ClassName=RTC_and_EEPROM Member=Component R40 10K/1%
+Added Member To Class: ClassName=RTC_and_EEPROM Member=Component R41 10K/1%
+Added Member To Class: ClassName=RTC_and_EEPROM Member=Component R42 0R/1%
+Added Member To Class: ClassName=RTC_and_EEPROM Member=Component R43 0R/1%
+Added Member To Class: ClassName=RTC_and_EEPROM Member=Component R45 0R/1%
+Added Member To Class: ClassName=RTC_and_EEPROM Member=Component R46 0R/1%
+Added Member To Class: ClassName=RTC_and_EEPROM Member=Component SD1 SD Card
+Added Member To Class: ClassName=RS485_Port Member=Component U6 ADUM1201
+Added Member To Class: ClassName=RS485_Port Member=Component U8 ADUM1201

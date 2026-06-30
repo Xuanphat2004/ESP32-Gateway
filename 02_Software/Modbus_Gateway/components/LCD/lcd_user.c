@@ -568,8 +568,6 @@ void ui_task(void)
         }
         else if (is_scan_device == true && is_manual_scan == false)
         {
-            // Passive scan chạy ngầm → render LCD bình thường, không block UI
-            // KHÔNG delay ở đây: xQueueReceive(100ms) ở đầu vòng lặp đã yield đủ
             if (current_page == PAGE_1_HOME)
                 page_1_home();
             else if (current_page == PAGE_2_SETTINGS)
@@ -587,8 +585,6 @@ void ui_task(void)
         }
         else if (is_scanning == false)
         {
-            // Không có scan đang chạy
-            // Nếu vừa kết thúc manual scan → clear màn hình trước khi render
             if (need_clear_after_scan == true)
             {
                 lcd_clear();

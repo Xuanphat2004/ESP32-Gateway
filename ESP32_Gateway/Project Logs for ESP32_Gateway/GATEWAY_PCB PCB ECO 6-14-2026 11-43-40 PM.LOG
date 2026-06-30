@@ -1,0 +1,13 @@
+Added Component: Designator=SD1(MICRO SD CARD)
+Added Pin To Net: NetName=NetR46_1 Pin=SD1-2
+Added Pin To Net: NetName=NetR43_1 Pin=SD1-3
+Added Pin To Net: NetName=+3.3V Pin=SD1-4
+Added Pin To Net: NetName=NetR42_1 Pin=SD1-5
+Added Pin To Net: NetName=GND Pin=SD1-6
+Added Pin To Net: NetName=NetR45_1 Pin=SD1-7
+Added Pin To Net: NetName=IO9 Pin=SD1-CD
+Added Pin To Net: NetName=GND Pin=SD1-G1
+Added Pin To Net: NetName=GND Pin=SD1-G2
+Added Pin To Net: NetName=GND Pin=SD1-G3
+Added Pin To Net: NetName=GND Pin=SD1-G4
+Added Member To Class: ClassName=RTC_and_EEPROM Member=Component SD1 SD Card

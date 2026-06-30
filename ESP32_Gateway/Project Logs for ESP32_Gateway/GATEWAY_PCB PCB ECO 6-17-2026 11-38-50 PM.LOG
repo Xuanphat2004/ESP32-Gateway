@@ -1,0 +1,7 @@
+Change Net Name : Old Net Name=IO8 New Net Name=SD_CLK
+Change Net Name : Old Net Name=IO9 New Net Name=SD_CD
+Change Net Name : Old Net Name=IO19 New Net Name=SD_MOSI
+Change Net Name : Old Net Name=IO48 New Net Name=SD_CS
+Added Pin To Net: NetName=SD_MISO Pin=R37-2
+Added Pin To Net: NetName=SD_MISO Pin=R45-2
+Added Net: Name=SD_MISO

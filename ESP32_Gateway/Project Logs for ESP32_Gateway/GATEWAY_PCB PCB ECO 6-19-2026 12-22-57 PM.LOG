@@ -1,0 +1,10 @@
+Added Component: Designator=U13(SOIC-8)
+Added Pin To Net: NetName=GND Pin=U13-1
+Added Pin To Net: NetName=GND Pin=U13-2
+Added Pin To Net: NetName=GND Pin=U13-3
+Added Pin To Net: NetName=GND Pin=U13-4
+Added Pin To Net: NetName=3V3_SDA Pin=U13-5
+Added Pin To Net: NetName=3V3_SCL Pin=U13-6
+Added Pin To Net: NetName=GND Pin=U13-7
+Added Pin To Net: NetName=+3.3V Pin=U13-8
+Added Member To Class: ClassName=RTC_and_EEPROM Member=Component U13 AT24C256C

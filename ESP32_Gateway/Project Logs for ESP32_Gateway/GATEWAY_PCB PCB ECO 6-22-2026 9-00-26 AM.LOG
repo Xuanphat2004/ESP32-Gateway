@@ -1,0 +1,8 @@
+Change Net Name : Old Net Name=NetLCD1_6 New Net Name=LCD_EN
+Added Pin To Net: NetName=LCD_D7 Pin=LCD1-14
+Added Pin To Net: NetName=LCD_D7 Pin=U15-12
+Added Net: Name=LCD_D7
+Added Pin To Net: NetName=SD_MISO Pin=R37-2
+Added Pin To Net: NetName=SD_MISO Pin=R45-2
+Added Pin To Net: NetName=SD_MISO Pin=U15-11
+Added Net: Name=SD_MISO

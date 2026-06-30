@@ -1,0 +1,8 @@
+Removed Pin From Net: NetName=3V3_SCL Pin=U15-4
+Removed Pin From Net: NetName=3V3_SDA Pin=U15-5
+Change Component Designator: OldDesignator=VBAT - CR2032 NewDesignator=VBAT1
+Change Component Description : Designator=Fuse1 Old Description=Nano2 SMD FF submin fuse w/holder, 4A New Description=Nano2 SMD FF submin fuse w/holder, 4A | Littelfuse 0154004.DR
+Change Component Description : Designator=D3 Old Description=TVS Diode, SM712 Series, 31V Clamp, 600W Peak Pulse, Surface Mount, SOT23-3 New Description=TVS Diode, SM712 Series, 31V Clamp, 600W Peak Pulse, Surface Mount, SOT23-3 | Littelfuse SM712-02HTG
+Change Component Description : Designator=D4 Old Description=TVS Diode, SM712 Series, 31V Clamp, 600W Peak Pulse, Surface Mount, SOT23-3 New Description=TVS Diode, SM712 Series, 31V Clamp, 600W Peak Pulse, Surface Mount, SOT23-3 | Littelfuse SM712-02HTG
+Added Pin To Net: NetName=3V3_SDA Pin=U15-4
+Added Pin To Net: NetName=3V3_SCL Pin=U15-5

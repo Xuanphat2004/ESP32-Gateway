@@ -1,0 +1,5 @@
+Removed Pin From Net: NetName=SD_MISO Pin=U15-11
+Added Pin To Net: NetName=SD_MISO Pin=U15-12
+Added Pin To Net: NetName=NetLCD1_14 Pin=LCD1-14
+Added Pin To Net: NetName=NetLCD1_14 Pin=U15-11
+Added Net: Name=NetLCD1_14

@@ -1,0 +1,17 @@
+Remove Pin=KF1-3 From Net=B2
+Remove Pin=KF1-4 From Net=A2
+Remove Pin=LED?-2 From Net=EN1_RS485
+Remove Pin=LED?-2 From Net=EN2_RS485
+Remove Pin=U?-6 From Net=DI1
+Remove Pin=U?-6 From Net=DI2
+Remove Pin=U?-6 From Net=EN2
+Remove Pin=U?-7 From Net=EN1
+Remove Pin=U?-7 From Net=RO1
+Remove Pin=U?-7 From Net=RO2
+Change Component Footprint: Designator=LED11 Old Footprint=GREEN_LED_0805 New Footprint=RED_LED_0603
+Change Component Footprint: Designator=J1 Old Footprint=JPx1-11Holes-2.54mm New Footprint=JPx1-10pins-2.54mm
+Change Component Footprint: Designator=KF1 Old Footprint=KF_4 New Footprint=KF-5.08-2-R
+Change Component Comment: Designator=J1 Old Comment=JUMP 11 PINS New Comment=Jump 10 Pins
+Change Component Comment: Designator=KF1 Old Comment=KF 4 Pins New Comment=KF 2 Pins
+Change Pin Designator/Name:  Old Designator=J1-9 Old Name=9 New Designator =10 New Name=10
+Change Pin Designator/Name:  Old Designator=J1-10 Old Name=10 New Designator =9 New Name=9

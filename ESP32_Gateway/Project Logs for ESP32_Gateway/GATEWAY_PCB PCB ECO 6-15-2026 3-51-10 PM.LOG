@@ -1,0 +1,13 @@
+Removed Pin From Net: NetName=DI2 Pin=U7-6
+Removed Pin From Net: NetName=RO2 Pin=U7-7
+Removed Pin From Net: NetName=EN2 Pin=U8-6
+Removed Pin From Net: NetName=EN1 Pin=U8-7
+Change Component Description : Designator=Fuse1 Old Description=Nano2 SMD FF submin fuse w/holder, 4A New Description=Nano2 SMD FF submin fuse w/holder, 4A | Littelfuse 0154004.DR
+Change Component Description : Designator=D3 Old Description=TVS Diode, SM712 Series, 31V Clamp, 600W Peak Pulse, Surface Mount, SOT23-3 New Description=TVS Diode, SM712 Series, 31V Clamp, 600W Peak Pulse, Surface Mount, SOT23-3 | Littelfuse SM712-02HTG
+Change Component Description : Designator=D4 Old Description=TVS Diode, SM712 Series, 31V Clamp, 600W Peak Pulse, Surface Mount, SOT23-3 New Description=TVS Diode, SM712 Series, 31V Clamp, 600W Peak Pulse, Surface Mount, SOT23-3 | Littelfuse SM712-02HTG
+Added Pin To Net: NetName=IO19 Pin=R40-2
+Added Pin To Net: NetName=IO19 Pin=R43-2
+Added Pin To Net: NetName=EN2 Pin=U7-6
+Added Pin To Net: NetName=EN1 Pin=U7-7
+Added Pin To Net: NetName=DI2 Pin=U8-6
+Added Pin To Net: NetName=RO2 Pin=U8-7
