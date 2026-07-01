@@ -15,6 +15,7 @@
 #include "change_baudrate.h"
 #include "change_poll.h"
 #include "esp_mac.h"
+#include "ble.h"
 
 ui_page_t current_page = PAGE_1_HOME;
 uint32_t baud_options[] = {1200, 2400, 4800, 9600, 19200, 38400, 115200};
@@ -33,6 +34,7 @@ static uint32_t cached_baud = 0;
 static uint32_t cached_poll = 0;
 static bool need_clear_after_scan = false;
 
+extern char ble_device_name[24];
 extern id_scan_result_t list_p1;
 extern id_scan_result_t list_p2;
 extern id_scan_result_t active_list;
@@ -43,6 +45,7 @@ extern scan_analysis_t scan_result;
 extern bool wire_p1_ok;
 extern bool wire_p2_ok;
 extern bool is_manual_scan; // true = manual scan, false = passive scan (không hiện LCD)
+extern char ble_device_name[24];
 
 //=============================================================================================
 // Hàm chuyển mảng ID thành chuỗi "1, 4, 5"
@@ -84,17 +87,41 @@ static void page_1_home(void)
     LCD_Print(blu_connected ? "BLU : Connected   " : "BLU : Disconnect  ");
 }
 //=============================================================================================
-// Page 2
+// Page 2 — 4 mục, scroll theo menu_cursor giống Device Info
 static void page_2_settings(void)
 {
+    const char *items[] = {
+        "Baudrate     ",
+        "Scan Device  ",
+        "Poll Interval",
+        "Bluetooth     "};
+    const int num_items = 4;
+    const int visible = 3;
+
+    int offset = menu_cursor - visible;
+    if (offset < 0)
+        offset = 0;
+
     LCD_SetCursor(0, 1);
-    LCD_Print("-=MENU SETTINGS=-");
-    LCD_SetCursor(1, 1);
-    LCD_Print(menu_cursor == 1 ? "-->Baudrate       " : "   Baudrate       ");
-    LCD_SetCursor(2, 1);
-    LCD_Print(menu_cursor == 2 ? "-->Scan Device    " : "   Scan Device    ");
-    LCD_SetCursor(3, 1);
-    LCD_Print(menu_cursor == 3 ? "-->Poll Interval  " : "   Poll Interval  ");
+    LCD_Print("-=MENU SETTINGS=-  ");
+
+    char buf[21];
+    for (int row = 0; row < visible; row++)
+    {
+        int idx = offset + row;
+        LCD_SetCursor(row + 1, 0);
+
+        if (idx < num_items)
+        {
+            int selected = (menu_cursor == idx + 1);
+            snprintf(buf, sizeof(buf), "%s%-17.17s", selected ? "-->" : "   ", items[idx]);
+            LCD_Print(buf);
+        }
+        else
+        {
+            LCD_Print("                    ");
+        }
+    }
 }
 
 //==============================================================================================
@@ -147,7 +174,7 @@ static void page_3_info_device(void)
         LCD_SetCursor(2, 0);
         LCD_Print("Hardware:  v1.0.0   ");
         LCD_SetCursor(3, 0);
-        LCD_Print("Firmware:  v1.0.0   ");
+        LCD_Print("Firmware:  v2.0.0   ");
     }
     // Hardware -> Software -> Update
     if (enc_scroll == 3)
@@ -155,7 +182,7 @@ static void page_3_info_device(void)
         LCD_SetCursor(1, 0);
         LCD_Print("Hardware:  v1.0.0   ");
         LCD_SetCursor(2, 0);
-        LCD_Print("Firmware:  v1.0.0   ");
+        LCD_Print("Firmware:  v2.0.0   ");
         LCD_SetCursor(3, 0);
         LCD_Print("DC-In   : 12-24V/3A ");
     }
@@ -208,7 +235,6 @@ static void page_scan_result(void)
     LCD_Print("Detail->");
 }
 
-//=====================================================================================================================
 // hiển thị chi tiết tình trạng trên đường truyền
 static void page_scan_detail(void)
 {
@@ -316,6 +342,33 @@ static void page_set_poll(void)
     snprintf(buffer_2, sizeof(buffer_2), "Select -> %lu s ", poll_options[poll_id]);
     LCD_Print(buffer_2);
 }
+
+// Trang BLE Control — bật/tắt BLE advertising
+static void page_ble_control(void)
+{
+    char buffer[24];
+    LCD_SetCursor(0, 2);
+    LCD_Print("-=BLE CONTROL=- ");
+    LCD_SetCursor(1, 1);
+    snprintf(buffer, sizeof(buffer), "Name : %-15.15s", ble_device_name);
+    LCD_Print(buffer);
+    LCD_SetCursor(2, 1);
+    LCD_Print(ble_enabled ? "Status : ON " : "Status : OFF ");
+}
+
+// Hiện khi app BLE đang kết nối vào thiết bị để gửi cấu hình
+static void page_ble_waiting(void)
+{
+    LCD_SetCursor(0, 0);
+    LCD_Print("                    ");
+    LCD_SetCursor(1, 4);
+    LCD_Print("Waiting for         ");
+    LCD_SetCursor(2, 7);
+    LCD_Print("update              ");
+    LCD_SetCursor(3, 0);
+    LCD_Print("                    ");
+}
+
 //=====================================================================================================
 
 //=====================================================================================================
@@ -380,21 +433,21 @@ void button_handler_task(void *arg)
     }
 }
 
-// Xử lý tác vụ của Encoder khi người dừng thao tác với nó
+// Xử lý sự kiện của Encoder
 static void encoder_handler_task(void *arg)
 {
-    int last_count = 0;    // Số đếm lần gần nhất trước đó
-    int current_count = 0; // Số đếm hiện tại
+    int last_count = 0;
+    int current_count = 0;
     ui_event_t encoder_event;
     while (1)
     {
-        pcnt_unit_get_count(pcnt_unit, &current_count); // Đọc số đếm hiện tại trong thanh ghi của bộ PCNT
+        pcnt_unit_get_count(pcnt_unit, &current_count);
         if (current_count != last_count)
         {
-            if (current_count > last_count) // Số đếm mà tăng lên thì là sẽ cuộn xuống
+            if (current_count > last_count)
                 encoder_event = EVENT_DOWN;
             else
-                encoder_event = EVENT_UP; // Số đếm giảm thì cuộn lên
+                encoder_event = EVENT_UP;
             xQueueSend(ui_queue, &encoder_event, 0);
             last_count = current_count;
         }
@@ -419,7 +472,7 @@ void ui_task(void)
             {
                 switch (event)
                 {
-                case EVENT_EN_SELECT: // 2 nút này có chung 1 chức năng
+                case EVENT_EN_SELECT:
                 case EVENT_SELECT:
                     if (current_page == PAGE_1_HOME)
                     {
@@ -447,6 +500,15 @@ void ui_task(void)
                             lcd_clear();
                             current_page = PAGE_SET_POLL;
                         }
+                        else if (menu_cursor == 4)
+                        {
+                            lcd_clear();
+                            current_page = PAGE_BLE_CONTROL;
+                        }
+                    }
+                    else if (current_page == PAGE_BLE_CONTROL)
+                    {
+                        ble_toggle();
                     }
                     else if (current_page == PAGE_SET_BAUDRATE)
                     {
@@ -510,10 +572,16 @@ void ui_task(void)
                         current_page = PAGE_2_SETTINGS;
                         menu_cursor = 3;
                     }
+                    else if (current_page == PAGE_BLE_CONTROL)
+                    {
+                        lcd_clear();
+                        current_page = PAGE_2_SETTINGS;
+                        menu_cursor = 4;
+                    }
                     break;
 
                 case EVENT_DOWN:
-                    if (current_page == PAGE_2_SETTINGS && menu_cursor < 3)
+                    if (current_page == PAGE_2_SETTINGS && menu_cursor < 4)
                         menu_cursor++;
                     else if (current_page == PAGE_SET_BAUDRATE && baudrate_id < 6)
                         baudrate_id++;
@@ -566,6 +634,10 @@ void ui_task(void)
             LCD_Print("                    ");
             vTaskDelay(pdMS_TO_TICKS(200));
         }
+        else if (blu_connected == true)
+        {
+            page_ble_waiting();
+        }
         else if (is_scan_device == true && is_manual_scan == false)
         {
             if (current_page == PAGE_1_HOME)
@@ -582,6 +654,8 @@ void ui_task(void)
                 page_set_poll();
             else if (current_page == PAGE_3_INFO_DEVICE)
                 page_3_info_device();
+            else if (current_page == PAGE_BLE_CONTROL)
+                page_ble_control();
         }
         else if (is_scanning == false)
         {
@@ -604,10 +678,11 @@ void ui_task(void)
                 page_set_poll();
             else if (current_page == PAGE_3_INFO_DEVICE)
                 page_3_info_device();
+            else if (current_page == PAGE_BLE_CONTROL)
+                page_ble_control();
         }
         else
         {
-
             vTaskDelay(pdMS_TO_TICKS(100));
         }
     }

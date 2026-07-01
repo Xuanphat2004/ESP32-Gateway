@@ -49,7 +49,7 @@ void wifi_Init(void)
 
     wifi_config_t wifi_config = {0};
     eeprom_read(0x0100, (uint8_t *)wifi_config.sta.ssid, 32);
-    eeprom_read(0x0120, (uint8_t *)wifi_config.sta.password, 64);
+    eeprom_read(0x0140, (uint8_t *)wifi_config.sta.password, 64);
     vTaskDelay(pdMS_TO_TICKS(1000));
 
     if (wifi_config.sta.ssid[0] == 0xFF || wifi_config.sta.ssid[0] == 0)

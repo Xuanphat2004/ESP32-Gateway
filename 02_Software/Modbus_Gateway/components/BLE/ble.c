@@ -14,10 +14,10 @@
 #include "esp_mac.h"
 #include "eeprom.h"
 
-static const char *TAG = "[MODBUS GATEWAY-BLE]";
+static const char *TAG = "[MB GATEWAY-BLE]";
 
-extern bool blu_connected;       // Biến global để UI biết trạng thái kết nối BLE hiện tại
-static char ble_device_name[24]; // tên thiết bị hiển thị trên app
+extern bool blu_connected; // Biến global để UI biết trạng thái kết nối BLE hiện tại
+char ble_device_name[24];  // tên thiết bị hiển thị trên app
 static esp_gatt_srvc_id_t service_id;
 
 static uint16_t service_handle = 0;   // handle của service, dùng để add char thứ 2
@@ -28,6 +28,7 @@ static char *receive_buffer = NULL; // buffer lớn 51KB cho bảng thanh ghi (c
 static int received_len = 0;
 static char wifi_buffer[256]; // buffer nhỏ cho WiFi config (1 packet là đủ)
 static esp_timer_handle_t s_restart_timer = NULL;
+bool ble_enabled = true;
 
 static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param);
 static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param);
@@ -52,7 +53,25 @@ static void build_device_name(void)
 {
     uint8_t mac[6] = {0};
     esp_read_mac(mac, ESP_MAC_EFUSE_FACTORY);
-    snprintf(ble_device_name, sizeof(ble_device_name), "%s%02X%02X%02X", DEVICE_NAME_PREFIX, mac[3], mac[4], mac[5]);
+    // snprintf = in có giới hạn số ký tự vào một chuỗi (buffer)
+    snprintf(ble_device_name, sizeof(ble_device_name), "%s%02X%02X", BLE_NAME, mac[4], mac[5]);
+}
+
+// On/Off phát các gói tin quảng bá ra không gian
+void ble_toggle(void)
+{
+    if (ble_enabled)
+    {
+        esp_ble_gap_stop_advertising();
+        ble_enabled = false;
+        ESP_LOGI(TAG, "BLE advertising stopped (OFF)");
+    }
+    else
+    {
+        esp_ble_gap_start_advertising(&adv_params);
+        ble_enabled = true;
+        ESP_LOGI(TAG, "BLE advertising started (ON)");
+    }
 }
 
 void ble_server_init(void)
@@ -78,13 +97,13 @@ void ble_server_init(void)
     service_id.id.uuid.uuid.uuid16 = GATTS_SERVICE_UUID;
 
     build_device_name();
-    esp_ble_gap_set_device_name(ble_device_name);
-    ESP_LOGI(TAG, "BLE device name: %s", ble_device_name);
+    esp_ble_gap_set_device_name(ble_device_name); // set tên thiết bị trong giao tiếp BLE
+    // ESP_LOGI(TAG, "BLE device name: %s", ble_device_name);
 
     // Cấu hình nội dung gói tin quảng bá
     esp_ble_adv_data_t adv_data = {
         .set_scan_rsp = false,
-        .include_name = true, // Cho phép bao gồm tên trong gói tin
+        .include_name = true, // tên thiết bị
         .include_txpower = true,
         .min_interval = 0x0006,
         .max_interval = 0x0010,
@@ -109,11 +128,10 @@ void ble_server_init(void)
     // Tạo timer dùng để restart sau khi nhận xong — không gọi esp_restart trong callback
     esp_timer_create_args_t timer_args = {
         .callback = restart_timer_cb,
-        .arg      = NULL,
-        .name     = "ble_restart",
+        .arg = NULL,
+        .name = "ble_restart",
     };
     ESP_ERROR_CHECK(esp_timer_create(&timer_args, &s_restart_timer));
-
     ESP_LOGI(TAG, "BLE Gateway System Ready. Waiting for App...");
 }
 
@@ -310,7 +328,7 @@ static void save_wifi_to_eeprom(const char *ssid, const char *pass)
 
     esp_err_t err1 = eeprom_write(0x0100, (uint8_t *)ssid_buf, sizeof(ssid_buf));
     vTaskDelay(pdMS_TO_TICKS(10)); // delay giữa 2 lần ghi EEPROM
-    esp_err_t err2 = eeprom_write(0x0120, (uint8_t *)pass_buf, sizeof(pass_buf));
+    esp_err_t err2 = eeprom_write(0x0140, (uint8_t *)pass_buf, sizeof(pass_buf));
 
     if (err1 == ESP_OK && err2 == ESP_OK)
         ESP_LOGI(TAG, "[WIFI] Da luu EEPROM: SSID=%s", ssid_buf);

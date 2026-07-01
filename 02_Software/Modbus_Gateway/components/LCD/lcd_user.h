@@ -18,7 +18,7 @@
 #define NEXT_PIN GPIO_NUM_21           // Nút Next
 #define ENCODER_SELECT_PIN GPIO_NUM_36 // Nút nhấn của Encoder
 
-// ====== EVENT cho nút nhấn =======
+// EVENT cho nút nhấn
 typedef enum
 {
     EVENT_UP,     // Dùng cho Encoder khi xoay lên
@@ -29,7 +29,7 @@ typedef enum
     EVENT_NEXT
 } ui_event_t;
 
-// ====== Các trang hiện có trong thiết bị =======
+// Các trang hiện có trong thiết bị
 typedef enum
 {
     PAGE_1_HOME,
@@ -39,9 +39,10 @@ typedef enum
     PAGE_SCAN_DETAIL,
     PAGE_SET_BAUDRATE,
     PAGE_SET_POLL,
+    PAGE_BLE_CONTROL,
 } ui_page_t;
 
-// ====== Biến trạng thái =======
+// Biến trạng thái
 extern bool is_scanning;
 extern bool wifi_connected;
 extern bool eth_connected;
