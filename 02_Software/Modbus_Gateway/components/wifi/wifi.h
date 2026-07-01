@@ -22,15 +22,7 @@
 #define AP_PASS_CONFIG "12345678"
 #define MAX_WIFI_RETRY 3
 
-// Cấu trúc để lưu SSID/PASS tạm thời từ Web
-typedef struct
-{
-    char ssid[64];
-    char password[64];
-} wifi_config_web_t;
-
 void wifi_Init(void);
-void start_webserver(void); // Hàm khởi tạo Web Server
 void get_wifi_mac_addr(void);
 
 #endif
