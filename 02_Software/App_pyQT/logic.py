@@ -165,7 +165,6 @@ class AppController(QObject):
         self.ui.btn_sync.clicked.connect(self.on_sync_clicked)
         self.ui.btn_scan_ble.clicked.connect(self.on_scan_ble_clicked)
         self.ui.btn_delete_device.clicked.connect(self.on_delete_device_clicked)
-        self.ui.btn_scan_ble_wifi.clicked.connect(self.on_scan_ble_wifi_clicked)
         self.ui.btn_send_wifi.clicked.connect(self.on_send_wifi_clicked)
         self.ui.btn_show_pass.clicked.connect(self.on_toggle_password_visibility)
         self.ui.btn_scan_wifi_net.clicked.connect(self.on_scan_wifi_networks_clicked)
@@ -987,22 +986,6 @@ class AppController(QObject):
                 self.ui.ent_ssid.setText(ssid_item.text())
                 self.ui.ent_wifi_pass.setFocus()
 
-    @asyncSlot()
-    async def on_scan_ble_wifi_clicked(self):
-        self.ui.btn_scan_ble_wifi.setText("Scanning...")
-        self.ui.btn_scan_ble_wifi.setEnabled(False)
-        self.ui.combo_ble_devices_wifi.clear()
-        try:
-            devices = await BleakScanner.discover()
-            for device in devices:
-                if device.name:
-                    self.ui.combo_ble_devices_wifi.addItem(
-                        f"{device.name} ({device.address})"
-                    )
-        finally:
-            self.ui.btn_scan_ble_wifi.setText("Scan Devices")
-            self.ui.btn_scan_ble_wifi.setEnabled(True)
-
     def on_toggle_password_visibility(self):
         from PyQt6.QtWidgets import QLineEdit
         if self.ui.ent_wifi_pass.echoMode() == QLineEdit.EchoMode.Password:
@@ -1017,14 +1000,35 @@ class AppController(QObject):
         ssid = self.ui.ent_ssid.text().strip()
         password = self.ui.ent_wifi_pass.text()
 
+        # ── Validate ──────────────────────────────────────────────────────────
         if not ssid:
             QMessageBox.warning(self.ui, "Missing Input", "Please enter WiFi SSID!")
             return
 
-        selected_text = self.ui.combo_ble_devices_wifi.currentText()
+        # Firmware lưu SSID vào buffer 32 bytes (gồm null terminator → max 31 ký tự)
+        if len(ssid.encode("utf-8")) > 31:
+            QMessageBox.warning(
+                self.ui, "SSID Too Long",
+                f"SSID must be at most 31 characters.\nCurrent: {len(ssid.encode('utf-8'))} bytes.",
+            )
+            return
+
+        # Firmware lưu password vào buffer 64 bytes (max 63 ký tự)
+        if len(password.encode("utf-8")) > 63:
+            QMessageBox.warning(
+                self.ui, "Password Too Long",
+                f"Password must be at most 63 characters.\nCurrent: {len(password.encode('utf-8'))} bytes.",
+            )
+            return
+
+        # ── Kiểm tra đã chọn thiết bị BLE ở tab Setup chưa ──────────────────
+        selected_text = self.ui.combo_ble_devices.currentText()
         address_match = re.search(r"\((.*?)\)", selected_text)
         if not address_match:
-            QMessageBox.warning(self.ui, "No Device", "Please select a Bluetooth device!")
+            QMessageBox.warning(
+                self.ui, "No Device",
+                "No Bluetooth device selected.\nPlease go to the Setup tab and scan for devices first.",
+            )
             return
 
         ble_address = address_match.group(1)

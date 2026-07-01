@@ -124,20 +124,10 @@ class ModbusApp(QWidget):  # Main window with 2 tabs: Setup / History
         body_lay.addWidget(net_grp, stretch=1)
 
         # ══════════════════════════════════════════════════════════════════════
-        # CỘT PHẢI — BLE + Credentials + Gửi
+        # CỘT PHẢI — Credentials + Gửi
         # ══════════════════════════════════════════════════════════════════════
         right_lay = QVBoxLayout()
         body_lay.addLayout(right_lay, stretch=1)
-
-        # ── BLE connection ────────────────────────────────────────────────────
-        ble_grp = QGroupBox("Bluetooth Connection")
-        ble_lay = QHBoxLayout()
-        self.btn_scan_ble_wifi = QPushButton("Scan Devices")
-        self.combo_ble_devices_wifi = QComboBox()
-        ble_lay.addWidget(self.btn_scan_ble_wifi)
-        ble_lay.addWidget(self.combo_ble_devices_wifi)
-        ble_grp.setLayout(ble_lay)
-        right_lay.addWidget(ble_grp)
 
         # ── WiFi credentials form ─────────────────────────────────────────────
         cfg_grp = QGroupBox("WiFi Configuration")
