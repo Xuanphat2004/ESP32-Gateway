@@ -8,6 +8,7 @@
 #include "esp_bt_main.h"
 #include "esp_gap_ble_api.h"
 #include "esp_gatts_api.h"
+#include "esp_timer.h"
 #include "cJSON.h"
 #include "esp_modbus_common.h"
 #include "esp_mac.h"
@@ -26,8 +27,16 @@ static uint16_t handle_wifi_cfg = 0;  // handle của ngăn 2: WiFi config
 static char *receive_buffer = NULL; // buffer lớn 51KB cho bảng thanh ghi (chunked)
 static int received_len = 0;
 static char wifi_buffer[256]; // buffer nhỏ cho WiFi config (1 packet là đủ)
+static esp_timer_handle_t s_restart_timer = NULL;
+
 static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param);
 static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param);
+
+// Gọi từ esp_timer — nằm ngoài BLE callback nên an toàn
+static void restart_timer_cb(void *arg)
+{
+    esp_restart();
+}
 
 static esp_ble_adv_params_t adv_params = {
     .adv_int_min = 0x20,
@@ -96,6 +105,14 @@ void ble_server_init(void)
     // Cấp phát buffer ban đầu
     receive_buffer = (char *)malloc(MAX_JSON_SIZE);
     memset(receive_buffer, 0, MAX_JSON_SIZE);
+
+    // Tạo timer dùng để restart sau khi nhận xong — không gọi esp_restart trong callback
+    esp_timer_create_args_t timer_args = {
+        .callback = restart_timer_cb,
+        .arg      = NULL,
+        .name     = "ble_restart",
+    };
+    ESP_ERROR_CHECK(esp_timer_create(&timer_args, &s_restart_timer));
 
     ESP_LOGI(TAG, "BLE Gateway System Ready. Waiting for App...");
 }
@@ -386,7 +403,6 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
                 receive_buffer[received_len] = '\0';
                 ESP_LOGI(TAG, "[REG] +%d bytes, tong: %d bytes", param->write.len, received_len);
 
-                vTaskDelay(pdMS_TO_TICKS(100));
                 if (receive_buffer[received_len - 1] == ']')
                 {
                     ESP_LOGW(TAG, "[REG] Nhan du JSON, bat dau xu ly...");
@@ -397,10 +413,8 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
                         print_parsed_registers(final_regs, count);
                         save_regs_to_nvs(final_regs, count);
                         free(final_regs);
-                        esp_ble_gatts_close(gatts_if, param->write.conn_id);
-                        ESP_LOGW("SYSTEM", "Restart sau 3 giay...");
-                        vTaskDelay(pdMS_TO_TICKS(3000));
-                        esp_restart();
+                        ESP_LOGW("SYSTEM", "[REG] Da luu NVS, restart sau 3 giay...");
+                        esp_timer_start_once(s_restart_timer, 3000 * 1000ULL); // 3s (microseconds)
                     }
                 }
             }
@@ -415,10 +429,8 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
                 wifi_buffer[len] = '\0';
                 ESP_LOGI(TAG, "[WIFI] Nhan: %s", wifi_buffer);
                 parse_and_save_wifi(wifi_buffer);
-                esp_ble_gatts_close(gatts_if, param->write.conn_id);
-                ESP_LOGW("SYSTEM", "Restart sau 1 giay...");
-                vTaskDelay(pdMS_TO_TICKS(1000));
-                esp_restart();
+                ESP_LOGW("SYSTEM", "[WIFI] Da luu EEPROM, restart sau 1 giay...");
+                esp_timer_start_once(s_restart_timer, 1000 * 1000ULL); // 1s (microseconds)
             }
             else
             {
