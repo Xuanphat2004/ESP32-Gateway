@@ -33,15 +33,18 @@ class ModbusApp(QWidget):  # Main window with 2 tabs: Setup / History
         self.tabs_main = QTabWidget()
         # self.tab_home = QWidget()
         self.tab_setup = QWidget()
+        self.tab_wifi = QWidget()
         self.tab_history = QWidget()
 
         # self.tabs_main.addTab(self.tab_home, "Home")
         self.tabs_main.addTab(self.tab_setup, "Setup")
+        self.tabs_main.addTab(self.tab_wifi, "WiFi Config")
         self.tabs_main.addTab(self.tab_history, "History")
         main_layout.addWidget(self.tabs_main)
 
         setup_lay = QVBoxLayout(self.tab_setup)
         history_lay = QVBoxLayout(self.tab_history)
+        self._build_wifi_tab()
 
         self.history_table = QTableWidget()
         self.history_table.setColumnCount(3)
@@ -83,6 +86,96 @@ class ModbusApp(QWidget):  # Main window with 2 tabs: Setup / History
 
         self.device_tabs = QTabWidget()
         setup_lay.addWidget(self.device_tabs)
+
+    def _build_wifi_tab(self):
+        lay = QVBoxLayout(self.tab_wifi)
+        body_lay = QHBoxLayout()  # chia đôi: trái = scan mạng, phải = form gửi
+        lay.addLayout(body_lay)
+
+        # ══════════════════════════════════════════════════════════════════════
+        # CỘT TRÁI — Danh sách mạng WiFi khả dụng
+        # ══════════════════════════════════════════════════════════════════════
+        net_grp = QGroupBox("Available WiFi Networks")
+        net_lay = QVBoxLayout(net_grp)
+
+        self.btn_scan_wifi_net = QPushButton("Scan WiFi")
+        self.btn_scan_wifi_net.setFixedHeight(34)
+        net_lay.addWidget(self.btn_scan_wifi_net)
+
+        self.tbl_wifi_networks = QTableWidget()
+        self.tbl_wifi_networks.setColumnCount(3)
+        self.tbl_wifi_networks.setHorizontalHeaderLabels(["SSID", "Signal", "Security"])
+        net_header = self.tbl_wifi_networks.horizontalHeader()
+        net_header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
+        net_header.setSectionResizeMode(1, QHeaderView.ResizeMode.Fixed)
+        net_header.setSectionResizeMode(2, QHeaderView.ResizeMode.Fixed)
+        self.tbl_wifi_networks.setColumnWidth(1, 72)
+        self.tbl_wifi_networks.setColumnWidth(2, 130)
+        self.tbl_wifi_networks.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.tbl_wifi_networks.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.tbl_wifi_networks.setSelectionMode(QTableWidget.SelectionMode.SingleSelection)
+        self.tbl_wifi_networks.verticalHeader().setVisible(False)
+        net_lay.addWidget(self.tbl_wifi_networks)
+
+        hint = QLabel("Click a network to auto-fill SSID")
+        hint.setStyleSheet("color: #888; font-size: 11px;")
+        net_lay.addWidget(hint)
+
+        body_lay.addWidget(net_grp, stretch=1)
+
+        # ══════════════════════════════════════════════════════════════════════
+        # CỘT PHẢI — BLE + Credentials + Gửi
+        # ══════════════════════════════════════════════════════════════════════
+        right_lay = QVBoxLayout()
+        body_lay.addLayout(right_lay, stretch=1)
+
+        # ── BLE connection ────────────────────────────────────────────────────
+        ble_grp = QGroupBox("Bluetooth Connection")
+        ble_lay = QHBoxLayout()
+        self.btn_scan_ble_wifi = QPushButton("Scan Devices")
+        self.combo_ble_devices_wifi = QComboBox()
+        ble_lay.addWidget(self.btn_scan_ble_wifi)
+        ble_lay.addWidget(self.combo_ble_devices_wifi)
+        ble_grp.setLayout(ble_lay)
+        right_lay.addWidget(ble_grp)
+
+        # ── WiFi credentials form ─────────────────────────────────────────────
+        cfg_grp = QGroupBox("WiFi Configuration")
+        cfg_grid = QGridLayout(cfg_grp)
+        cfg_grid.setColumnStretch(1, 1)
+        cfg_grid.setVerticalSpacing(12)
+        cfg_grid.setHorizontalSpacing(10)
+
+        cfg_grid.addWidget(QLabel("SSID:"), 0, 0)
+        self.ent_ssid = QLineEdit()
+        self.ent_ssid.setPlaceholderText("Select from list or type manually...")
+        self.ent_ssid.setFixedHeight(32)
+        cfg_grid.addWidget(self.ent_ssid, 0, 1, 1, 2)
+
+        cfg_grid.addWidget(QLabel("Password:"), 1, 0)
+        self.ent_wifi_pass = QLineEdit()
+        self.ent_wifi_pass.setPlaceholderText("Enter WiFi password...")
+        self.ent_wifi_pass.setEchoMode(QLineEdit.EchoMode.Password)
+        self.ent_wifi_pass.setFixedHeight(32)
+        cfg_grid.addWidget(self.ent_wifi_pass, 1, 1)
+        self.btn_show_pass = QPushButton("Show")
+        self.btn_show_pass.setFixedSize(60, 32)
+        cfg_grid.addWidget(self.btn_show_pass, 1, 2)
+
+        right_lay.addWidget(cfg_grp)
+
+        # ── Status label ──────────────────────────────────────────────────────
+        self.lbl_wifi_status = QLabel("")
+        self.lbl_wifi_status.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lbl_wifi_status.setStyleSheet("font-size: 12px; color: #555;")
+        right_lay.addWidget(self.lbl_wifi_status)
+
+        # ── Send button ───────────────────────────────────────────────────────
+        self.btn_send_wifi = QPushButton("Send WiFi Config to Device")
+        self.btn_send_wifi.setFixedHeight(45)
+        right_lay.addWidget(self.btn_send_wifi)
+
+        right_lay.addStretch()
 
 
 class RegisterEditorWidget(QGroupBox):  # Form for entering register info

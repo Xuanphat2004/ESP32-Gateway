@@ -10,41 +10,22 @@
 #include "esp_gatts_api.h"
 #include "cJSON.h"
 #include "esp_modbus_common.h"
+#include "esp_mac.h"
+#include "eeprom.h"
 
 static const char *TAG = "[MODBUS GATEWAY-BLE]";
 
-// --- CẤU HÌNH UUID (Phải khớp với file logic.py trên App) ---
-#define GATTS_SERVICE_UUID 0xFF10
-#define GATTS_CHAR_UUID 0xFF11
-#define GATTS_NUM_HANDLE 4
-#define DEVICE_NAME "MODBUS-GATEWAY"
-
-extern bool blu_connected; // Biến global để UI biết trạng thái kết nối BLE hiện tại
-
-// Cấu trúc dữ liệu để lưu trữ thông tin thanh ghi từ JSON
-typedef struct
-{
-    uint16_t cid;        // i: Index
-    char name[64];       // n: Name
-    char unit[8];        // u: Unit
-    uint8_t slave_id;    // s: Slave ID
-    uint16_t reg_start;  // a: Address
-    uint8_t func_code;   // f: Function Code (0: Holding, 1: Input)
-    uint8_t data_type;   // t: Type (Float, U16,...)
-    uint16_t quantity;   // q: Quantity
-    float scale;         // sc: Scale
-    uint8_t mul_type;    // m: Multiplier type
-    uint16_t ref_cid[2]; // r: Factor 1 & Factor 2 CIDs
-} temp_modbus_reg_t;
-
-// --- BIẾN TOÀN CỤC VÀ QUẢN LÝ BUFFER DỮ LIỆU ---
+extern bool blu_connected;       // Biến global để UI biết trạng thái kết nối BLE hiện tại
+static char ble_device_name[24]; // tên thiết bị hiển thị trên app
 static esp_gatt_srvc_id_t service_id;
 
-// Buffer động để chứa chuỗi JSON (Vì chuỗi 100 thanh ghi rất dài)
-static char *receive_buffer = NULL;
-static int received_len = 0;
-#define MAX_JSON_SIZE 51200 // 51KB
+static uint16_t service_handle = 0;   // handle của service, dùng để add char thứ 2
+static uint16_t handle_reg_table = 0; // handle của ngăn 1: bảng thanh ghi Modbus
+static uint16_t handle_wifi_cfg = 0;  // handle của ngăn 2: WiFi config
 
+static char *receive_buffer = NULL; // buffer lớn 51KB cho bảng thanh ghi (chunked)
+static int received_len = 0;
+static char wifi_buffer[256]; // buffer nhỏ cho WiFi config (1 packet là đủ)
 static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param);
 static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param);
 
@@ -56,6 +37,14 @@ static esp_ble_adv_params_t adv_params = {
     .channel_map = ADV_CHNL_ALL,
     .adv_filter_policy = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY,
 };
+
+// tạo ra chuỗi tên trên app sử dụng 1 phần địa chỉ MAC
+static void build_device_name(void)
+{
+    uint8_t mac[6] = {0};
+    esp_read_mac(mac, ESP_MAC_EFUSE_FACTORY);
+    snprintf(ble_device_name, sizeof(ble_device_name), "%s%02X%02X%02X", DEVICE_NAME_PREFIX, mac[3], mac[4], mac[5]);
+}
 
 void ble_server_init(void)
 {
@@ -79,7 +68,9 @@ void ble_server_init(void)
     service_id.id.uuid.len = ESP_UUID_LEN_16;
     service_id.id.uuid.uuid.uuid16 = GATTS_SERVICE_UUID;
 
-    esp_ble_gap_set_device_name(DEVICE_NAME);
+    build_device_name();
+    esp_ble_gap_set_device_name(ble_device_name);
+    ESP_LOGI(TAG, "BLE device name: %s", ble_device_name);
 
     // Cấu hình nội dung gói tin quảng bá
     esp_ble_adv_data_t adv_data = {
@@ -97,9 +88,6 @@ void ble_server_init(void)
         .p_service_uuid = NULL,
         .flag = (ESP_BLE_ADV_FLAG_GEN_DISC | ESP_BLE_ADV_FLAG_BREDR_NOT_SPT),
     };
-
-    // Đặt tên thiết bị
-    esp_ble_gap_set_device_name(DEVICE_NAME);
 
     // Gửi cấu hình này xuống Controller
     esp_ble_gap_config_adv_data(&adv_data);
@@ -123,7 +111,6 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
         ESP_LOGI(TAG, "Advertising BLE packet ...");
         break;
     case ESP_GAP_BLE_UPDATE_CONN_PARAMS_EVT:
-        // ESP_LOGI(TAG, "Đã cập nhật tham số kết nối (MTU/Interval)");
         blu_connected = true; // Cập nhật trạng thái kết nối BLE
         break;
     default:
@@ -166,52 +153,50 @@ temp_modbus_reg_t *parse_json_to_struct_array(const char *json_str, int *out_reg
 {
     if (json_str == NULL)
         return NULL;
-
-    // Phân tích chuỗi JSON thô thành cây đối tượng cJSON
-    // root là con trỏ đại diện cho toàn bộ chuỗi JSON gốc mà hệ thống vừa phân tích thành công.
     cJSON *root = cJSON_Parse(json_str);
-    if (root == NULL)
+    if (root == NULL) // Lỗi có thể do không đủ RAM trong vùng heap để phân tích JSON
     {
-        ESP_LOGE("JSON_PARSE", "Fail to format JSON ! Can't Parse."); // Lỗi có thể do không đủ RAM trong vùng heap để phân tích JSON
+        ESP_LOGW("JSON_PARSE", "Fail to format JSON ! Can't Parse !!!");
         return NULL;
     }
 
-    // Xác định số lượng thanh ghi (phần tử trong mảng JSON)
     int reg_count = cJSON_GetArraySize(root);
     *out_reg_count = reg_count;
     ESP_LOGI("JSON_PARSE", "Found %d Regiser in packet.", reg_count);
 
-    // Cấp phát bộ nhớ cho mảng Struct tạm thời trong RAM
     // Sử dụng số lượng thanh ghi để tạo ra 1 vùng nhớ để mapping gói tin vào bảng thanh ghi
     temp_modbus_reg_t *reg_array = malloc(reg_count * sizeof(temp_modbus_reg_t));
     if (reg_array == NULL)
     {
-        ESP_LOGE("JSON_PARSE", "No enough RAM !!!");
+        ESP_LOGW("JSON_PARSE", "No enough RAM !!!");
         cJSON_Delete(root);
         return NULL;
     }
 
-    // Duyệt qua từng phần tử JSON và ánh xạ vào Struct
+    // Duyệt qua từng phần tử trong gói tin JSON
     for (int i = 0; i < reg_count; i++)
     {
         cJSON *item = cJSON_GetArrayItem(root, i);
 
-        // cid
+        // mã định danh riêng cho từng thanh ghi = cid
         reg_array[i].cid = cJSON_GetObjectItem(item, "i")->valueint;
 
-        // name
+        // tên = name
         cJSON *name_obj = cJSON_GetObjectItem(item, "n");
+        // Kiểm tra xem có phải là chuỗi không và con trỏ vào ô nhớ khác NULL không
+        //  KHÔNG tìm thấy field "n" trong gói tin mà app gửi xuống thì con trỏ trả về NULL
         if (cJSON_IsString(name_obj) && (name_obj->valuestring != NULL))
         {
+            // strncpy(đích, nguồn, số_byte_tối_đa)
             strncpy(reg_array[i].name, name_obj->valuestring, sizeof(reg_array[i].name) - 1);
             reg_array[i].name[sizeof(reg_array[i].name) - 1] = '\0'; // Chốt ký tự kết thúc
         }
         else
         {
-            strcpy(reg_array[i].name, "No Name"); // Mặc định nếu thiếu
+            strcpy(reg_array[i].name, "No-name"); // Mặc định nếu thiếu
         }
 
-        // Trích xuất Đơn vị (u)
+        // u = đơn vị
         cJSON *unit_obj = cJSON_GetObjectItem(item, "u");
         if (cJSON_IsString(unit_obj) && (unit_obj->valuestring != NULL))
         {
@@ -269,7 +254,6 @@ static void save_regs_to_nvs(temp_modbus_reg_t *reg_array, int count)
         return;
     }
 
-    // Lưu số lượng thanh ghi - thật ra là số lượng CID
     err = nvs_set_u16(my_handle, "register_count", (uint16_t)count);
     if (err != ESP_OK)
         ESP_LOGE("NVS_SAVE", "Fail to save in reg_count !!!");
@@ -297,6 +281,51 @@ static void save_regs_to_nvs(temp_modbus_reg_t *reg_array, int count)
     // printf("===========================================================================================================================");
 }
 
+// Lưu SSID và password vào EEPROM
+// Địa chỉ khớp với wifi.c: SSID → 0x0100 (32 bytes), Password → 0x0120 (64 bytes)
+static void save_wifi_to_eeprom(const char *ssid, const char *pass)
+{
+    char ssid_buf[32] = {0};
+    char pass_buf[64] = {0};
+
+    strncpy(ssid_buf, ssid, sizeof(ssid_buf) - 1);
+    strncpy(pass_buf, pass, sizeof(pass_buf) - 1);
+
+    esp_err_t err1 = eeprom_write(0x0100, (uint8_t *)ssid_buf, sizeof(ssid_buf));
+    vTaskDelay(pdMS_TO_TICKS(10)); // delay giữa 2 lần ghi EEPROM
+    esp_err_t err2 = eeprom_write(0x0120, (uint8_t *)pass_buf, sizeof(pass_buf));
+
+    if (err1 == ESP_OK && err2 == ESP_OK)
+        ESP_LOGI(TAG, "[WIFI] Da luu EEPROM: SSID=%s", ssid_buf);
+    else
+        ESP_LOGE(TAG, "[WIFI] Loi ghi EEPROM (ssid:%d pass:%d)", err1, err2);
+}
+
+// Parse JSON {"ssid":"...","pass":"..."} và lưu xuống EEPROM
+static void parse_and_save_wifi(const char *json_str)
+{
+    cJSON *root = cJSON_Parse(json_str);
+    if (root == NULL)
+    {
+        ESP_LOGW(TAG, "[WIFI] Fail to create JSON root array !!!");
+        return;
+    }
+
+    cJSON *ssid_obj = cJSON_GetObjectItem(root, "ssid");
+    cJSON *pass_obj = cJSON_GetObjectItem(root, "pass");
+
+    if (cJSON_IsString(ssid_obj) && ssid_obj->valuestring != NULL && cJSON_IsString(pass_obj) && pass_obj->valuestring != NULL)
+
+    {
+        save_wifi_to_eeprom(ssid_obj->valuestring, pass_obj->valuestring);
+    }
+    else
+    {
+        ESP_LOGE(TAG, "[WIFI] JSON thieu field ssid hoac pass");
+    }
+    cJSON_Delete(root);
+}
+
 // Hàm xử lý sự kiện GATT Server - Nhận dữ liệu từ App qua BLE
 static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param)
 {
@@ -306,59 +335,94 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
         esp_ble_gatts_create_service(gatts_if, &service_id, GATTS_NUM_HANDLE);
         break;
 
-    case ESP_GATTS_CREATE_EVT: // Sảy ra khi tạo service và tạo characteristic
-        esp_ble_gatts_start_service(param->create.service_handle);
-        // Tạo đặc tính và thêm đặc tính đó vào trong service vừa tạo
+    case ESP_GATTS_CREATE_EVT:
+        service_handle = param->create.service_handle; // lưu lại để add char thứ 2 sau
+        esp_ble_gatts_start_service(service_handle);
+        // Tạo characteristic đầu tiên: nhận bảng thanh ghi Modbus
         esp_bt_uuid_t char_uuid = {.len = ESP_UUID_LEN_16, .uuid.uuid16 = GATTS_CHAR_UUID};
-        esp_ble_gatts_add_char(param->create.service_handle, &char_uuid, ESP_GATT_PERM_WRITE, ESP_GATT_CHAR_PROP_BIT_WRITE, NULL, NULL);
+        esp_ble_gatts_add_char(service_handle, &char_uuid, ESP_GATT_PERM_WRITE, ESP_GATT_CHAR_PROP_BIT_WRITE, NULL, NULL);
         break;
 
-    case ESP_GATTS_CONNECT_EVT: // sảy ra khi app thực hiện kết nối thành công với gateway
-        ESP_LOGI(TAG, "Connected with App, waiting for config packet ...");
-        blu_connected = true; // Cập nhật trạng thái kết nối BLE
-        received_len = 0;     // Reset buffer cho lượt nhận mới
-        memset(receive_buffer, 0, MAX_JSON_SIZE);
-        break;
-
-    case ESP_GATTS_WRITE_EVT: // Sảy ra khi app gửi dữ liệu cấu hình (JSON) xuống qua đặc tính đã tạo
-    {
-        blu_connected = true; // Cập nhật trạng thái đang trong quá trình nhận dữ liệu
-        // Kiểm tra tránh tràn buffer
-        if (received_len + param->write.len < MAX_JSON_SIZE)
+    case ESP_GATTS_ADD_CHAR_EVT:
+        if (handle_reg_table == 0)
         {
-            memcpy(receive_buffer + received_len, param->write.value, param->write.len);
-            received_len += param->write.len;
-            receive_buffer[received_len] = '\0'; // Kết thúc chuỗi để Log
+            // Char 1 (bảng thanh ghi) vừa tạo xong → lưu handle, tạo tiếp char 2
+            handle_reg_table = param->add_char.attr_handle;
+            ESP_LOGI(TAG, "Char[1] register table handle: %d", handle_reg_table);
+            esp_bt_uuid_t wifi_uuid = {.len = ESP_UUID_LEN_16, .uuid.uuid16 = CHAR_WIFI_UUID};
+            esp_ble_gatts_add_char(service_handle, &wifi_uuid, ESP_GATT_PERM_WRITE, ESP_GATT_CHAR_PROP_BIT_WRITE, NULL, NULL);
+        }
+        else if (handle_wifi_cfg == 0)
+        {
+            // Char 2 (WiFi config) vừa tạo xong → lưu handle, xong
+            handle_wifi_cfg = param->add_char.attr_handle;
+            ESP_LOGI(TAG, "Char[2] wifi config handle: %d", handle_wifi_cfg);
+        }
+        break;
 
-            ESP_LOGI(TAG, "Received: %d bytes. ====> Total: %d bytes", param->write.len, received_len);
+    case ESP_GATTS_CONNECT_EVT:
+        ESP_LOGI(TAG, "Connected with App, waiting to receive packet ...");
+        blu_connected = true;
+        received_len = 0;
+        memset(receive_buffer, 0, MAX_JSON_SIZE);
+        memset(wifi_buffer, 0, sizeof(wifi_buffer));
+        break;
 
-            // Gửi xác nhận (ACK) về cho Python App (Cơ chế response=True)
-            if (param->write.need_rsp)
+    case ESP_GATTS_WRITE_EVT:
+    {
+        blu_connected = true;
+
+        // Gửi ACK về app ngay nếu cần
+        if (param->write.need_rsp)
+            esp_ble_gatts_send_response(gatts_if, param->write.conn_id, param->write.trans_id, ESP_GATT_OK, NULL);
+
+        // --- Ngăn 1 (0xFF11): Bảng thanh ghi Modbus — nhận nhiều chunk ---
+        if (param->write.handle == handle_reg_table)
+        {
+            if (received_len + param->write.len < MAX_JSON_SIZE)
             {
-                esp_ble_gatts_send_response(gatts_if, param->write.conn_id, param->write.trans_id, ESP_GATT_OK, NULL);
-            }
-            vTaskDelay(pdMS_TO_TICKS(100)); // Delay nhỏ để đảm bảo dữ liệu được ghi đầy đủ trước khi kiểm tra
-            // Kiểm tra nếu là mảnh cuối cùng - kết thúc bằng dấu đóng ngoặc JSON ']'
-            if (receive_buffer[received_len - 1] == ']')
-            {
-                ESP_LOGW(TAG, "Received total JSON packets from App, Processing ...");
-                // Trong gatts_event_handler, khi nhận đủ JSON
-                int count = 0;
-                temp_modbus_reg_t *final_regs = parse_json_to_struct_array(receive_buffer, &count);
+                memcpy(receive_buffer + received_len, param->write.value, param->write.len);
+                received_len += param->write.len;
+                receive_buffer[received_len] = '\0';
+                ESP_LOGI(TAG, "[REG] +%d bytes, tong: %d bytes", param->write.len, received_len);
 
-                if (final_regs != NULL)
+                vTaskDelay(pdMS_TO_TICKS(100));
+                if (receive_buffer[received_len - 1] == ']')
                 {
-                    print_parsed_registers(final_regs, count);
-                    ESP_LOGI(TAG, "Saving to NVS flash memorry ...");
-                    save_regs_to_nvs(final_regs, count);
-                    free(final_regs); // Giải phóng mảng tạm sau khi đã lưu NVS thành công
-                    ESP_LOGI(TAG, "Closing connection before restart...");
-                    esp_ble_gatts_close(gatts_if, param->write.conn_id);          // Đóng kết nối trước khi khởi động lại
-                    ESP_LOGW("SYSTEM", "System will restart after 3 second ..."); // Thông báo và tự động khởi động lại hệ thống
-                    vTaskDelay(pdMS_TO_TICKS(3000));
-                    esp_restart();
+                    ESP_LOGW(TAG, "[REG] Nhan du JSON, bat dau xu ly...");
+                    int count = 0;
+                    temp_modbus_reg_t *final_regs = parse_json_to_struct_array(receive_buffer, &count);
+                    if (final_regs != NULL)
+                    {
+                        print_parsed_registers(final_regs, count);
+                        save_regs_to_nvs(final_regs, count);
+                        free(final_regs);
+                        esp_ble_gatts_close(gatts_if, param->write.conn_id);
+                        ESP_LOGW("SYSTEM", "Restart sau 3 giay...");
+                        vTaskDelay(pdMS_TO_TICKS(3000));
+                        esp_restart();
+                    }
                 }
-                // ESP_LOGD(TAG, "Nội dung: %s", receive_buffer);
+            }
+        }
+        // --- Ngăn 2 (0xFF12): WiFi config — nhận 1 packet JSON nhỏ ---
+        else if (param->write.handle == handle_wifi_cfg)
+        {
+            uint16_t len = param->write.len;
+            if (len < sizeof(wifi_buffer) - 1)
+            {
+                memcpy(wifi_buffer, param->write.value, len);
+                wifi_buffer[len] = '\0';
+                ESP_LOGI(TAG, "[WIFI] Nhan: %s", wifi_buffer);
+                parse_and_save_wifi(wifi_buffer);
+                esp_ble_gatts_close(gatts_if, param->write.conn_id);
+                ESP_LOGW("SYSTEM", "Restart sau 1 giay...");
+                vTaskDelay(pdMS_TO_TICKS(1000));
+                esp_restart();
+            }
+            else
+            {
+                ESP_LOGE(TAG, "[WIFI] Du lieu qua lon (%d bytes), bo qua", len);
             }
         }
         break;

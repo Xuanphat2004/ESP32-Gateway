@@ -24,6 +24,7 @@ from bleak import BleakScanner, BleakClient
 from ui import RegisterEditorWidget
 
 MODBUS_CHAR_UUID = "0000ff11-0000-1000-8000-00805f9b34fb"
+WIFI_CHAR_UUID   = "0000ff12-0000-1000-8000-00805f9b34fb"
 
 FUNCTION_CODE_MAP = {
     "Read Holding Registers (0x03)": 0x00,
@@ -164,6 +165,11 @@ class AppController(QObject):
         self.ui.btn_sync.clicked.connect(self.on_sync_clicked)
         self.ui.btn_scan_ble.clicked.connect(self.on_scan_ble_clicked)
         self.ui.btn_delete_device.clicked.connect(self.on_delete_device_clicked)
+        self.ui.btn_scan_ble_wifi.clicked.connect(self.on_scan_ble_wifi_clicked)
+        self.ui.btn_send_wifi.clicked.connect(self.on_send_wifi_clicked)
+        self.ui.btn_show_pass.clicked.connect(self.on_toggle_password_visibility)
+        self.ui.btn_scan_wifi_net.clicked.connect(self.on_scan_wifi_networks_clicked)
+        self.ui.tbl_wifi_networks.itemSelectionChanged.connect(self.on_wifi_network_selected)
 
     # =========================================================================
     # TỰ ĐỘNG TÍNH MULTIPLIER DỰA TRÊN FACTOR
@@ -895,5 +901,174 @@ class AppController(QObject):
                 return index
 
         return 65535  # không tìm thấy
+
+    # =========================================================================
+    # WIFI CONFIG TAB
+    @asyncSlot()
+    async def on_scan_wifi_networks_clicked(self):
+        """Quét danh sách mạng WiFi khả dụng bằng netsh (Windows)."""
+        import asyncio
+        import subprocess
+
+        self.ui.btn_scan_wifi_net.setText("Scanning...")
+        self.ui.btn_scan_wifi_net.setEnabled(False)
+        self.ui.tbl_wifi_networks.setRowCount(0)
+
+        try:
+            loop = asyncio.get_event_loop()
+            result = await loop.run_in_executor(
+                None,
+                lambda: subprocess.run(
+                    ["netsh", "wlan", "show", "networks", "mode=bssid"],
+                    capture_output=True, text=True,
+                    encoding="utf-8", errors="replace",
+                ),
+            )
+            networks = self._parse_netsh_wifi(result.stdout)
+
+            table = self.ui.tbl_wifi_networks
+            for ssid, signal, auth in networks:
+                row = table.rowCount()
+                table.insertRow(row)
+                for col, val in enumerate([ssid, signal, auth]):
+                    item = QTableWidgetItem(val)
+                    item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable)
+                    item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+                    table.setItem(row, col, item)
+
+            if not networks:
+                QMessageBox.information(
+                    self.ui, "No Networks Found",
+                    "No WiFi networks found.\nMake sure your WiFi adapter is enabled.",
+                )
+        except Exception as e:
+            QMessageBox.critical(self.ui, "Scan Error", str(e))
+        finally:
+            self.ui.btn_scan_wifi_net.setText("Scan WiFi")
+            self.ui.btn_scan_wifi_net.setEnabled(True)
+
+    @staticmethod
+    def _parse_netsh_wifi(output: str):
+        """Parse output của 'netsh wlan show networks mode=bssid'."""
+        import re
+        networks = []
+        ssid = signal = auth = None
+
+        for line in output.splitlines():
+            line = line.strip()
+            m = re.match(r"SSID \d+ *: (.+)", line)
+            if m and "BSSID" not in line:
+                if ssid is not None:
+                    networks.append((ssid, signal or "N/A", auth or "N/A"))
+                ssid, signal, auth = m.group(1).strip(), None, None
+                continue
+            m = re.match(r"Signal\s*:\s*(\d+%)", line)
+            if m:
+                signal = m.group(1)
+                continue
+            m = re.match(r"Authentication\s*:\s*(.+)", line)
+            if m:
+                auth = m.group(1).strip()
+
+        if ssid is not None:
+            networks.append((ssid, signal or "N/A", auth or "N/A"))
+
+        # Sắp xếp theo Signal giảm dần (85% > 60% > ...)
+        networks.sort(key=lambda x: int(x[1].replace("%", "")) if x[1].endswith("%") else 0, reverse=True)
+        return networks
+
+    def on_wifi_network_selected(self):
+        """Khi user click vào mạng trong bảng → tự điền SSID vào ô nhập."""
+        table = self.ui.tbl_wifi_networks
+        row = table.currentRow()
+        if row >= 0:
+            ssid_item = table.item(row, 0)
+            if ssid_item:
+                self.ui.ent_ssid.setText(ssid_item.text())
+                self.ui.ent_wifi_pass.setFocus()
+
+    @asyncSlot()
+    async def on_scan_ble_wifi_clicked(self):
+        self.ui.btn_scan_ble_wifi.setText("Scanning...")
+        self.ui.btn_scan_ble_wifi.setEnabled(False)
+        self.ui.combo_ble_devices_wifi.clear()
+        try:
+            devices = await BleakScanner.discover()
+            for device in devices:
+                if device.name:
+                    self.ui.combo_ble_devices_wifi.addItem(
+                        f"{device.name} ({device.address})"
+                    )
+        finally:
+            self.ui.btn_scan_ble_wifi.setText("Scan Devices")
+            self.ui.btn_scan_ble_wifi.setEnabled(True)
+
+    def on_toggle_password_visibility(self):
+        from PyQt6.QtWidgets import QLineEdit
+        if self.ui.ent_wifi_pass.echoMode() == QLineEdit.EchoMode.Password:
+            self.ui.ent_wifi_pass.setEchoMode(QLineEdit.EchoMode.Normal)
+            self.ui.btn_show_pass.setText("Hide")
+        else:
+            self.ui.ent_wifi_pass.setEchoMode(QLineEdit.EchoMode.Password)
+            self.ui.btn_show_pass.setText("Show")
+
+    @asyncSlot()
+    async def on_send_wifi_clicked(self):
+        ssid = self.ui.ent_ssid.text().strip()
+        password = self.ui.ent_wifi_pass.text()
+
+        if not ssid:
+            QMessageBox.warning(self.ui, "Missing Input", "Please enter WiFi SSID!")
+            return
+
+        selected_text = self.ui.combo_ble_devices_wifi.currentText()
+        address_match = re.search(r"\((.*?)\)", selected_text)
+        if not address_match:
+            QMessageBox.warning(self.ui, "No Device", "Please select a Bluetooth device!")
+            return
+
+        ble_address = address_match.group(1)
+        payload = json.dumps({"ssid": ssid, "pass": password}).encode("utf-8")
+
+        try:
+            self.ui.btn_send_wifi.setEnabled(False)
+            self.ui.btn_send_wifi.setText("Sending...")
+            self.ui.lbl_wifi_status.setText("Connecting to device...")
+
+            async with BleakClient(ble_address) as client:
+                await client.write_gatt_char(WIFI_CHAR_UUID, payload, response=True)
+
+            self.ui.lbl_wifi_status.setText("")
+            QMessageBox.information(
+                self.ui, "Success",
+                f"WiFi config sent successfully!\n\nSSID: {ssid}\n\nThe device will restart and connect to the new WiFi.",
+            )
+            database.insert_log(
+                action="WiFi Config Sent",
+                detail=f"SSID: {ssid} → {selected_text}",
+            )
+            self.refresh_history()
+
+        except Exception as error:
+            # ESP32 tự restart ngay sau khi nhận → BLE drop → "canceled" là bình thường
+            if "canceled" in str(error).lower():
+                self.ui.lbl_wifi_status.setText("")
+                QMessageBox.information(
+                    self.ui, "Success",
+                    f"WiFi config sent successfully!\n\nSSID: {ssid}\n\nThe device will restart and connect to the new WiFi.",
+                )
+                database.insert_log(
+                    action="WiFi Config Sent",
+                    detail=f"SSID: {ssid} → {selected_text}",
+                )
+                self.refresh_history()
+            else:
+                self.ui.lbl_wifi_status.setText(f"Error: {error}")
+                QMessageBox.critical(self.ui, "BLE Error", str(error))
+
+        finally:
+            self.ui.btn_send_wifi.setEnabled(True)
+            self.ui.btn_send_wifi.setText("Send WiFi Config to Device")
+
 
 config_logic = AppController

@@ -69,6 +69,8 @@ def build_stylesheet():
         ('[text="Scan Devices"]', "#5f6368", "#4e5256", "#3d4144", "white"),
         # Xanh dương nhạt — Add Register
         ('[text="Add Register"]', "#4285f4", "#3367d6", "#2a56c6", "white"),
+        # Xanh lá — Send WiFi Config
+        ('[text="Send WiFi Config to Device"]', "#0b8043", "#076b38", "#05592e", "white"),
     ]
 
     qss_parts = []
