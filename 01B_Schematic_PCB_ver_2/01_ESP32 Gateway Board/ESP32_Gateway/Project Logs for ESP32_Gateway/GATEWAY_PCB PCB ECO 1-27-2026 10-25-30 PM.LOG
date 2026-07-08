@@ -1,4 +1,0 @@
-Removed Pin From Net: NetName=+5V_RS485 Pin=TP7-1
-Removed Pin From Net: NetName=GND_RS485 Pin=TP9-1
-Removed Member From Class: ClassName=Power_Supply Member=TP7
-Removed Member From Class: ClassName=RS485_Port Member=TP9

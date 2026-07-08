@@ -10,13 +10,11 @@
 
 static const char *TAG = "[CHANGE POLL]";
 
-uint32_t poll_options[] = {10, 20, 30, 40, 50, 60, 120};
+uint32_t poll_options[] = {5, 10, 20, 30, 40, 50, 60, 120};
 int poll_id = 2; // mặc định
 bool is_poll_change = false;
 
-// poll_interval_ms được định nghĩa trong modbus_rtu.c
 extern uint32_t poll_interval_ms;
-
 extern ui_page_t current_page;
 extern bool is_scanning;
 

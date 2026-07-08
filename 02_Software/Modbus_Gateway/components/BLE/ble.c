@@ -13,6 +13,7 @@
 #include "esp_modbus_common.h"
 #include "esp_mac.h"
 #include "eeprom.h"
+#include "lcd_16x4.h"
 
 static const char *TAG = "[MB GATEWAY-BLE]";
 
@@ -34,8 +35,13 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
 static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param);
 
 // Gọi từ esp_timer — nằm ngoài BLE callback nên an toàn
-static void restart_timer_cb(void *arg)
+static void restart_ble_timer(void *arg)
 {
+    lcd_clear();
+    LCD_SetCursor(1, 2);
+    LCD_Print("Updating ...        ");
+    LCD_SetCursor(2, 2);
+    LCD_Print("Restarting ...      ");
     esp_restart();
 }
 
@@ -127,26 +133,27 @@ void ble_server_init(void)
 
     // Tạo timer dùng để restart sau khi nhận xong — không gọi esp_restart trong callback
     esp_timer_create_args_t timer_args = {
-        .callback = restart_timer_cb,
+        .callback = restart_ble_timer,
         .arg = NULL,
         .name = "ble_restart",
     };
     ESP_ERROR_CHECK(esp_timer_create(&timer_args, &s_restart_timer));
-    ESP_LOGI(TAG, "BLE Gateway System Ready. Waiting for App...");
+    ESP_LOGI(TAG, "BLE Gateway System Ready, Waiting for App...");
 }
 
-// XỬ LÝ QUẢNG BÁ (ADVERTISING)
+// xử lý quảng bá BLE
+// GAP (Generic Access Profile) là tầng BLE quản lý quảng bá và kết nối
 static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param)
 {
     switch (event)
     {
-    case ESP_GAP_BLE_ADV_DATA_SET_COMPLETE_EVT:
-        esp_ble_gap_start_advertising(&adv_params);
-        blu_connected = false; // Cập nhật trạng thái kết nối BLE
+    case ESP_GAP_BLE_ADV_DATA_SET_COMPLETE_EVT:     // Thiết bị cấu hình xong payload quảng bá
+        esp_ble_gap_start_advertising(&adv_params); // Bắt đầu phát ra không gian
+        blu_connected = false;
         ESP_LOGI(TAG, "Advertising BLE packet ...");
         break;
     case ESP_GAP_BLE_UPDATE_CONN_PARAMS_EVT:
-        blu_connected = true; // Cập nhật trạng thái kết nối BLE
+        blu_connected = true;
         break;
     default:
         break;
@@ -189,9 +196,9 @@ temp_modbus_reg_t *parse_json_to_struct_array(const char *json_str, int *out_reg
     if (json_str == NULL)
         return NULL;
     cJSON *root = cJSON_Parse(json_str);
-    if (root == NULL) // Lỗi có thể do không đủ RAM trong vùng heap để phân tích JSON
+    if (root == NULL)
     {
-        ESP_LOGW("JSON_PARSE", "Fail to format JSON ! Can't Parse !!!");
+        // ESP_LOGW("JSON_PARSE", "Fail to format JSON ! Can't Parse !!!");
         return NULL;
     }
 
@@ -213,7 +220,6 @@ temp_modbus_reg_t *parse_json_to_struct_array(const char *json_str, int *out_reg
     {
         cJSON *item = cJSON_GetArrayItem(root, i);
 
-        // mã định danh riêng cho từng thanh ghi = cid
         reg_array[i].cid = cJSON_GetObjectItem(item, "i")->valueint;
 
         // tên = name
@@ -259,10 +265,8 @@ temp_modbus_reg_t *parse_json_to_struct_array(const char *json_str, int *out_reg
             reg_array[i].ref_cid[1] = (uint16_t)cJSON_GetArrayItem(ref_array, 1)->valueint;
         }
 
-        ESP_LOGD("JSON_PARSE", "Đã Parse xong thanh ghi: %d", reg_array[i].cid);
+        // ESP_LOGD("JSON_PARSE", "Đã Parse xong thanh ghi: %d", reg_array[i].cid);
     }
-
-    // Giải phóng cây JSON (Quan trọng để tránh tràn RAM)
     cJSON_Delete(root);
 
     return reg_array;
@@ -271,7 +275,7 @@ temp_modbus_reg_t *parse_json_to_struct_array(const char *json_str, int *out_reg
 // Hàm lưu dữ liệu vào vùng nhớ NVS
 static void save_regs_to_nvs(temp_modbus_reg_t *reg_array, int count)
 {
-    printf("==========================================Save Config from APP to NVS ====================================================");
+    // printf("==========================================Save Config from APP to NVS ====================================================");
     if (reg_array == NULL || count <= 0)
         return;
 
@@ -299,7 +303,7 @@ static void save_regs_to_nvs(temp_modbus_reg_t *reg_array, int count)
 
     if (err == ESP_OK)
     {
-        // Phải Commit thì dữ liệu mới thực sự được ghi xuống Flash
+        // Commit để dữ liệu mới thực sự được ghi xuống Flash
         err = nvs_commit(my_handle);
         if (err == ESP_OK)
         {
@@ -316,8 +320,6 @@ static void save_regs_to_nvs(temp_modbus_reg_t *reg_array, int count)
     // printf("===========================================================================================================================");
 }
 
-// Lưu SSID và password vào EEPROM
-// Địa chỉ khớp với wifi.c: SSID → 0x0100 (32 bytes), Password → 0x0120 (64 bytes)
 static void save_wifi_to_eeprom(const char *ssid, const char *pass)
 {
     char ssid_buf[32] = {0};
@@ -336,7 +338,6 @@ static void save_wifi_to_eeprom(const char *ssid, const char *pass)
         ESP_LOGE(TAG, "[WIFI] Loi ghi EEPROM (ssid:%d pass:%d)", err1, err2);
 }
 
-// Parse JSON {"ssid":"...","pass":"..."} và lưu xuống EEPROM
 static void parse_and_save_wifi(const char *json_str)
 {
     cJSON *root = cJSON_Parse(json_str);
@@ -423,7 +424,7 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
 
                 if (receive_buffer[received_len - 1] == ']')
                 {
-                    ESP_LOGW(TAG, "[REG] Nhan du JSON, bat dau xu ly...");
+                    // ESP_LOGW(TAG, "[REG] Nhan du JSON, bat dau xu ly...");
                     int count = 0;
                     temp_modbus_reg_t *final_regs = parse_json_to_struct_array(receive_buffer, &count);
                     if (final_regs != NULL)
@@ -445,14 +446,14 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
             {
                 memcpy(wifi_buffer, param->write.value, len);
                 wifi_buffer[len] = '\0';
-                ESP_LOGI(TAG, "[WIFI] Nhan: %s", wifi_buffer);
+                ESP_LOGI(TAG, "[WIFI] Received: %s", wifi_buffer);
                 parse_and_save_wifi(wifi_buffer);
-                ESP_LOGW("SYSTEM", "[WIFI] Da luu EEPROM, restart sau 1 giay...");
+                // ESP_LOGW("SYSTEM", "[WIFI] Da luu EEPROM, restart sau 1 giay...");
                 esp_timer_start_once(s_restart_timer, 1000 * 1000ULL); // 1s (microseconds)
             }
             else
             {
-                ESP_LOGE(TAG, "[WIFI] Du lieu qua lon (%d bytes), bo qua", len);
+                // ESP_LOGE(TAG, "[WIFI] Du lieu qua lon (%d bytes), bo qua", len);
             }
         }
         break;

@@ -1,4 +1,0 @@
-Added Component: Designator=VBAT1(CR2032 - SMD)
-Added Pin To Net: NetName=GND Pin=VBAT1-N
-Added Pin To Net: NetName=VBAT Pin=VBAT1-P
-Added Member To Class: ClassName=Power_Supply Member=Component VBAT1 3V

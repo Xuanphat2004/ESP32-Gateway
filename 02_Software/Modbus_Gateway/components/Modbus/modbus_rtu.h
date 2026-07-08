@@ -21,14 +21,27 @@
 #define EVENT_QUEUE_SIZE 10
 
 // UART 1 - Modbus RTU port 1
+// version 1.0.0
+// #define UART_1_RX_PIN GPIO_NUM_39
+// #define UART_1_TX_PIN GPIO_NUM_40
+// #define UART_1_EN_PIN GPIO_NUM_41
+
+// // UART 1 - Modbus RTU port 2
+// #define UART_2_RX_PIN GPIO_NUM_42
+// #define UART_2_TX_PIN GPIO_NUM_2
+// #define UART_2_EN_PIN GPIO_NUM_1
+
+//==================================
+// version 2.0.0
+// UART 1 - Modbus RTU port 1
 #define UART_1_RX_PIN GPIO_NUM_39
 #define UART_1_TX_PIN GPIO_NUM_40
 #define UART_1_EN_PIN GPIO_NUM_41
 
 // UART 1 - Modbus RTU port 2
-#define UART_2_RX_PIN GPIO_NUM_42
-#define UART_2_TX_PIN GPIO_NUM_2
-#define UART_2_EN_PIN GPIO_NUM_1
+#define UART_2_RX_PIN GPIO_NUM_2
+#define UART_2_TX_PIN GPIO_NUM_1
+#define UART_2_EN_PIN GPIO_NUM_42
 
 typedef struct
 {

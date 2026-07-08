@@ -4,12 +4,21 @@
 #include "driver/gpio.h"
 
 // ====== CẤU HÌNH CHÂN GPIO  ======
+// version 1.0.0
+// #define RS_1604_PIN GPIO_NUM_6
+// #define EN_1604_PIN GPIO_NUM_7
+// #define D4_1604_PIN GPIO_NUM_15
+// #define D5_1604_PIN GPIO_NUM_16
+// #define D6_1604_PIN GPIO_NUM_17
+// #define D7_1604_PIN GPIO_NUM_18
+
+// version 2.0.0
 #define RS_1604_PIN GPIO_NUM_6
 #define EN_1604_PIN GPIO_NUM_7
 #define D4_1604_PIN GPIO_NUM_15
 #define D5_1604_PIN GPIO_NUM_16
-#define D6_1604_PIN GPIO_NUM_17
-#define D7_1604_PIN GPIO_NUM_18
+#define D6_1604_PIN GPIO_NUM_9
+#define D7_1604_PIN GPIO_NUM_48
 
 #define HIGH 1
 #define LOW 0

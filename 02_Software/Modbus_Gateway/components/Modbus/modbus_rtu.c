@@ -166,7 +166,6 @@ esp_err_t load_modbus_dynamic_config(void)
     return ESP_OK;
 }
 
-//======================================================================
 void modbus_rtu_port_1_dummy_init(void)
 {
     uint32_t baud = load_baud_from_nvs();
@@ -177,8 +176,7 @@ void modbus_rtu_port_1_dummy_init(void)
     uart_set_mode(UART_NUM_1, UART_MODE_RS485_HALF_DUPLEX);
     ESP_LOGI(TAG, "Port 1 dummy: DE=LOW.");
 }
-
-void modbus_rtu_port_2_dummy_init(void)
+1 void modbus_rtu_port_2_dummy_init(void)
 {
     uint32_t baud = load_baud_from_nvs();
     uart_config_t cfg = {.baud_rate = baud, .data_bits = UART_DATA_8_BITS, .parity = UART_PARITY_DISABLE, .stop_bits = UART_STOP_BITS_1, .flow_ctrl = UART_HW_FLOWCTRL_DISABLE, .source_clk = UART_SCLK_DEFAULT};
@@ -189,7 +187,6 @@ void modbus_rtu_port_2_dummy_init(void)
     ESP_LOGI(TAG, "Port 2 dummy: DE=LOW.");
 }
 
-//======================================================================
 void modbus_rtu_port_1_init(void)
 {
     scan_result.active_port = 1;
@@ -216,7 +213,6 @@ void modbus_rtu_port_1_init(void)
     modbus_rtu_port_2_dummy_init();
 }
 
-//======================================================================
 void modbus_rtu_port_2_init(void)
 {
     scan_result.active_port = 2;
@@ -243,7 +239,6 @@ void modbus_rtu_port_2_init(void)
     modbus_rtu_port_1_dummy_init();
 }
 
-//======================================================================
 static float decode_raw_to_float(uint8_t *buf, mb_descr_type_t type)
 {
     switch (type)
@@ -335,9 +330,7 @@ static float decode_raw_to_float(uint8_t *buf, mb_descr_type_t type)
     }
 }
 
-//======================================================================
 // Poll những CID có slave_id nằm trong target_list
-// CID không trong list → bỏ qua (giữ nguyên read_ok[i] = false)
 static void poll_for_list(id_scan_result_t *target_list, float *temp_result, bool *read_ok)
 {
     uint8_t type;
@@ -377,8 +370,7 @@ static void poll_for_list(id_scan_result_t *target_list, float *temp_result, boo
     }
 }
 
-//======================================================================
-// RTU Task - Vòng lặp poll dữ liệu
+// RTU Task
 void modbus_test_read(void)
 {
     esp_err_t err;
@@ -386,7 +378,7 @@ void modbus_test_read(void)
     rtc_time_t now;
     // consecutive_fail: đếm số lần timeout liên tiếp của từng slave
     // Reset về 0 khi slave phản hồi OK
-    // Trigger scan khi đạt 5 lần → không cần đợi hết toàn bộ CID
+    // Trigger scan khi đạt 5 lần fail
     uint8_t consecutive_fail[248] = {0};
 
     while (1)
@@ -471,9 +463,7 @@ void modbus_test_read(void)
                 goto exit_and_wait;
             }
 
-            // Xử lý factor (nhân CTR, VTR của phiên polling hiện tại)
-            // Dùng temp_result[r] thay vì final_data[r] → dùng giá trị phiên này
-            // Thêm read_ok[r] → chỉ nhân khi CID tham chiếu đọc thành công
+            // Xử lý factor, nhân CTR, VTR của phiên polling hiện tại
             for (int i = 0; i < register_count; i++)
             {
                 if (!read_ok[i])
@@ -486,7 +476,7 @@ void modbus_test_read(void)
                 }
             }
 
-            // --- Ghi vào final_data (chỉ CID đọc được) ---
+            // Ghi vào final_data chỉ CID đọc được
             if (xSemaphoreTake(xDataMutex, pdMS_TO_TICKS(500)) == pdTRUE)
             {
                 for (int i = 0; i < register_count; i++)
@@ -502,16 +492,10 @@ void modbus_test_read(void)
                 xSemaphoreGive(xDataMutex);
             }
 
-            // Chỉ báo hiệu có data mới khi KHÔNG đang scan và KHÔNG đổi baudrate
-            // Tránh mqtt_task đọc final_data[] khi giá trị bị reset = 0 trong lúc scan
             if (!is_scan_device && !is_change_baud)
                 xSemaphoreGive(data_ready_sem);
 
-            // Mở khóa Data-Copy task
-            dual_port_polling = false;
-
-            // consecutive_fail đã được xử lý trong poll_for_list
-            // Không cần tổng hợp thêm ở đây
+            dual_port_polling = false; // Mở khóa Data-Copy task
 
             printf("\n");
 
@@ -523,9 +507,7 @@ void modbus_test_read(void)
             continue;
         }
 
-        // NORMAL MODE: Poll 1 port, đọc tất cả CID
-        // Nếu 1 slave timeout 5 lần liên tiếp → trigger scan ngay
-        // Không cần đợi hết toàn bộ CID: 100 CID × 300ms timeout = 30s quá lâu
+        // NORMAL MODE: Poll 1 port
         for (int i = 0; i < register_count; i++)
         {
             if (is_change_baud || is_scan_device)
@@ -563,9 +545,6 @@ void modbus_test_read(void)
             }
         }
 
-        // Xử lý factor (nhân CTR, VTR của phiên polling hiện tại)
-        // Dùng temp_result[r] thay vì final_data[r] → dùng giá trị phiên này
-        // Thêm read_ok[r] → chỉ nhân khi CID tham chiếu đọc thành công
         for (int i = 0; i < register_count; i++)
         {
             if (!read_ok[i])
@@ -594,12 +573,8 @@ void modbus_test_read(void)
             xSemaphoreGive(xDataMutex);
         }
 
-        // Chỉ báo hiệu có data mới khi KHÔNG đang scan và KHÔNG đổi baudrate
-        // Tránh mqtt_task đọc final_data[] khi giá trị bị reset = 0 trong lúc scan
         if (!is_scan_device && !is_change_baud)
             xSemaphoreGive(data_ready_sem);
-
-        // Trigger scan đã xử lý trực tiếp trong vòng lặp poll ở trên
 
     exit_and_wait:
         if (is_change_baud || is_scan_device)
@@ -617,6 +592,5 @@ void modbus_test_read(void)
         TickType_t target = pdMS_TO_TICKS(poll_interval_ms);
         if (elapsed < target)
             vTaskDelay(target - elapsed);
-        // Nếu thời gian đọc đã vượt poll_interval_ms → poll lại ngay, không delay
     }
 }

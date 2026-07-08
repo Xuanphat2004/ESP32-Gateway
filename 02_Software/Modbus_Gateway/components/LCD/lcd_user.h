@@ -13,11 +13,17 @@
 #include "lcd_16x4.h"
 #include "encoder_ec11.h"
 
-#define SELECT_PIN GPIO_NUM_47         // Nút Select
-#define BACK_PIN GPIO_NUM_35           // Nút Back
+// version 1.0.0
+// #define SELECT_PIN GPIO_NUM_47         // Nút Select
+// #define BACK_PIN GPIO_NUM_35           // Nút Back
+// #define NEXT_PIN GPIO_NUM_21           // Nút Next
+// #define ENCODER_SELECT_PIN GPIO_NUM_36 // Nút nhấn của Encoder
+
+// version 2.0.0
+#define SELECT_PIN GPIO_NUM_35         // Nút Select
+#define BACK_PIN GPIO_NUM_47           // Nút Back
 #define NEXT_PIN GPIO_NUM_21           // Nút Next
 #define ENCODER_SELECT_PIN GPIO_NUM_36 // Nút nhấn của Encoder
-
 // EVENT cho nút nhấn
 typedef enum
 {
@@ -40,6 +46,7 @@ typedef enum
     PAGE_SET_BAUDRATE,
     PAGE_SET_POLL,
     PAGE_BLE_CONTROL,
+    PAGE_SYNC_TIME,
 } ui_page_t;
 
 // Biến trạng thái

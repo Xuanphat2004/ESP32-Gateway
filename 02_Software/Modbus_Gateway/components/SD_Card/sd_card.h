@@ -11,7 +11,14 @@
 #include "esp_err.h"
 
 // Định nghĩa chân SPI2 cho SD Card
-#define MISO_SD_PIN GPIO_NUM_48
+// version 1.0.0
+// #define MISO_SD_PIN GPIO_NUM_48
+// #define MOSI_SD_PIN GPIO_NUM_19
+// #define CLK_SD_PIN GPIO_NUM_8
+// #define CS_SD_PIN GPIO_NUM_20
+
+// version 2.0.0
+#define MISO_SD_PIN GPIO_NUM_18
 #define MOSI_SD_PIN GPIO_NUM_19
 #define CLK_SD_PIN GPIO_NUM_8
 #define CS_SD_PIN GPIO_NUM_20

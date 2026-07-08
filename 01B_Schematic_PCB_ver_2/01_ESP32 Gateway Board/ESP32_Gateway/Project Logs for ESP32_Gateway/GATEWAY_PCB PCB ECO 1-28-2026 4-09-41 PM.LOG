@@ -1,4 +1,0 @@
-Removed Pin From Net: NetName=3V3_SCL Pin=U15-4
-Removed Pin From Net: NetName=3V3_SDA Pin=U15-5
-Added Pin To Net: NetName=3V3_SDA Pin=U15-4
-Added Pin To Net: NetName=3V3_SCL Pin=U15-5

@@ -6,6 +6,7 @@
 #include "freertos/queue.h"
 #include "driver/gpio.h"
 #include "esp_log.h"
+#include "rom/ets_sys.h"
 
 #include "lcd_16x4.h"
 #include "encoder_ec11.h"
@@ -16,6 +17,7 @@
 #include "change_poll.h"
 #include "esp_mac.h"
 #include "ble.h"
+#include "eeprom.h"
 
 ui_page_t current_page = PAGE_1_HOME;
 uint32_t baud_options[] = {1200, 2400, 4800, 9600, 19200, 38400, 115200};
@@ -33,6 +35,9 @@ static uint8_t enc_scroll = 0;
 static uint32_t cached_baud = 0;
 static uint32_t cached_poll = 0;
 static bool need_clear_after_scan = false;
+static int8_t sync_state = 0; // 0=idle, 1=success, 2=no network
+static bool has_synced = false;
+static rtc_time_t last_sync_time = {0};
 
 extern char ble_device_name[24];
 extern id_scan_result_t list_p1;
@@ -44,10 +49,9 @@ extern uint8_t original_id_count;
 extern scan_analysis_t scan_result;
 extern bool wire_p1_ok;
 extern bool wire_p2_ok;
-extern bool is_manual_scan; // true = manual scan, false = passive scan (không hiện LCD)
+extern bool is_manual_scan;
 extern char ble_device_name[24];
 
-//=============================================================================================
 // Hàm chuyển mảng ID thành chuỗi "1, 4, 5"
 static void format_id_list(uint8_t *ids, int count, char *output)
 {
@@ -66,9 +70,7 @@ static void format_id_list(uint8_t *ids, int count, char *output)
         strcat(output, temp); // nối chuỗi
     }
 }
-//============================================================================================
 
-//=============================================================================================
 // Page 1
 static void page_1_home(void)
 {
@@ -86,7 +88,7 @@ static void page_1_home(void)
     LCD_SetCursor(3, 2);
     LCD_Print(blu_connected ? "BLU : Connected   " : "BLU : Disconnect  ");
 }
-//=============================================================================================
+
 // Page 2 — 4 mục, scroll theo menu_cursor giống Device Info
 static void page_2_settings(void)
 {
@@ -94,8 +96,9 @@ static void page_2_settings(void)
         "Baudrate     ",
         "Scan Device  ",
         "Poll Interval",
-        "Bluetooth     "};
-    const int num_items = 4;
+        "Bluetooth    ",
+        "Sync Time    "};
+    const int num_items = 5;
     const int visible = 3;
 
     int offset = menu_cursor - visible;
@@ -124,7 +127,6 @@ static void page_2_settings(void)
     }
 }
 
-//==============================================================================================
 // Page 3
 static void page_3_info_device(void)
 {
@@ -190,7 +192,7 @@ static void page_3_info_device(void)
     if (enc_scroll == 4)
     {
         LCD_SetCursor(1, 0);
-        LCD_Print("Firmware:  v1.0.0   ");
+        LCD_Print("Firmware:  v2.0.0   ");
         LCD_SetCursor(2, 0);
         LCD_Print("DC-In   : 12-24V/3A ");
         LCD_SetCursor(3, 0);
@@ -198,6 +200,7 @@ static void page_3_info_device(void)
     }
 }
 
+// hiển thị kết quả scan trên LCD
 static void page_scan_result(void)
 {
     // lcd_clear();
@@ -343,7 +346,7 @@ static void page_set_poll(void)
     LCD_Print(buffer_2);
 }
 
-// Trang BLE Control — bật/tắt BLE advertising
+//  Bật tắt bluetooth
 static void page_ble_control(void)
 {
     char buffer[24];
@@ -356,22 +359,44 @@ static void page_ble_control(void)
     LCD_Print(ble_enabled ? "Status : ON " : "Status : OFF ");
 }
 
+//  đồng bộ thời gian RTC qua NTP khi có mạng
+static void page_sync_time(void)
+{
+    char buf[24];
+    rtc_time_t now;
+    rtc_read_time(&now);
+
+    LCD_SetCursor(0, 4);
+    LCD_Print("-=SYNC TIME=-  ");
+
+    LCD_SetCursor(1, 1);
+    snprintf(buf, sizeof(buf), "Now : %02d:%02d:%02d", now.hour, now.minute, now.second);
+    LCD_Print(buf);
+
+    LCD_SetCursor(2, 1);
+    if (has_synced)
+        snprintf(buf, sizeof(buf), "Last: %02d:%02d:%02d", last_sync_time.hour, last_sync_time.minute, last_sync_time.second);
+    else
+        snprintf(buf, sizeof(buf), "Last: --:--:--");
+    LCD_Print(buf);
+}
+
 // Hiện khi app BLE đang kết nối vào thiết bị để gửi cấu hình
 static void page_ble_waiting(void)
 {
-    LCD_SetCursor(0, 0);
-    LCD_Print("                    ");
-    LCD_SetCursor(1, 4);
-    LCD_Print("Waiting for         ");
-    LCD_SetCursor(2, 7);
-    LCD_Print("update              ");
-    LCD_SetCursor(3, 0);
-    LCD_Print("                    ");
+    // lcd_clear();
+    LCD_SetCursor(1, 2);
+    LCD_Print("Updating ...        ");
 }
 
-//=====================================================================================================
+static void page_sync_waiting(void)
+{
+    // lcd_clear();
+    LCD_SetCursor(1, 2);
+    LCD_Print("Syncing ...        ");
+}
 
-//=====================================================================================================
+// Xử lý sự kiện của các nút bấm
 void button_handler_task(void *arg)
 {
     gpio_config_t btn_cfg = {
@@ -463,6 +488,15 @@ void ui_task(void)
     xTaskCreatePinnedToCore(button_handler_task, "button_task", 4096, NULL, 5, NULL, 1);
     xTaskCreatePinnedToCore(encoder_handler_task, "encoder_task", 4096, NULL, 5, NULL, 1);
 
+    // Đọc lại thời gian sync cuối từ EEPROM
+    uint8_t magic = 0;
+    eeprom_read(0x0180, &magic, 1);
+    if (magic == 0xA5)
+    {
+        eeprom_read(0x0181, (uint8_t *)&last_sync_time, sizeof(rtc_time_t));
+        has_synced = true;
+    }
+
     while (1)
     {
 
@@ -505,10 +539,37 @@ void ui_task(void)
                             lcd_clear();
                             current_page = PAGE_BLE_CONTROL;
                         }
+                        else if (menu_cursor == 5)
+                        {
+                            lcd_clear();
+                            sync_state = 0;
+                            current_page = PAGE_SYNC_TIME;
+                        }
                     }
                     else if (current_page == PAGE_BLE_CONTROL)
                     {
                         ble_toggle();
+                    }
+                    else if (current_page == PAGE_SYNC_TIME)
+                    {
+                        if (wifi_connected || eth_connected)
+                        {
+                            lcd_clear();
+                            page_sync_waiting();
+                            LCD_SetCursor(3, 0);
+                            LCD_Print("Syncing ....        ");
+                            get_time();
+                            rtc_read_time(&last_sync_time);
+                            has_synced = true;
+                            sync_state = 1;
+                            uint8_t magic = 0xA5;
+                            eeprom_write(0x0180, &magic, 1);
+                            eeprom_write(0x0181, (uint8_t *)&last_sync_time, sizeof(rtc_time_t));
+                        }
+                        else
+                        {
+                            sync_state = 2;
+                        }
                     }
                     else if (current_page == PAGE_SET_BAUDRATE)
                     {
@@ -578,10 +639,17 @@ void ui_task(void)
                         current_page = PAGE_2_SETTINGS;
                         menu_cursor = 4;
                     }
+                    else if (current_page == PAGE_SYNC_TIME)
+                    {
+                        lcd_clear();
+                        sync_state = 0;
+                        current_page = PAGE_2_SETTINGS;
+                        menu_cursor = 5;
+                    }
                     break;
 
                 case EVENT_DOWN:
-                    if (current_page == PAGE_2_SETTINGS && menu_cursor < 4)
+                    if (current_page == PAGE_2_SETTINGS && menu_cursor < 5)
                         menu_cursor++;
                     else if (current_page == PAGE_SET_BAUDRATE && baudrate_id < 6)
                         baudrate_id++;
@@ -618,9 +686,6 @@ void ui_task(void)
             }
         }
 
-        // is_manual_scan=true  + is_scan_device=true  → manual scan → hiện "SCANNING..."
-        // is_manual_scan=false + is_scan_device=true  → passive scan ngầm → giữ nguyên LCD
-        // is_scan_device=false + is_scanning=false    → không scan → render trang bình thường
         if (is_scan_device == true && is_manual_scan == true)
         {
             need_clear_after_scan = true;
@@ -636,6 +701,7 @@ void ui_task(void)
         }
         else if (blu_connected == true)
         {
+            lcd_clear();
             page_ble_waiting();
         }
         else if (is_scan_device == true && is_manual_scan == false)
@@ -656,6 +722,8 @@ void ui_task(void)
                 page_3_info_device();
             else if (current_page == PAGE_BLE_CONTROL)
                 page_ble_control();
+            else if (current_page == PAGE_SYNC_TIME)
+                page_sync_time();
         }
         else if (is_scanning == false)
         {
@@ -680,6 +748,8 @@ void ui_task(void)
                 page_3_info_device();
             else if (current_page == PAGE_BLE_CONTROL)
                 page_ble_control();
+            else if (current_page == PAGE_SYNC_TIME)
+                page_sync_time();
         }
         else
         {

@@ -1,4 +1,0 @@
-Removed Pin From Net: NetName=TX1_RS485 Pin=U15-13
-Removed Pin From Net: NetName=RX1_RS485 Pin=U15-14
-Added Pin To Net: NetName=RX1_RS485 Pin=U15-32
-Added Pin To Net: NetName=TX1_RS485 Pin=U15-33
