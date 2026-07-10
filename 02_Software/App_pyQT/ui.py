@@ -17,11 +17,12 @@ from PyQt6.QtWidgets import (
     QScrollArea,
     QFrame,
     QDialogButtonBox,
+    QSpinBox,
 )
 from PyQt6.QtCore import Qt
 
 
-class ModbusApp(QWidget):  # Main window with 2 tabs: Setup / History
+class ModbusApp(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Energy Monitoring System - Smart Manual Setup")
@@ -31,36 +32,25 @@ class ModbusApp(QWidget):  # Main window with 2 tabs: Setup / History
     def setup_ui(self):
         main_layout = QVBoxLayout(self)
         self.tabs_main = QTabWidget()
-        # self.tab_home = QWidget()
-        self.tab_setup = QWidget()
-        self.tab_wifi = QWidget()
+
+        self.tab_setup   = QWidget()
+        self.tab_wifi    = QWidget()
+        self.tab_tcp     = QWidget()
         self.tab_history = QWidget()
 
-        # self.tabs_main.addTab(self.tab_home, "Home")
-        self.tabs_main.addTab(self.tab_setup, "Setup")
-        self.tabs_main.addTab(self.tab_wifi, "WiFi Config")
+        self.tabs_main.addTab(self.tab_setup,   "Setup")
+        self.tabs_main.addTab(self.tab_wifi,    "WiFi Config")
+        self.tabs_main.addTab(self.tab_tcp,     "Modbus TCP")
         self.tabs_main.addTab(self.tab_history, "History")
         main_layout.addWidget(self.tabs_main)
 
-        setup_lay = QVBoxLayout(self.tab_setup)
-        history_lay = QVBoxLayout(self.tab_history)
+        self._build_setup_tab()
         self._build_wifi_tab()
+        self._build_tcp_tab()
+        self._build_history_tab()
 
-        self.history_table = QTableWidget()
-        self.history_table.setColumnCount(3)
-        self.history_table.setHorizontalHeaderLabels(["Timestamp", "Action", "Detail"])
-        hist_header = self.history_table.horizontalHeader()
-        hist_header.setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
-        hist_header.setStretchLastSection(True)
-        self.history_table.setColumnWidth(0, 160)
-        self.history_table.setColumnWidth(1, 180)
-        self.history_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
-        self.history_table.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-        for i in range(3):
-            item = self.history_table.horizontalHeaderItem(i)
-            if item:
-                item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
-        history_lay.addWidget(self.history_table)
+    def _build_setup_tab(self):
+        layout = QVBoxLayout(self.tab_setup)
 
         ble_grp = QGroupBox("Bluetooth Connection")
         ble_lay = QHBoxLayout()
@@ -69,7 +59,7 @@ class ModbusApp(QWidget):  # Main window with 2 tabs: Setup / History
         ble_lay.addWidget(self.btn_scan_ble)
         ble_lay.addWidget(self.combo_ble_devices)
         ble_grp.setLayout(ble_lay)
-        setup_lay.addWidget(ble_grp)
+        layout.addWidget(ble_grp)
 
         btn_lay = QHBoxLayout()
         self.btn_new = QPushButton("+ New Device")
@@ -82,19 +72,16 @@ class ModbusApp(QWidget):  # Main window with 2 tabs: Setup / History
         btn_lay.addWidget(self.btn_sync)
         btn_lay.addWidget(self.btn_delete_device)
         btn_lay.addStretch()
-        setup_lay.addLayout(btn_lay)
+        layout.addLayout(btn_lay)
 
         self.device_tabs = QTabWidget()
-        setup_lay.addWidget(self.device_tabs)
+        layout.addWidget(self.device_tabs)
 
     def _build_wifi_tab(self):
         lay = QVBoxLayout(self.tab_wifi)
-        body_lay = QHBoxLayout()  # chia đôi: trái = scan mạng, phải = form gửi
+        body_lay = QHBoxLayout()
         lay.addLayout(body_lay)
 
-        # ══════════════════════════════════════════════════════════════════════
-        # CỘT TRÁI — Danh sách mạng WiFi khả dụng
-        # ══════════════════════════════════════════════════════════════════════
         net_grp = QGroupBox("Available WiFi Networks")
         net_lay = QVBoxLayout(net_grp)
 
@@ -123,13 +110,9 @@ class ModbusApp(QWidget):  # Main window with 2 tabs: Setup / History
 
         body_lay.addWidget(net_grp, stretch=1)
 
-        # ══════════════════════════════════════════════════════════════════════
-        # CỘT PHẢI — Credentials + Gửi
-        # ══════════════════════════════════════════════════════════════════════
         right_lay = QVBoxLayout()
         body_lay.addLayout(right_lay, stretch=1)
 
-        # ── WiFi credentials form ─────────────────────────────────────────────
         cfg_grp = QGroupBox("WiFi Configuration")
         cfg_grid = QGridLayout(cfg_grp)
         cfg_grid.setColumnStretch(1, 1)
@@ -154,103 +137,163 @@ class ModbusApp(QWidget):  # Main window with 2 tabs: Setup / History
 
         right_lay.addWidget(cfg_grp)
 
-        # ── Status label ──────────────────────────────────────────────────────
         self.lbl_wifi_status = QLabel("")
         self.lbl_wifi_status.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lbl_wifi_status.setStyleSheet("font-size: 12px; color: #555;")
         right_lay.addWidget(self.lbl_wifi_status)
 
-        # ── Send button ───────────────────────────────────────────────────────
         self.btn_send_wifi = QPushButton("Send WiFi Config to Device")
         self.btn_send_wifi.setFixedHeight(45)
         right_lay.addWidget(self.btn_send_wifi)
 
         right_lay.addStretch()
 
+    def _build_tcp_tab(self):
+        lay = QVBoxLayout(self.tab_tcp)
 
-class RegisterEditorWidget(QGroupBox):  # Form for entering register info
+        top_lay = QHBoxLayout()
+
+        cfg_grp = QGroupBox("Server Configuration")
+        cfg_lay = QHBoxLayout(cfg_grp)
+        cfg_lay.addWidget(QLabel("Port:"))
+        self.spn_tcp_port = QSpinBox()
+        self.spn_tcp_port.setRange(1, 65535)
+        self.spn_tcp_port.setValue(502)
+        self.spn_tcp_port.setFixedWidth(90)
+        cfg_lay.addWidget(self.spn_tcp_port)
+        cfg_lay.addStretch()
+        top_lay.addWidget(cfg_grp)
+
+        btn_lay = QHBoxLayout()
+        self.btn_tcp_add_row = QPushButton("+ Add Row")
+        self.btn_tcp_add_row.setFixedHeight(40)
+        self.btn_tcp_del_row = QPushButton("Delete Row")
+        self.btn_tcp_del_row.setFixedHeight(40)
+        self.btn_tcp_save = QPushButton("Save")
+        self.btn_tcp_save.setFixedHeight(40)
+        self.btn_tcp_save.setStyleSheet(
+            "QPushButton{background:#34a853;color:white;border-radius:5px;border:none;padding:0 14px;}"
+            "QPushButton:hover{background:#2d9147;}"
+            "QPushButton:pressed{background:#256e39;}"
+        )
+        self.btn_tcp_send = QPushButton("Send to Device")
+        self.btn_tcp_send.setFixedHeight(40)
+        self.btn_tcp_send.setStyleSheet(
+            "QPushButton{background:#1a73e8;color:white;border-radius:5px;border:none;padding:0 14px;}"
+            "QPushButton:hover{background:#1765cc;}"
+            "QPushButton:pressed{background:#1257b0;}"
+        )
+        btn_lay.addWidget(self.btn_tcp_add_row)
+        btn_lay.addWidget(self.btn_tcp_del_row)
+        btn_lay.addWidget(self.btn_tcp_save)
+        btn_lay.addWidget(self.btn_tcp_send)
+        top_lay.addLayout(btn_lay)
+
+        lay.addLayout(top_lay)
+
+        map_grp = QGroupBox("Register Mapping")
+        map_lay = QVBoxLayout(map_grp)
+
+        self.tbl_tcp_mapping = QTableWidget()
+        self.tbl_tcp_mapping.setColumnCount(5)
+        self.tbl_tcp_mapping.setHorizontalHeaderLabels(
+            ["TCP Address", "Unit ID", "Function Code", "Parameter", "Description"]
+        )
+        hdr = self.tbl_tcp_mapping.horizontalHeader()
+        hdr.setSectionResizeMode(0, QHeaderView.ResizeMode.Fixed)
+        hdr.setSectionResizeMode(1, QHeaderView.ResizeMode.Fixed)
+        hdr.setSectionResizeMode(2, QHeaderView.ResizeMode.Fixed)
+        hdr.setSectionResizeMode(3, QHeaderView.ResizeMode.Stretch)
+        hdr.setSectionResizeMode(4, QHeaderView.ResizeMode.Stretch)
+        self.tbl_tcp_mapping.setColumnWidth(0, 110)
+        self.tbl_tcp_mapping.setColumnWidth(1, 75)
+        self.tbl_tcp_mapping.setColumnWidth(2, 220)
+        self.tbl_tcp_mapping.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.tbl_tcp_mapping.setSelectionMode(QTableWidget.SelectionMode.SingleSelection)
+        self.tbl_tcp_mapping.verticalHeader().setVisible(False)
+        for i in range(5):
+            item = self.tbl_tcp_mapping.horizontalHeaderItem(i)
+            if item:
+                item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+        map_lay.addWidget(self.tbl_tcp_mapping)
+
+        lay.addWidget(map_grp)
+
+    def _build_history_tab(self):
+        layout = QVBoxLayout(self.tab_history)
+        self.history_table = QTableWidget()
+        self.history_table.setColumnCount(3)
+        self.history_table.setHorizontalHeaderLabels(["Timestamp", "Action", "Detail"])
+        hist_header = self.history_table.horizontalHeader()
+        hist_header.setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
+        hist_header.setStretchLastSection(True)
+        self.history_table.setColumnWidth(0, 160)
+        self.history_table.setColumnWidth(1, 180)
+        self.history_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.history_table.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        for i in range(3):
+            item = self.history_table.horizontalHeaderItem(i)
+            if item:
+                item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self.history_table)
+
+
+class RegisterEditorWidget(QGroupBox):
     def __init__(self, parent=None):
         super().__init__("Register Editor", parent)
         grid = QGridLayout(self)
 
-        # Ô nhập liệu slave id
         self.ent_sid = QLineEdit()
         grid.addWidget(QLabel("Slave ID:"), 0, 0)
         grid.addWidget(self.ent_sid, 0, 1)
 
-        # Ô nhập liệu cho function code
         self.cb_fc = QComboBox()
-        self.cb_fc.addItems(
-            [
-                "---",
-                "Read Holding Registers (0x03)",
-                "Read Input Registers (0x04)",
-            ]
-        )
+        self.cb_fc.addItems(["---", "Read Holding Registers (0x03)", "Read Input Registers (0x04)"])
         grid.addWidget(QLabel("Function:"), 0, 2)
         grid.addWidget(self.cb_fc, 0, 3)
 
-        # Ô nhập liệu cho data type
         self.cb_type = QComboBox()
-        self.cb_type.addItems(
-            [
-                "---",
-                "Unsigned 16 bits",
-                "Unsigned 32 bits",
-                "Int 16 bits AB",
-                "Int 16 bits BA",
-                "Uint 16 bits AB",
-                "Uint 16 bits BA",
-                "Int 32 bits ABCD",
-                "Int 32 bits CDAB",
-                "Uint 32 bits ABCD",
-                "Uint 32 bits CDAB",
-                "Float ABCD",
-                "Float CDAB",
-                "Long",
-            ]
-        )
+        self.cb_type.addItems([
+            "---", "Unsigned 16 bits", "Unsigned 32 bits",
+            "Int 16 bits AB", "Int 16 bits BA",
+            "Uint 16 bits AB", "Uint 16 bits BA",
+            "Int 32 bits ABCD", "Int 32 bits CDAB",
+            "Uint 32 bits ABCD", "Uint 32 bits CDAB",
+            "Float ABCD", "Float CDAB", "Long",
+        ])
         grid.addWidget(QLabel("Type:"), 0, 4)
         grid.addWidget(self.cb_type, 0, 5)
 
-        # Ô nhập tên của thanh ghi
         self.ent_name = QLineEdit()
         grid.addWidget(QLabel("Parameter:"), 1, 0)
         grid.addWidget(self.ent_name, 1, 1)
 
-        # Ô nhập start address
         self.ent_addr = QLineEdit()
         grid.addWidget(QLabel("Address:"), 1, 2)
         grid.addWidget(self.ent_addr, 1, 3)
 
-        # Ô nhập hệ số scale
         self.cb_scale = QComboBox()
         self.cb_scale.addItems(["---", "0.000003125", "0.000015625", "0.0001", "0.001", "0.005", "0.01", "0.1", "1"])
         grid.addWidget(QLabel("Scale:"), 1, 4)
         grid.addWidget(self.cb_scale, 1, 5)
 
-        # Ô nhập đơn vị của thông số
         self.ent_unit = QLineEdit()
         grid.addWidget(QLabel("Unit:"), 2, 0)
         grid.addWidget(self.ent_unit, 2, 1)
 
-        # Ô nhập số lượng thanh ghi
         self.cb_qty = QComboBox()
         self.cb_qty.addItems(["---", "1", "2"])
         grid.addWidget(QLabel("Quantity:"), 2, 2)
         grid.addWidget(self.cb_qty, 2, 3)
 
-        # Ô nhập cho Factor 1
         self.ent_f1 = QLineEdit("")
         grid.addWidget(QLabel("Factor 1:"), 3, 0)
         grid.addWidget(self.ent_f1, 3, 1)
 
-        # Ô nhập cho Factor 2
         self.ent_f2 = QLineEdit("")
         grid.addWidget(QLabel("Factor 2:"), 3, 2)
         grid.addWidget(self.ent_f2, 3, 3)
 
-        # Nút thêm thanh ghi
         self.btn_action = QPushButton("Add Register")
         grid.addWidget(self.btn_action, 3, 4, 1, 2)
 
@@ -269,8 +312,6 @@ class RegisterEditorWidget(QGroupBox):  # Form for entering register info
 
 
 class SyncDialog(QDialog):
-    """Dialog cho phép user chọn Slave ID nào muốn sync xuống thiết bị."""
-
     def __init__(self, slave_ids: list[str], parent=None):
         super().__init__(parent)
         self.setWindowTitle("Select Slave IDs to Sync")
@@ -278,30 +319,22 @@ class SyncDialog(QDialog):
         self.setModal(True)
 
         layout = QVBoxLayout(self)
+        layout.addWidget(QLabel("Choose which Slave IDs to send to the device:"))
 
-        # ── Header ────────────────────────────────────────────────────────────
-        lbl = QLabel("Choose which Slave IDs to send to the device:")
-        lbl.setWordWrap(True)
-        layout.addWidget(lbl)
-
-        # ── Separator ─────────────────────────────────────────────────────────
         line = QFrame()
         line.setFrameShape(QFrame.Shape.HLine)
         line.setFrameShadow(QFrame.Shadow.Sunken)
         layout.addWidget(line)
 
-        # ── Checkbox "Select All" ─────────────────────────────────────────────
         self.chk_all = QCheckBox("Select All")
         self.chk_all.setChecked(True)
         self.chk_all.setStyleSheet("font-weight: bold;")
         self.chk_all.stateChanged.connect(self._on_select_all_changed)
         layout.addWidget(self.chk_all)
 
-        # ── Scrollable list of per-ID checkboxes ──────────────────────────────
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.Shape.NoFrame)
-
         container = QWidget()
         self.id_layout = QVBoxLayout(container)
         self.id_layout.setSpacing(4)
@@ -318,17 +351,12 @@ class SyncDialog(QDialog):
         scroll.setWidget(container)
         layout.addWidget(scroll)
 
-        # ── Buttons OK / Cancel ───────────────────────────────────────────────
-        btn_box = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
-        )
+        btn_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         btn_box.accepted.connect(self.accept)
         btn_box.rejected.connect(self.reject)
         layout.addWidget(btn_box)
 
-    # ── Internal helpers ──────────────────────────────────────────────────────
     def _on_select_all_changed(self, state):
-        """Đồng bộ tất cả checkbox con khi bấm Select All."""
         checked = state == Qt.CheckState.Checked.value
         for chk in self.checkboxes.values():
             chk.blockSignals(True)
@@ -336,8 +364,7 @@ class SyncDialog(QDialog):
             chk.blockSignals(False)
 
     def _on_id_checkbox_changed(self):
-        """Cập nhật trạng thái Select All dựa theo các checkbox con."""
-        all_checked = all(chk.isChecked() for chk in self.checkboxes.values())
+        all_checked  = all(chk.isChecked() for chk in self.checkboxes.values())
         none_checked = not any(chk.isChecked() for chk in self.checkboxes.values())
         self.chk_all.blockSignals(True)
         if all_checked:
@@ -349,12 +376,10 @@ class SyncDialog(QDialog):
         self.chk_all.blockSignals(False)
 
     def get_selected_ids(self) -> list[str]:
-        """Trả về danh sách Slave ID được tích chọn."""
         return [sid for sid, chk in self.checkboxes.items() if chk.isChecked()]
 
-class ImportChoiceDialog(QDialog):
-    """Dialog hỏi người dùng muốn nhập tay hay import Excel."""
 
+class ImportChoiceDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Add Registers")
@@ -414,8 +439,6 @@ class ImportChoiceDialog(QDialog):
 
 
 class DeleteDeviceDialog(QDialog):
-    """Dialog chọn Slave ID nào muốn xóa — tương tự SyncDialog."""
-
     def __init__(self, slave_ids: list, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Delete Device")
@@ -425,7 +448,6 @@ class DeleteDeviceDialog(QDialog):
         layout = QVBoxLayout(self)
 
         lbl = QLabel("Select Slave IDs to delete:")
-        lbl.setWordWrap(True)
         lbl.setStyleSheet("font-size: 13px; margin-bottom: 4px;")
         layout.addWidget(lbl)
 
@@ -459,9 +481,7 @@ class DeleteDeviceDialog(QDialog):
         scroll.setWidget(container)
         layout.addWidget(scroll)
 
-        btn_box = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
-        )
+        btn_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         btn_box.accepted.connect(self.accept)
         btn_box.rejected.connect(self.reject)
         layout.addWidget(btn_box)
@@ -474,7 +494,7 @@ class DeleteDeviceDialog(QDialog):
             chk.blockSignals(False)
 
     def _on_child_changed(self):
-        all_c = all(c.isChecked() for c in self.checkboxes.values())
+        all_c  = all(c.isChecked() for c in self.checkboxes.values())
         none_c = not any(c.isChecked() for c in self.checkboxes.values())
         self.chk_all.blockSignals(True)
         if all_c:
