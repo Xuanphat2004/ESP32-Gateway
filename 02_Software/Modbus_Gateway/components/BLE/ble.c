@@ -374,7 +374,6 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
     case ESP_GATTS_CREATE_EVT:
         service_handle = param->create.service_handle; // lưu lại để add char thứ 2 sau
         esp_ble_gatts_start_service(service_handle);
-        // Tạo characteristic đầu tiên: nhận bảng thanh ghi Modbus
         esp_bt_uuid_t char_uuid = {.len = ESP_UUID_LEN_16, .uuid.uuid16 = GATTS_CHAR_UUID};
         esp_ble_gatts_add_char(service_handle, &char_uuid, ESP_GATT_PERM_WRITE, ESP_GATT_CHAR_PROP_BIT_WRITE, NULL, NULL);
         break;
@@ -382,17 +381,18 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
     case ESP_GATTS_ADD_CHAR_EVT:
         if (handle_reg_table == 0)
         {
-            // Char 1 (bảng thanh ghi) vừa tạo xong → lưu handle, tạo tiếp char 2
             handle_reg_table = param->add_char.attr_handle;
-            ESP_LOGI(TAG, "Char[1] register table handle: %d", handle_reg_table);
-            esp_bt_uuid_t wifi_uuid = {.len = ESP_UUID_LEN_16, .uuid.uuid16 = CHAR_WIFI_UUID};
+            // ESP_LOGI(TAG, "Char[1] register table handle: %d", handle_reg_table);
+            esp_bt_uuid_t wifi_uuid = {
+                .len = ESP_UUID_LEN_16,
+                .uuid.uuid16 = CHAR_WIFI_UUID};
+
             esp_ble_gatts_add_char(service_handle, &wifi_uuid, ESP_GATT_PERM_WRITE, ESP_GATT_CHAR_PROP_BIT_WRITE, NULL, NULL);
         }
         else if (handle_wifi_cfg == 0)
         {
-            // Char 2 (WiFi config) vừa tạo xong → lưu handle, xong
             handle_wifi_cfg = param->add_char.attr_handle;
-            ESP_LOGI(TAG, "Char[2] wifi config handle: %d", handle_wifi_cfg);
+            // ESP_LOGI(TAG, "Char[2] wifi config handle: %d", handle_wifi_cfg);
         }
         break;
 
@@ -408,11 +408,11 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
     {
         blu_connected = true;
 
-        // Gửi ACK về app ngay nếu cần
+        // Gửi ACK về app
         if (param->write.need_rsp)
             esp_ble_gatts_send_response(gatts_if, param->write.conn_id, param->write.trans_id, ESP_GATT_OK, NULL);
 
-        // --- Ngăn 1 (0xFF11): Bảng thanh ghi Modbus — nhận nhiều chunk ---
+        // --- (0xFF11): Bảng thanh ghi Modbus — nhận nhiều chunk ---
         if (param->write.handle == handle_reg_table)
         {
             if (received_len + param->write.len < MAX_JSON_SIZE)
@@ -438,7 +438,7 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
                 }
             }
         }
-        // --- Ngăn 2 (0xFF12): WiFi config — nhận 1 packet JSON nhỏ ---
+        // --- (0xFF12): WiFi config — nhận 1 packet JSON nhỏ ---
         else if (param->write.handle == handle_wifi_cfg)
         {
             uint16_t len = param->write.len;
