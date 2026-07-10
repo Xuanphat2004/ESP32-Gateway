@@ -88,6 +88,7 @@ void app_main(void)
     // Core 1: Các task liên quan tới giao diện và xử lý tại thiết bị
     xTaskCreatePinnedToCore((void *)modbus_test_read, "rtu_server_task", 8192, NULL, 10, &rtu_handle_task, 1);
     xTaskCreatePinnedToCore(passive_scan_task, "passive_scan", 6144, NULL, 6, NULL, 0);
+    xTaskCreatePinnedToCore(auto_rescan_task, "auto_rescan", 2048, NULL, 4, NULL, 0);
     xTaskCreatePinnedToCore((void *)ui_task, "ui_manager_task", 6144, NULL, 5, NULL, 1);
     xTaskCreatePinnedToCore(sd_card_logger_task, "sd_card_logger", 8192, NULL, 4, NULL, 1);
     vTaskDelay(pdMS_TO_TICKS(1000));

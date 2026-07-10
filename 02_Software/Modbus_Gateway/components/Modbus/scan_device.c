@@ -28,6 +28,7 @@ uint8_t original_id_count = 0;
 bool wire_p1_ok = false;
 bool wire_p2_ok = false;
 bool scan_done = false;
+bool needs_rescan = false;
 
 static TaskHandle_t slave_fake_task_handle = NULL;
 static volatile bool slave_fake_running = false;
@@ -301,25 +302,16 @@ void analyse_scan_result(void)
         }
     }
 
-    // Set dual_port_mode
-    // Bình thường: cả 2 port thấy đều thấy port còn lại → poll 1 port như thường
-    // Có lỗi: ít nhất 1 port không thấy đủ → poll cả 2 port theo list của mỗi port
     if (wire_p1_ok)
     {
-        // Dây thông từ Port 1 tới Port 2
-        // Chỉ cần Port 1 thấy đủ tất cả ID là bình thường
         dual_port_mode = (list_p1.count < original_id_count);
     }
     else if (wire_p2_ok)
     {
-        // Dây thông từ Port 2 → Port 1
-        // Chỉ cần Port 2 thấy đủ tất cả ID là bình thường
         dual_port_mode = (list_p2.count < original_id_count);
     }
     else
     {
-        // Cả 2 wire check đều fail → dây đứt giữa
-        // Dual port khi không port nào thấy đủ ID một mình
         dual_port_mode = !((list_p1.count == original_id_count) || (list_p2.count == original_id_count));
     }
 
@@ -327,14 +319,12 @@ void analyse_scan_result(void)
              dual_port_mode ? "ON" : "OFF",
              list_p1.count, list_p2.count, original_id_count,
              wire_p1_ok, wire_p2_ok);
-    // ─────────────────────────────────────────────────────────────────────
 
     ESP_LOGI(TAG, "Analysis done: lose=%d active_port=%d p1=%d p2=%d",
              scan_result.lose_count, scan_result.active_port,
              scan_result.final_id_p1, scan_result.final_id_p2);
 }
 
-// ============================================================
 static void restore_after_scan(void)
 {
     // Destroy + cleanup
@@ -408,13 +398,12 @@ static void run_scan(mb_parameter_descriptor_t *temp_dict, uint16_t temp_dict_si
         execute_port_scan(UART_NUM_2, temp_dict, temp_dict_size, &list_p2);
     }
 
-    analyse_scan_result(); // Set dual_port_mode ở trong này
+    analyse_scan_result(); // Set dual_port_mode
 }
 
-//====================================================================================================================
-// Manual scan task (do người dùng nhấn nút)
 static void scan_task(void *pvParameters)
 {
+    scan_done = false;
     wire_p1_ok = false;
     wire_p2_ok = false;
     memset(&list_p1, 0, sizeof(id_scan_result_t));
@@ -433,7 +422,6 @@ static void scan_task(void *pvParameters)
         return;
     }
 
-    // Suspend MQTT để tránh gửi dữ liệu sai trong khi scan
     if (mqtt_handle_task != NULL)
         vTaskSuspend(mqtt_handle_task);
 
@@ -462,13 +450,12 @@ static void scan_task(void *pvParameters)
     current_page = PAGE_SCAN_RESULT;
     is_manual_scan = false;
     scan_done = true;
+    needs_rescan = (!wire_p1_ok && !wire_p2_ok) || (scan_result.lose_count > 0);
     is_scan_device = false;
     is_scanning = false;
     vTaskDelete(NULL);
 }
 
-//====================================================================================================================
-// Passive scan task (tự động khi phát hiện lỗi)
 void passive_scan_task(void *arg)
 {
     while (1)
@@ -482,6 +469,7 @@ void passive_scan_task(void *arg)
         }
 
         is_scan_device = true;
+        scan_done = false;
         wire_p1_ok = false;
         wire_p2_ok = false;
         memset(&list_p1, 0, sizeof(id_scan_result_t));
@@ -498,7 +486,6 @@ void passive_scan_task(void *arg)
             continue;
         }
 
-        // THÊM: Suspend MQTT để tránh gửi dữ liệu sai trong khi scan
         if (mqtt_handle_task != NULL)
             vTaskSuspend(mqtt_handle_task);
 
@@ -529,11 +516,24 @@ void passive_scan_task(void *arg)
         restore_after_scan(); // Destroy → init → tạo task → resume mqtt → publish
 
         scan_done = true;
+        needs_rescan = (!wire_p1_ok && !wire_p2_ok) || (scan_result.lose_count > 0);
         is_scan_device = false;
     }
 }
 
-// ============================================================
+void auto_rescan_task(void *arg)
+{
+    while (1)
+    {
+        vTaskDelay(pdMS_TO_TICKS(60000));
+        if (needs_rescan && !is_scan_device && !is_scanning)
+        {
+            ESP_LOGI(TAG, "Auto rescan: wire issue detected, triggering scan");
+            xSemaphoreGive(scan_sem);
+        }
+    }
+}
+
 void scan_device(void)
 {
     if (is_scan_device == true)
@@ -564,8 +564,6 @@ void scan_device(void)
     }
 }
 
-// ============================================================================================
-// Tạo task giả lập slave để test wire check
 static void slave_fake_task(void *arg)
 {
     uint8_t uart_port = slave_fake_port;
@@ -610,8 +608,6 @@ static void slave_fake_task(void *arg)
     vTaskDelete(NULL);
 }
 
-//========================================================================
-// Hàm thực hiện wire check bằng cách giả lập slave trên 1 port và master trên port còn lại, sau đó kiểm tra xem master có đọc được dữ liệu từ slave hay không
 static void execute_wire_check(uint8_t uart_port)
 {
     uint32_t current_baud = load_baud_from_nvs();

@@ -42,11 +42,13 @@ extern volatile bool is_scan_device; // Cờ báo đang scan
 extern bool wire_p1_ok;
 extern bool wire_p2_ok;
 extern bool scan_done;
+extern bool needs_rescan;
 
 void scan_device(void);
 void get_active_list(void);
 void get_inactive_list(void);
 void analyse_scan_result(void);
 void passive_scan_task(void *arg);
+void auto_rescan_task(void *arg);
 
 #endif // SCAN_DEVICE_H
