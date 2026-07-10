@@ -41,6 +41,7 @@ extern scan_analysis_t scan_result;  // Kết quả sau khi scan
 extern volatile bool is_scan_device; // Cờ báo đang scan
 extern bool wire_p1_ok;
 extern bool wire_p2_ok;
+extern bool scan_done;
 
 void scan_device(void);
 void get_active_list(void);

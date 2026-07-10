@@ -44,7 +44,7 @@ esp_err_t eth_init(void)
         goto err;
     }
 
-    // Khởi tạo bộ nhớ NVS - lưu các thông tin cấu hình mạng cho wifi
+    // Khởi tạo bộ nhớ NVS - lưu các thông tin cấu hình
     ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
     {

@@ -27,6 +27,7 @@ uint8_t original_id_count = 0;
 
 bool wire_p1_ok = false;
 bool wire_p2_ok = false;
+bool scan_done = false;
 
 static TaskHandle_t slave_fake_task_handle = NULL;
 static volatile bool slave_fake_running = false;
@@ -460,6 +461,7 @@ static void scan_task(void *pvParameters)
 
     current_page = PAGE_SCAN_RESULT;
     is_manual_scan = false;
+    scan_done = true;
     is_scan_device = false;
     is_scanning = false;
     vTaskDelete(NULL);
@@ -526,6 +528,7 @@ void passive_scan_task(void *arg)
 
         restore_after_scan(); // Destroy → init → tạo task → resume mqtt → publish
 
+        scan_done = true;
         is_scan_device = false;
     }
 }

@@ -74,19 +74,37 @@ static void format_id_list(uint8_t *ids, int count, char *output)
 // Page 1
 static void page_1_home(void)
 {
-    char buffer[20] = {0};
+    char buffer[24] = {0};
     rtc_time_t now;
-    rtc_read_time(&now); // Thời gian từ module RTC rời
+    rtc_read_time(&now);
 
-    LCD_SetCursor(0, 2);
-    snprintf(buffer, sizeof(buffer), "TIME:  %02d:%02d:%02d", now.hour, now.minute, now.second);
+    LCD_SetCursor(0, 0);
+    snprintf(buffer, sizeof(buffer), "Time    : %02d:%02d:%02d", now.hour, now.minute, now.second);
     LCD_Print(buffer);
-    LCD_SetCursor(1, 2);
-    LCD_Print(eth_connected ? "ETH : Connected   " : "ETH : Disconnect  ");
-    LCD_SetCursor(2, 2);
-    LCD_Print(wifi_connected ? "WIFI: Connected  " : "WIFI: Disconnect  ");
-    LCD_SetCursor(3, 2);
-    LCD_Print(blu_connected ? "BLU : Connected   " : "BLU : Disconnect  ");
+
+    LCD_SetCursor(1, 0);
+    snprintf(buffer, sizeof(buffer), "Date    : %02d/%02d/20%02d", now.date, now.month, now.year);
+    LCD_Print(buffer);
+
+    LCD_SetCursor(2, 0);
+    if (eth_connected)
+        LCD_Print("Network : Ethernet  ");
+    else if (wifi_connected)
+        LCD_Print("Network : WiFi      ");
+    else
+        LCD_Print("Network : None      ");
+
+    LCD_SetCursor(3, 0);
+    if (original_id_count == 0)
+        LCD_Print("Wire    : ---      ");
+    else if (!scan_done)
+        LCD_Print("Wire    : Checking ");
+    else if (!wire_p1_ok && !wire_p2_ok)
+        LCD_Print("Wire    : Broken   ");
+    else if (scan_result.lose_count > 0)
+        LCD_Print("Wire    : Warning  ");
+    else
+        LCD_Print("Wire    : Normal   ");
 }
 
 // Page 2 — 4 mục, scroll theo menu_cursor giống Device Info
