@@ -8,8 +8,7 @@
 #include "nvs_flash.h"
 #include "driver/spi_master.h"
 #include "driver/gpio.h"
-#include "driver/spi_common.h" // sử dụng cấu hình cho DMA - thông số SPI_DMA_CH_AUTO
-#include "lwip/ip4_addr.h"     // Dành cho macro gán IP tĩnh IP4_ADDR
+#include "driver/spi_common.h"
 // #include "esp_eth_mac_w5500.h"
 #include "esp_eth_mac_spi.h"
 #include "lwip/sockets.h"
@@ -29,71 +28,6 @@ static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t ev
 static void got_ip_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
 void internet_test_task(void);
 void start_mqtt_test_simple(void);
-
-void internet_test_task(void)
-{
-    ESP_LOGI(TAG, "Đang khởi động tiến trình kiểm tra Internet...");
-
-    // Đợi một chút để Ethernet ổn định IP
-    vTaskDelay(pdMS_TO_TICKS(5000));
-
-    while (1)
-    {
-        struct sockaddr_in dest_addr;
-
-        // KIỂM TRA KẾT NỐI QUA IP TRỰC TIẾP (Google DNS 8.8.8.8) ---
-        // Việc này để xác định xem Routing/Firewall trên Laptop có cho gói tin đi qua không
-        int sock = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
-        if (sock < 0)
-        {
-            ESP_LOGE(TAG, "Không thể tạo socket. Lỗi: %d", errno);
-            vTaskDelay(pdMS_TO_TICKS(10000));
-            continue;
-        }
-
-        dest_addr.sin_addr.s_addr = inet_addr("8.8.8.8");
-        dest_addr.sin_family = AF_INET;
-        dest_addr.sin_port = htons(53); // Cổng DNS thường mở
-
-        ESP_LOGI(TAG, "Đang thử kết nối trực tiếp tới 8.8.8.8...");
-        int err = connect(sock, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
-
-        if (err == 0)
-        {
-            ESP_LOGI(TAG, "===> THÀNH CÔNG: Gateway đã ra được Internet");
-
-            // --- KIỂM TRA PHÂN GIẢI TÊN MIỀN (DNS) ---
-            // Chỉ thực hiện khi bước 1 đã thông
-            struct addrinfo hints = {.ai_family = AF_INET, .ai_socktype = SOCK_STREAM};
-            struct addrinfo *res;
-
-            ESP_LOGI(TAG, "Đang thử phân giải tên miền google.com...");
-            int dns_err = getaddrinfo("google.com", "80", &hints, &res);
-
-            if (dns_err == 0)
-            {
-                ESP_LOGI(TAG, "===> THÀNH CÔNG: DNS hoạt động tốt, đã thấy Google!");
-                freeaddrinfo(res);
-            }
-            else
-            {
-                ESP_LOGE(TAG, "THẤT BẠI: Internet thông nhưng DNS bị lỗi (Error: %d)", dns_err);
-                ESP_LOGW(TAG, "Hãy kiểm tra lại hàm esp_netif_set_dns_info trong code của em.");
-            }
-        }
-        else
-        {
-            ESP_LOGE(TAG, "THẤT BẠI: Không thể kết nối tới 8.8.8.8 (Lỗi: %d)", errno);
-            ESP_LOGW(TAG, "Nguyên nhân có thể do Laptop chưa bật Sharing hoặc Firewall đang chặn.");
-        }
-
-        close(sock);
-
-        // Cứ 30 giây kiểm tra lại một lần
-        ESP_LOGI(TAG, "Sẽ kiểm tra lại sau 5 giây...");
-        vTaskDelay(pdMS_TO_TICKS(5000));
-    }
-}
 
 esp_err_t eth_init(void)
 {
@@ -146,15 +80,8 @@ esp_err_t eth_init(void)
         .queue_size = 20,
     };
 
-    // ESP_GOTO_ON_ERROR(bieu_thuc_kiem_tra, nhan_goto, the_log, cau_thong_bao, cac_bien_di_kem);
     ESP_GOTO_ON_ERROR(spi_bus_initialize(SPI_ETH_HOST, &w5500_spi_bus_config, SPI_DMA_CH_AUTO),
-                      err,
-                      TAG,
-                      "SPI host #%d init failed !!!",
-                      SPI_ETH_HOST);
-
-    // spi_device_handle_t spi_handle = NULL;
-    // ESP_ERROR_CHECK(spi_bus_add_device(SPI_ETH_HOST, &w5500_spi_config, &spi_handle));
+                      err, TAG, "SPI host #%d init failed !!!", SPI_ETH_HOST);
 
     eth_w5500_config_t w5500_config = ETH_W5500_DEFAULT_CONFIG(SPI_ETH_HOST, &w5500_spi_config);
 
@@ -177,24 +104,12 @@ esp_err_t eth_init(void)
     // Nạp cấu hình phy và mac cho ethernet
     esp_eth_config_t eth_config = ETH_DEFAULT_CONFIG(mac, phy);
 
-    // Cài đặt Ethernet Driver (Đây là bước tạo ra eth_handle thực sự)
+    // Tạo Ethernet Driver
     // eth_handle đại diện cho phần cứng
     esp_eth_handle_t eth_handle = NULL;
     ESP_ERROR_CHECK(esp_eth_driver_install(&eth_config, &eth_handle));
 
-    // Tắt DHCP
-    ESP_ERROR_CHECK(esp_netif_dhcpc_stop(eth_netif));
-
-    // Set IP tĩnh cho khối Ethernet
-    esp_netif_ip_info_t ip_info;
-    IP4_ADDR(&ip_info.ip, 192, 168, 137, 29); // IP tĩnh muốn set
-    IP4_ADDR(&ip_info.gw, 192, 168, 137, 1);
-    IP4_ADDR(&ip_info.netmask, 255, 255, 255, 0);
-
-    // // Sử dụng DHCP - xin IP động
-    // ESP_ERROR_CHECK(esp_netif_dhcpc_start(eth_netif));
-
-    // Gán địa chỉ ETH MAC của ESP cho W5500 - B4:3A:45:CF:4D:2F
+    // Gán địa chỉ ETH MAC của ESP cho W5500
     static uint8_t eth_mac_addr[6] = {0};
     ESP_ERROR_CHECK(esp_read_mac(eth_mac_addr, ESP_MAC_ETH));
     ESP_ERROR_CHECK(esp_eth_ioctl(eth_handle, ETH_CMD_S_MAC_ADDR, eth_mac_addr));
@@ -202,31 +117,15 @@ esp_err_t eth_init(void)
              eth_mac_addr[0], eth_mac_addr[1], eth_mac_addr[2],
              eth_mac_addr[3], eth_mac_addr[4], eth_mac_addr[5]);
 
-    // Áp dụng IP tĩnh
-    ESP_ERROR_CHECK(esp_netif_set_ip_info(eth_netif, &ip_info));
-
-    esp_netif_dns_info_t dns;
-    IP4_ADDR(&dns.ip.u_addr.ip4, 8, 8, 8, 8);
-    dns.ip.type = IPADDR_TYPE_V4;
-    ESP_ERROR_CHECK(esp_netif_set_dns_info(eth_netif, ESP_NETIF_DNS_MAIN, &dns));
-
     // Gọi hàm quản lý các sự kiện ngắt
-    ESP_ERROR_CHECK(esp_event_handler_register(ETH_EVENT,
-                                               ESP_EVENT_ANY_ID,
-                                               &eth_event_handler,
-                                               NULL));
-
-    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT,
-                                               IP_EVENT_ETH_GOT_IP,
-                                               &got_ip_event_handler,
-                                               NULL));
+    ESP_ERROR_CHECK(esp_event_handler_register(ETH_EVENT, ESP_EVENT_ANY_ID, &eth_event_handler, NULL));
+    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_ETH_GOT_IP, &got_ip_event_handler, NULL));
 
     // Gắn Ethernet Driver với Netif vừa tạo
     ESP_ERROR_CHECK(esp_netif_attach(eth_netif, esp_eth_new_netif_glue(eth_handle)));
 
     // Khởi động Ethernet
     ESP_ERROR_CHECK(esp_eth_start(eth_handle));
-    // ESP_ERROR_CHECK(esp_netif_dhcpc_start(eth_netif));
 
     ESP_LOGI(TAG, "Successful configure Ethernet use W5500.");
 
@@ -237,13 +136,8 @@ err:
     return ESP_FAIL;
 }
 
-// Khai báo các Handler ngay trong module để bắt sự kiện cắm cáp, có IP...
-static void eth_event_handler(void *arg,
-                              esp_event_base_t event_base,
-                              int32_t event_id,
-                              void *event_data)
+static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
-    // Xử lý báo cáp kết nối / ngắt kết nối
     uint8_t mac_addr[6] = {0};
     esp_eth_handle_t *eth_isr_handle = (esp_eth_handle_t *)event_data;
 
@@ -258,7 +152,7 @@ static void eth_event_handler(void *arg,
     case ETHERNET_EVENT_DISCONNECTED:
         ESP_LOGI(TAG, "Ethernet Link Down");
         xEventGroupClearBits(event_group, ETHERNET_CONNECTED_BIT);
-        eth_connected = false; // Biến global để UI biết trạng thái kết nối Ethernet hiện tại
+        eth_connected = false;
         break;
 
     case ETHERNET_EVENT_START:
@@ -269,7 +163,7 @@ static void eth_event_handler(void *arg,
     case ETHERNET_EVENT_STOP:
         ESP_LOGI(TAG, "Ethernet Stopped");
         xEventGroupClearBits(event_group, ETHERNET_CONNECTED_BIT);
-        eth_connected = false; // Biến global để UI biết trạng thái kết nối Ethernet hiện tại
+        eth_connected = false;
         break;
 
     default:
@@ -277,18 +171,14 @@ static void eth_event_handler(void *arg,
     }
 }
 
-static void got_ip_event_handler(void *arg,
-                                 esp_event_base_t event_base,
-                                 int32_t event_id,
-                                 void *event_data)
+static void got_ip_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
     ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
     ESP_LOGI(TAG, "Got IP address: " IPSTR, IP2STR(&event->ip_info.ip));
     ESP_LOGI(TAG, "Got subnet mask: " IPSTR, IP2STR(&event->ip_info.netmask));
     ESP_LOGI(TAG, "Got gateway address: " IPSTR, IP2STR(&event->ip_info.gw));
     xEventGroupSetBits(event_group, ETHERNET_CONNECTED_BIT);
-
     vTaskDelay(pdMS_TO_TICKS(2000));
-    eth_connected = true; // Biến global để UI biết trạng thái kết nối Ethernet hiện tại
+    eth_connected = true;
     get_time();
 }

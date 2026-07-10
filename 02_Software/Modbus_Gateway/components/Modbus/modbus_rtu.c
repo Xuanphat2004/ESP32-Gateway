@@ -176,7 +176,7 @@ void modbus_rtu_port_1_dummy_init(void)
     uart_set_mode(UART_NUM_1, UART_MODE_RS485_HALF_DUPLEX);
     ESP_LOGI(TAG, "Port 1 dummy: DE=LOW.");
 }
-1 void modbus_rtu_port_2_dummy_init(void)
+void modbus_rtu_port_2_dummy_init(void)
 {
     uint32_t baud = load_baud_from_nvs();
     uart_config_t cfg = {.baud_rate = baud, .data_bits = UART_DATA_8_BITS, .parity = UART_PARITY_DISABLE, .stop_bits = UART_STOP_BITS_1, .flow_ctrl = UART_HW_FLOWCTRL_DISABLE, .source_clk = UART_SCLK_DEFAULT};
