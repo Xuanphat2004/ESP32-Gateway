@@ -303,7 +303,10 @@ static void send_all_backlog(void)
 
     int total = ram_unsent + count_unsent_sd();
     if (total == 0)
-        return; // không có gì để gửi
+    {
+        offline_buf_clear();
+        return;
+    }
 
     int sent = 0;
     ESP_LOGI(TAG, "[BACKLOG] Found %d old record(s) to send (RAM: %d, SD: %d)",

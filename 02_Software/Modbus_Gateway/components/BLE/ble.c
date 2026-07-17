@@ -1,4 +1,5 @@
 #include "ble.h"
+#include "modbus_tcp.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -24,10 +25,13 @@ static esp_gatt_srvc_id_t service_id;
 static uint16_t service_handle = 0;   // handle của service, dùng để add char thứ 2
 static uint16_t handle_reg_table = 0; // handle của ngăn 1: bảng thanh ghi Modbus
 static uint16_t handle_wifi_cfg = 0;  // handle của ngăn 2: WiFi config
+static uint16_t handle_tcp_cfg = 0;   // handle của ngăn 3: Modbus TCP config
 
 static char *receive_buffer = NULL; // buffer lớn 51KB cho bảng thanh ghi (chunked)
 static int received_len = 0;
 static char wifi_buffer[256]; // buffer nhỏ cho WiFi config (1 packet là đủ)
+static char tcp_buffer[4096]; // buffer cho TCP config JSON (chunked)
+static int tcp_recv_len = 0;
 static esp_timer_handle_t s_restart_timer = NULL;
 bool ble_enabled = true;
 
@@ -285,7 +289,6 @@ static void save_regs_to_nvs(temp_modbus_reg_t *reg_array, int count)
     // Mount partition "storage" trước khi mở
     nvs_flash_init_partition("storage");
 
-    // Mở Namespace "storage_app" từ partition "storage" riêng với quyền Read/Write
     err = nvs_open_from_partition("storage", "storage_app", NVS_READWRITE, &my_handle);
     if (err != ESP_OK)
     {
@@ -314,10 +317,7 @@ static void save_regs_to_nvs(temp_modbus_reg_t *reg_array, int count)
     {
         ESP_LOGE("NVS_SAVE", "Fail to write into Flash memorry (%s)", esp_err_to_name(err)); // Flash memorry ở đây là phân vùng NVS trên flash
     }
-
-    // Giải phóng biến handles
     nvs_close(my_handle);
-    // printf("===========================================================================================================================");
 }
 
 static void save_wifi_to_eeprom(const char *ssid, const char *pass)
@@ -392,7 +392,12 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
         else if (handle_wifi_cfg == 0)
         {
             handle_wifi_cfg = param->add_char.attr_handle;
-            // ESP_LOGI(TAG, "Char[2] wifi config handle: %d", handle_wifi_cfg);
+            esp_bt_uuid_t tcp_uuid = {.len = ESP_UUID_LEN_16, .uuid.uuid16 = CHAR_TCP_UUID};
+            esp_ble_gatts_add_char(service_handle, &tcp_uuid, ESP_GATT_PERM_WRITE, ESP_GATT_CHAR_PROP_BIT_WRITE, NULL, NULL);
+        }
+        else if (handle_tcp_cfg == 0)
+        {
+            handle_tcp_cfg = param->add_char.attr_handle;
         }
         break;
 
@@ -402,6 +407,8 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
         received_len = 0;
         memset(receive_buffer, 0, MAX_JSON_SIZE);
         memset(wifi_buffer, 0, sizeof(wifi_buffer));
+        tcp_recv_len = 0;
+        memset(tcp_buffer, 0, sizeof(tcp_buffer));
         break;
 
     case ESP_GATTS_WRITE_EVT:
@@ -448,12 +455,34 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
                 wifi_buffer[len] = '\0';
                 ESP_LOGI(TAG, "[WIFI] Received: %s", wifi_buffer);
                 parse_and_save_wifi(wifi_buffer);
-                // ESP_LOGW("SYSTEM", "[WIFI] Da luu EEPROM, restart sau 1 giay...");
-                esp_timer_start_once(s_restart_timer, 1000 * 1000ULL); // 1s (microseconds)
+                esp_timer_start_once(s_restart_timer, 1000 * 1000ULL);
+            }
+        }
+        // --- (0xFF13): Modbus TCP config — nhận chunked JSON ---
+        else if (param->write.handle == handle_tcp_cfg)
+        {
+            if (tcp_recv_len + param->write.len < (int)sizeof(tcp_buffer) - 1)
+            {
+                memcpy(tcp_buffer + tcp_recv_len, param->write.value, param->write.len);
+                tcp_recv_len += param->write.len;
+                tcp_buffer[tcp_recv_len] = '\0';
+                ESP_LOGI(TAG, "[TCP] +%d bytes, tong: %d", param->write.len, tcp_recv_len);
+
+                // Thử parse JSON — nếu thành công thì đã nhận đủ
+                cJSON *test = cJSON_Parse(tcp_buffer);
+                if (test != NULL)
+                {
+                    cJSON_Delete(test);
+                    tcp_config_apply(tcp_buffer);
+                    tcp_recv_len = 0;
+                    memset(tcp_buffer, 0, sizeof(tcp_buffer));
+                }
             }
             else
             {
-                // ESP_LOGE(TAG, "[WIFI] Du lieu qua lon (%d bytes), bo qua", len);
+                ESP_LOGE(TAG, "[TCP] Buffer tran, reset");
+                tcp_recv_len = 0;
+                memset(tcp_buffer, 0, sizeof(tcp_buffer));
             }
         }
         break;

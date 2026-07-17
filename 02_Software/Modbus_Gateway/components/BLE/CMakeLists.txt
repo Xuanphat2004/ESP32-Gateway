@@ -10,4 +10,5 @@ idf_component_register(SRCS "ble.c"
                                 esp-modbus
                                 json
                                 LCD
+                                Modbus
                                 )

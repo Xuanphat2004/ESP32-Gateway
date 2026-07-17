@@ -7,9 +7,10 @@
 
 // --- CẤU HÌNH UUID ---
 #define GATTS_SERVICE_UUID 0xFF10
-#define GATTS_CHAR_UUID 0xFF11 // ngăn 1: bảng thanh ghi Modbus
-#define CHAR_WIFI_UUID 0xFF12  // ngăn 2: cấu hình WiFi (SSID + password)
-#define GATTS_NUM_HANDLE 8     // 1 service + 2 char × 3 handle mỗi char = 7, để dư 1
+#define GATTS_CHAR_UUID  0xFF11 // ngăn 1: bảng thanh ghi Modbus
+#define CHAR_WIFI_UUID   0xFF12 // ngăn 2: cấu hình WiFi (SSID + password)
+#define CHAR_TCP_UUID    0xFF13 // ngăn 3: cấu hình Modbus TCP mapping
+#define GATTS_NUM_HANDLE 10    // 1 service + 3 char × 2 handle = 7, dư 3
 #define BLE_NAME "GW-XP-"
 #define MAX_JSON_SIZE 51200 // 51KB
 

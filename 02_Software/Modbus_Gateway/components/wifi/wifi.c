@@ -10,6 +10,7 @@
 #include "rtc_mb.h"
 #include "eeprom.h"
 #include "system_event.h"
+#include "modbus_tcp.h"
 
 static const char *TAG = "[WIFI]";
 extern bool wifi_connected;
@@ -82,6 +83,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t e
         wifi_connected = false;
         ESP_LOGE(TAG, "Disconnected! Retry attempt: %d", try_count);
         xEventGroupClearBits(event_group, WIFI_CONNECTED_BIT);
+        tcp_server_netif_changed();
 
         if (try_count >= MAX_WIFI_RETRY)
         {
@@ -104,5 +106,6 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t e
         get_time();
         wifi_connected = true;
         try_count = 0;
+        tcp_server_netif_changed();
     }
 }

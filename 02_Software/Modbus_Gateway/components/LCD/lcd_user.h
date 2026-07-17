@@ -47,6 +47,7 @@ typedef enum
     PAGE_SET_POLL,
     PAGE_BLE_CONTROL,
     PAGE_SYNC_TIME,
+    PAGE_TCP_INFO,
 } ui_page_t;
 
 // Biến trạng thái

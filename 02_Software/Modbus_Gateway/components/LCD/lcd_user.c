@@ -18,6 +18,8 @@
 #include "esp_mac.h"
 #include "ble.h"
 #include "eeprom.h"
+#include "esp_netif.h"
+#include "modbus_tcp.h"
 
 ui_page_t current_page = PAGE_1_HOME;
 uint32_t baud_options[] = {1200, 2400, 4800, 9600, 19200, 38400, 115200};
@@ -115,8 +117,9 @@ static void page_2_settings(void)
         "Scan Device  ",
         "Poll Interval",
         "Bluetooth    ",
-        "Sync Time    "};
-    const int num_items = 5;
+        "Sync Time    ",
+        "TCP Info     "};
+    const int num_items = 6;
     const int visible = 3;
 
     int offset = menu_cursor - visible;
@@ -414,6 +417,46 @@ static void page_sync_waiting(void)
     LCD_Print("Syncing ...        ");
 }
 
+static void page_tcp_info(void)
+{
+    char buf[24];
+    esp_netif_ip_info_t ip_info = {0};
+    const char *net_type = "None";
+
+    esp_netif_t *eth_netif = esp_netif_get_handle_from_ifkey("ETH_DEF");
+    if (eth_netif != NULL && esp_netif_get_ip_info(eth_netif, &ip_info) == ESP_OK && ip_info.ip.addr != 0)
+    {
+        net_type = "Ethernet";
+    }
+    else
+    {
+        memset(&ip_info, 0, sizeof(ip_info));
+        esp_netif_t *wifi_netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+        if (wifi_netif != NULL && esp_netif_get_ip_info(wifi_netif, &ip_info) == ESP_OK && ip_info.ip.addr != 0)
+            net_type = "WiFi";
+        else
+            memset(&ip_info, 0, sizeof(ip_info));
+    }
+
+    LCD_SetCursor(0, 4);
+    LCD_Print("-=TCP Info=-");
+
+    LCD_SetCursor(1, 0);
+    snprintf(buf, sizeof(buf), "Network : %-10s", net_type);
+    LCD_Print(buf);
+
+    LCD_SetCursor(2, 0);
+    if (ip_info.ip.addr != 0)
+        snprintf(buf, sizeof(buf), "IP : " IPSTR " ", IP2STR(&ip_info.ip));
+    else
+        snprintf(buf, sizeof(buf), "IP : None  ");
+    LCD_Print(buf);
+
+    LCD_SetCursor(3, 0);
+    snprintf(buf, sizeof(buf), "Port: %-14d", tcp_get_port());
+    LCD_Print(buf);
+}
+
 // Xử lý sự kiện của các nút bấm
 void button_handler_task(void *arg)
 {
@@ -563,6 +606,11 @@ void ui_task(void)
                             sync_state = 0;
                             current_page = PAGE_SYNC_TIME;
                         }
+                        else if (menu_cursor == 6)
+                        {
+                            lcd_clear();
+                            current_page = PAGE_TCP_INFO;
+                        }
                     }
                     else if (current_page == PAGE_BLE_CONTROL)
                     {
@@ -664,10 +712,16 @@ void ui_task(void)
                         current_page = PAGE_2_SETTINGS;
                         menu_cursor = 5;
                     }
+                    else if (current_page == PAGE_TCP_INFO)
+                    {
+                        lcd_clear();
+                        current_page = PAGE_2_SETTINGS;
+                        menu_cursor = 6;
+                    }
                     break;
 
                 case EVENT_DOWN:
-                    if (current_page == PAGE_2_SETTINGS && menu_cursor < 5)
+                    if (current_page == PAGE_2_SETTINGS && menu_cursor < 6)
                         menu_cursor++;
                     else if (current_page == PAGE_SET_BAUDRATE && baudrate_id < 6)
                         baudrate_id++;
@@ -742,6 +796,8 @@ void ui_task(void)
                 page_ble_control();
             else if (current_page == PAGE_SYNC_TIME)
                 page_sync_time();
+            else if (current_page == PAGE_TCP_INFO)
+                page_tcp_info();
         }
         else if (is_scanning == false)
         {
@@ -768,6 +824,8 @@ void ui_task(void)
                 page_ble_control();
             else if (current_page == PAGE_SYNC_TIME)
                 page_sync_time();
+            else if (current_page == PAGE_TCP_INFO)
+                page_tcp_info();
         }
         else
         {

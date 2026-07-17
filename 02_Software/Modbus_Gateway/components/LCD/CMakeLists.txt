@@ -4,7 +4,8 @@ idf_component_register(
     REQUIRES    freertos
                 driver
                 esp-modbus
-                log 
+                log
+                esp_netif
                 Modbus
                 User_Interface
                 EEPROM_and_RTC

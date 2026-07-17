@@ -959,7 +959,7 @@ class AppController(QObject):
                 "param": data[1],
             })
 
-        payload = json.dumps({"port": port, "map": map_list}).encode("utf-8")
+        payload = json.dumps({"port": port, "mapping_table": map_list}).encode("utf-8")
 
         try:
             self.ui.btn_tcp_send.setEnabled(False)

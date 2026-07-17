@@ -22,6 +22,7 @@
 #include "wifi.h"
 #include "ethernet.h"
 #include "modbus_rtu.h"
+#include "modbus_tcp.h"
 #include "i2c_config.h"
 #include "eeprom.h"
 #include "rtc_mb.h"
@@ -74,13 +75,9 @@ void app_main(void)
     init_pcnt_encoder();
     sd_card_init();
     offline_buf_init();
-    poll_interval_ms = load_poll_from_nvs();
-    ESP_LOGI("MAIN", "Poll interval: %lu ms", poll_interval_ms);
     vTaskDelay(pdMS_TO_TICKS(2000));
-    ESP_LOGW("MAIN", "Total heap: %lu | Internal DRAM: %u bytes",
-             esp_get_free_heap_size(),
-             heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT));
     mqtt_app_start();
+    tcp_config_load_and_start();
 
     // Core 0: Các task liên quan tới mạng
     xTaskCreatePinnedToCore(mqtt_publish_task, "mqtt_task", 10240, NULL, 9, &mqtt_handle_task, 0);
@@ -92,7 +89,4 @@ void app_main(void)
     xTaskCreatePinnedToCore((void *)ui_task, "ui_manager_task", 6144, NULL, 5, NULL, 1);
     xTaskCreatePinnedToCore(sd_card_logger_task, "sd_card_logger", 8192, NULL, 4, NULL, 1);
     vTaskDelay(pdMS_TO_TICKS(1000));
-    ESP_LOGW("MAIN", "After tasks — Total: %lu | Internal DRAM: %u bytes",
-             esp_get_free_heap_size(),
-             heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT));
 }
