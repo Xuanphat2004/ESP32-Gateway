@@ -127,27 +127,15 @@ esp_err_t rtc_read_time(rtc_time_t *time_buffer)
     return err;
 }
 
-// Get time from NTP server and print it in human-readable format
 esp_err_t get_time(void)
 {
     uint8_t data_buffer[48] = {0};
     data_buffer[0] = 0x1B;
 
-    // Create socket - open port and declare UDP protocol
-    // addrinfo describes all information about the address of the server we want to connect to
-
-    // Input - your request for the type of address you want to connect to
     struct addrinfo request_info = {0};
-
-    // Output - endpoint lists (IP + port + protocol + type)
     struct addrinfo *response_info;
-
-    // Declare what type of address you want to connect to (IPv4 + UDP) - tờ khai xin thông tin nơi muốn kết nối tới
-    // User IPv4
-    request_info.ai_family = AF_INET;
-
-    // DGRAM (Datagram) is UDP, STREAM is TCP
-    request_info.ai_socktype = SOCK_DGRAM;
+    request_info.ai_family = AF_INET;      // IPv4
+    request_info.ai_socktype = SOCK_DGRAM; // DGRAM là UDP, STREAM là TCP
 
     int err = getaddrinfo("pool.ntp.org", "123", &request_info, &response_info);
     if (err != 0 || response_info == NULL)
@@ -156,18 +144,12 @@ esp_err_t get_time(void)
         return ESP_ERR_NOT_FOUND;
     }
 
-    int sock = socket(response_info->ai_family,
-                      response_info->ai_socktype,
-                      response_info->ai_protocol);
+    int sock = socket(response_info->ai_family, response_info->ai_socktype, response_info->ai_protocol);
 
     if (sock < 0)
     {
         ESP_LOGE(TAG, "Failed to create socket for NTP client !!!");
-
-        // free the memory allocated of the address info DNS response
         freeaddrinfo(response_info);
-
-        // Save error code
         int err = errno;
         printf("%d\n", err);
         return ESP_ERR_INVALID_STATE;

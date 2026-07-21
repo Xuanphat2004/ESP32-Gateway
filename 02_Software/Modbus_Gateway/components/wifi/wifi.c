@@ -83,7 +83,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t e
         wifi_connected = false;
         ESP_LOGE(TAG, "Disconnected! Retry attempt: %d", try_count);
         xEventGroupClearBits(event_group, WIFI_CONNECTED_BIT);
-        tcp_server_netif_changed();
+        mb_tcp_change_network();
 
         if (try_count >= MAX_WIFI_RETRY)
         {
@@ -106,6 +106,6 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t e
         get_time();
         wifi_connected = true;
         try_count = 0;
-        tcp_server_netif_changed();
+        mb_tcp_change_network();
     }
 }

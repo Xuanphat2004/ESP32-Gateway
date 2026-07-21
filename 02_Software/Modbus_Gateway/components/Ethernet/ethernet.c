@@ -154,7 +154,7 @@ static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t ev
         ESP_LOGI(TAG, "Ethernet Link Down");
         xEventGroupClearBits(event_group, ETHERNET_CONNECTED_BIT);
         eth_connected = false;
-        tcp_server_netif_changed();
+        mb_tcp_change_network();
         break;
 
     case ETHERNET_EVENT_START:
@@ -183,5 +183,5 @@ static void got_ip_event_handler(void *arg, esp_event_base_t event_base, int32_t
     vTaskDelay(pdMS_TO_TICKS(2000));
     eth_connected = true;
     get_time();
-    tcp_server_netif_changed();
+    mb_tcp_change_network();
 }

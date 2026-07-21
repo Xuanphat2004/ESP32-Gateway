@@ -140,28 +140,28 @@ static int lookup_cid(uint16_t addr)
     return -1;
 }
 
-static void send_exception(int client_fd, uint8_t tx_h, uint8_t tx_l, uint8_t uid, uint8_t fc, uint8_t ex_code)
+static void send_exception(int client_fd, uint8_t trans_id_h, uint8_t trans_id_l, uint8_t uid, uint8_t fc, uint8_t ex_code)
 {
-    uint8_t resp[9];
-    resp[0] = tx_h;
-    resp[1] = tx_l;
-    resp[2] = 0;
-    resp[3] = 0;
-    resp[4] = 0;
-    resp[5] = 3;
-    resp[6] = uid;
-    resp[7] = fc | 0x80;
-    resp[8] = ex_code;
-    send(client_fd, resp, 9, 0);
+    uint8_t ex_response[9];
+    ex_response[0] = trans_id_h;
+    ex_response[1] = trans_id_l;
+    ex_response[2] = 0;
+    ex_response[3] = 0;
+    ex_response[4] = 0;
+    ex_response[5] = 3;
+    ex_response[6] = uid;
+    ex_response[7] = fc | 0x80;
+    ex_response[8] = ex_code;
+    send(client_fd, ex_response, 9, 0);
 }
 
-static void handle_request(int client_fd, uint8_t *req, int req_len)
+static void process_request(int client_fd, uint8_t *req, int req_len)
 {
     if (req_len < 12)
         return;
 
-    uint8_t tx_h = req[0];
-    uint8_t tx_l = req[1];
+    uint8_t trans_id_h = req[0];
+    uint8_t trans_id_l = req[1];
     uint8_t uid = req[6];
     uint8_t fc = req[7];
     uint16_t addr = ((uint16_t)req[8] << 8) | req[9];
@@ -169,13 +169,13 @@ static void handle_request(int client_fd, uint8_t *req, int req_len)
 
     if (fc != 3 && fc != 4)
     {
-        send_exception(client_fd, tx_h, tx_l, uid, fc, 0x01);
+        send_exception(client_fd, trans_id_h, trans_id_l, uid, fc, 0x01);
         return;
     }
 
     if (qty == 0 || qty > 125)
     {
-        send_exception(client_fd, tx_h, tx_l, uid, fc, 0x03);
+        send_exception(client_fd, trans_id_h, trans_id_l, uid, fc, 0x03);
         return;
     }
     uint8_t byte_count = (uint8_t)(qty * 2);
@@ -199,8 +199,8 @@ static void handle_request(int client_fd, uint8_t *req, int req_len)
                 } conv;
                 conv.f = final_data[cid];
 
-                data_bytes[i * 2 + 0] = conv.b[3]; // high word, high byte
-                data_bytes[i * 2 + 1] = conv.b[2]; // high word, low byte
+                data_bytes[i * 2 + 0] = conv.b[3]; // byte cao
+                data_bytes[i * 2 + 1] = conv.b[2]; // byte thấp
 
                 if (i + 1 < qty)
                 {
@@ -219,15 +219,12 @@ static void handle_request(int client_fd, uint8_t *req, int req_len)
         }
         xSemaphoreGive(xDataMutex);
     }
-
-    // Build MBAP + PDU response
-    // Length field trong MBAP = UnitID(1) + FC(1) + ByteCount(1) + Data(byte_count)
     uint16_t mbap_len = 1 + 1 + 1 + byte_count;
     int resp_len = 6 + (int)mbap_len; // 6 bytes MBAP header + phần còn lại
 
     uint8_t resp[266]; // 6 + 1 + 1 + 1 + 250 + dư
-    resp[0] = tx_h;
-    resp[1] = tx_l;
+    resp[0] = trans_id_h;
+    resp[1] = trans_id_l;
     resp[2] = 0;
     resp[3] = 0;
     resp[4] = (uint8_t)(mbap_len >> 8);
@@ -238,6 +235,7 @@ static void handle_request(int client_fd, uint8_t *req, int req_len)
     memcpy(resp + 9, data_bytes, byte_count);
 
     send(client_fd, resp, resp_len, 0);
+    tcp_log_values();
 }
 
 static uint32_t get_ip_modbus_tcp(void)
@@ -326,115 +324,101 @@ static void modbus_tcp_server_task(void *arg)
 
     while (1)
     {
-        int client_fd = accept(server_socket, (struct sockaddr *)&client_addr, &client_len);
-        if (client_fd < 0)
-        {
+        int client_num_pointer = accept(server_socket, (struct sockaddr *)&client_addr, &client_len);
+        if (client_num_pointer < 0)
             break;
-        }
-
         ESP_LOGI(TAG, "Client: %s", inet_ntoa(client_addr.sin_addr));
-
-        uint8_t req_buf[256];
+        uint8_t request[256];
         while (1)
         {
-            int n = recv(client_fd, req_buf, sizeof(req_buf), 0);
+            int n = recv(client_num_pointer, request, sizeof(request), 0);
             if (n <= 0)
                 break;
-            handle_request(client_fd, req_buf, n);
-            if (A = 0)
-                if (0 = A)
-
-                    close(client_fd);
-            ESP_LOGI(TAG, "Client disconnected");
+            process_request(client_num_pointer, request, n);
         }
-
-        if (server_socket >= 0)
-        {
-            close(server_socket);
-            server_socket = -1;
-        }
-        current_bind_ip = 0;
+        close(client_num_pointer);
+        ESP_LOGI(TAG, "Client disconnected");
+    }
+    current_bind_ip = 0;
+    tcp_task_handle = NULL;
+    vTaskDelete(NULL);
+}
+static void stop_tcp_server(void)
+{
+    if (server_socket >= 0)
+    {
+        close(server_socket);
+        server_socket = -1;
+    }
+    if (tcp_task_handle != NULL)
+    {
+        vTaskDelete(tcp_task_handle);
         tcp_task_handle = NULL;
-        vTaskDelete(NULL);
+    }
+}
+
+static void start_tcp_server(void)
+{
+    xTaskCreatePinnedToCore(modbus_tcp_server_task, "modbus_tcp", 8072, NULL, 7, &tcp_task_handle, 0);
+}
+
+void tcp_config_apply(const char *json)
+{
+    cJSON *root = cJSON_Parse(json);
+    if (root == NULL)
+    {
+        ESP_LOGE(TAG, "JSON parse failed");
+        return;
     }
 
-    static void stop_tcp_server(void)
+    uint16_t port = 502;
+    cJSON *j_port = cJSON_GetObjectItem(root, "port");
+    if (cJSON_IsNumber(j_port))
+        port = (uint16_t)j_port->valueint;
+
+    cJSON *mapping = cJSON_GetObjectItem(root, "mapping_table");
+    if (!cJSON_IsArray(mapping))
     {
-        if (server_socket >= 0)
-        {
-            close(server_socket);
-            server_socket = -1;
-        }
-        if (tcp_task_handle != NULL)
-        {
-            vTaskDelete(tcp_task_handle);
-            tcp_task_handle = NULL;
-        }
-    }
-
-    static void start_tcp_server(void)
-    {
-        xTaskCreatePinnedToCore(modbus_tcp_server_task, "modbus_tcp", 8072, NULL, 7, &tcp_task_handle, 0);
-    }
-
-    void tcp_config_apply(const char *json)
-    {
-        cJSON *root = cJSON_Parse(json);
-        if (root == NULL)
-        {
-            ESP_LOGE(TAG, "JSON parse failed");
-            return;
-        }
-
-        uint16_t port = 502;
-        cJSON *j_port = cJSON_GetObjectItem(root, "port");
-        if (cJSON_IsNumber(j_port))
-            port = (uint16_t)j_port->valueint;
-
-        cJSON *mapping = cJSON_GetObjectItem(root, "mapping_table");
-        if (!cJSON_IsArray(mapping))
-        {
-            ESP_LOGW(TAG, "Not found key mapping_table in JSON packet !!!");
-            cJSON_Delete(root);
-            return;
-        }
-
-        int count = cJSON_GetArraySize(mapping);
-        if (count > TCP_MAX_REGISTERS)
-        {
-            ESP_LOGW(TAG, "App just send over tcp mapping register for device !!!");
-            ESP_LOGW(TAG, "Set TCP_MAX_MAPPINGS !!!");
-            count = TCP_MAX_REGISTERS;
-        }
-
-        static tcp_mapping_t reg_mapping[TCP_MAX_REGISTERS];
-        memset(reg_mapping, 0, sizeof(reg_mapping));
-
-        for (int i = 0; i < count; i++)
-        {
-            cJSON *item = cJSON_GetArrayItem(mapping, i);
-            cJSON *j_addr = cJSON_GetObjectItem(item, "addr");
-            cJSON *j_uid = cJSON_GetObjectItem(item, "uid");
-            cJSON *j_param = cJSON_GetObjectItem(item, "param");
-
-            if (!cJSON_IsNumber(j_addr) || !cJSON_IsNumber(j_uid) || !cJSON_IsString(j_param))
-                continue;
-
-            reg_mapping[i].tcp_address = (uint16_t)j_addr->valueint;
-            reg_mapping[i].unit_id = (uint16_t)j_uid->valueint;
-            strncpy(reg_mapping[i].param, j_param->valuestring, sizeof(reg_mapping[i].param) - 1);
-        }
+        ESP_LOGW(TAG, "Not found key mapping_table in JSON packet !!!");
         cJSON_Delete(root);
-
-        tcp_port = port;
-        stop_tcp_server();
-        build_lookup(reg_mapping, count);
-        save_to_nvs(port, reg_mapping, count);
-        tcp_config_loaded = true;
-        start_tcp_server();
-
-        ESP_LOGI(TAG, "TCP config applied: port=%d, %d mappings", port, count);
+        return;
     }
+
+    int count = cJSON_GetArraySize(mapping);
+    if (count > TCP_MAX_REGISTERS)
+    {
+        ESP_LOGW(TAG, "App just send over tcp mapping register for device !!!");
+        ESP_LOGW(TAG, "Set TCP_MAX_MAPPINGS !!!");
+        count = TCP_MAX_REGISTERS;
+    }
+
+    static tcp_mapping_t reg_mapping[TCP_MAX_REGISTERS];
+    memset(reg_mapping, 0, sizeof(reg_mapping));
+
+    for (int i = 0; i < count; i++)
+    {
+        cJSON *item = cJSON_GetArrayItem(mapping, i);
+        cJSON *j_addr = cJSON_GetObjectItem(item, "addr");
+        cJSON *j_uid = cJSON_GetObjectItem(item, "uid");
+        cJSON *j_param = cJSON_GetObjectItem(item, "param");
+
+        if (!cJSON_IsNumber(j_addr) || !cJSON_IsNumber(j_uid) || !cJSON_IsString(j_param))
+            continue;
+
+        reg_mapping[i].tcp_address = (uint16_t)j_addr->valueint;
+        reg_mapping[i].unit_id = (uint16_t)j_uid->valueint;
+        strncpy(reg_mapping[i].param, j_param->valuestring, sizeof(reg_mapping[i].param) - 1);
+    }
+    cJSON_Delete(root);
+
+    tcp_port = port;
+    stop_tcp_server();
+    build_lookup(reg_mapping, count);
+    save_to_nvs(port, reg_mapping, count);
+    tcp_config_loaded = true;
+    start_tcp_server();
+
+    ESP_LOGI(TAG, "TCP config applied: port=%d, %d mappings", port, count);
 }
 
 void tcp_config_load_and_start(void)
@@ -459,7 +443,7 @@ uint16_t tcp_get_port(void)
     return tcp_port;
 }
 
-void tcp_server_netif_changed(void)
+void mb_tcp_change_network(void)
 {
     if (!tcp_config_loaded)
         return;
@@ -476,4 +460,14 @@ void tcp_server_netif_changed(void)
     current_bind_ip = 0;
     vTaskDelay(pdMS_TO_TICKS(300));
     start_tcp_server();
+}
+
+void tcp_log_values(void)
+{
+    for (int i = 0; i < tcp_lookup_count; i++)
+    {
+        int cid = tcp_lookup[i].cid;
+        if (cid >= 0 && final_data != NULL)
+            ESP_LOGI(TAG, "TCP addr=%d  val=%.2f", tcp_lookup[i].tcp_address, final_data[cid]);
+    }
 }

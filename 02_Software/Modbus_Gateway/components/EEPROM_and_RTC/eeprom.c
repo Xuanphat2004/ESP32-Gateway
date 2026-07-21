@@ -47,16 +47,11 @@ esp_err_t eeprom_write(uint16_t address, const uint8_t *data, size_t size)
     {
         return ESP_ERR_INVALID_STATE;
     }
-
-    // Create buffer = 2 bytes address + N bytes data
     uint8_t buffer[size + 2];
     buffer[0] = (address >> 8) & 0xFF; // High byte address want to write
     buffer[1] = address & 0xFF;        // Low byte address want to write
-
-    // copy data into buffer with size of data, begin at buffer[3]
     memcpy(&buffer[2], data, size);
 
-    // Send to eeprom, -1 is timeout (no timeout)
     esp_err_t err = i2c_master_transmit(eeprom_handle, buffer, sizeof(buffer), -1);
     if (err == ESP_OK)
     {
@@ -64,10 +59,9 @@ esp_err_t eeprom_write(uint16_t address, const uint8_t *data, size_t size)
     }
     else
     {
-        ESP_LOGE(TAG, "Fail to transmit packet !!!");
+        ESP_LOGW(TAG, "Fail to transmit packet !!!");
     }
-    // Delay 7ms (>=5ms) to wait for eeprom write data
-    vTaskDelay(pdMS_TO_TICKS(7));
+    vTaskDelay(pdMS_TO_TICKS(7)); // đợi eeprom ghi dữ liệu
     return err;
 }
 

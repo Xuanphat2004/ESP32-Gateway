@@ -173,7 +173,7 @@ static void page_3_info_device(void)
         LCD_SetCursor(1, 0);
         LCD_Print(mac_buf);
         LCD_SetCursor(2, 0);
-        LCD_Print("Name    : MB-Gateway");
+        LCD_Print("Name    : MB-Gateway  ");
         LCD_SetCursor(3, 0);
         LCD_Print(active_buf);
     }
@@ -182,7 +182,7 @@ static void page_3_info_device(void)
     if (enc_scroll == 1)
     {
         LCD_SetCursor(1, 0);
-        LCD_Print("Name    : MB-Gateway");
+        LCD_Print("Name    : MB-Gateway  ");
         LCD_SetCursor(2, 0);
         LCD_Print(active_buf);
         LCD_SetCursor(3, 0);
@@ -195,17 +195,17 @@ static void page_3_info_device(void)
         LCD_SetCursor(1, 0);
         LCD_Print(active_buf);
         LCD_SetCursor(2, 0);
-        LCD_Print("Hardware:  v1.0.0   ");
+        LCD_Print("Hardware:  v1.1     ");
         LCD_SetCursor(3, 0);
-        LCD_Print("Firmware:  v2.0.0   ");
+        LCD_Print("Firmware:  v1.0.1   ");
     }
     // Hardware -> Software -> Update
     if (enc_scroll == 3)
     {
         LCD_SetCursor(1, 0);
-        LCD_Print("Hardware:  v1.0.0   ");
+        LCD_Print("Hardware:  v1.1     ");
         LCD_SetCursor(2, 0);
-        LCD_Print("Firmware:  v2.0.0   ");
+        LCD_Print("Firmware:  v1.0.1   ");
         LCD_SetCursor(3, 0);
         LCD_Print("DC-In   : 12-24V/3A ");
     }
@@ -259,12 +259,11 @@ static void page_scan_result(void)
     LCD_Print("Detail->");
 }
 
-// hiển thị chi tiết tình trạng trên đường truyền
 static void page_scan_detail(void)
 {
-    char line_2[32] = ""; // Chứa thông tin đoạn dây đứt
-    char line_3[32] = ""; // Chứa danh sách Lose
-    char line_4[32] = ""; // Chứa thông tin Master port
+    char line_2[32] = "";
+    char line_3[32] = "";
+    char line_4[32] = "";
 
     // Dây bình thường
     if (wire_p1_ok == true || wire_p2_ok == true)
@@ -320,8 +319,6 @@ static void page_scan_detail(void)
         snprintf(line_3, sizeof(line_3), "No Lose   ");
     }
 
-    // snprintf(line_4, sizeof(line_4), "Master Port %d ", scan_result.active_port);
-
     char buf2[21], buf3[21], buf4[21];
     snprintf(buf2, sizeof(buf2), "%-20.20s", line_2); //"-20.20s", -: căn lề trái, 20.20: đảm bảo chỉ 20 ký tự
     snprintf(buf3, sizeof(buf3), "%-20.20s", line_3);
@@ -367,7 +364,6 @@ static void page_set_poll(void)
     LCD_Print(buffer_2);
 }
 
-//  Bật tắt bluetooth
 static void page_ble_control(void)
 {
     char buffer[24];
@@ -380,41 +376,54 @@ static void page_ble_control(void)
     LCD_Print(ble_enabled ? "Status : ON " : "Status : OFF ");
 }
 
-//  đồng bộ thời gian RTC qua NTP khi có mạng
 static void page_sync_time(void)
 {
-    char buf[24];
+    char buf[26];
     rtc_time_t now;
     rtc_read_time(&now);
 
     LCD_SetCursor(0, 4);
     LCD_Print("-=SYNC TIME=-  ");
 
-    LCD_SetCursor(1, 1);
-    snprintf(buf, sizeof(buf), "Now : %02d:%02d:%02d", now.hour, now.minute, now.second);
+    LCD_SetCursor(1, 0);
+    snprintf(buf, sizeof(buf), "Now : %02d:%02d:%02d-%02d/%02d", now.hour, now.minute, now.second, now.date, now.month);
     LCD_Print(buf);
 
-    LCD_SetCursor(2, 1);
+    LCD_SetCursor(2, 0);
     if (has_synced)
-        snprintf(buf, sizeof(buf), "Last: %02d:%02d:%02d", last_sync_time.hour, last_sync_time.minute, last_sync_time.second);
+        snprintf(buf, sizeof(buf), "Last: %02d:%02d:%02d-%02d/%02d", last_sync_time.hour, last_sync_time.minute, last_sync_time.second, last_sync_time.date, last_sync_time.month);
     else
-        snprintf(buf, sizeof(buf), "Last: --:--:--");
+        snprintf(buf, sizeof(buf), "Last: --:--:-- --/--");
     LCD_Print(buf);
+
+    LCD_SetCursor(3, 0);
+    if (sync_state == 1)
+        LCD_Print("Status: OK          ");
+    else if (sync_state == 2)
+        LCD_Print("Status: No network  ");
+    else if (sync_state == 3)
+        LCD_Print("Status: Sync failed ");
+    else
+        LCD_Print("Press OK to sync    ");
 }
 
-// Hiện khi app BLE đang kết nối vào thiết bị để gửi cấu hình
 static void page_ble_waiting(void)
 {
     // lcd_clear();
     LCD_SetCursor(1, 2);
-    LCD_Print("Updating ...        ");
+    LCD_Print("Updating from app ..");
 }
 
 static void page_sync_waiting(void)
 {
-    // lcd_clear();
-    LCD_SetCursor(1, 2);
-    LCD_Print("Syncing ...        ");
+    LCD_SetCursor(0, 0);
+    LCD_Print("                    ");
+    LCD_SetCursor(1, 0);
+    LCD_Print("                    ");
+    LCD_SetCursor(2, 5);
+    LCD_Print("Syncing ...   ");
+    LCD_SetCursor(3, 0);
+    LCD_Print("                    ");
 }
 
 static void page_tcp_info(void)
@@ -433,7 +442,7 @@ static void page_tcp_info(void)
         memset(&ip_info, 0, sizeof(ip_info));
         esp_netif_t *wifi_netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
         if (wifi_netif != NULL && esp_netif_get_ip_info(wifi_netif, &ip_info) == ESP_OK && ip_info.ip.addr != 0)
-            net_type = "WiFi";
+            net_type = "Wi-Fi";
         else
             memset(&ip_info, 0, sizeof(ip_info));
     }
@@ -468,7 +477,7 @@ void button_handler_task(void *arg)
     ui_event_t button_event;
     while (1)
     {
-        if (gpio_get_level(SELECT_PIN) == 0) // Nút Select thường
+        if (gpio_get_level(SELECT_PIN) == 0)
         {
             vTaskDelay(pdMS_TO_TICKS(100));
             if (gpio_get_level(SELECT_PIN) == 0)
@@ -479,8 +488,7 @@ void button_handler_task(void *arg)
                     vTaskDelay(pdMS_TO_TICKS(10));
             }
         }
-
-        if (gpio_get_level(ENCODER_SELECT_PIN) == 0) // Nút Select của Encoder
+        if (gpio_get_level(ENCODER_SELECT_PIN) == 0)
         {
             vTaskDelay(pdMS_TO_TICKS(100));
             if (gpio_get_level(ENCODER_SELECT_PIN) == 0)
@@ -491,7 +499,6 @@ void button_handler_task(void *arg)
                     vTaskDelay(pdMS_TO_TICKS(10));
             }
         }
-
         if (gpio_get_level(BACK_PIN) == 0)
         {
             vTaskDelay(pdMS_TO_TICKS(100));
@@ -549,7 +556,6 @@ void ui_task(void)
     xTaskCreatePinnedToCore(button_handler_task, "button_task", 4096, NULL, 5, NULL, 1);
     xTaskCreatePinnedToCore(encoder_handler_task, "encoder_task", 4096, NULL, 5, NULL, 1);
 
-    // Đọc lại thời gian sync cuối từ EEPROM
     uint8_t magic = 0;
     eeprom_read(0x0180, &magic, 1);
     if (magic == 0xA5)
@@ -560,10 +566,9 @@ void ui_task(void)
 
     while (1)
     {
-
         if (xQueueReceive(ui_queue, &event, pdMS_TO_TICKS(100)) == pdTRUE)
         {
-            if (is_scanning == false) // Tránh người dùng bấm nút khi đang scan
+            if (is_scanning == false)
             {
                 switch (event)
                 {
@@ -622,18 +627,29 @@ void ui_task(void)
                         {
                             lcd_clear();
                             page_sync_waiting();
-                            LCD_SetCursor(3, 0);
-                            LCD_Print("Syncing ....        ");
-                            get_time();
-                            rtc_read_time(&last_sync_time);
-                            has_synced = true;
-                            sync_state = 1;
-                            uint8_t magic = 0xA5;
-                            eeprom_write(0x0180, &magic, 1);
-                            eeprom_write(0x0181, (uint8_t *)&last_sync_time, sizeof(rtc_time_t));
+                            esp_err_t ret = get_time();
+                            if (ret == ESP_OK)
+                            {
+                                rtc_read_time(&last_sync_time);
+                                has_synced = true;
+                                sync_state = 1;
+                                uint8_t magic = 0xA5;
+                                esp_err_t err = eeprom_write(0x0180, &magic, 1);
+                                if (err == ESP_OK)
+                                    eeprom_write(0x0181, (uint8_t *)&last_sync_time, sizeof(rtc_time_t));
+                            }
+                            else
+                            {
+                                sync_state = 3;
+                            }
                         }
                         else
                         {
+                            lcd_clear();
+                            LCD_SetCursor(2, 4);
+                            LCD_Print("No network!");
+                            vTaskDelay(pdMS_TO_TICKS(2000));
+                            lcd_clear();
                             sync_state = 2;
                         }
                     }
@@ -725,7 +741,7 @@ void ui_task(void)
                         menu_cursor++;
                     else if (current_page == PAGE_SET_BAUDRATE && baudrate_id < 6)
                         baudrate_id++;
-                    else if (current_page == PAGE_SET_POLL && poll_id < 4)
+                    else if (current_page == PAGE_SET_POLL && poll_id < 7)
                         poll_id++;
                     else if (current_page == PAGE_3_INFO_DEVICE && enc_scroll < 4)
                         enc_scroll++;

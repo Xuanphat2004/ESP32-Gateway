@@ -17,6 +17,7 @@ typedef struct
 void tcp_config_apply(const char *json);
 void tcp_config_load_and_start(void);
 uint16_t tcp_get_port(void);
-void tcp_server_netif_changed(void);
+void mb_tcp_change_network(void);
+void tcp_log_values(void);
 
 #endif
