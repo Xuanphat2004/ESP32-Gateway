@@ -16,7 +16,7 @@
 #include "modbus_rtu.h"
 #include "esp_modbus_master.h"
 
-static const char *TAG = "[MODBUS_TCP]";
+static const char *TAG = "[MODBUS-TCP]";
 
 // Bảng mapping trong RAM
 typedef struct
@@ -326,18 +326,30 @@ static void modbus_tcp_server_task(void *arg)
     {
         int client_num_pointer = accept(server_socket, (struct sockaddr *)&client_addr, &client_len);
         if (client_num_pointer < 0)
+        {
+            ESP_LOGW(TAG, "accept() failed: errno=%d", errno);
             break;
-        ESP_LOGI(TAG, "Client: %s", inet_ntoa(client_addr.sin_addr));
+        }
+        ESP_LOGI(TAG, "Client connected: %s", inet_ntoa(client_addr.sin_addr));
         uint8_t request[256];
         while (1)
         {
             int n = recv(client_num_pointer, request, sizeof(request), 0);
-            if (n <= 0)
+            if (n < 0)
+            {
+                ESP_LOGW(TAG, "recv() error: errno=%d", errno);
                 break;
+            }
+            if (n == 0)
+            {
+                ESP_LOGW(TAG, "Client closed connection");
+                break;
+            }
+            ESP_LOGW(TAG, "Request received: %d bytes from %s", n, inet_ntoa(client_addr.sin_addr));
             process_request(client_num_pointer, request, n);
         }
         close(client_num_pointer);
-        ESP_LOGI(TAG, "Client disconnected");
+        ESP_LOGI(TAG, "Client disconnected: %s", inet_ntoa(client_addr.sin_addr));
     }
     current_bind_ip = 0;
     tcp_task_handle = NULL;
@@ -468,6 +480,8 @@ void tcp_log_values(void)
     {
         int cid = tcp_lookup[i].cid;
         if (cid >= 0 && final_data != NULL)
-            ESP_LOGI(TAG, "TCP addr=%d  val=%.2f", tcp_lookup[i].tcp_address, final_data[cid]);
+            ESP_LOGI(TAG, "TCP address: %d - RTU Address: %d - CID in table: %d --> value: %.2f",
+                     tcp_lookup[i].tcp_address, basic_dict[cid].mb_reg_start, cid, final_data[cid]);
     }
+    printf("\n");
 }

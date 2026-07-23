@@ -37,5 +37,6 @@ void ble_server_init(void);
 void ble_toggle(void);
 void print_parsed_registers(temp_modbus_reg_t *reg_array, int count);
 temp_modbus_reg_t *parse_json_to_struct_array(const char *json_str, int *out_reg_count);
+int ble_get_receive_percent(void);
 
 #endif /* _BLE_SERVER_H_ */

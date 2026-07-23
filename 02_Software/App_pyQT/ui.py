@@ -31,6 +31,47 @@ class ModbusApp(QWidget):
 
     def setup_ui(self):
         main_layout = QVBoxLayout(self)
+        main_layout.setSpacing(0)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+
+        # BLE bar — always visible regardless of active tab
+        ble_bar = QWidget()
+        ble_bar.setStyleSheet(
+            "QWidget { background:#f0f4ff; border-bottom:1px solid #c5d0e8; }"
+        )
+        ble_bar.setFixedHeight(46)
+        ble_lay = QHBoxLayout(ble_bar)
+        ble_lay.setContentsMargins(10, 6, 10, 6)
+        ble_lay.setSpacing(8)
+
+        lbl_ble = QLabel("BLE Device:")
+        lbl_ble.setStyleSheet("color:#333; font-weight:bold; border:none; background:transparent;")
+        self.btn_scan_ble = QPushButton("Scan Devices")
+        self.btn_scan_ble.setFixedSize(110, 30)
+        self.btn_scan_ble.setStyleSheet(
+            "QPushButton{background:#1a73e8;color:white;border-radius:4px;border:none;}"
+            "QPushButton:hover{background:#1765cc;}"
+            "QPushButton:pressed{background:#1257b0;}"
+            "QPushButton:disabled{background:#a8c7f5;color:#e8f0fe;}"
+        )
+        self.combo_ble_devices = QComboBox()
+        self.combo_ble_devices.setMinimumWidth(300)
+        self.combo_ble_devices.setFixedHeight(30)
+        self.combo_ble_devices.setStyleSheet(
+            "QComboBox{border:1px solid #c5d0e8;border-radius:4px;padding:0 6px;background:white;}"
+            "QComboBox::drop-down{border:none;}"
+        )
+
+        ble_lay.addWidget(lbl_ble)
+        ble_lay.addWidget(self.btn_scan_ble)
+        ble_lay.addWidget(self.combo_ble_devices)
+        ble_lay.addStretch()
+        main_layout.addWidget(ble_bar)
+
+        inner = QWidget()
+        inner_layout = QVBoxLayout(inner)
+        inner_layout.setContentsMargins(8, 8, 8, 8)
+
         self.tabs_main = QTabWidget()
 
         self.tab_setup   = QWidget()
@@ -42,7 +83,8 @@ class ModbusApp(QWidget):
         self.tabs_main.addTab(self.tab_wifi,    "WiFi Config")
         self.tabs_main.addTab(self.tab_tcp,     "Modbus TCP")
         self.tabs_main.addTab(self.tab_history, "History")
-        main_layout.addWidget(self.tabs_main)
+        inner_layout.addWidget(self.tabs_main)
+        main_layout.addWidget(inner)
 
         self._build_setup_tab()
         self._build_wifi_tab()
@@ -51,15 +93,6 @@ class ModbusApp(QWidget):
 
     def _build_setup_tab(self):
         layout = QVBoxLayout(self.tab_setup)
-
-        ble_grp = QGroupBox("Bluetooth Connection")
-        ble_lay = QHBoxLayout()
-        self.btn_scan_ble = QPushButton("Scan Devices")
-        self.combo_ble_devices = QComboBox()
-        ble_lay.addWidget(self.btn_scan_ble)
-        ble_lay.addWidget(self.combo_ble_devices)
-        ble_grp.setLayout(ble_lay)
-        layout.addWidget(ble_grp)
 
         btn_lay = QHBoxLayout()
         self.btn_new = QPushButton("+ New Device")

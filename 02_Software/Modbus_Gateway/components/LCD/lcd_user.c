@@ -152,7 +152,7 @@ static void page_2_settings(void)
 static void page_3_info_device(void)
 {
     char active_buf[21] = " ";
-    char mac_buf[21] = " "; // Chứa chuỗi địa chỉ MAC
+    char mac_buf[23] = " "; // Chứa chuỗi địa chỉ MAC
     uint8_t mac_addr[6] = {0};
     time_t now_time;
     struct tm time_active;
@@ -173,7 +173,8 @@ static void page_3_info_device(void)
         LCD_SetCursor(1, 0);
         LCD_Print(mac_buf);
         LCD_SetCursor(2, 0);
-        LCD_Print("Name    : MB-Gateway  ");
+        snprintf(mac_buf, sizeof(mac_buf), "Name : %-13.13s", ble_device_name);
+        LCD_Print(mac_buf);
         LCD_SetCursor(3, 0);
         LCD_Print(active_buf);
     }
@@ -182,11 +183,12 @@ static void page_3_info_device(void)
     if (enc_scroll == 1)
     {
         LCD_SetCursor(1, 0);
-        LCD_Print("Name    : MB-Gateway  ");
+        snprintf(mac_buf, sizeof(mac_buf), "Name : %-13.13s", ble_device_name);
+        LCD_Print(mac_buf);
         LCD_SetCursor(2, 0);
         LCD_Print(active_buf);
         LCD_SetCursor(3, 0);
-        LCD_Print("Hardware:  v1.0.0   ");
+        LCD_Print("Hardware:  v1.1     ");
     }
 
     // Active-> Hardware -> Software
@@ -197,7 +199,7 @@ static void page_3_info_device(void)
         LCD_SetCursor(2, 0);
         LCD_Print("Hardware:  v1.1     ");
         LCD_SetCursor(3, 0);
-        LCD_Print("Firmware:  v1.0.1   ");
+        LCD_Print("Firmware:  v1.1.0   ");
     }
     // Hardware -> Software -> Update
     if (enc_scroll == 3)
@@ -205,7 +207,7 @@ static void page_3_info_device(void)
         LCD_SetCursor(1, 0);
         LCD_Print("Hardware:  v1.1     ");
         LCD_SetCursor(2, 0);
-        LCD_Print("Firmware:  v1.0.1   ");
+        LCD_Print("Firmware:  v1.1.0   ");
         LCD_SetCursor(3, 0);
         LCD_Print("DC-In   : 12-24V/3A ");
     }
@@ -213,7 +215,7 @@ static void page_3_info_device(void)
     if (enc_scroll == 4)
     {
         LCD_SetCursor(1, 0);
-        LCD_Print("Firmware:  v2.0.0   ");
+        LCD_Print("Firmware:  v1.1.0   ");
         LCD_SetCursor(2, 0);
         LCD_Print("DC-In   : 12-24V/3A ");
         LCD_SetCursor(3, 0);
@@ -240,7 +242,7 @@ static void page_scan_result(void)
         LCD_Print(buffer);                                         // In danh sách ID
     }
     else
-        LCD_Print("None"); // Nếu danh sách trống
+        LCD_Print("None");
 
     // Hiển thị danh sách ID Inactive
     get_inactive_list();
@@ -253,7 +255,7 @@ static void page_scan_result(void)
         LCD_Print(buffer);
     }
     else
-        LCD_Print("None"); // Nếu danh sách trống
+        LCD_Print("None");
 
     LCD_SetCursor(3, 12);
     LCD_Print("Detail->");
@@ -265,7 +267,6 @@ static void page_scan_detail(void)
     char line_3[32] = "";
     char line_4[32] = "";
 
-    // Dây bình thường
     if (wire_p1_ok == true || wire_p2_ok == true)
     {
         snprintf(line_2, sizeof(line_2), "State Line Normal");
@@ -307,7 +308,6 @@ static void page_scan_detail(void)
         snprintf(line_2, sizeof(line_2), "State Line Normal");
     }
 
-    // Hiển thị Lose List
     if (scan_result.lose_count > 0)
     {
         char lose_str[16] = "";
@@ -337,8 +337,7 @@ static void page_scan_detail(void)
 // Page người dùng set baudrate
 static void page_set_baud(void)
 {
-    char buffer_1[21], buffer_2[21]; // Dừng để giá trị tốc độ hiện tại đọc ra từ NVS và giá trị tốc độ người dùng muốn chọn
-    // uint32_t current_baud = load_baud_from_nvs();
+    char buffer_1[21], buffer_2[21];
     LCD_SetCursor(0, 2);
     LCD_Print("-=SET BAUDRATE=-  ");
     LCD_SetCursor(1, 1);
@@ -395,23 +394,21 @@ static void page_sync_time(void)
     else
         snprintf(buf, sizeof(buf), "Last: --:--:-- --/--");
     LCD_Print(buf);
-
-    LCD_SetCursor(3, 0);
-    if (sync_state == 1)
-        LCD_Print("Status: OK          ");
-    else if (sync_state == 2)
-        LCD_Print("Status: No network  ");
-    else if (sync_state == 3)
-        LCD_Print("Status: Sync failed ");
-    else
-        LCD_Print("Press OK to sync    ");
 }
 
 static void page_ble_waiting(void)
 {
-    // lcd_clear();
-    LCD_SetCursor(1, 2);
-    LCD_Print("Updating from app ..");
+    char buf[21];
+    int num = ble_get_receive_percent();
+    LCD_SetCursor(0, 0);
+    LCD_Print("                    ");
+    LCD_SetCursor(1, 0);
+    LCD_Print(" Updating from app ");
+    LCD_SetCursor(2, 0);
+    snprintf(buf, sizeof(buf), "   Progress => %3d%% ", num);
+    LCD_Print(buf);
+    LCD_SetCursor(3, 0);
+    LCD_Print("                    ");
 }
 
 static void page_sync_waiting(void)
@@ -789,8 +786,8 @@ void ui_task(void)
         }
         else if (blu_connected == true)
         {
-            lcd_clear();
             page_ble_waiting();
+            vTaskDelay(pdMS_TO_TICKS(200));
         }
         else if (is_scan_device == true && is_manual_scan == false)
         {

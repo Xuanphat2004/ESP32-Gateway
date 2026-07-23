@@ -116,14 +116,6 @@ esp_err_t rtc_read_time(rtc_time_t *time_buffer)
 
         time_buffer->year = bcd_to_dec(buffer[6]);
     }
-    // printf("Read time from RTC: %02d-%02d-20%02d --%d-- %02d:%02d:%02d\n",
-    //        time_buffer->date,
-    //        time_buffer->month,
-    //        time_buffer->year,
-    //        time_buffer->day,
-    //        time_buffer->hour,
-    //        time_buffer->minute,
-    //        time_buffer->second);
     return err;
 }
 
@@ -161,23 +153,18 @@ esp_err_t get_time(void)
 
     // Timeout = second + microsecond
     struct timeval timeout;
-    timeout.tv_sec = 3;  // 3 seconds
-    timeout.tv_usec = 0; // 0 microseconds
+    timeout.tv_sec = 5;
+    timeout.tv_usec = 0;
 
     // Set timeout for receiving response from NTP server
     setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
 
-    sendto(sock,
-           data_buffer,
-           sizeof(data_buffer),
-           0,
-           response_info->ai_addr,
-           response_info->ai_addrlen);
+    sendto(sock, data_buffer, sizeof(data_buffer), 0, response_info->ai_addr, response_info->ai_addrlen);
 
     int len = recvfrom(sock, data_buffer, sizeof(data_buffer), 0, NULL, NULL);
     if (len < 0)
     {
-        ESP_LOGE(TAG, "Timeout or receive error !!!");
+        ESP_LOGE(TAG, "recvfrom failed: errno=%d (%s)", errno, strerror(errno));
 
         close(sock);
         freeaddrinfo(response_info);
@@ -191,17 +178,10 @@ esp_err_t get_time(void)
                (data_buffer[43]);
 
     ntp_time = ntp_time - 2208988800U;
-
-    // printf("time is: %lu\n", ntp_time);
-
-    // Use time.h to convert raw NTP time into human-readable format
-    // All function in time.h only work with time_t type
     time_t raw = (time_t)ntp_time;
 
     // UTC+7 = (UTC+0) + 7 hours -> add 7 hours to raw time
     raw += 7 * 3600;
-    // printf("time after adding 7 hours: %llu\n", raw);
-    // 3. Convert to struct tm
     struct tm time_info;
     gmtime_r(&raw, &time_info);
 

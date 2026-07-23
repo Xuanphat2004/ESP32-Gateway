@@ -27,7 +27,7 @@ static uint16_t handle_reg_table = 0; // handle của ngăn 1: bảng thanh ghi 
 static uint16_t handle_wifi_cfg = 0;  // handle của ngăn 2: WiFi config
 static uint16_t handle_tcp_cfg = 0;   // handle của ngăn 3: Modbus TCP config
 
-static char *receive_buffer = NULL; // buffer lớn 51KB cho bảng thanh ghi (chunked)
+static char *receive_buffer = NULL; // buffer lớn 51KB cho bảng thanh ghi
 static int received_len = 0;
 static char wifi_buffer[256]; // buffer nhỏ cho WiFi config (1 packet là đủ)
 static char tcp_buffer[4096]; // buffer cho TCP config JSON (chunked)
@@ -38,10 +38,8 @@ bool ble_enabled = true;
 static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param);
 static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param);
 
-// Gọi từ esp_timer — nằm ngoài BLE callback nên an toàn
 static void restart_ble_timer(void *arg)
 {
-    lcd_clear();
     LCD_SetCursor(1, 2);
     LCD_Print("Updating ...        ");
     LCD_SetCursor(2, 2);
@@ -67,36 +65,71 @@ static void build_device_name(void)
     snprintf(ble_device_name, sizeof(ble_device_name), "%s%02X%02X", BLE_NAME, mac[4], mac[5]);
 }
 
-// On/Off phát các gói tin quảng bá ra không gian
+int ble_get_receive_percent(void)
+{
+    int percent = 0;
+    if (received_len > 0)
+    {
+        percent = received_len * 100 / MAX_JSON_SIZE;
+        ESP_LOGW(TAG, "Receive: %d %", percent);
+        return percent;
+    }
+    return 0;
+}
+
+static void save_ble_status(void)
+{
+    nvs_handle_t handle;
+    if (nvs_open_from_partition("storage", "storage_app", NVS_READWRITE, &handle) == ESP_OK)
+    {
+        nvs_set_u8(handle, "ble_enabled", (uint8_t)ble_enabled);
+        nvs_commit(handle);
+        nvs_close(handle);
+    }
+}
+
+static void load_ble_status(void)
+{
+    nvs_handle_t handle;
+    uint8_t val = 1;
+    if (nvs_open_from_partition("storage", "storage_app", NVS_READONLY, &handle) == ESP_OK)
+    {
+        nvs_get_u8(handle, "ble_enabled", &val);
+        nvs_close(handle);
+    }
+    ble_enabled = (bool)val;
+    ESP_LOGI(TAG, "BLE state loaded from NVS: %s", ble_enabled ? "ON" : "OFF");
+}
+
 void ble_toggle(void)
 {
     if (ble_enabled)
     {
         esp_ble_gap_stop_advertising();
         ble_enabled = false;
-        ESP_LOGI(TAG, "BLE advertising stopped (OFF)");
+        ESP_LOGI(TAG, "BLE ==> OFF");
     }
     else
     {
         esp_ble_gap_start_advertising(&adv_params);
         ble_enabled = true;
-        ESP_LOGI(TAG, "BLE advertising started (ON)");
+        ESP_LOGI(TAG, "BLE ==> ON)");
     }
+    save_ble_status();
 }
 
 void ble_server_init(void)
 {
-    // Giải phóng bộ nhớ BT Classic để dồn cho BLE
+    load_ble_status();
+
+    // Giải phóng bộ nhớ BT Classic để dùng cho BLE
     ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT));
 
     esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_bt_controller_init(&bt_cfg));
     ESP_ERROR_CHECK(esp_bt_controller_enable(ESP_BT_MODE_BLE));
-
     ESP_ERROR_CHECK(esp_bluedroid_init());
     ESP_ERROR_CHECK(esp_bluedroid_enable());
-
-    // Đăng ký Callback
     ESP_ERROR_CHECK(esp_ble_gap_register_callback(gap_event_handler));
     ESP_ERROR_CHECK(esp_ble_gatts_register_callback(gatts_event_handler));
 
@@ -107,8 +140,7 @@ void ble_server_init(void)
     service_id.id.uuid.uuid.uuid16 = GATTS_SERVICE_UUID;
 
     build_device_name();
-    esp_ble_gap_set_device_name(ble_device_name); // set tên thiết bị trong giao tiếp BLE
-    // ESP_LOGI(TAG, "BLE device name: %s", ble_device_name);
+    esp_ble_gap_set_device_name(ble_device_name);
 
     // Cấu hình nội dung gói tin quảng bá
     esp_ble_adv_data_t adv_data = {
@@ -135,26 +167,31 @@ void ble_server_init(void)
     receive_buffer = (char *)malloc(MAX_JSON_SIZE);
     memset(receive_buffer, 0, MAX_JSON_SIZE);
 
-    // Tạo timer dùng để restart sau khi nhận xong — không gọi esp_restart trong callback
+    lcd_clear();
     esp_timer_create_args_t timer_args = {
         .callback = restart_ble_timer,
         .arg = NULL,
         .name = "ble_restart",
     };
     ESP_ERROR_CHECK(esp_timer_create(&timer_args, &s_restart_timer));
-    ESP_LOGI(TAG, "BLE Gateway System Ready, Waiting for App...");
+    ESP_LOGI(TAG, "BLE Gateway System Ready");
 }
 
-// xử lý quảng bá BLE
-// GAP (Generic Access Profile) là tầng BLE quản lý quảng bá và kết nối
 static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param)
 {
     switch (event)
     {
-    case ESP_GAP_BLE_ADV_DATA_SET_COMPLETE_EVT:     // Thiết bị cấu hình xong payload quảng bá
-        esp_ble_gap_start_advertising(&adv_params); // Bắt đầu phát ra không gian
+    case ESP_GAP_BLE_ADV_DATA_SET_COMPLETE_EVT:
+        if (ble_enabled)
+        {
+            esp_ble_gap_start_advertising(&adv_params);
+            ESP_LOGI(TAG, "Advertising BLE packet ...");
+        }
+        else
+        {
+            ESP_LOGI(TAG, "BLE advertising skipped (disabled)");
+        }
         blu_connected = false;
-        ESP_LOGI(TAG, "Advertising BLE packet ...");
         break;
     case ESP_GAP_BLE_UPDATE_CONN_PARAMS_EVT:
         blu_connected = true;
@@ -181,8 +218,8 @@ void print_parsed_registers(temp_modbus_reg_t *reg_array, int count)
         // In thêm dữ liệu từ mảng ref_cid
         printf("%-4d |%-32s | %-6s| %-5d | %-7d | %-4d | %-4d | %-6.3f | %-6d | %-6d\n",
                reg_array[i].cid,
-               reg_array[i].name, // In tên
-               reg_array[i].unit, // In đơn vị
+               reg_array[i].name,
+               reg_array[i].unit,
                reg_array[i].slave_id,
                reg_array[i].reg_start,
                reg_array[i].func_code,
@@ -202,15 +239,13 @@ temp_modbus_reg_t *parse_json_to_struct_array(const char *json_str, int *out_reg
     cJSON *root = cJSON_Parse(json_str);
     if (root == NULL)
     {
-        // ESP_LOGW("JSON_PARSE", "Fail to format JSON ! Can't Parse !!!");
+        ESP_LOGW("JSON_PARSE", "Fail to format JSON ! Can't Parse !!!");
         return NULL;
     }
 
     int reg_count = cJSON_GetArraySize(root);
     *out_reg_count = reg_count;
     ESP_LOGI("JSON_PARSE", "Found %d Regiser in packet.", reg_count);
-
-    // Sử dụng số lượng thanh ghi để tạo ra 1 vùng nhớ để mapping gói tin vào bảng thanh ghi
     temp_modbus_reg_t *reg_array = malloc(reg_count * sizeof(temp_modbus_reg_t));
     if (reg_array == NULL)
     {
@@ -223,10 +258,7 @@ temp_modbus_reg_t *parse_json_to_struct_array(const char *json_str, int *out_reg
     for (int i = 0; i < reg_count; i++)
     {
         cJSON *item = cJSON_GetArrayItem(root, i);
-
         reg_array[i].cid = cJSON_GetObjectItem(item, "i")->valueint;
-
-        // tên = name
         cJSON *name_obj = cJSON_GetObjectItem(item, "n");
         // Kiểm tra xem có phải là chuỗi không và con trỏ vào ô nhớ khác NULL không
         //  KHÔNG tìm thấy field "n" trong gói tin mà app gửi xuống thì con trỏ trả về NULL
@@ -238,10 +270,8 @@ temp_modbus_reg_t *parse_json_to_struct_array(const char *json_str, int *out_reg
         }
         else
         {
-            strcpy(reg_array[i].name, "No-name"); // Mặc định nếu thiếu
+            strcpy(reg_array[i].name, "No-name");
         }
-
-        // u = đơn vị
         cJSON *unit_obj = cJSON_GetObjectItem(item, "u");
         if (cJSON_IsString(unit_obj) && (unit_obj->valuestring != NULL))
         {
