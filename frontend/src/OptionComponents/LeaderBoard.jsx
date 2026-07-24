@@ -16,6 +16,7 @@ import {
   CategoryScale, LinearScale, BarElement,
   Title, Tooltip, Legend,
 } from "chart.js";
+import { API_BASE, WS_BASE } from "../config";
 
 dayjs.extend(isoWeek);
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -27,9 +28,6 @@ const TIME_MODES = [
   { key: "year",  label: "Year" },
 ];
 
-import { API_BASE, WS_BASE } from "../config";
-
-// ── Gọi API biểu đồ ──────────────────────────────────────────────────────────
 async function fetchData(mode, dateParam, siteId) {
   const token = sessionStorage.getItem("token");
   const params = { type: mode, date: dateParam };
@@ -41,7 +39,6 @@ async function fetchData(mode, dateParam, siteId) {
   return { labels: res.data.labels ?? [], series: res.data.series ?? [] };
 }
 
-// ── Nhãn khoảng thời gian đang xem (hiển thị giữa 2 mũi tên) ──────────────────
 function periodLabel(mode, date) {
   if (mode === "hour")  return date.format("DD/MM/YYYY");
   if (mode === "week") {
@@ -54,7 +51,6 @@ function periodLabel(mode, date) {
   return "";
 }
 
-// ── Dịch chuyển ngày theo mode khi bấm mũi tên ───────────────────────────────
 function shiftDate(mode, date, dir) {
   const unit = mode === "hour" ? "day"
              : mode === "week" ? "week"
@@ -64,6 +60,8 @@ function shiftDate(mode, date, dir) {
 
 export default function EnergyConsumptionChart() {
   const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+
   const [mode, setMode]                   = useState("hour");
   const [selectedMeter, setSelectedMeter] = useState("all");
   const [selectedDate, setSelectedDate]   = useState(dayjs());
@@ -76,7 +74,6 @@ export default function EnergyConsumptionChart() {
 
   const dateParam = selectedDate.format("YYYY-MM-DD");
 
-  // ── Lấy danh sách site cho dropdown ──────────────────────────────────────
   useEffect(() => {
     const token = sessionStorage.getItem("token");
     axios.get(`${API_BASE}/solardb/get-my-sites/`, {
@@ -86,91 +83,59 @@ export default function EnergyConsumptionChart() {
     .catch((e) => console.error("Fetch sites error:", e));
   }, []);
 
-  // ── Fetch dữ liệu khi đổi mode / ngày / site ─────────────────────────────
   useEffect(() => {
     let alive = true;
     setLoading(true);
     setError("");
-
     fetchData(mode, dateParam, selectedSite)
       .then((d) => { if (alive) setData(d); })
       .catch((err) => {
-        console.error("Energy chart fetch error:", err);
         if (alive) { setError("Failed to load energy data"); setData({ labels: [], series: [] }); }
       })
       .finally(() => { if (alive) setLoading(false); });
-
     return () => { alive = false; };
   }, [mode, dateParam, selectedSite]);
 
-  // ── WebSocket live-update (chỉ khi đang xem hiện tại) ────────────────────
   const refetchTimer = useRef(null);
   useEffect(() => {
     const isCurrent = selectedDate.isSame(dayjs(), mode === "hour" ? "day" : mode);
     if (!isCurrent) return;
-
     const meterIds = data.series.map((s) => s.meter_id);
     if (meterIds.length === 0) return;
-
     const sockets = meterIds.map((id) => {
       const ws = new WebSocket(`${WS_BASE}/ws/meter_register/${id}/`);
       ws.onmessage = () => {
         clearTimeout(refetchTimer.current);
         refetchTimer.current = setTimeout(() => {
-          fetchData(mode, dateParam, selectedSite)
-            .then((d) => setData(d))
-            .catch((e) => console.error("Energy re-fetch error:", e));
+          fetchData(mode, dateParam, selectedSite).then((d) => setData(d)).catch(() => {});
         }, 1500);
       };
-      ws.onerror = (e) => console.error(`WS energy meter ${id} error:`, e);
       return ws;
     });
-
-    return () => {
-      clearTimeout(refetchTimer.current);
-      sockets.forEach((s) => s.close());
-    };
+    return () => { clearTimeout(refetchTimer.current); sockets.forEach((s) => s.close()); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, dateParam, selectedSite, data.series.length]);
 
-  // ── Export Excel ─────────────────────────────────────────────────────────
   const handleExport = async () => {
     setExporting(true);
     try {
       const token = sessionStorage.getItem("token");
       const params = { type: mode, date: dateParam };
       if (selectedSite !== "all") params.site_id = selectedSite;
-
       const res = await axios.get(`${API_BASE}/solardb/energy-export/`, {
-        params,
-        headers: { Authorization: `Token ${token}` },
-        responseType: "blob",   // nhận file nhị phân
+        params, headers: { Authorization: `Token ${token}` }, responseType: "blob",
       });
-
-      // Tạo link tải file
-      const blob = new Blob([res.data], {
-        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      });
-      const url  = window.URL.createObjectURL(blob);
-      const a    = document.createElement("a");
-      a.href = url;
-      a.download = `energy_report_${mode}_${dateParam}.xlsx`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const a   = document.createElement("a");
+      a.href = url; a.download = `energy_report_${mode}_${dateParam}.xlsx`;
+      document.body.appendChild(a); a.click(); a.remove();
       window.URL.revokeObjectURL(url);
-    } catch (e) {
-      console.error("Export error:", e);
-      setError("Export failed");
-    } finally {
-      setExporting(false);
-    }
+    } catch (e) { setError("Export failed"); }
+    finally { setExporting(false); }
   };
 
   const visibleSeries = useMemo(
-    () => selectedMeter === "all"
-      ? data.series
-      : data.series.filter((s) => s.key === selectedMeter),
+    () => selectedMeter === "all" ? data.series : data.series.filter((s) => s.key === selectedMeter),
     [data.series, selectedMeter]
   );
 
@@ -188,31 +153,60 @@ export default function EnergyConsumptionChart() {
     })),
   };
 
+  // ── Chart.js options — theme-aware ────────────────────────────────────────
+  const textColor   = theme.palette.text.secondary;
+  const gridColor   = isDark ? "#1e3a4a" : "rgba(13,148,136,0.12)";
+  const tooltipBg   = isDark ? "#0b1f2a" : theme.palette.background.paper;
+  const tooltipBorder = isDark ? "#1e3a4a" : "rgba(13,148,136,0.25)";
+
   const options = {
     responsive: true, maintainAspectRatio: false,
     interaction: { mode: "index", intersect: false },
     plugins: {
-      legend: { labels: { color: "#cbd5e1", boxWidth: 12, font: { size: 12 } } },
+      legend: { labels: { color: textColor, boxWidth: 12, font: { size: 12 } } },
       tooltip: {
-        backgroundColor: "#0b1f2a", borderColor: "#1e3a4a", borderWidth: 1,
+        backgroundColor: tooltipBg,
+        borderColor: tooltipBorder, borderWidth: 1,
+        titleColor: theme.palette.text.primary,
+        bodyColor: textColor,
         callbacks: { label: (c) => ` ${c.dataset.label}: ${c.parsed.y} kWh` },
       },
     },
     scales: {
-      x: { stacked: true, grid: { display: false },
-           ticks: { color: "#94a3b8", font: { size: 11 }, maxRotation: 0, autoSkip: true } },
-      y: { stacked: true, grid: { color: "#1e3a4a" },
-           ticks: { color: "#94a3b8", font: { size: 11 } },
-           title: { display: true, text: "kWh", color: "#64748b" } },
+      x: {
+        stacked: true, grid: { display: false },
+        ticks: { color: textColor, font: { size: 11 }, maxRotation: 0, autoSkip: true },
+      },
+      y: {
+        stacked: true, grid: { color: gridColor },
+        ticks: { color: textColor, font: { size: 11 } },
+        title: { display: true, text: "kWh", color: textColor },
+      },
     },
   };
 
-  const selectedLabel = data.series.find((s) => s.key === selectedMeter)?.label;
-  // Chặn mũi tên phải vượt quá hiện tại
+  const accentColor     = isDark ? "#00bcd4" : theme.palette.primary.main;
+  const accentDisabled  = isDark ? "#33505e" : theme.palette.text.secondary;
   const isCurrentPeriod = selectedDate.isSame(dayjs(), mode === "hour" ? "day" : mode);
+  const selectedLabel   = data.series.find((s) => s.key === selectedMeter)?.label;
+
+  // Theme-aware toggle button style
+  const tgStyle = {
+    bgcolor: theme.palette.background.option,
+    "& .MuiToggleButton-root": {
+      color: theme.palette.text.secondary,
+      border: `1px solid ${isDark ? "#15323f" : "rgba(13,148,136,0.25)"}`,
+      textTransform: "none", fontSize: 13, px: 1.6, py: 0.5,
+    },
+    "& .Mui-selected": {
+      bgcolor: `${accentColor} !important`,
+      color: `${isDark ? "#06222e" : "#ffffff"} !important`,
+      fontWeight: 700,
+    },
+  };
 
   return (
-    <Box sx={{ boxShadow: "0 4px 6px rgba(19,16,16,0.1)", display: "flex", flexDirection: "column" }}>
+    <Box sx={{ boxShadow: theme.palette.border.shadow, display: "flex", flexDirection: "column" }}>
 
       {/* Header bar */}
       <Box sx={{
@@ -220,14 +214,14 @@ export default function EnergyConsumptionChart() {
         backgroundColor: theme.palette.background.head_box, px: "17px", py: "6px",
       }}>
         <Box sx={{ display: "flex", alignItems: "baseline", gap: 1.5 }}>
-          <Typography color="white">Energy Consumption</Typography>
-          <Typography variant="body2" color="#5b7384">
+          <Typography color="text.primary" fontWeight={600}>Energy Consumption</Typography>
+          <Typography variant="body2" color="text.secondary">
             {selectedMeter === "all" ? "All meters" : selectedLabel}
           </Typography>
-          <Typography variant="body2" color="#00bcd4" fontWeight={700}>
+          <Typography variant="body2" sx={{ color: accentColor, fontWeight: 700 }}>
             {total.toFixed(1)} kWh
           </Typography>
-          {loading && <CircularProgress size={13} sx={{ color: "#00bcd4" }} />}
+          {loading && <CircularProgress size={13} sx={{ color: accentColor }} />}
         </Box>
 
         <ToggleButtonGroup size="small" exclusive value={mode}
@@ -242,18 +236,20 @@ export default function EnergyConsumptionChart() {
       <Box sx={{ backgroundColor: theme.palette.background.box, p: 2,
                  display: "flex", flexDirection: "column", gap: 1.5 }}>
 
-        {/* Hàng điều khiển: site + mũi tên ngày + export */}
+        {/* Controls row */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
 
-          {/* Dropdown chọn site */}
+          {/* Site dropdown */}
           <FormControl size="small" sx={{ minWidth: 160 }}>
             <Select
               value={selectedSite}
               onChange={(e) => setSelectedSite(e.target.value)}
               sx={{
-                color: "white", fontSize: 13,
-                ".MuiOutlinedInput-notchedOutline": { borderColor: "#15323f" },
-                ".MuiSvgIcon-root": { color: "#7c95a6" },
+                color: theme.palette.text.primary, fontSize: 13,
+                ".MuiOutlinedInput-notchedOutline": {
+                  borderColor: isDark ? "#15323f" : "rgba(13,148,136,0.30)",
+                },
+                ".MuiSvgIcon-root": { color: theme.palette.text.secondary },
               }}
             >
               <MenuItem value="all">All Sites</MenuItem>
@@ -263,41 +259,47 @@ export default function EnergyConsumptionChart() {
             </Select>
           </FormControl>
 
-          {/* Mũi tên ◀ ▶ + nhãn khoảng thời gian */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5,
-                     border: "1px solid #15323f", borderRadius: 1, px: 0.5 }}>
+          {/* Period navigator */}
+          <Box sx={{
+            display: "flex", alignItems: "center", gap: 0.5,
+            border: `1px solid ${isDark ? "#15323f" : "rgba(13,148,136,0.25)"}`,
+            borderRadius: 1, px: 0.5,
+          }}>
             <IconButton size="small" onClick={() => setSelectedDate((d) => shiftDate(mode, d, -1))}
-                        sx={{ color: "#00bcd4" }}>
+                        sx={{ color: accentColor }}>
               <ChevronLeftIcon fontSize="small" />
             </IconButton>
-            <Typography sx={{ color: "white", fontSize: 13, minWidth: 130, textAlign: "center" }}>
+            <Typography sx={{ color: theme.palette.text.primary, fontSize: 13, minWidth: 130, textAlign: "center" }}>
               {periodLabel(mode, selectedDate)}
             </Typography>
             <IconButton size="small" disabled={isCurrentPeriod}
                         onClick={() => setSelectedDate((d) => shiftDate(mode, d, 1))}
-                        sx={{ color: isCurrentPeriod ? "#33505e" : "#00bcd4" }}>
+                        sx={{ color: isCurrentPeriod ? accentDisabled : accentColor }}>
               <ChevronRightIcon fontSize="small" />
             </IconButton>
           </Box>
 
-          {/* Nút về hiện tại */}
           {!isCurrentPeriod && (
             <Button size="small" onClick={() => setSelectedDate(dayjs())}
-              sx={{ color: "#00bcd4", border: "1px solid #00bcd4", textTransform: "none", fontSize: 13 }}>
+              sx={{
+                color: accentColor,
+                border: `1px solid ${accentColor}`,
+                textTransform: "none", fontSize: 13,
+              }}>
               Now
             </Button>
           )}
 
-          {/* Nút Export Excel */}
           <Button size="small" variant="contained" disabled={exporting || data.series.length === 0}
             onClick={handleExport} startIcon={exporting ? <CircularProgress size={14} /> : <FileDownloadIcon />}
-            sx={{ ml: "auto", bgcolor: "#00838f", textTransform: "none", fontSize: 13,
-                  "&:hover": { bgcolor: "#006978" } }}>
+            sx={{ ml: "auto", bgcolor: accentColor, textTransform: "none", fontSize: 13,
+                  color: isDark ? "#06222e" : "#fff",
+                  "&:hover": { filter: "brightness(0.88)" } }}>
             {exporting ? "Exporting..." : "Export Excel"}
           </Button>
         </Box>
 
-        {/* Lọc meter */}
+        {/* Meter filter */}
         <ToggleButtonGroup size="small" exclusive value={selectedMeter}
           onChange={(_, v) => v && setSelectedMeter(v)} sx={{ ...tgStyle, flexWrap: "wrap" }}>
           <ToggleButton value="all">All</ToggleButton>
@@ -310,15 +312,17 @@ export default function EnergyConsumptionChart() {
           ))}
         </ToggleButtonGroup>
 
-        {/* Biểu đồ */}
+        {/* Chart */}
         <Box sx={{ height: 320, position: "relative" }}>
           {error ? (
             <Box sx={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <Typography sx={{ color: "#ff6b6b", fontSize: 13 }}>{error}</Typography>
+              <Typography sx={{ color: "#ef4444", fontSize: 13 }}>{error}</Typography>
             </Box>
           ) : data.series.length === 0 && !loading ? (
             <Box sx={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <Typography sx={{ color: "#7c95a6", fontSize: 13 }}>No energy data for this period</Typography>
+              <Typography sx={{ color: theme.palette.text.secondary, fontSize: 13 }}>
+                No energy data for this period
+              </Typography>
             </Box>
           ) : (
             <Bar data={chartData} options={options} />
@@ -328,14 +332,3 @@ export default function EnergyConsumptionChart() {
     </Box>
   );
 }
-
-const tgStyle = {
-  bgcolor: "#08222e",
-  "& .MuiToggleButton-root": {
-    color: "#7c95a6", border: "1px solid #15323f",
-    textTransform: "none", fontSize: 13, px: 1.6, py: 0.5,
-  },
-  "& .Mui-selected": {
-    bgcolor: "#00bcd4 !important", color: "#06222e !important", fontWeight: 700,
-  },
-};

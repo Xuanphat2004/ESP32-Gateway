@@ -120,7 +120,7 @@ export default function SiteList() {
 
     const inputStyle = {
         padding: "8px", borderRadius: "4px", border: "1px solid #ccc",
-        backgroundColor: "transparent", color: "white", width: "100%", boxSizing: "border-box",
+        backgroundColor: "transparent", color: theme.palette.text.primary, width: "100%", boxSizing: "border-box",
     };
 
     return (

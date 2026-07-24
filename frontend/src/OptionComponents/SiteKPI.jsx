@@ -10,6 +10,7 @@ import RouterIcon          from "@mui/icons-material/Router";
 import LocationOnIcon      from "@mui/icons-material/LocationOn";
 
 // ── Color palette ─────────────────────────────────────────────────────────────
+// Static base (dark-mode defaults) — used by module-level utility functions
 const C = {
   ok:    "#3dd68c",
   err:   "#ff5c5c",
@@ -19,6 +20,20 @@ const C = {
   bg:    "#0d0f14",
   gw:    "#4f9eff",
 };
+
+// Hook — overrides theme-sensitive values for components
+function useColors() {
+  const theme  = useTheme();
+  const isDark = theme.palette.mode === "dark";
+  if (isDark) return { ...C, panelBg: theme.palette.background.box };
+  return {
+    ...C,
+    warn:    "#b45309",
+    muted:   "#64748b",
+    bg:      theme.palette.background.option,
+    panelBg: theme.palette.background.option,
+  };
+}
 
 // ── analyzeWire — same logic as ScanDetailModal ───────────────────────────────
 function analyzeWire(raw, devices) {
@@ -81,6 +96,7 @@ function getDescription(analysis) {
 // ── Large Wire Diagram with Gateway ──────────────────────────────────────────
 function LargeWireDiagram({ raw, devices, gatewayId, gatewayLive }) {
   const navigate = useNavigate();
+  const C        = useColors();
   const analysis = analyzeWire(raw, devices);
 
   if (!analysis) {
@@ -264,10 +280,13 @@ function LargeWireDiagram({ raw, devices, gatewayId, gatewayLive }) {
 
 // ── Legend helpers ────────────────────────────────────────────────────────────
 function LegendSep() {
-  return <Box sx={{ width: 1, height: 14, bgcolor: "#ffffff18", mx: 0.5 }} />;
+  const theme = useTheme();
+  const sep   = theme.palette.mode === "dark" ? "#ffffff18" : "rgba(13,148,136,0.18)";
+  return <Box sx={{ width: 1, height: 14, bgcolor: sep, mx: 0.5 }} />;
 }
 
 function LegendItem({ color, icon, label }) {
+  const C      = useColors();
   const iconEl = (() => {
     if (icon === "line-solid")
       return <Box sx={{ width: 22, height: 2.5, bgcolor: color, borderRadius: 1 }} />;
@@ -311,6 +330,7 @@ function LegendItem({ color, icon, label }) {
 // ══════════════════════════════════════════════════════════════════════════════
 function SiteListScreen({ onSelect }) {
   const theme = useTheme();
+  const C     = useColors();
   const [sites, setSites] = useState([]);
 
   useEffect(() => {
@@ -322,7 +342,7 @@ function SiteListScreen({ onSelect }) {
   return (
     <Box sx={{ padding: "24px" }}>
       <Typography fontSize={14} color={C.muted} sx={{ mb: 3 }}>
-        Select a site to view its RS485 line topology:
+        Select a site to view site status:
       </Typography>
 
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
@@ -335,7 +355,7 @@ function SiteListScreen({ onSelect }) {
               padding: "20px 24px",
               borderRadius: 2,
               border: `1px solid ${theme.palette.background.head_box}`,
-              backgroundColor: theme.palette.background.box,
+              backgroundColor: C.panelBg,
               minWidth: 220,
               transition: "border-color 0.2s",
               "&:hover": {
@@ -373,6 +393,7 @@ function SiteListScreen({ onSelect }) {
 // ══════════════════════════════════════════════════════════════════════════════
 function LineMonitorScreen({ site, onBack }) {
   const theme    = useTheme();
+  const C        = useColors();
   const navigate = useNavigate();
 
   const gatewayId  = site.gateway_id?.replace(/:/g, "_") ?? null;
@@ -502,7 +523,7 @@ function LineMonitorScreen({ site, onBack }) {
                       color={theme.palette.text.header_option}>
             {site.site_name}
           </Typography>
-          <Typography fontSize={11} color={C.muted} fontFamily="monospace">
+          <Typography fontSize={11} color={C.muted} fontFamily="monospace">  
             {site.gateway_id || "—"}
           </Typography>
         </Box>
@@ -534,7 +555,7 @@ function LineMonitorScreen({ site, onBack }) {
       {/* ── Diagram box ─────────────────────────────────────────────────────── */}
       <Box sx={{
         flex: 1,
-        backgroundColor: theme.palette.background.box,
+        backgroundColor: C.panelBg,
         borderRadius: 1,
         border: `1px solid ${theme.palette.background.head_box}`,
         display: "flex", flexDirection: "column",
@@ -562,7 +583,7 @@ function LineMonitorScreen({ site, onBack }) {
         {/* Panel 1: Online devices */}
         <Box sx={{
           flex: 1, minWidth: 160,
-          backgroundColor: theme.palette.background.box,
+          backgroundColor: C.panelBg,
           borderRadius: 1, padding: "12px 16px",
           border: `1px solid ${theme.palette.background.head_box}`,
         }}>
@@ -595,7 +616,7 @@ function LineMonitorScreen({ site, onBack }) {
         {/* Panel 2: Offline devices */}
         <Box sx={{
           flex: 1, minWidth: 160,
-          backgroundColor: theme.palette.background.box,
+          backgroundColor: C.panelBg,
           borderRadius: 1, padding: "12px 16px",
           border: `1px solid ${theme.palette.background.head_box}`,
         }}>
@@ -628,13 +649,13 @@ function LineMonitorScreen({ site, onBack }) {
             {devices.filter(d => d.status !== "active").length === 0 && (
               <Typography fontSize={13} color={C.muted}>—</Typography>
             )}
-          </Box>
+          </Box> 
         </Box>
 
         {/* Panel 3: Legend — 2-column grid */}
         <Box sx={{
           flex: 1, minWidth: 220,
-          backgroundColor: theme.palette.background.box,
+          backgroundColor: C.panelBg,
           borderRadius: 1, padding: "12px 16px",
           border: `1px solid ${theme.palette.background.head_box}`,
         }}>
@@ -667,8 +688,14 @@ function LineMonitorScreen({ site, onBack }) {
 // ══════════════════════════════════════════════════════════════════════════════
 export default function SiteKPI() {
   const [selectedSite, setSelectedSite] = useState(null);
+  // const = chặn việc gán lại biến trực tiếp
+  // useState(null) trả về  [ giá_trị ,  hàm_thay_đổi ]
+  // useState(null) = tạo ra 1 ô nhớ, ban đầu chứa null
+  // selectedSite = tên biến mình tự đặt, dùng để đọc giá trị từ ô nhớ mà useState tạo ra — ô nhớ đó ban đầu chứa null
+  // setSelectedSite = là 1 hàm cũng như là cách duy nhất để có thể thay đổi giá trị trong ô nhớ của biến selectedSite 
 
-  if (selectedSite) {
+  if (selectedSite) { 
+    // khi người dùng click vào 1 site bất kì
     return <LineMonitorScreen site={selectedSite} onBack={() => setSelectedSite(null)} />;
   }
   return <SiteListScreen onSelect={setSelectedSite} />;

@@ -10,6 +10,7 @@
 
 from django.http import JsonResponse, HttpResponse
 from django.utils.timezone import make_aware, localdate
+from django.db.models import Count
 from datetime import datetime, timedelta, time
 from collections import defaultdict
 
@@ -28,6 +29,25 @@ ENERGY_KEYWORDS = [
     "real-energy",
     "forward-active",
 ]
+
+# ── TỪ KHÓA loại trừ: chỉ tính năng lượng TIÊU THỤ (Forward/Import) ─────────
+#   Reverse/Export = năng lượng phát ngược lưới, Reactive/Apparent = khác đơn
+#   vị (kVARh/kVAh) → không được cộng chung vào kWh tiêu thụ.
+DIRECTION_EXCLUDE_KEYWORDS = ["reverse", "export"]
+UNIT_EXCLUDE_KEYWORDS      = ["reactive", "apparent"]
+
+# ── FIX TẠM: các meter có CT đấu ngược chiều vật lý lúc lắp đặt ─────────────
+#   → thanh ghi "Forward" của thiết bị thực ra đang đo chiều "Reverse" thật.
+#   Với các meter này ta lấy Reverse làm tiêu thụ thay vì Forward.
+#   TODO: gỡ khỏi set này sau khi đấu lại CT đúng chiều ngoài hiện trường.
+CT_REVERSED_METER_IDS = {1}
+
+# ── Từ khóa nhận diện pha, dùng khi meter không có thanh ghi Total riêng ────
+PHASE_PATTERNS = {
+    "A": ["phase-a", "-l1", "_l1", "l1-", "l1_"],
+    "B": ["phase-b", "-l2", "_l2", "l2-", "l2_"],
+    "C": ["phase-c", "-l3", "_l3", "l3-", "l3_"],
+}
 
 # ── Scale đổi đơn vị → kWh ───────────────────────────────────────────────────
 ENERGY_SCALE = 1.0
@@ -79,7 +99,64 @@ def get_bucket_ranges(mode, base_date):
     return ranges
 
 
+def select_consumption_registers(meter_id, start, end):
+    """
+    Chọn (các) thanh ghi đại diện cho năng lượng TIÊU THỤ (Forward/Import) của
+    1 meter trong khoảng [start, end).
+
+    Ưu tiên 1 thanh ghi "Total" duy nhất (vd Total-Forward-Active-Energy).
+    Nếu meter không có Total → cộng theo pha (A/B/C), mỗi pha lấy đúng 1 tên
+    thanh ghi (tên có nhiều dữ liệu nhất trong range — tránh cộng trùng khi
+    thiết bị đổi tên thanh ghi giữa các thời kỳ).
+
+    Trả về list tên thanh ghi (0, 1, hoặc tối đa 3 phần tử).
+    """
+    counts_qs = (MeterRegister.objects
+                 .filter(meter_id=meter_id, received_at__gte=start, received_at__lt=end)
+                 .values("register_name")
+                 .annotate(c=Count("id")))
+    counts = {row["register_name"]: row["c"] for row in counts_qs}
+
+    # Meter có CT đấu ngược → đảo chiều Forward/Reverse khi lọc
+    direction_exclude = (["forward", "import"] if meter_id in CT_REVERSED_METER_IDS
+                          else DIRECTION_EXCLUDE_KEYWORDS)
+    exclude_keywords = direction_exclude + UNIT_EXCLUDE_KEYWORDS
+
+    candidates = [
+        name for name in counts
+        if is_energy_register(name) and not any(kw in name.lower() for kw in exclude_keywords)
+    ]
+    if not candidates:
+        return []
+
+    totals = [n for n in candidates if "total" in n.lower()]
+    if totals:
+        return [max(totals, key=lambda n: counts[n])]
+
+    phase_best = {}
+    for name in candidates:
+        low = name.lower()
+        for phase, patterns in PHASE_PATTERNS.items():
+            if any(p in low for p in patterns):
+                if phase not in phase_best or counts[name] > counts[phase_best[phase]]:
+                    phase_best[phase] = name
+                break
+    if phase_best:
+        return list(phase_best.values())
+
+    # Không nhận diện được pha/total → lấy thanh ghi có nhiều dữ liệu nhất
+    return [max(candidates, key=lambda n: counts[n])]
+
+
 def get_meter_timeline(meter_id, energy_reg_names, start, end):
+    """
+    Trả về [(thời điểm, giá trị)] — giá trị tại mỗi thời điểm là tổng của các
+    thanh ghi đã chọn (vd cộng theo pha), lấy MỘT giá trị duy nhất cho mỗi cặp
+    (thanh ghi, thời điểm) — tránh bị nhân bản nếu thiết bị gửi trùng bản ghi.
+    """
+    if not energy_reg_names:
+        return []
+
     qs = MeterRegister.objects.filter(
         meter_id          = meter_id,
         register_name__in = energy_reg_names,
@@ -87,24 +164,29 @@ def get_meter_timeline(meter_id, energy_reg_names, start, end):
         received_at__lt   = end,
     ).order_by("received_at")
 
-    grouped = defaultdict(float)
+    by_time = defaultdict(dict)
     for r in qs:
         if r.value is None:
             continue
         try:
-            grouped[r.received_at] += float(r.value)
+            by_time[r.received_at][r.register_name] = float(r.value)
         except (ValueError, TypeError):
             pass
 
-    return sorted(grouped.items())
+    timeline = [(t, sum(reg_vals.values())) for t, reg_vals in by_time.items()]
+    return sorted(timeline)
 
 
 def compute_bucket_deltas(timeline, bucket_ranges, scale):
+    # timeline đã sort theo thời gian → in_bucket[0]/[-1] là mẫu đầu/cuối theo
+    # THỜI GIAN thực (không phải min/max theo giá trị). Bộ đếm chỉ tăng nên
+    # cách này cho kết quả đúng đồng thời không bị 1 giá trị nhiễu (đọc lỗi
+    # Modbus, ...) ở giữa bucket làm phồng lên như khi dùng max(...)-min(...).
     deltas = []
     for (b_start, b_end) in bucket_ranges:
         in_bucket = [v for (t, v) in timeline if b_start <= t < b_end]
         if len(in_bucket) >= 2:
-            delta = max(in_bucket) - min(in_bucket)
+            delta = in_bucket[-1] - in_bucket[0]
             delta = max(0.0, delta) * scale
             deltas.append(round(delta, 2))
         else:
@@ -114,16 +196,17 @@ def compute_bucket_deltas(timeline, bucket_ranges, scale):
 
 def compute_bucket_readings(timeline, bucket_ranges):
     """
-    Tính chỉ số đầu kỳ (min), cuối kỳ (max) và tiêu thụ (max-min) cho từng bucket.
-    Bộ đếm năng lượng chỉ tăng nên min = giá trị đầu kỳ, max = giá trị cuối kỳ.
+    Tính chỉ số đầu kỳ, cuối kỳ và tiêu thụ (cuối - đầu) cho từng bucket, dựa
+    trên mẫu đầu/cuối THEO THỜI GIAN (timeline đã sort) — bộ đếm năng lượng
+    chỉ tăng nên đầu kỳ = mẫu sớm nhất, cuối kỳ = mẫu muộn nhất.
     Trả về list of (dau_ky, cuoi_ky, tieu_thu) — None khi không có dữ liệu.
     """
     result = []
     for (b_start, b_end) in bucket_ranges:
         in_bucket = [v for (t, v) in timeline if b_start <= t < b_end]
         if len(in_bucket) >= 2:
-            dau_ky   = round(min(in_bucket) * ENERGY_SCALE, 2)
-            cuoi_ky  = round(max(in_bucket) * ENERGY_SCALE, 2)
+            dau_ky   = round(in_bucket[0] * ENERGY_SCALE, 2)
+            cuoi_ky  = round(in_bucket[-1] * ENERGY_SCALE, 2)
             tieu_thu = round(max(0.0, cuoi_ky - dau_ky), 2)
         elif len(in_bucket) == 1:
             dau_ky   = round(in_bucket[0] * ENERGY_SCALE, 2)
@@ -165,11 +248,7 @@ def build_energy_series(user, mode, base_date, site_id=None):
 
     series = []
     for idx, m in enumerate(meters):
-        all_reg_names = MeterRegister.objects.filter(
-            meter_id = m.meter_id
-        ).values_list("register_name", flat=True).distinct()
-
-        energy_reg_names = [n for n in all_reg_names if is_energy_register(n)]
+        energy_reg_names = select_consumption_registers(m.meter_id, range_start, range_end)
         if not energy_reg_names:
             continue
 
@@ -315,11 +394,7 @@ def energy_export(request):
     # ── Ghi dữ liệu: mỗi meter → mỗi bucket → 1 hàng ─────────────────────
     current_row = 5
     for m in meters:
-        all_reg_names = (MeterRegister.objects
-                         .filter(meter_id=m.meter_id)
-                         .values_list("register_name", flat=True)
-                         .distinct())
-        energy_reg_names = [n for n in all_reg_names if is_energy_register(n)]
+        energy_reg_names = select_consumption_registers(m.meter_id, range_start, range_end)
         if not energy_reg_names:
             continue
 

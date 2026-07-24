@@ -2,8 +2,11 @@
 from django.http import JsonResponse
 from django.utils import timezone
 from django.utils.timezone import localtime
-from datetime import timedelta
+from datetime import timedelta, datetime
+import zoneinfo
 from data.models import Meter, MeterRegister, Site, MeterCardConfig
+
+VN_TZ = zoneinfo.ZoneInfo('Asia/Ho_Chi_Minh')
 
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.authentication import TokenAuthentication
@@ -15,17 +18,14 @@ from rest_framework.permissions import IsAuthenticated
 # received_at đã lưu device_ts (+07:00) → trả về ISO string để frontend formatTs xử lý
 def fmt_ts(dt):
     """
-    Trả về ISO 8601 string với timezone offset gốc từ thiết bị.
-    Frontend formatTs() sẽ parse đúng bất kể server chạy ở timezone nào.
-    VD: "2026-05-28T15:36:23+07:00"
+    Trả về ISO 8601 string đã chuyển sang giờ Việt Nam (+07:00).
+    Django/PostgreSQL trả về UTC-aware datetime → cần astimezone(VN_TZ) trước.
+    VD output: "2026-05-28T15:36:23+07:00"
     """
     if dt is None:
         return "--"
     try:
-        # astimezone() giữ nguyên thời điểm tuyệt đối, chuyển về local offset của dt
-        # Nếu dt đã có tz info (+07:00) → giữ nguyên
-        # Nếu dt là UTC (naive hoặc UTC-aware) → convert đúng
-        return dt.isoformat()
+        return dt.astimezone(VN_TZ).isoformat()
     except Exception:
         return str(dt)
 
@@ -197,6 +197,8 @@ def get_register_history(request):
     meter_id      = request.GET.get('meter_id')
     register_name = request.GET.get('register_name')
     date          = request.GET.get('date')
+    start_date    = request.GET.get('start_date')
+    end_date      = request.GET.get('end_date')
 
     if not meter_id or not register_name:
         return JsonResponse({"error": "Thiếu meter_id hoặc register_name"}, status=400)
@@ -214,21 +216,32 @@ def get_register_history(request):
         'register_name': register_name,
     }
 
-    if date:
-        # Lọc theo ngày cụ thể — so sánh theo date của received_at
-        # received_at lưu UTC → dùng __date để Django tự xử lý timezone
+    def day_range(date_str):
+        """Trả về (start, end) của 1 ngày theo giờ Việt Nam (+07:00)."""
+        d = datetime.strptime(date_str, '%Y-%m-%d').date()
+        start = datetime(d.year, d.month, d.day,  0,  0,  0,      tzinfo=VN_TZ)
+        end   = datetime(d.year, d.month, d.day, 23, 59, 59, 999999, tzinfo=VN_TZ)
+        return start, end
+
+    if start_date and end_date:
+        _, end_dt     = day_range(end_date)
+        start_dt, _   = day_range(start_date)
         records = MeterRegister.objects.filter(
             **base_filter,
-            received_at__date=date
+            received_at__range=(start_dt, end_dt),
+        ).order_by('received_at')
+    elif date:
+        start_dt, end_dt = day_range(date)
+        records = MeterRegister.objects.filter(
+            **base_filter,
+            received_at__range=(start_dt, end_dt),
         ).order_by('received_at')
     else:
-        # Mặc định: lấy hôm nay theo timezone +07:00 (Vietnam)
-        # Dùng localdate() với TIME_ZONE đã cấu hình trong settings
-        from django.utils.timezone import localdate
-        today   = localdate()
+        today_str        = timezone.localtime(timezone.now(), VN_TZ).strftime('%Y-%m-%d')
+        start_dt, end_dt = day_range(today_str)
         records = MeterRegister.objects.filter(
             **base_filter,
-            received_at__date=today
+            received_at__range=(start_dt, end_dt),
         ).order_by('received_at')
 
     result = []

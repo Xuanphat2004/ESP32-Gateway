@@ -121,7 +121,7 @@ export default function OperationReport() {
           borderBottom: "1px solid darkgray",
           color: theme.palette.text.header_option
         }}>
-          {selectedDate ? selectedDate.format("DD/MM/YYYY") : "Chưa chọn"}
+          {selectedDate ? selectedDate.format("DD/MM/YYYY") : "Not selected"}
         </Box>
         <Box
           sx={{

@@ -135,8 +135,8 @@ const Topo = () => {
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: "10px", }}>
             <div style={{}}>Search Device</div>
-            <input style={{ color: "white", backgroundColor: theme.palette.background.box, }}></input>
-            <input style={{ color: "white", backgroundColor: theme.palette.background.box, }}></input>
+            <input style={{ color: theme.palette.text.primary, backgroundColor: theme.palette.background.box, }}></input>
+            <input style={{ color: theme.palette.text.primary, backgroundColor: theme.palette.background.box, }}></input>
           </Box>
           <Box>
             <InverterFilter/>

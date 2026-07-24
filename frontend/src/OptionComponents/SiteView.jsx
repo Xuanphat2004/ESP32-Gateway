@@ -591,18 +591,18 @@ function MeterDetailModal({ open, onClose, meter, registers }) {
   const ParamRow = ({ reg, shade }) => (
     <TableRow sx={{ backgroundColor: shade ? (theme.palette.table?.background_odd || "#0d1b2a")
                                            : (theme.palette.table?.background_even || "#0f1f2e") }}>
-      <TableCell sx={{ color: theme.palette.table?.text || "#9cb4c5",
+      <TableCell sx={{ color: theme.palette.text.secondary,
                        fontSize: 12, py: 0.6, px: 1.5, borderBottom: `1px solid ${divClr}`,
                        whiteSpace: "nowrap" }}>
         {reg.parameter_name?.replace(/_/g, " ")}
       </TableCell>
       <TableCell align="right"
-        sx={{ color: "#e0f2f1", fontWeight: 700, fontSize: 13, py: 0.6, px: 1,
+        sx={{ color: theme.palette.text.primary, fontWeight: 700, fontSize: 13, py: 0.6, px: 1,
               borderBottom: `1px solid ${divClr}`, fontFamily: "monospace",
               minWidth: 80 }}>
         {fmtVal(reg.value)}
       </TableCell>
-      <TableCell sx={{ color: "#546e7a", fontSize: 11, py: 0.6, px: 1,
+      <TableCell sx={{ color: theme.palette.text.secondary, fontSize: 11, py: 0.6, px: 1,
                        borderBottom: `1px solid ${divClr}`, minWidth: 44 }}>
         {reg.unit || "—"}
       </TableCell>
@@ -638,7 +638,7 @@ function MeterDetailModal({ open, onClose, meter, registers }) {
               <Typography sx={{ color: accent, fontWeight: 700, fontSize: 16, letterSpacing: 0.5 }}>
                 {meter.meter_name ?? `METER ${meter.meter_id}`}
               </Typography>
-              <Typography sx={{ color: "#546e7a", fontSize: 11 }}>
+              <Typography sx={{ color: theme.palette.text.secondary, fontSize: 11 }}>
                 Last update: {lastUpdate}
               </Typography>
             </Box>
@@ -662,7 +662,7 @@ function MeterDetailModal({ open, onClose, meter, registers }) {
               </Typography>
             </Box>
             <IconButton onClick={onClose} size="small"
-              sx={{ color: "#546e7a", "&:hover": { color: "#fff" } }}>
+              sx={{ color: theme.palette.text.secondary, "&:hover": { color: theme.palette.text.primary } }}>
               <CloseIcon fontSize="small" />
             </IconButton>
           </Box>
@@ -673,7 +673,7 @@ function MeterDetailModal({ open, onClose, meter, registers }) {
       <DialogContent sx={{ p: 1.5 }}>
         {allParams.length === 0 ? (
           <Box sx={{ py: 6, textAlign: "center" }}>
-            <Typography sx={{ color: "#37474f" }}>No data received yet.</Typography>
+            <Typography sx={{ color: theme.palette.text.secondary }}>No data received yet.</Typography>
           </Box>
         ) : (
           <Box sx={{ display: "flex", gap: 1.5, alignItems: "flex-start" }}>
@@ -719,17 +719,17 @@ function MeterDetailModal({ open, onClose, meter, registers }) {
       {/* ── Footer ── */}
       <DialogActions sx={{ px: 2, py: 1.2, borderTop: `1px solid ${divClr}`,
                            backgroundColor: headBg }}>
-        <Typography sx={{ color: "#546e7a", fontSize: 11, flex: 1 }}>
+        <Typography sx={{ color: theme.palette.text.secondary, fontSize: 11, flex: 1 }}>
           {allParams.length} parameter{allParams.length !== 1 ? "s" : ""} displayed
         </Typography>
         <Button size="small" startIcon={<ShowChartIcon />}
           variant="outlined" onClick={onClose}
-          sx={{ color: "#42a5f5", borderColor: "#42a5f5",
-                "&:hover": { backgroundColor: "#42a5f518" } }}>
+          sx={{ color: accent, borderColor: accent,
+                "&:hover": { backgroundColor: `${accent}18` } }}>
           View Chart
         </Button>
         <Button size="small" variant="outlined" onClick={onClose}
-          sx={{ color: "#546e7a", borderColor: "#546e7a" }}>
+          sx={{ color: theme.palette.text.secondary, borderColor: theme.palette.text.secondary }}>
           Close
         </Button>
       </DialogActions>

@@ -198,9 +198,10 @@ export default function PersistentDrawerLeft() {
           { to: "/leaderboard", label: "Leader Board" },
         ]} />
         <MyOption title="Site Monitor" items={[
-          { to: "/siteview",   label: "Site View" },
-          { to: "/sitekpi",    label: "Site Status" },
-          { to: "/devicelist", label: "Device List" },
+          { to: "/siteview",      label: "Site View" },
+          { to: "/sitekpi",       label: "Site Status" },
+          { to: "/devicelist",    label: "Device List" },
+          { to: "/chartingtool",  label: "Dashboard" },
         ]} />
         <MyOption title="Alarm" items={[
           { to: "/activealarm",       label: "Active Alarm" },
@@ -210,7 +211,6 @@ export default function PersistentDrawerLeft() {
           { to: "/alarmsubscription", label: "Alarm Subscription" },
         ]} />
         <MyOption title="Analyze" items={[
-          { to: "/chartingtool",     label: "Charting Tool" },
           { to: "/availability",     label: "Availability" },
           { to: "/topologyanalysis", label: "Topology Analysis" },
         ]} />
