@@ -1,16 +1,18 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE } from "../config";
+import { useAuth } from "./AuthContext";
 
 export default function Login() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");  // thêm state thông báo lỗi
     const navigate = useNavigate();
+    const { refreshMe } = useAuth();
 
     const handleLogin = async () => {
-        try { 
-            // Login dùng fetch thẳng vì chưa có token để gắn — mục đích của login chính là để nhận token về 
+        try {
+            // Login dùng fetch thẳng vì chưa có token để gắn — mục đích của login chính là để nhận token về
             const res = await fetch(`${API_BASE}/api/login/`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -21,6 +23,7 @@ export default function Login() {
 
             if (res.ok && data.token) {
                 sessionStorage.setItem("token", data.token);
+                await refreshMe(); // cập nhật ngay is_staff để Navbar hiện menu Admin nếu có
                 navigate("/fleetview");
             } else {
                 setMessage(data.error || "Login failed"); // hiển thị lỗi cụ thể

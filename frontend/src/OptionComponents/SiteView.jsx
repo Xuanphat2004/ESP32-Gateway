@@ -19,7 +19,22 @@ import SettingsIcon      from "@mui/icons-material/Settings";
 import SearchIcon        from "@mui/icons-material/Search";
 import DeleteIcon        from "@mui/icons-material/Delete";
 import WarningAmberIcon  from "@mui/icons-material/WarningAmber";
+import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import { WS_BASE } from "../config";
+import dayjs from "dayjs";
+import { DatePicker }           from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs }         from "@mui/x-date-pickers/AdapterDayjs";
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, ResponsiveContainer,
+} from "recharts";
+import {
+  DndContext, closestCenter, PointerSensor, useSensor, useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext, verticalListSortingStrategy, useSortable, arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 const STALE_SECONDS  = 120;
@@ -57,6 +72,61 @@ const isStale = (ts) => {
 const fmtVal = (v) => {
   const n = parseFloat(v);
   return Number.isFinite(n) ? n.toFixed(2) : (v ?? "--");
+};
+
+// ── Chuẩn hoá hiển thị: năng lượng luôn quy về kWh/kVAh/kVARh, power factor luôn quy về 0.xx ──
+const isEnergyName       = (name) => /energy/i.test(name || "");
+const isPowerFactorName  = (name) => /power.?factor|(^|[-_ ])pf([-_ ]|$)/i.test(name || "");
+
+// Hệ số nhân để quy giá trị năng lượng thô về đơn vị "kilo" (kWh/kVAh/kVARh)
+const energyFactorFor = (rawUnit) => {
+  const key = (rawUnit || "").trim().toLowerCase();
+  if (key === "wh" || key === "vah" || key === "varh") return 1 / 1000;
+  if (key === "mwh") return 1000;
+  return 1; // đã ở dạng kWh/kVAh/kVARh hoặc không rõ đơn vị
+};
+const energyUnitLabel = (rawUnit) => {
+  const key = (rawUnit || "").trim().toLowerCase();
+  if (key === "wh"  || key === "kwh"  || key === "mwh")  return "kWh";
+  if (key === "vah" || key === "kvah")                    return "kVAh";
+  if (key === "varh" || key === "kvarh")                  return "kVARh";
+  return rawUnit && rawUnit !== "--" ? rawUnit : "kWh";
+};
+// Power factor chuẩn về thang thập phân 0..1 (một số thiết bị trả theo % — vd 65.0 — cần /100)
+const normalizePowerFactorNum = (n) => (Math.abs(n) > 1.5 ? n / 100 : n);
+
+// Số thực (không format chuỗi) — dùng cho chuỗi dữ liệu vẽ biểu đồ
+const normalizeSeriesNumber = (name, n, rawUnit) => {
+  if (n == null || !Number.isFinite(n)) return null;
+  if (isEnergyName(name))      return n * energyFactorFor(rawUnit);
+  if (isPowerFactorName(name)) return normalizePowerFactorNum(n);
+  return n;
+};
+const seriesUnitLabel = (name, rawUnit) => {
+  if (isEnergyName(name))      return energyUnitLabel(rawUnit);
+  if (isPowerFactorName(name)) return "-";
+  return rawUnit || "";
+};
+
+// value/unit thô từ backend -> { value, unit } đã quy đổi về đơn vị kilo (kWh/kVAh/kVARh)
+const fmtEnergy = (rawValue, rawUnit) => {
+  const n = parseFloat(rawValue);
+  if (!Number.isFinite(n)) return { value: rawValue ?? "--", unit: energyUnitLabel(rawUnit) };
+  return { value: (n * energyFactorFor(rawUnit)).toFixed(2), unit: energyUnitLabel(rawUnit) };
+};
+
+// Power factor luôn hiển thị dạng thập phân 0.xx
+const fmtPowerFactor = (rawValue) => {
+  const n = parseFloat(rawValue);
+  if (!Number.isFinite(n)) return rawValue ?? "--";
+  return normalizePowerFactorNum(n).toFixed(2);
+};
+
+// Bọc fmtVal mặc định — tự nhận diện tham số năng lượng / power factor theo tên register để quy đổi
+const fmtParam = (name, rawValue, rawUnit) => {
+  if (isEnergyName(name))      return fmtEnergy(rawValue, rawUnit);
+  if (isPowerFactorName(name)) return { value: fmtPowerFactor(rawValue), unit: "-" };
+  return { value: fmtVal(rawValue), unit: rawUnit || "--" };
 };
 
 const PARAM_PRIORITY = [
@@ -588,26 +658,29 @@ function MeterDetailModal({ open, onClose, meter, registers }) {
   const col1 = allParams.slice(0, half);
   const col2 = allParams.slice(half);
 
-  const ParamRow = ({ reg, shade }) => (
-    <TableRow sx={{ backgroundColor: shade ? (theme.palette.table?.background_odd || "#0d1b2a")
-                                           : (theme.palette.table?.background_even || "#0f1f2e") }}>
-      <TableCell sx={{ color: theme.palette.text.secondary,
-                       fontSize: 12, py: 0.6, px: 1.5, borderBottom: `1px solid ${divClr}`,
-                       whiteSpace: "nowrap" }}>
-        {reg.parameter_name?.replace(/_/g, " ")}
-      </TableCell>
-      <TableCell align="right"
-        sx={{ color: theme.palette.text.primary, fontWeight: 700, fontSize: 13, py: 0.6, px: 1,
-              borderBottom: `1px solid ${divClr}`, fontFamily: "monospace",
-              minWidth: 80 }}>
-        {fmtVal(reg.value)}
-      </TableCell>
-      <TableCell sx={{ color: theme.palette.text.secondary, fontSize: 11, py: 0.6, px: 1,
-                       borderBottom: `1px solid ${divClr}`, minWidth: 44 }}>
-        {reg.unit || "—"}
-      </TableCell>
-    </TableRow>
-  );
+  const ParamRow = ({ reg, shade }) => {
+    const fmt = fmtParam(reg.parameter_name, reg.value, reg.unit);
+    return (
+      <TableRow sx={{ backgroundColor: shade ? (theme.palette.table?.background_odd || "#0d1b2a")
+                                             : (theme.palette.table?.background_even || "#0f1f2e") }}>
+        <TableCell sx={{ color: theme.palette.text.secondary,
+                         fontSize: 12, py: 0.6, px: 1.5, borderBottom: `1px solid ${divClr}`,
+                         whiteSpace: "nowrap" }}>
+          {reg.parameter_name?.replace(/_/g, " ")}
+        </TableCell>
+        <TableCell align="right"
+          sx={{ color: theme.palette.text.primary, fontWeight: 700, fontSize: 13, py: 0.6, px: 1,
+                borderBottom: `1px solid ${divClr}`, fontFamily: "monospace",
+                minWidth: 80 }}>
+          {fmt.value}
+        </TableCell>
+        <TableCell sx={{ color: theme.palette.text.secondary, fontSize: 11, py: 0.6, px: 1,
+                         borderBottom: `1px solid ${divClr}`, minWidth: 44 }}>
+          {fmt.unit || "—"}
+        </TableCell>
+      </TableRow>
+    );
+  };
 
   return (
     <Dialog
@@ -880,6 +953,7 @@ function CardConfigDialog({ open, onClose, meter, registers, savedParams, onSave
             {filtered.map((param, i) => {
               const reg  = registers[param];
               const isOn = selected.includes(param);
+              const fmt  = reg ? fmtParam(param, reg.value, reg.unit) : null;
               return (
                 <Box
                   key={param}
@@ -907,10 +981,10 @@ function CardConfigDialog({ open, onClose, meter, registers, savedParams, onSave
                   </Box>
                   <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.5 }}>
                     <Typography sx={{ color: "#69f0ae", fontSize: 12, fontFamily: "monospace" }}>
-                      {reg?.value != null ? fmtVal(reg.value) : "--"}
+                      {fmt ? fmt.value : "--"}
                     </Typography>
                     <Typography sx={{ color: "#546e7a", fontSize: 10 }}>
-                      {reg?.unit || ""}
+                      {fmt ? fmt.unit : ""}
                     </Typography>
                   </Box>
                 </Box>
@@ -939,7 +1013,238 @@ function CardConfigDialog({ open, onClose, meter, registers, savedParams, onSave
 }
 
 
-function MeterCard({ meter, registers, cardParams, onDetail, onChart, onSettings, onDelete }) {
+// ════════════════════════════════════════════════════════════════════════════
+// PARAMETER CHART DIALOG — click 1 ô thông số → xem biểu đồ lịch sử (giống Dashboard)
+// ════════════════════════════════════════════════════════════════════════════
+function ParameterChartDialog({ open, onClose, meter, parameterName, label, unit }) {
+  const theme  = useTheme();
+  const accent = theme.palette.text.header_option  || "#08ffff";
+  const headBg = theme.palette.background.head_box || "#0a1628";
+  const divClr = theme.palette.divider             || "#1f2d3a";
+
+  const [chartData, setChartData] = useState([]);
+  const [chartUnit, setChartUnit] = useState(unit || "");
+  const [loading,   setLoading]   = useState(false);
+  const [date,      setDate]      = useState(dayjs());
+
+  // Reset state mỗi khi mở dialog cho 1 tham số (mới hoặc khác)
+  useEffect(() => {
+    if (open) {
+      setDate(dayjs());
+      setChartData([]);
+      setChartUnit(unit || "");
+    }
+  }, [open, meter?.meter_id, parameterName]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const isToday = date.isSame(dayjs(), "day");
+
+  const fetchData = useCallback(async () => {
+    if (!meter || !parameterName) return;
+    setLoading(true);
+    const records = await getData(
+      `/solardb/get-register-history/?meter_id=${meter.meter_id}` +
+      `&register_name=${encodeURIComponent(parameterName)}&date=${date.format("YYYY-MM-DD")}`
+    );
+    if (Array.isArray(records)) {
+      const rawUnit = records.find((r) => r.unit && r.unit !== "--")?.unit;
+      setChartUnit(seriesUnitLabel(parameterName, rawUnit) || unit || "");
+      setChartData(records.map((r) => ({
+        time:  typeof r.received_at === "string" ? r.received_at.substring(11, 16) : "--",
+        value: normalizeSeriesNumber(parameterName, typeof r.value === "number" ? r.value : null, rawUnit),
+      })));
+    }
+    setLoading(false);
+  }, [meter, parameterName, date, unit]);
+
+  useEffect(() => {
+    if (open) fetchData();
+  }, [open, fetchData]);
+
+  // Live update qua WebSocket khi đang xem ngày hôm nay
+  useEffect(() => {
+    if (!open || !isToday || !meter || !parameterName || loading) return;
+    const token = sessionStorage.getItem("token");
+    const ws = new WebSocket(`${WS_BASE}/ws/meter_register/${meter.meter_id}/?token=${token}`);
+    ws.onmessage = (e) => {
+      try {
+        const records = JSON.parse(e.data);
+        const match = records.find((r) => r.parameter_name === parameterName);
+        if (!match || match.value == null) return;
+        const time  = typeof match.timestamp === "string" ? match.timestamp.substring(11, 16) : "--";
+        const value = normalizeSeriesNumber(parameterName, typeof match.value === "number" ? match.value : null, match.unit);
+        if (match.unit && match.unit !== "--") setChartUnit((u) => u || seriesUnitLabel(parameterName, match.unit));
+        setChartData((prev) => {
+          const idx = prev.findIndex((pt) => pt.time === time);
+          if (idx >= 0) { const u = [...prev]; u[idx] = { time, value }; return u; }
+          return [...prev, { time, value }];
+        });
+      } catch { /* ignore malformed WS payloads */ }
+    };
+    return () => ws.close();
+  }, [open, isToday, meter, parameterName, loading]);
+
+  if (!meter) return null;
+
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="md"
+      fullWidth
+      PaperProps={{
+        sx: {
+          height: "70vh", display: "flex", flexDirection: "column",
+          backgroundColor: theme.palette.background.box || "#0d1b2a",
+          border: `1px solid ${divClr}`,
+          borderRadius: 2,
+          backgroundImage: "none",
+        },
+      }}
+    >
+      {/* Header */}
+      <Box sx={{
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        px: 2.5, py: 1.5, flexShrink: 0,
+        backgroundColor: headBg,
+        borderBottom: `1px solid ${divClr}`,
+      }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
+          <ShowChartIcon sx={{ color: "#42a5f5", fontSize: 20 }} />
+          <Box>
+            <Typography sx={{ color: accent, fontWeight: 700, fontSize: 15 }}>
+              {label}
+            </Typography>
+            <Typography sx={{ color: theme.palette.text.secondary, fontSize: 11 }}>
+              {meter.meter_name ?? `Meter ${meter.meter_id}`}
+            </Typography>
+          </Box>
+          {isToday && !loading && (
+            <Box sx={{
+              width: 8, height: 8, borderRadius: "50%", backgroundColor: "#4caf50",
+              "@keyframes pcdPulse": { "0%,100%": { opacity: 1 }, "50%": { opacity: 0.3 } },
+              animation: "pcdPulse 1.8s ease-in-out infinite",
+            }} />
+          )}
+        </Box>
+
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker value={date} onChange={(v) => v && setDate(v)} disableFuture
+              slotProps={{
+                textField: {
+                  size: "small", variant: "outlined",
+                  sx: { width: 140, "& .MuiInputBase-input": { fontSize: 13, py: "6px" } },
+                },
+              }}
+            />
+          </LocalizationProvider>
+          <IconButton onClick={onClose} size="small"
+            sx={{ color: theme.palette.text.secondary, "&:hover": { color: theme.palette.text.primary } }}>
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </Box>
+      </Box>
+
+      {/* Chart */}
+      <Box sx={{ flex: 1, minHeight: 0, p: 2 }}>
+        {loading ? (
+          <Box sx={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <CircularProgress size={32} />
+          </Box>
+        ) : chartData.length === 0 ? (
+          <Box sx={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Typography sx={{ color: theme.palette.text.secondary }}>
+              No data for {date.format("DD/MM/YYYY")}
+            </Typography>
+          </Box>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 4 }}>
+              <CartesianGrid stroke={divClr} strokeDasharray="3 3" />
+              <XAxis dataKey="time" tick={{ fontSize: 11, fill: theme.palette.text.secondary }} />
+              <YAxis width={chartUnit ? 60 : 44}
+                tick={{ fontSize: 11, fill: theme.palette.text.secondary }}
+                label={chartUnit ? {
+                  value: chartUnit, angle: -90, position: "insideLeft",
+                  style: { fill: theme.palette.text.secondary, fontSize: 11 },
+                } : undefined}
+              />
+              <RTooltip contentStyle={{
+                fontSize: 12, backgroundColor: theme.palette.background.paper,
+                border: `1px solid ${divClr}`,
+              }} />
+              <Line type="monotone" dataKey="value" name={label}
+                stroke="#42a5f5" dot={false} strokeWidth={2.2} />
+            </LineChart>
+          </ResponsiveContainer>
+        )}
+      </Box>
+    </Dialog>
+  );
+}
+
+
+// ── Sortable parameter row — kéo thả bằng handle riêng, ô còn lại vẫn click được ──
+function SortableParamRow({ row, bg, textClr, divClr, accent, onClick }) {
+  const draggable = !!row.paramKey;
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: row.paramKey || row.label, disabled: !draggable });
+
+  return (
+    <Box ref={setNodeRef} sx={{
+      transform: CSS.Transform.toString(transform), transition,
+      opacity: isDragging ? 0.5 : 1, zIndex: isDragging ? 999 : "auto",
+      position: "relative",
+      flex: 1, display: "flex", alignItems: "center", pl: 0.4, pr: 1.5,
+      backgroundColor: bg,
+      borderBottom: `1px solid ${divClr}`,
+    }}>
+      {/* Drag handle — vùng riêng để không đụng với click mở chart */}
+      <Box {...(draggable ? { ...attributes, ...listeners } : {})}
+        sx={{
+          display: "flex", alignItems: "center", justifyContent: "center",
+          width: 16, height: "100%", flexShrink: 0, mr: 0.3,
+          color: draggable ? "#546e7a" : "transparent",
+          cursor: draggable ? "grab" : "default",
+          "&:active": { cursor: draggable ? "grabbing" : "default" },
+          "&:hover": draggable ? { color: accent } : {},
+        }}>
+        {draggable && <DragIndicatorIcon sx={{ fontSize: 14 }} />}
+      </Box>
+
+      {/* Nội dung ô — click để mở biểu đồ */}
+      <Box onClick={onClick} sx={{
+        display: "flex", alignItems: "center", flex: 1, minWidth: 0, py: 0.9,
+        cursor: draggable ? "pointer" : "default",
+        transition: "background-color 0.15s",
+        ...(draggable ? { "&:hover": { backgroundColor: `${accent}18` } } : {}),
+      }}>
+        <Typography sx={{
+          color: textClr, fontSize: 11, flex: 1, minWidth: 0,
+          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+        }}>
+          {row.label}
+        </Typography>
+        <Typography sx={{
+          color: row.value === "--" ? "#37474f" : "#4caf50",
+          fontWeight: 700, fontSize: 12,
+          minWidth: 60, textAlign: "right", fontFamily: "monospace",
+        }}>
+          {row.value}
+        </Typography>
+        <Typography sx={{
+          color: "#546e7a", fontSize: 10,
+          minWidth: 36, textAlign: "right", ml: 0.5,
+        }}>
+          {row.unit}
+        </Typography>
+      </Box>
+    </Box>
+  );
+}
+
+
+function MeterCard({ meter, registers, cardParams, onDetail, onChart, onSettings, onDelete, onParamClick, onReorderParams }) {
   const theme    = useTheme();
   const online   = meter.status === "Online";
   const accent   = theme.palette.text.header_option      || "#08ffff";
@@ -949,26 +1254,45 @@ function MeterCard({ meter, registers, cardParams, onDetail, onChart, onSettings
   const rowEven  = theme.palette.table?.background_even  || "#0f1f2e";
   const textClr  = theme.palette.table?.text             || "#9cb4c5";
   const divClr   = theme.palette.divider                 || "#1f2d3a";
-  const GREEN    = "#4caf50";
 
   // Nếu user đã lưu config → dùng params đó; không thì fallback DISPLAY_CONFIG
+  // paramKey = tên register thực trong DB, dùng để gọi API lịch sử khi click vào ô
   const rows = cardParams && cardParams.length > 0
     ? cardParams.map((paramName) => {
         const reg = registers[paramName];
+        const fmt = reg ? fmtParam(paramName, reg.value, reg.unit) : { value: "--", unit: "--" };
         return {
           label: paramName.replace(/-/g, " "),
-          value: reg ? fmtVal(reg.value) : "--",
-          unit:  reg?.unit || "--",
+          value: fmt.value,
+          unit:  fmt.unit,
+          paramKey: paramName,
         };
       })
     : DISPLAY_CONFIG.map((cfg) => {
         const reg = findReg(registers, cfg.patterns);
+        const fmt = reg ? fmtParam(reg.parameter_name, reg.value, reg.unit) : { value: "--", unit: cfg.unit };
         return {
           label: cfg.label,
-          value: reg ? fmtVal(reg.value) : "--",
-          unit:  reg?.unit || cfg.unit,
+          value: fmt.value,
+          unit:  fmt.unit,
+          paramKey: reg?.parameter_name || null,
         };
       });
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
+
+  const handleDragEnd = ({ active, over }) => {
+    if (!over || active.id === over.id) return;
+    const ids = rows.map((r) => r.paramKey || r.label);
+    const oldIndex = ids.indexOf(active.id);
+    const newIndex = ids.indexOf(over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+    // Chỉ lưu các ô có paramKey thật (register hợp lệ) — bỏ qua ô rỗng "--"
+    const newOrder = arrayMove(rows, oldIndex, newIndex)
+      .map((r) => r.paramKey)
+      .filter(Boolean);
+    onReorderParams?.(newOrder);
+  };
 
   return (
     <Box sx={{
@@ -1012,37 +1336,24 @@ function MeterCard({ meter, registers, cardParams, onDetail, onChart, onSettings
         </Box>
       </Box>
 
-      {/* Rows — giãn đều theo chiều cao card */}
-      <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        {rows.map((row, i) => (
-          <Box key={row.label} sx={{
-            flex: 1,
-            display: "flex", alignItems: "center", px: 1.5,
-            backgroundColor: i % 2 === 0 ? rowOdd : rowEven,
-            borderBottom: `1px solid ${divClr}`,
-          }}>
-            <Typography sx={{
-              color: textClr, fontSize: 11, flex: 1, minWidth: 0,
-              overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-            }}>
-              {row.label}
-            </Typography>
-            <Typography sx={{
-              color: row.value === "--" ? "#37474f" : GREEN,
-              fontWeight: 700, fontSize: 12,
-              minWidth: 60, textAlign: "right", fontFamily: "monospace",
-            }}>
-              {row.value}
-            </Typography>
-            <Typography sx={{
-              color: "#546e7a", fontSize: 10,
-              minWidth: 36, textAlign: "right", ml: 0.5,
-            }}>
-              {row.unit}
-            </Typography>
+      {/* Rows — giãn đều theo chiều cao card, kéo thả để sắp xếp lại */}
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={rows.map((r) => r.paramKey || r.label)} strategy={verticalListSortingStrategy}>
+          <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
+            {rows.map((row, i) => (
+              <SortableParamRow
+                key={row.paramKey || row.label}
+                row={row}
+                bg={i % 2 === 0 ? rowOdd : rowEven}
+                textClr={textClr}
+                divClr={divClr}
+                accent={accent}
+                onClick={() => row.paramKey && onParamClick?.(row)}
+              />
+            ))}
           </Box>
-        ))}
-      </Box>
+        </SortableContext>
+      </DndContext>
 
       {/* Buttons */}
       <Box sx={{
@@ -1240,6 +1551,7 @@ function SiteDetailScreen({ siteId, onBack }) {
   const [meterRegs,     setMeterRegs]     = useState({});
   const [summary,       setSummary]       = useState(null);
   const [detailMeter,   setDetailMeter]   = useState(null);
+  const [chartParam,    setChartParam]    = useState(null); // { meter, paramKey, label, unit } đang xem chart
   const [cardConfigs,   setCardConfigs]   = useState({});   // { [meter_id]: string[] }
   const [configMeter,   setConfigMeter]   = useState(null); // meter đang mở dialog settings
   const [deletingMeter, setDeletingMeter] = useState(null);
@@ -1329,6 +1641,13 @@ function SiteDetailScreen({ siteId, onBack }) {
   // Callback sau khi user lưu config từ dialog
   const handleSaveConfig = useCallback((meterId, params) => {
     setCardConfigs((prev) => ({ ...prev, [meterId]: params }));
+  }, []);
+
+  // Callback sau khi user kéo thả sắp xếp lại thứ tự tham số trên card
+  // Lưu ngay xuống backend (per user × per meter) để lần sau mở lại vẫn giữ nguyên thứ tự
+  const handleReorderParams = useCallback((meterId, newOrder) => {
+    setCardConfigs((prev) => ({ ...prev, [meterId]: newOrder }));
+    postData(`/solardb/card-config/${meterId}/save/`, { params: newOrder });
   }, []);
 
   // Xác nhận xóa meter
@@ -1602,6 +1921,8 @@ function SiteDetailScreen({ siteId, onBack }) {
                 onChart={() => navigate(`/devicelist?siteId=${siteId}`)}
                 onSettings={() => setConfigMeter(meter)}
                 onDelete={() => setDeletingMeter(meter)}
+                onParamClick={(row) => setChartParam({ meter, ...row })}
+                onReorderParams={(newOrder) => handleReorderParams(meter.meter_id, newOrder)}
               />
             ))
           )}
@@ -1614,6 +1935,16 @@ function SiteDetailScreen({ siteId, onBack }) {
         onClose={() => setDetailMeter(null)}
         meter={detailMeter}
         registers={detailMeter ? (meterRegs[detailMeter.meter_id] ?? {}) : {}}
+      />
+
+      {/* ── Parameter Chart Dialog ── */}
+      <ParameterChartDialog
+        open={!!chartParam}
+        onClose={() => setChartParam(null)}
+        meter={chartParam?.meter}
+        parameterName={chartParam?.paramKey}
+        label={chartParam?.label}
+        unit={chartParam?.unit}
       />
 
       {/* ── Card Config Dialog ── */}

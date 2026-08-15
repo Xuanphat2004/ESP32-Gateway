@@ -11,12 +11,14 @@ import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import LogoutIcon from "@mui/icons-material/Logout";
+import PersonIcon from "@mui/icons-material/Person";
 import { Button, Tooltip } from "@mui/material";
 import { useThemeMode } from "../themeContex";
 import { Outlet, useNavigate } from "react-router-dom";
 import { MyOption, OptionAbout } from "./option";
 import NotificationBell from "../NotificationBell";
 import AxiosInstance from "../Axios";
+import { useAuth } from "../Auth/AuthContext";
 
 const drawerWidth = 300;
 
@@ -74,6 +76,7 @@ export default function PersistentDrawerLeft() {
   const [open, setOpen] = React.useState(false);
   const { mode, toggleMode } = useThemeMode();
   const navigate = useNavigate();
+  const { me, refreshMe, isImpersonating, exitImpersonation } = useAuth();
 
   const handleDrawerOpen  = () => setOpen(true);
   const handleDrawerClose = () => setOpen(false);
@@ -85,7 +88,13 @@ export default function PersistentDrawerLeft() {
       // token đã hết hạn hoặc lỗi mạng — vẫn xóa local và redirect
     }
     sessionStorage.removeItem("token");
+    await refreshMe(); // reset "me" về null — tránh giữ trạng thái staff cũ khi đăng nhập lại user khác
     navigate("/login");
+  };
+
+  const handleExitImpersonation = async () => {
+    await exitImpersonation();
+    navigate("/admin/users");
   };
 
   return (
@@ -124,8 +133,35 @@ export default function PersistentDrawerLeft() {
             CENTRAL MONITORING DASHBOARD
           </Typography>
 
+          {/* Banner "đang xem hộ" — chỉ hiện khi admin đang impersonate 1 user khác */}
+          {isImpersonating && (
+            <Box sx={{
+              display: "flex", alignItems: "center", gap: 1, mr: 2,
+              px: 1.5, py: 0.5, borderRadius: 1,
+              backgroundColor: "#ff9800", color: "#000",
+            }}>
+              <Typography sx={{ fontSize: 12, fontWeight: 700 }}>
+                Viewing as {me?.username}
+              </Typography>
+              <Button size="small" onClick={handleExitImpersonation}
+                sx={{ color: "#000", fontWeight: 700, minWidth: 0, textDecoration: "underline" }}>
+                Exit
+              </Button>
+            </Box>
+          )}
+
           {/* Chuông thông báo — logic nằm trong src/NotificationBell.jsx */}
           <NotificationBell />
+
+          {/* Tên đăng nhập + quyền — vd "admin - Admin" hoặc "xuanphat1234 - User" */}
+          {me && (
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mx: 1.5, color: theme.palette.text.header_option }}>
+              <PersonIcon sx={{ fontSize: 20 }} />
+              <Typography sx={{ fontSize: 13, fontWeight: 600, whiteSpace: "nowrap" }}>
+                {me.username} - {me.is_staff ? "Admin" : "User"}
+              </Typography>
+            </Box>
+          )}
 
           {/* Nút đổi theme */}
           <Button
@@ -228,6 +264,11 @@ export default function PersistentDrawerLeft() {
           { to: "/budgetisolutioninput",  label: "Budget Isolution Input" },
           { to: "/budgetgridinjectinput", label: "Budget Grid-Inject Input" },
         ]} />
+        {me?.is_staff && (
+          <MyOption title="Administration" items={[
+            { to: "/admin/users", label: "User Management" },
+          ]} />
+        )}
         <OptionAbout />
       </Drawer>
 

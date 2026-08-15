@@ -38,13 +38,11 @@ urlpatterns = router.urls + [
     path('solardb/get-register-history/', meter.get_register_history, name='get-register-history'),
     # Chi tiết thiết bị của 1 lần scan — gọi khi bấm vào dòng trong bảng lịch sử
     path('solardb/get-scan-devices/<int:scan_id>/', scan.get_scan_devices, name='get-scan-devices'),
-    # THÊM: API biểu đồ năng lượng tiêu thụ (giờ/tuần/tháng/năm)
     path('solardb/energy-chart/', energy.energy_chart, name='energy-chart'),
-    # THÊM: xuất báo cáo năng lượng ra Excel
     path('solardb/energy-export/', energy.energy_export, name='energy-export'),
-    # Cấu hình tham số hiển thị trên MeterCard (per user × per meter)
     path('solardb/card-config/<int:meter_id>/', get_card_config,  name='get-card-config'),
     path('solardb/card-config/<int:meter_id>/save/', save_card_config, name='save-card-config'),
     path('solardb/dashboard-config/',       get_dashboard_config,  name='get-dashboard-config'),
     path('solardb/dashboard-config/save/',  save_dashboard_config, name='save-dashboard-config'),
+    path('solardb/admin/get-user-sites/<int:user_id>/', site.get_user_sites_admin, name='admin-get-user-sites'),
 ]

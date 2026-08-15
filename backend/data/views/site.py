@@ -4,7 +4,7 @@ from django.db.models import Q
 from data.models import Site
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
 
 # ================================================
@@ -206,3 +206,26 @@ def delete_site(request, site_id):
 
     site.delete()
     return JsonResponse({'message': 'Successful to delete this site'}, status=200)
+
+
+# ================================================
+# [ADMIN] SITE/METER CỦA 1 USER BẤT KỲ — chỉ xem, dùng cho trang quản trị user
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAdminUser])
+def get_user_sites_admin(request, user_id):
+    from data.models import Meter
+    from django.contrib.auth.models import User
+
+    if not User.objects.filter(id=user_id).exists():
+        return JsonResponse({'error': 'User not found'}, status=404)
+
+    sites = Site.objects.filter(user_id=user_id)
+    result = [{
+        "site_id": s.site_id,
+        "site_name": s.site_name,
+        "location": s.location,
+        "gateway_id": s.gateway_id,
+        "meter_count": Meter.objects.filter(site_id=s).count(),
+    } for s in sites]
+    return JsonResponse(result, safe=False)

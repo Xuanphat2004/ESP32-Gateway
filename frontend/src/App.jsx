@@ -48,14 +48,18 @@ import AlarmConfig from "./OptionComponents/AlarmConfig";
 import About from "./OptionComponents/About";
 import Login from "./Auth/Login";
 import PrivateRoute from "./Auth/PrivateRoute";
+import StaffRoute from "./Auth/StaffRoute";
 import Signup from "./Auth/Signup";
 import { useEffect } from "react"; // đảm bảo bạn đã import
 
 import BudgetProductionInput from "./OptionComponents/BudgetProductionInput";
 import BudgetGridInjectInput from "./OptionComponents/BudgetGridInjectInput";
 import BudgetIsolutionInput   from "./OptionComponents/BudgetIsolutionInput";
+import AdminUsers from "./OptionComponents/AdminUsers";
 
 import { ThemeModeProvider } from "./themeContex";
+import { AuthProvider } from "./Auth/AuthContext";
+import AdminViewGate from "./Auth/AdminViewGate";
 
 function App() {
     useEffect(() => {
@@ -71,6 +75,7 @@ function App() {
   }, []);
   return (
     <ThemeModeProvider>
+      <AuthProvider>
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup/>}/>
@@ -85,24 +90,25 @@ function App() {
           }
         >
           {/*Khi người dùng nhập một URL có đường dẫn tương đối là /fleetview, React Router sẽ render (hiển thị) component có tên là FleetView vào giao diện người dùng (UI).*/}
-          <Route path="fleetview"   element={<FleetView />} /> 
-          <Route path="sitelist"    element={<SiteList />} />
-          <Route path="leaderboard" element={<LeaderBoard />} />
+          {/* Các trang có dữ liệu thật theo user → bọc AdminViewGate: admin sẽ thấy danh sách chọn user thay vì trang trống */}
+          <Route path="fleetview"   element={<AdminViewGate><FleetView /></AdminViewGate>} />
+          <Route path="sitelist"    element={<AdminViewGate><SiteList /></AdminViewGate>} />
+          <Route path="leaderboard" element={<AdminViewGate><LeaderBoard /></AdminViewGate>} />
 
-          <Route path="/siteview/20" element={<SiteView />} />
-          <Route path="/siteview/"   element={<SiteView />} />
-          <Route path="/devicelist/" element={<DeviceList />} />
-          <Route path="/sitekpi"     element={<SiteKPI />} />
+          <Route path="/siteview/20" element={<AdminViewGate><SiteView /></AdminViewGate>} />
+          <Route path="/siteview/"   element={<AdminViewGate><SiteView /></AdminViewGate>} />
+          <Route path="/devicelist/" element={<AdminViewGate><DeviceList /></AdminViewGate>} />
+          <Route path="/sitekpi"     element={<AdminViewGate><SiteKPI /></AdminViewGate>} />
 
           <Route path="/activealarm" element={<ActiveAlarm />} />
-          <Route path="/alarmsnooze" element={<AlarmSnooze />} />
+          <Route path="/alarmsnooze" element={<AdminViewGate><AlarmSnooze /></AdminViewGate>} />
           <Route path="/alarmlog"    element={<AlarmLog />} />
           <Route path="/alarmconfig" element={<AlarmConfig />} />
           <Route path="/alarmsubscription" element={<AlarmSubscription />} />
 
           <Route path="/topologyanalysis" element={<Topology />} />
           <Route path="/availability"     element={<Availability />} />
-          <Route path="/chartingtool"     element={<ChartingTool />} />
+          <Route path="/chartingtool"     element={<AdminViewGate><ChartingTool /></AdminViewGate>} />
 
           <Route path="/sitereport"       element={<SiteReport />} />
           <Route path="/devicereport"     element={<DeviceReport />} />
@@ -117,8 +123,11 @@ function App() {
 
           <Route path ="/about" element = {<About />} />
 
+          <Route path="/admin/users" element={<StaffRoute><AdminUsers /></StaffRoute>} />
+
         </Route>
       </Routes>
+      </AuthProvider>
     </ThemeModeProvider>
   );
 }
